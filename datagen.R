@@ -20,7 +20,6 @@ library("mlr")
 #
 create.linear.data <- function(n, p, q = exp(-1), beta0 = 1, rho = 0, error = 1) {
   cormat <- sapply(seq_len(p), function(x) rho ^ abs(x - seq_len(p)))
-  print(cormat)
   X <- mvrnorm(n, rep(0, p), cormat)
   X <- X[, sample(p)]
 
@@ -37,7 +36,7 @@ create.linear.data <- function(n, p, q = exp(-1), beta0 = 1, rho = 0, error = 1)
 # returns list (task, beta)
 create.linear.regr.task <- function(id, ...) {
   data <- create.linear.data(...)
-  list(task = makeRegrTask(id, cbind(X = data$X, Y = data$Y), target = "Y"),
+  list(task = makeRegrTask(id, data.frame(X = data$X, Y = data$Y), target = "Y"),
     beta = data$beta)
 }
 
@@ -45,7 +44,7 @@ create.linear.regr.task <- function(id, ...) {
 # Task has a binary target depending on whether Y is less or greater than [cutoff]
 create.linear.classif.task <- function(id, cutoff = 0, ...) {
   data <- create.linear.data(...)
-  list(task = makeClassifTask(id, cbind(X = data$X, Y = ifelse(data$Y < cutoff, "-", "+")), target = "Y", positive = "+"),
+  list(task = makeClassifTask(id, data.frame(X = data$X, Y = ifelse(data$Y < cutoff, "-", "+")), target = "Y", positive = "+"),
     beta = data$beta, Y = data$Y)
 }
 
