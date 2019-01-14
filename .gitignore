@@ -1,0 +1,11 @@
+.Rproj.user
+.Rhistory
+.RData
+*xgboost.model
+.#*
+*~
+\#*#
+*.swp
+.project
+.ipynb_checkpoints
+
