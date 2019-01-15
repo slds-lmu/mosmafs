@@ -3,7 +3,7 @@ library("MASS")
 library("mlr")
 
 # create linear model data Y = X * beta + \epsilon
-# with X = shuffle_columns(X') and
+# with X = X' if [permute] == FALSE, and X = shuffle_columns(X') if [permute] == TRUE
 # X' an [n] * [p] matrix of MVN rows with covariance matrix
 #
 # 1     rho rho^2 rho^3 ... rho^p
@@ -13,18 +13,22 @@ library("mlr")
 # rho^p ...
 #
 # \epsilon normally distributed with stdev 1.
-# beta = shuffle(beta') and
+# beta = shuffle(beta') if [permute] == TRUE and beta = beta' otherwise
 # and beta'[i] = beta0 * q ^ (i - 1) for i = 1..p
 #
 # Returns a list (X=[Matrix], Y=[vector], beta = [vector])
 #
-create.linear.data <- function(n, p, q = exp(-1), beta0 = 1, rho = 0) {
+create.linear.data <- function(n, p, q = exp(-1), beta0 = 1, rho = 0, permute = TRUE) {
   cormat <- sapply(seq_len(p), function(x) rho ^ abs(x - seq_len(p)))
   X <- mvrnorm(n, rep(0, p), cormat)
-  X <- X[, sample(p)]
+  if (permute) {
+    X <- X[, sample(p)]
+  }
 
   beta <- beta0 * q ^ seq(0, p - 1)
-  beta <- sample(beta)
+  if (permute) {
+    beta <- sample(beta)
+  }
 
   epsilon <- rnorm(n)
 
