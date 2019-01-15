@@ -16,7 +16,9 @@ library("mlr")
 # beta = shuffle(beta') if [permute] == TRUE and beta = beta' otherwise
 # and beta'[i] = beta0 * q ^ (i - 1) for i = 1..p
 #
-# Returns a list (X=[Matrix], Y=[vector], beta = [vector])
+# "orig.features" are the features with beta > 1 / sqrt(n)
+#
+# Returns a list (X=[Matrix], Y=[vector], beta = [vector], orig.features = logical)
 #
 create.linear.data <- function(n, p, q = exp(-1), beta0 = 1, rho = 0, permute = TRUE) {
   cormat <- sapply(seq_len(p), function(x) rho ^ abs(x - seq_len(p)))
@@ -34,18 +36,18 @@ create.linear.data <- function(n, p, q = exp(-1), beta0 = 1, rho = 0, permute = 
 
   Y <- X %*% beta + epsilon
 
-  list(X = X, Y = Y, beta = beta)
+  list(X = X, Y = Y, beta = beta, orig.features = beta > 1 / sqrt(n))
 }
 
 # Creates matrix X and vector Y:
 # sample [dim] columns of data from [dist] (which must be a function
 # `n -> vector length (n)` and should probably sample randomly to create X.
 # Y[i] is +1 if the L_`norm`-norm of X[i, ] is < 1, and -1 otherwise.
-# Returns list(X = [Matrix], Y = [vector]
+# Returns list(X = [Matrix], Y = [vector], orig.features = logical)
 create.hypersphere.data <- function(dim, n, dist = function(x) runif(x, -1, 1), norm = 2) {
   X = replicate(dim, dist(n))
   Y = sign(1 - apply(X, 1, function(x) sum(x^norm))^(1/norm))
-  list(X = X, Y = Y)
+  list(X = X, Y = Y, orig.features = rep(TRUE, n))
 }
 
 # data must have $X and $Y
@@ -61,8 +63,8 @@ create.classif.task <- function(id, data, cutoff = 0) {
 
 # create new task identical to the old one, but with 'newdata' instead
 # of old data.
-clonetask <- function(task, newdata, newid) {
-  rettask = switch(getTaskType(task),
+clonetask <- function(task, newdata, newid, orig.features) {
+  rettask <- switch(getTaskType(task),
     classif = {
       makeClassifTask(newid, newdata,
         getTaskTargetNames(task),
@@ -73,6 +75,13 @@ clonetask <- function(task, newdata, newid) {
         getTaskTargetNames(task))
     },
     stop("Unknown task type."))
+  # chain orig.features
+  if (!is.null(task$orig.features)) {
+    stopifnot(sum(orig.features) == length(task$orig.features))
+    orig.features[orig.features] = task$orig.features
+  }
+  rettask$orig.features = orig.features
+  rettask
 }
 
 # adds [num] new features sampled from [dist] to [task].
@@ -99,9 +108,7 @@ task.add.random.cols <- function(task, num, dist = rnorm) {
   newdata <- cbind(newdata, target)
   newid <- paste0(getTaskId(task), ".withrandom")
 
-  rettask <- clonetask(task, newdata, newid)
-  rettask$orig.features <- orig.features
-  rettask
+  clonetask(task, newdata, newid, orig.features)
 }
 
 # adds [num] copies of the task with permuted rows.
@@ -125,7 +132,5 @@ task.add.permuted.cols <- function(task, num) {
   newdata <- do.call(cbind, c(newdata, target))
 
   newid <- paste0(getTaskId(task), ".withperm")
-  rettask <- clonetask(task, newdata, newid)
-  rettask$orig.features <- orig.features
-  rettask
+  clonetask(task, newdata, newid, orig.features)
 }
