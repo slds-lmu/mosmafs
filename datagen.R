@@ -55,6 +55,21 @@ create.classif.task <- function(id, data, cutoff = 0) {
   makeClassifTask(id, data.frame(X = data$X, Y = ifelse(data$Y < cutoff, "-", "+")), target = "Y", positive = "+")
 }
 
+# create new task identical to the old one, but with 'newdata' instead
+# of old data.
+clonetask <- function(task, newdata, newid) {
+  rettask = switch(getTaskType(task),
+    classif = {
+      makeClassifTask(newid, newdata,
+        getTaskTargetNames(task),
+        positive = getTaskDesc(task)$positive)
+    },
+    regr = {
+      makeRegrTask(newid, newdata,
+        getTaskTargetNames(task))
+    },
+    stop("Unknown task type."))
+}
 
 # adds [num] new features sampled from [dist] to [task].
 # New features are inserted at random positions in the task
@@ -64,6 +79,9 @@ create.classif.task <- function(id, data, cutoff = 0) {
 # is a logical vector indicating the features that were originally
 # in the task.
 task.add.random.cols <- function(task, num, dist = rnorm) {
+
+  # use 'task$env$data' instead of 'getTaskData' because we want
+  # the target column(s) as a data.frame
   data <- task$env$data
   target <- data[getTaskTargetNames(task)]
   data[getTaskTargetNames(task)] <- NULL
@@ -77,17 +95,33 @@ task.add.random.cols <- function(task, num, dist = rnorm) {
   newdata <- cbind(newdata, target)
   newid <- paste0(getTaskId(task), ".withrandom")
 
-  rettask = switch(getTaskType(task),
-    classif = {
-      makeClassifTask(newid, newdata,
-        getTaskTargetNames(task),
-        positive = getTaskDesc(task)$positive)
-    },
-    regr = {
-      makeRegrTask(newid, newdata,
-        getTaskTargetNames(task))
-    },
-    stop("Unknown task type."))
+  rettask <- clonetask(task, newdata, newid)
+  rettask$orig.features <- orig.features
+  rettask
+}
+
+# adds [num] copies of the task with permuted rows.
+# The feature names of the 'i'th permuted copy have 'PERM.i.' prepended to them.
+# The returned task has a new member `$orig.features` which is a logical vector
+# indicating the features that were originally in the task.
+task.add.permuted.cols <- function(task, num) {
+  data <- task$env$data
+  target <- data[getTaskTargetNames(task)]
+  data[getTaskTargetNames(task)] <- NULL
+
+  perm <- paste0("PERM.", seq_len(num))
+  perm <- append(perm, "", sample(num + 1, 1) - 1)
+
+  orig.features = rep(perm == "", each = ncol(data))
+  newdata <- sapply(perm, function(instname) {
+    if (instname == "") return(data)
+    data[sample(nrow(data)), ]
+  }, simplify = FALSE)
+
+  newdata <- do.call(cbind, c(newdata, target))
+
+  newid <- paste0(getTaskId(task), ".withperm")
+  rettask <- clonetask(task, newdata, newid)
   rettask$orig.features <- orig.features
   rettask
 }
