@@ -27,8 +27,29 @@ resample("classif.randomForest", task, cv10)
 
 # ------ experimenting with glmnet
 library("glmnet")
+library("parallel")
+library("BBmisc")
 
 cvmodel <- cv.glmnet(ldata$X, ldata$Y)
+
+
+besties <- order(-ldata$beta)
+perfs <- mclapply(seq_along(besties), function(selectfeats) {
+  subdata <- ldata
+  subdata$X <- subdata$X[, besties[seq_len(selectfeats)]]
+  subtask <- create.classif.task("sublinear", subdata)
+  replicate(10, resample("classif.logreg", subtask, cv10))
+}, mc.cores = 4)
+
+save(perfs, ldata, file = "ldata_and_logreg_performances.Rsv")
+
+lapply(perfs, function(perf) {
+  mean(extractSubList(perf, "aggr"))
+})
+
+
+
+
 
 plot(cvmodel)
 
