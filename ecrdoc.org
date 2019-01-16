@@ -1,0 +1,234 @@
+#+OPTIONS: ^:nil
+* GA Control Flow
+** Full Optimization
+  - <<<ecr>>>(fitness.fun, minimize [TRUE if not given or in fitnes.fun], n.objectives, n.dim, lower, upper, n.bits, representation {"binary", "float", "permutation", "custom"}, mu, lambda, perm, p.recomb = 0.7, p.mut = 0.3, survival.strategy = {"plus", "comma"}, n.elite = 0, custom.constants = list(), log.stats = list(fitness = list("min", "mean", "max")), log.pop = FALSE, monitor, initial.solution, parent.selector, survival.selector, mutator, recombinator, terminators = list(stopOnIters(100))) ::
+    performs whole optimization. Params:
+    - =fitness.fun= may contain =n.objectives=, =minimize=, =n.dim=, =lower=, =upper=
+    - =mu=, =lambda=: generation settings
+    - =mutator=, =recombinator=, =survival.selector=, =parent.selector=: choose operators
+    - Dimension dependent on =representation=:
+      - "binary" :: =n.bits=
+      - "float" :: =n.dim= [ =lower=, =upper= ]
+      - "permutation" :: =perm=
+      - "custom" :: =initial.solution=
+    - =survival.strategy= selects replaceMuPlusLambda / replaceMuCommaLambda
+      - =n.elite= for "comma"
+    - =p.recomb=, =p.mut= for generateOffspring
+    - =custom.constants= is not used.
+    - =log.stats=, =log.pop= for logging; =monitor= probably as well, but not used.
+    - =parent.selector=, =survival.selector=, =mutator=, =recombinator=, =terminators=: operators
+    Flow:
+    - initECRControl()
+    - registerECROperator $\circ$ getDefaultEvolutionaryOperators
+    - initLogger()
+    - initPopulation()
+      - [using [[generator operators][generator operators]]]
+    - Loop:
+      - generateOffspring
+	- [calls recombinate (or skips this, but getMatingPool still gets called)]
+	  - [calls getMatingPool]
+	    - [calls selectForMating]
+	      - [calls *$selectForMating* slot [[selection operators][selection operators]]]
+	  - [calls *$recombine* slot [[crossover operators][crossover operators]]]
+	- [calls mutate]
+	  - [calls *$mutate* slot [[mutation operators][mutation operators]]]
+      - evaluateFitness
+	- [evaluates the task's *$fitness.fun*]
+      - replaceMuPlusLambda / replaceMuCommaLambda
+	- [calls selectForSurvival]
+	  - [calls *$selectForSurvival* slot [[selection operators][selection operators]]]
+    - updateLogger
+    Returns <<<ecr_result>>> (<<<ecr_multi_objective_result>>> or <<<ecr_single_objective_result>>>)
+    - $task
+    - $best.x *single objective*
+    - $best.y *single objective*
+    - pareto.idx: index into last.population of pareto front *multi objective*
+    - pareto.front: matrix of objective values for pareto.set
+    - pareto.set: just population[pareto.idx]
+    - log: logger object
+    - last.population
+    - last.fitness *single objective*
+    - message
+  - <<<nsga2>>>(fitness.fun, n.objectives, n.dim, minimize, lower, uppwer, mu = 100, lambda, mutator = mutPolynomial(eta = 25, p = 0.2, lower = lower, upper = upper), recombinator = recSBX(eta = 15, p = 0.7, lower = lower, upper = upper), terminators = list(stopOnIters(100))) ::
+    performs NSGA-II EMOA algorithm: calls ecr() with representation = "float", survival.strategy = "plus", parent.selector = selSimple, survival.selector = selNondom
+  - <<<smsemoa>>>(fitness.fun, n.objectives, n.dim, minimize, lower, upper, mu = 100, ref.point [numeric, defaults to rep(11, n.objectives), wtf!], mutator = mutPolynomial(eta = 25, p = 0.2, lower = lower, upper = upper), recombinator = recSBX(eta = 15, p = 0.7, lower = lower, upper = upper), terminators = list(stopOnIters(100))) ::
+    performs SMS-EMOA algorithm: calls ecr() with lambda = 1, representation = "float", survival.strategy = "plus", parent.selector = selSimple, survival.selector = selDomHV(ref.point)
+  - <<<asemoa>>>(fitness.fun, n.objectives, minimize, n.dim, lower, upper, mu = 10, aspiration.set, normalize.fun, dist.fun [function(x), default euclidean], p = 1, parent.selector = selSimple, mutator = mutPolynomial(eta = 25, p = 0.2, lower = lower, upper = upper), recombinator = recSBX(eta = 15, p = 0.7, lower = lower, upper = upper), terminators = list(stopOnIters(100))) :: 
+    "Aspiration set evolutionary multi-objective algorithm"
+    - =aspiration.set= is a matrix of aspiration points
+    - =normalize.fun= a function(set, aspiration.set) ->
+    - defines **fastASEMOASelector**: 
+    calls ecr() with representation = "float", lambda = 1, initial.solution a set of nondominated uniformly sampled individuals, and survival.selector the "fastASEMOASelector".
+
+** Init functions
+  - <<<initECRControl>>>(fitness.fun [function], n.objectives [int(1)], minimize [lgl, default TRUE]) ::
+    inits *<<<ecr_control>>>* object.
+    - $task: ecr_optimization_task
+    - $[slot]: function, added by registerECROperator. Special slots:
+      - mutate :: [[mutation operators][mutation operators]]
+      - recombine :: [[crossover operators][crossover operators]]
+      - selectForSurvival :: [[selection operators][selection operators]]
+      - selectForMating :: [[selection operators][selection operators]]
+    - $[slot].pars: list, added by registerECROperator
+  - <<<makeOptimizationTask>>>(fun [function], n.objectives [int(1)], minimize [lgl, default TRUE], objective.names [chr]) ::
+    inits **<<<ecr_optimization_task>>>**.
+    - $fitness.fun: must return a vector of =n.objectives= length
+    - $n.objectives
+    - $minimize
+    - $objective.names
+    - $par.set [initialized from =fun= if it has one, otherwise 'CharacterParam']
+  - <<<registerECROperator>>>(control [ecr_control], slot [chr(1)], fun , ...) ::
+    adds [slot] and [slot].pars to `control`.
+  - <<<initLogger>>>(control, log.stats [named list], log.extras, log.pop [logical(1)], init.size = 1000) ::
+    creates <<<ecr_logger>>> [[logger][logger]] which mainly contains:
+    - $env :: an environment with a data.frame $stats which gets the type  <<<ecr_statistics>>>
+      - =best.x=, =best.y= *single objective*
+    - $log.stats :: named list of functions to apply. name can be "fitness" or something names an attribute of individuals
+  - <<<initPopulation>>>(mu [integer(1)], gen.fun [[[generator operators][[generator operators]]], initial.solutions = NULL) :: 
+    fill up to =mu= with =initial.solutions= and then =gen.fun=.
+  - <<<initParetoArchive>>>(control, max.size = Inf, trunc.fun = NULL [function(archive, inds, fitness, ...)]) :: 
+    A [[Pareto Archive][Pareto Archive]] is a collection of pareto fronts of class <<<ecr_pareto_archive>>> with one member $env which has members:
+    - $task
+    - $size
+    - $max.size
+    - $trunc.fun: function(archive, inds, fitness) -> named list(individuals, fitness)
+    - $minimize
+    - $fitness [matrix]
+    - $individuals [list]
+** Individual Action
+ These have all a =control= [ecr_control] ecr and (exept replaceMuPlusLambda / *CommaLambda) an =inds= [list] parameter.
+  - <<<evaluateFitness>>>(...) :: 
+    =lapply= control's $fitness.fun, return **<<<ecr_fitness_matrix>>>** of the result. This is a matrix with an additional
+    "minimize" tag (from the ecr_optimization_task)
+  - <<<generateOffspring>>>(fitness, lambda, p.recomb = 0.7, p.mut = 0.1) ::
+    Subsumes both:
+    - <<<mutate>>>(p.mut = 0.1, slot = "mutate", ...) ::
+      applies the =slot= function in =control= to individuals w/ probability =p.mut=.
+    - <<<recombinate>>>(fitness, lambda = length(inds), p.recomb = 0.7, slot = "recombine", ...) ::
+      uses selectForMating(=fitness=), generates =lambda= children from them by recombinating w/ prob =p.recomb=
+  - <<<replaceMuPlusLambda>>>, <<<replaceMuCommaLambda>>> (population, offspring, fitness, fitness.offspring, n.elite) ::
+    selects =lengt(population)= individuals from the combined pool.
+    - fitness, fitness.offspring: [matrix] that are optional if elements in population/offspring lists have attribute "fitness"
+    - n.elite (default =ceiling(length(population) * 0.1)=): number of elite in replaceMuCommaLambda to keep.
+  - <<<selectForSurvival>>>(fitness, n.select), <<<selectForMating>>>(fitness, n.select) ::
+    call the ecr_selector function of the control slot with the appropriate name
+* Operators
+ - <<<makeOperator>>>(operator [function], supported {"permutation", "float", "binary", "custom"}) ::
+   creates <<<ecr_operator>>> object which is a function with =supported= attribute
+ - <<<isEcrOperator>>>(obj) :: check whether an object is an ecr_operator.
+ - <<<getSupportedRepresentations>>>(operator) :: returns =supported= archive of ecr_operator
+ - <<<is.supported(operator, representation [character(1)]) :: get whether =representation= is supported by =operator=.
+ - <<<setup>>>(operator, ...) :: currying: turns setup(operator, a, b) turns =opperator(x, a, b)= into =operator'(x)=
+** mutation operators
+  - <<<makeMutator>>>(mutator, supported) ::
+    <<<ecr_mutator>>>: subclass of ecr_operator
+ These all have parameter 'ind': individuum / vector to mutate. evaluateFitness
+  - <<<mutBitflip>>>(p = 0.1) :: mutate binary w/ probability =p=
+  - <<<mutGauss>>>(p = 1, sdev = .05, lower, upper) :: mutate each w/ probability p:
+    add rnorm(sd = sdev), truncate at lower / upper
+  - <<<mutInsertion>>>() :: moves random component to a different position without swapping
+  - <<<mutInversion>>>() :: reverse region between random indices
+  - <<<mutPolynomial>>>(p = 0.2, eta = 10, lower, upper) :: mutate each w/ probability p:
+    add //something random polynomial//
+  - <<<mutScramble>>>() :: shuffles region between random indices
+  - <<<mutSwap>>>() :: swaps random two components
+  - <<<mutUniform>>>(lower, upper) :: replaces random element with uniformly distributed value
+** selection operators
+  - <<<makeSelector>>>(selector, supported, supported.objectives {"single-objective", "multi-objective"}, supported.opt.direction {"minimize", "maximize", or c() of both}) ::
+    <<<ecr_selector>>>, an ecr_operator with additional attributes =supported.objectives=, =supported.opt.direction=
+ These all have parameter 'fitness': [dim] x [n indiv] matrix, n.select: number of inds to select.
+  - <<<selDomHV>>>(ref.point) :: drops individual from last paretofront with minimal hypervolume contribution. This ignores n.select! **minimizes**
+  - <<<selGreedy>>>() :: select best n.select individuals. **minimizes**, **1-dim**
+  - <<<selNondom>>>() :: nondominated sorting + crowding distance to select subset of individuals. used in NSGA-II EMOA **minimizes**
+  - <<<selRoulette>>>(offset = 0.1) :: fitness-proportional selection, with minimum set to `offset`. **maximizes**, **1-dim**
+  - <<<selSimple>>>() :: random sampling
+  - <<<selTournament>>>(k) :: select best individuals from random subsets of size `k`. **minimizes**, **1-dim**
+** generator operators
+ Except =gen=, these have parameters (n, n.dim).
+  - gen(expr, n) :: generate individuals by expression (this is =replicate(simplify = FALSE)=);
+  - <<<genBin>>>() :: initialize random binary vector individuals
+  - <<<genPerm>>>() :: initialize random permutation of 1:n individuals
+  - <<<genReal>>>(lower, upper) :: uniform random reals between lower and upper
+** crossover operators
+  - makeRecombinator(recombinator, supported, n.parents [probably does not work with values != 1 or 2], n.children = 1) ::
+    <<<ecr_recombinator>>>, an ecr_operator with additional attributes =n.parents=, =n.children=
+ These all have =inds=: list of exactly two vectors representing parents
+  - <<<recCrossover>>>() :: chromosomal crossover at random point, returns two children
+  - <<<recIntermediate>>>() :: component-wise mean of parents. can possibly have more than two parents.
+  - <<<recOX>>>() :: for permutations. randomly selects two cut points, keeps subsquence cut1:cut2 of one parent, fills remaining points with sequence =cut2:(cut2 + LENGTH) MOD length= of the other parent and removes duplicates.
+  - <<<recPMX>>>() :: for permutations. randomly selects two cut points, keeps subsequence cut1:cut2 of one parent, fills remaining points with other parent's values, except where this would produce duplicates. The would-be duplicates are instead filled with the values at the corresponding positions from the second parent (recursively, if this still gives duplicates).
+  - <<<recSBX>>>(eta = 5, p = 1, lower, upper) :: "simulated binary crossover", whatever that means. For continuous vectors.
+  - <<<recUnifCrossover>>>(p = 0.5) :: swap components with componentwise probability =p=
+** terminator operators
+ Have class <<<ecr_terminator>>>: function with argument 'log' and attributes =name= and =message=. 
+  - makeTerminator(condition.fun, name, message) :: general creator
+  - stopOnIters(max.iters) :: name "IterLimit"
+  - stopOnEvlas(max.evals) :: name "FunctionEvaluationsLimit"
+** EMOA
+ Have class <<<ecr_emoa_indicator>>>: function with argument 'points', 'ref.points', and attribute =lates_name=
+  - emoaIndEps() :: ???
+  - emoaIndHV(ref.point) :: ???
+  - emoaIndR{1,2,3}(ideal.point, nadir.point, lambda, utility {"weightedsum", "tschebycheff", "augmented tschbycheff" (sic)}) :: ???
+* helper functions
+ - <<<doNondominatedSorting>>>(x [matrix]) ::
+   sort into nondominated fronts.
+   - x "dominates" y if it is *smaller* in all dimensions.
+   - x: each **column** contains one point
+   - return list(ranks, dom.counter)
+ - <<<approximateNadirPoint>>>(..., sets = NULL), <<<approximateIdealPoint>>>(..., sets = NULL) ::
+   for each set (given in ... or sets), calculate dimensionwise max (Nadir) or min (Ideal) point.
+ - <<<wrapChildren>>>(...) :: turns returns =list(...)= tagged with "multiple"
+ - <<<getDefaultEvolutionaryOperators>>>(representation, type, n.objectives, control) ::
+   - =control= :: not used
+   - =n.objectives= :: only used to choose between getSingleObjectiveDefaults() and getMultiObjectiveDefaults().
+   - =representation= :: "float", "binary", "permutation", "custom"
+   - =type= :: what function to get
+     - "mutator" :: mutGauss, mutBitflip, or mutSwap
+     - "recombinator" :: recIntermediate, recCrossover, recPMX
+     - "survival.selector" :: selGreedy in single-o, selNondom in multi-o
+     - "parent.selector" :: selTournament in single-o, selSimple in multi-o
+** Computation	  
+  - <<<computeHV>>>(x, ref.point = NULL), <<<computeHVContr>>>(x, ref.point = NULL, offset = 1) ::
+    dominated hypervolume w.r.t. reference point.
+    - if ref.point is NULL, the dimension-wise maximum is used
+    - 'offset' is added to the computed ref.point if it is given as NULL for *Contr
+  - <<<computeCrowdingDistance>>>(x [matrix) ::
+    compute "crowding distance": dimension-wise sum of distance to both neighbouring points (in that dimension)
+  - <<<computeGenerationalDistance>>>, <<<computeInvertedGenerationalDistance>>>(A [matrix], B [matrix], p = 1, normalize = FALSE, dist.fun = [function(x), default euclidean distance, is ignored]) ::
+    Compute "generational distance" betwen =A= and =B=. computeInverted* does the same as computeGenerational*, with =A= and =B= swapped.
+    - if =normalize= is TRUE, =A= is scaled to have same dimension-wise mins / maxes as =B=
+    - for each in =A=, calculate minimal distance to any in =B=
+    - calculate exponent-=p= mean of the vector of these minimal distances.
+  - <<<computeDistanceFromPointToSetOfPoints>>>(a, B, dist.fun [function(x), euclidean by default]) ::
+    calculates minimum distance from =a= to any point in =B=
+  - <<<computeAverageHausdorffDistance>>>(A, B, p = 1, normalize, dist.fun [function(x), euclidean by default]) ::
+    max of computeGenerationalDistance and computeInvertedGenerationalDistance (i.e. generational distance with both matrices swapped)
+** domination
+  - dominated(x), nondominated(x), which.dominated(x), which.nondominated(x)
+  - isMaximallyDominated(x)
+  - dominates(x, y), isDominated(y, x), %dominates%, %isDominatedBy%
+  - setDominates(x, y): whether all y are dominated by at least one x
+** logger
+ See also initLogger.
+  - <<<updateLogger>>>(log, population [list], fitness [matrix], n.evals [integer(1)], extras) ::
+    - updates log
+  - <<<toGG>>>(x, strop.stats [character]) :: convert logger to ggplot2-friendly data.frame
+  - <<<getStatistics>>>(log, trim = TRUE) :: get $stats slot of log's $env, trims unused rows by default.
+  - <<<getPopulations>>>(log, trim = TRUE) :: get the $pop slot of the log's $env, trim unused rows by default.
+  - <<<getParetoFront>>>(x) :: get the fitness values. can also be applied to ecr_multi_objective_result.
+** Pareto Archive
+ See also initParetoArchive.
+  - <<<updateParetoArchive>>>(archive, inds [list], fitness [matrix], ...) ::
+    - adds points to =archive= and then reduces them to the nondominated individuals.
+    - Possibly calls archive$trunc.fun if size oferflows.
+  - <<<getSize>>>(x) :: number of stored individuals in pareto archive.
+  - <<<getIndividuals>>>(x) :: get the $individuals slot of the archive's $env slot
+** Plotting
+  - <<<plotFront>>>(x, obj.names [character], minimize> [logical]) :: plot scatterplot of a front
+  - <<<plotStatistics>>>(x [ecr_statistics | ecr_logger], drop.stats [character]) :: plot from a [[logger][logger]]
+* Orphaned
+ - makeECRMonitor
+ - setupECRDefaultMonitor
+ - normalizeFront
+
+- asemoa
