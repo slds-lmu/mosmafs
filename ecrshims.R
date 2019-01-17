@@ -24,40 +24,74 @@ library("checkmate")
 # an additional argument 'lower', 'upper'.
 #
 # use the ecr::setup function to set parameters for operators ("currying")
-combine.operator(param.set, ..., .binary.discrete.as.logical = TRUE) {
+combine.operators(param.set, ..., .binary.discrete.as.logical = TRUE) {
 
-  typenames <- c("numeric", "logical", "integer", "discrete")
+  args <- list(...)
+  assertList(args, names = "unique", any.missing = FALSE, .var.name = "...")
+  assertFlag(.binary.discrete.as.logical)
+
+  typenames <- c("numeric", "logical", "integer", "discrete")  # supported types
   param.ids <- getParamIds(param.set)
 
+  operatorclasses <- c("ecr_recombinator", "ecr_mutator")
+
+  if (hasRequires(param.set)) stop("Parameters with requirements not currently supported.")
+
+  groupdefidx = grep("^\\.params\\.", names(args))
+  groups <- args[groupdefidx]
+  args[groupdefidx] <- NULL
+  names(groups) <- gsub("^\\.params\\.", "", names(groups))
+
+  # at this point *groups* should be a named list of character vectors, and
+  # *args* should be a named list of 'ecr_operator' functions
+
+  namedparams <- setdiff(c(unlist(groups), names(args)), typenames)  # params named in groups or explicitly
+  unnamed <- param.ids %nin% namedparams                             # params not named (should be accessible by type)
+  typeargnames <- intersect(names(args), typenames)                  # types for which operators are  given explicitly or in a group
+  paramtypes <- gsub("vector$", "", getParamTypes(param.set))        # parameter types
+  if (.binary.discrete.as.logical) {                                 #   [possibly adapted to treat binary categories as logical]
+    is.discrete.binary = vnapply(extractSubList(param.set$pars, "values"), length) == 2
+    paramtypes[paramtypes == "discrete" & is.discrete.binary] = "logical"
+  }
+  names(paramtypes) <- param.ids
+  requiredtypegroupnames <- unique(paramtypes[unnamed])              # types of parameters that have no explicit operators given
+
+  whichop <- lapply(args, function(x) {
+    intersect(class(x), operatorclasses)
+  })
+  whichop <- Reduce(intersect, whichop)                              # operator class of all args
+
+
+  # ------------------------------------------------------------------------- #
+  # input sanity checks                                                       #
+  # ------------------------------------------------------------------------- #
+
+  #   - param.ids must not have special type names
   nameclash <- intersect(typenames, param.ids)
   if (length(nameclash)) {
     stopf("Parameter(s) %s have nameclash with special type names", collapse(nameclash))
   }
 
-  args <- list(...)
+  #   - types present in par.set must be supported
+  assertSubset(paramtypes, typenames, .var.name = "types of parameters in param.set")
 
-  assertList(args, names = "unique", any.missing = FALSE)
-
-  groupdefidx = grep("^\\.params\\.", names(args))
-
-  groups <- args[groupdefidx]
-  args[groupdefidx] <- NULL
-  names(groups) <- gsub("^\\.params\\.", "", names(groups))
-
+  #   - group names must not overlap with param names
   nameclash <- intersect(names(groups), c(param.ids, typenames))
   if (length(nameclash)) {
     stopf("Group(s) %s have nameclash with param.set or type names", collapse(nameclash))
   }
 
+  #   - all groups must have a corresponding operator
   groupsnotfound <- setdiff(names(groups), names(args))
   if (length(groupsnotfound)) {
     stopf("Group(s) %s defined but without operator", collapse(groupsnotfound))
   }
 
+  #   - groups must be character vectors with no duplicates
   assertList(groups, types = "character", any.missing = FALSE, names = "unique")
   lapply(groups, assertCharacter, min.chars = 1, any.missing = FALSE, unique = TRUE, .var.name = "Group Definitions")
-  assertList(args, types = "ecr_operator", any.missing = FALSE, names = "unique")
 
+  #   - all group elements must be parameter IDs
   for (g in names(groups)) {
     nopar <- setdiff(groups[[g]], param.ids)
     if (length(nopar)) {
@@ -65,33 +99,184 @@ combine.operator(param.set, ..., .binary.discrete.as.logical = TRUE) {
     }
   }
 
+  #  - parameters in all groups must only be of one type each
+  for (g in names(groups)) {
+    partype <- unique(paramtypes[groups[[g]]])
+    if (length(partype) != 1) {
+      stopf("Group %s contains parameters of differing types %s.", g, collapse(partype))
+    }
+  }
+
+  #   - arguments that are not a group must name a parameter ID or special type
   nopar <- setdiff(names(args), c(param.ids, typenames))
   if (length(nopar)) {
     stopf("Argument(s) %s neither a special type nor a parameter name.", collapse(nopar))
   }
 
+  #   - parameters must not have duplicate operator assignments (through groups or explicit arguments)
   dups <- c(unlist(groups), names(args))
   dups <- dups[duplicated(dups)]
   if (length(dups)) {
     stopf("Parameter(s) %s with more than one assigned operator", collapse(dups))
   }
 
-  namedparams <- setdiff(c(unlist(groups), names(args)), typenames)
+  #  - all parameters must have at least one assigned operator
+  uncovered <- param.ids[unnamed & paramtypes %nin% typeargnames]
+  if (length(uncovered)) {
+    stopf("Parameter(s) %s have neither an explicit operator given, nor are they in a group or a fallback type.",
+      collapse(uncovered))
+  }
 
-  paramtypes <- gsub("vector$", "", getParamTypes(param.set))
-  assertSubset(paramtypes, typenames)
+  #   - operators must be of type 'ecr_operator'
+  assertList(args, types = "ecr_operator", min.len = 1, any.missing = FALSE, names = "unique", .var.name = "list of operator arguments")
 
-  unnamed <- param.ids %nin% namedparams
-  typegroupnames <- unique(paramtypes[unnamed])
+  #   - operator subclass must be one of the possible operatorclasses
+  if (!length(whichop)) {
+    stopf("All operators given must have at least one of the types %s in common.", collapse(operatorclasses))
+  }
 
-  unusedtypes <- setdiff(intersect(names(args), typenames), typegroupnames)
+  #   - make sure operators agree in number of parents / children
+  if ("ecr_recombinator" %in% whichop) {
+    if (length(unique(vnapply(args, ecr:::getNumberOfChildren)))) {
+      stop("Recombinator operators have differing number of children.")
+    }
+    if (length(unique(vnapply(args, ecr:::getNumberOfParentsNeededForMating)))) {
+      stop("Recombinator operators need differing number of parents.")
+    }
+  }
+
+  #   - TODO: this may change later, if necessary
+  if (length(whichop) != 1) {
+    stop("Only one type of operator currently supported")
+  }
+
+  #  - warn if an operator is given for a type that does not occur or
+  #    if all parameters of that type have overriding definitions
+  unusedtypes <- setdiff(, requiredtypegroupnames)
   if (length(unusedtypes)) {
-    warningf("Function defined for type(s) %s, but no parameters of that type present or uncovered by other group/function.",
+    warningf("Function defined for type(s) %s, but no parameters of that type present or non-covered by other group/function.",
       collapse(unusedtypes))
   }
 
+  # ------------------------------------------------------------------------- #
+  # Collect parameters into groups                                            #
+  # ------------------------------------------------------------------------- #
 
+  typegroups <- sapply(requiredtypegroupnames, function(type) {
+    param.ids[paramtypes == type & unnamed]
+  }, simplify = FALSE)
+
+  singletongroups <- sapply(setdiff(names(args), names(groups)), identity, simplify = FALSE)
+
+  allgroups <- c(groups, typegroups, singletongroups)
+  operators <- args[names(allgroups)]  # this drops operators for types that are not needed
+  paramsets <- lapply(allgroups, function(content) {
+    ps <- param.set
+    ps$pars <- ps$pars[content]
+    ps
+  })
+
+  unify.operators(param.set, operators, paramsets, whichop, paramtypes)
 }
+
+# at this point we have
+# - orig.param.set: original paramset, used to preserve order
+# - operators: named list of operators to use for that group
+# - paramsets: named list of paramsets for each group
+# - optype: nonempty subset of all possible operator types (currently ecr_recombinator, ecr_mutator)
+#   [ this is currently limited to length 1 ]
+# - paramtypes: named character 'param name' -> 'effective type' ('effective' in the sense that a binary discrete can be a logical)
+unify.operators <- function(orig.param.set, operators, paramsets, optype, paramtypes) {
+  assertChoice(optype, c("ecr_recombinator", "ecr_mutator"))
+  param.ids = getParamIds(orig.param.set)
+  group.param.ids = lapply(paramsets, getParamIds)
+  group.truetypes = lapply(paramsets, function(x) gsub("vector$", "", getParamTypes(x)))
+  group.effectivetypes = vcapply(group.param.ids, function(x) unique(paramtypes[x]))
+  group.param.lengths = lapply(paramsets, getParamLengths)
+  group.param.startidx = lapply(group.param.lengths, cumsum)
+
+  # input: list of parameter values
+  # returns: list of simple vectors to feed to operators
+  input.breakdown <- function(input) {
+    assertSetEqual(names(input), param.ids)
+    mapply(paramsets, group.param.ids, group.effectivetypes, group.truetypes, SIMPLIFY = FALSE,
+      FUN = function(curps, groupmembers, type, truetypes) {
+        curvals <- mapply(input[groupmembers], curps$pars, truetypes, SIMPLIFY = FALSE,
+          FUN = function(curval, par, truet) {
+            if (type == "logical" && truet == "discrete") {
+              curval <- curval == names(par$values)[2]
+            }
+            if (isScalarNA(curval)) {
+              curval <- rep(curval, par$len)
+            }
+            names(curval) <- par$cnames
+            curval
+          })
+        do.call(base::c, curval)
+      })
+  }
+
+  # output: list of vectors that came out of operators
+  # returns: list of parameter values as seen from outside.
+  output.buildup <- function(output.list) {
+    splitup <- mapply(output.list, paramsets, group.effectivetypes, group.truetypes,
+      group.param.lengths, group.param.startidx, SIMPLIFY = FALSE,
+      FUN = function(curval, curps, type, truetypes, parlen, paridx) {
+        mapply(curps$pars, truetypes, parlen, paridx, SIMPLIFY = FALSE,
+          FUN = function(par, truet, len, idx) {
+            listelt <- curval[idx - 1 + seq_len(len)]
+            if (type == "logical" && truet == "discrete") {
+              listelt <- names(par$values)[listelt + 1]
+            }
+            if (all(is.na(listelt))) {
+              listelt <- listelt[1]
+            }
+            names(listelt) <- par$cnames
+            listelt
+          })
+      })
+    splitup <- unlist(splitup, recursive = FALSE, use.names = FALSE)
+    assertSetEqual(splitup, param.ids)
+    splitup <- splitup[param.ids]
+  }
+
+  switch(otype,
+    ecr_mutator = makeMutator(supported = "custom", function(input) {
+      input.list <- input.breakdown(input)
+      output.list <- mapply(operators, input.list, FUN = function(x, y) x(y), SIMPLIFY = FALSE)
+      output.buildup(output.list)
+    }),
+    ecr_recombinator = makeRecombinator(supported = "custom",
+      n.parents = ecr:::getNumberOfParentsNeededForMating(operators[[1]]),
+      n.children = ecr:::getNumberOfChildren(operators[[1]]),
+      function(input) {
+        input.lists <- lapply(input, input.breakdown)
+        output.lists.t <- do.call(mapply, c(list(FUN = function(op, ...) {
+          val <- op(list(...))
+          if (!isTRUE(attr(val, "multiple"))) {
+            val <- list(val)
+          }
+          val
+        }, SIMPLIFY = FALSE, operators), input.lists))
+        output.lists <- do.call(mapply, c(list(FUN = function(...) {
+          output.buildup(list(...))
+        }, SIMPLIFY = FALSE), output.lists.t))
+        wrapChildren(output.lists)
+      }),
+    stop("This should never happen."))
+}
+
+
+##   switch(optype,
+##     ecr_mutator = function(x) makeMutator(x, supported = "custom"),
+##     ecr_recombinator = function(x) makeRecombinator(x, supported = "custom",
+##       n.parents = ecr:::getNumberOfParentsNeededForMating(operators[[1]]),
+##       n.children = ecr:::getNumberOfChildren(operators[[1]])),
+##     stop("This should never happen.")
+##   )(function(input) {
+##     if
+##   })
+## }
 
 discretize.params <- function(param.set, param.vals) {
 
