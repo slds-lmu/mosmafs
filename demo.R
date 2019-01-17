@@ -71,7 +71,7 @@ initials <- sampleValues(ps, MU, discrete.names = TRUE)
 parallelStartMulticore()
 
 results <- nsga2(fitness.fun = fitness.fun, n.objectives = 2, minimize = TRUE,
-  mu = MU, lambda = 32,
+  mu = MU, lambda = LAMBDA,
   mutator = mutator, recombinator = crossover,
   representation = "custom",
   initial.solutions = initials,
