@@ -85,9 +85,99 @@ selorder[1:20]
 
 # devtools::install_github("jakobbossek/ecr2")
 
-library("ecr")
+source("ecrshims.R")
+library("testthat")
 
-library("mlrCPO")
+param.set.numeric = pSS(a: numeric[1, 3]^2, b: numeric[0, 1])
+param.set.integer = pSS(ai: integer[1, 3]^2, bi: integer[0, 1])
+param.set.logical = pSS(al: logical^2, bl: logical)
+param.set.logical.extended = pSS(ale: logical^2, ble: logical, cle: discrete[l="m", n=10], dle: discrete[a=exp, b=identity]^2)
+param.set.discrete = pSS(cd: discrete[l="m", n=10, o=NULL], d: discrete[a=exp, b=identity, c=`[`]^2)
+fullps <- c(param.set.numeric, param.set.integer, param.set.logical.extended, param.set.discrete)
+
+expect_error(combine.operators(param.set.numeric, .params.x = c("a", "b"), x = mutGauss, x = mutGauss), "uniquely named")
+expect_error(combine.operators(pSS(logical: logical), logical = mutBitflip), "nameclash with special type names")
+expect_error(combine.operators(pSS(x: character), x = mutBitflip), "types of parameters in param.set.*subset")
+expect_error(combine.operators(param.set.numeric, .params.x = c("a", "b")), " x defined but without operator")
+expect_error(combine.operators(param.set.numeric, .params.x = c("a", "b", "b"), x = mutGauss), "Group Definitions.*duplicate")
+expect_error(combine.operators(param.set.numeric, .params.x = c("a", "b", "c"), x = mutGauss), " x contains.* c that are not")
+expect_error(combine.operators(c(param.set.numeric, param.set.integer), .params.x = c("a", "b", "ai"), x = mutGauss, ai = mutGauss),
+  " x contains parameters of differing types numeric,integer")
+expect_error(combine.operators(param.set.numeric, .params.x = c("a", "b"), x = mutGauss, y = mutGauss),
+  " y neither a special type nor a parameter name")
+expect_error(combine.operators(param.set.numeric, .params.x = c("a", "b"), x = mutGauss, b = mutGauss),
+  " b with more than one assigned operator")
+expect_error(combine.operators(param.set.numeric), " a,b have neither an explicit operator given")
+expect_error(combine.operators(param.set.numeric, .params.x = c("a", "b"), x = identity),
+  "list of operator arguments.*ecr_operator")
+expect_error(combine.operators(param.set.numeric, a = mutGauss, b = recSBX),
+  "operators given must have at least one of the types ecr_")
+expect_error(combine.operators(param.set.numeric, a = recIntermediate, b = recSBX),
+  "differing number of children")
+expect_error(combine.operators(param.set.numeric, a = recIntermediate,
+  b = makeRecombinator(identity, supported = "custom", n.parents = 3, n.children = 1)),
+  "differing number of parents")
+specrec <- makeRecombinator(identity, supported = "custom", n.parents = 2, n.children = 1)
+class(specrec) <- c(class(specrec), "ecr_mutator")
+expect_error(combine.operators(param.set.numeric, .params.x = c("a", "b"), x = specrec),
+  "Only one type of operator")
+expect_warning(combine.operators(param.set.numeric, .params.x = c("a", "b"), x = recSBX, numeric = recPMX),
+  " numeric, but no parameters of that type present")
+
+expect_error(combop <- combine.operators(param.set.logical, al = mutGauss, bl = mutBitflip),
+  " al must have only .* but has parameters ind,lower,upper")
+
+combop <- combine.operators(param.set.numeric, a = recSBX, b = recOX)
+expect_class(combop, "ecr_operator")
+expect_class(combop, "ecr_recombinator")
+expect_equal(ecr:::getNumberOfChildren.ecr_recombinator(combop), 2)
+expect_equal(ecr:::getNumberOfParentsNeededForMating.ecr_recombinator(combop), 2)
+
+combop <- combine.operators(param.set.numeric, a = recIntermediate, b = recIntermediate)
+expect_class(combop, "ecr_operator")
+expect_class(combop, "ecr_recombinator")
+expect_equal(ecr:::getNumberOfChildren.ecr_recombinator(combop), 1)
+expect_equal(ecr:::getNumberOfParentsNeededForMating.ecr_recombinator(combop), 2)
+
+combop <- combine.operators(param.set.numeric, a = mutGauss, b = mutScramble)
+expect_class(combop, "ecr_operator")
+expect_class(combop, "ecr_mutator")
+
+mkdb <- function(isrec) {
+  dbfun <- function(x, lower = 0, upper = 0, values = "", extra = 0) {
+    catf("x: %s\nlower: %s\nupper: %s\nvalues: %s\nextra: %s", collapse(x), collapse(lower), collapse(upper), collapse(values), extra)
+    if (isrec) do.call(wrapChildren, x) else x
+  }
+}
+debugrec <- makeRecombinator(mkdb(TRUE), "custom", n.parents = 2, n.children = 2)
+debugmut <- makeMutator(mkdb(FALSE), "custom")
+
+op <- combine.operators(param.set.numeric, a = ecr::setup(debugrec, extra = 1), b = ecr::setup(debugrec, extra = 2))
+op(sampleValues(param.set.numeric, 2, discrete.names = TRUE))
+
+op <- combine.operators(param.set.numeric, numeric = ecr::setup(debugrec, extra = 1))
+op(sampleValues(param.set.numeric, 2, discrete.names = TRUE))
+
+
+op <- combine.operators(fullps,
+  numeric = ecr::setup(debugrec, extra = "numeric"),
+  logical = ecr::setup(debugrec, extra = "logical"),
+  integer = ecr::setup(debugrec, extra = "integer"),
+  discrete = ecr::setup(debugrec, extra = "discrete"))
+
+op(sampleValues(fullps, 2, discrete.names = TRUE))[[1]]
+
+op <- combine.operators(fullps,
+  numeric = ecr::setup(debugmut, extra = "numeric"),
+  logical = ecr::setup(debugmut, extra = "logical"),
+  integer = ecr::setup(debugmut, extra = "integer"),
+  discrete = ecr::setup(debugmut, extra = "discrete"))
+
+op(sampleValue(fullps, discrete.names = TRUE))
+
+
+
+op(sampleValue(param.set.numeric, discrete.names = TRUE))
 
 
 
@@ -115,11 +205,6 @@ sampleValues(param.set, 4)[[1]]
 getParamIds(filterParams(param.set, type = "numeric"))
 
 
-param.set.numeric = pSS(a: numeric[1, 3]^2, b: numeric[0, 1])
-param.set.integer = pSS(a: integer[1, 3]^2, b: integer[0, 1])
-param.set.logical = pSS(a: logical^2, b: logical)
-param.set.logical.extended = pSS(a: logical^2, b: logical, c: discrete[l="m", n=10], d: discrete[a=exp, b=identity]^2)
-param.set.discrete = pSS(c: discrete[l="m", n=10], d: discrete[a=exp, b=identity]^2)
 
 
 
@@ -133,6 +218,16 @@ inlists <- list(
     list(a=1, b=list(123, 456), c=letters[1:3]),
     list(a=10, b=list(3, 6), c=letters[4:6]))
 
-do.call(mapply, c(list(FUN = base::list, SIMPLIFY = FALSE), inlists))
+do.call(mapply, c(list(FUN = base::list, SIMPLIFY = FALSE), inlists))$b
+
 
 mapply
+purrr::transpose(inlists)$b
+
+# ----------------------------
+
+source("selectorcpo.R")
+
+head(iris %>>% cpoSelector(c(TRUE, TRUE, FALSE, FALSE, TRUE)))
+head(getTaskData(iris.task %>>% cpoSelector(c(TRUE, TRUE, FALSE, FALSE))))
+

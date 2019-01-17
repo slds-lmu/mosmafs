@@ -1,7 +1,6 @@
 
 
 
-library("mlrCPO")
 library("ecr")
 library("checkmate")
 
@@ -20,17 +19,18 @@ library("checkmate")
 # If .binary.discrete.as.logical is TRUE, then binary discrete params are handled as logical params.
 #
 # operators for logical parameters must have only one argument. operators for discreten parameters
-# must have an additional argument 'values', operators for continuous parameters must have
+# must have an additional argument 'values', operators for continuous or integer parameters must have
 # an additional argument 'lower', 'upper'.
 #
 # use the ecr::setup function to set parameters for operators ("currying")
-combine.operators(param.set, ..., .binary.discrete.as.logical = TRUE) {
+combine.operators <- function(param.set, ..., .binary.discrete.as.logical = TRUE) {
 
   args <- list(...)
   assertList(args, names = "unique", any.missing = FALSE, .var.name = "...")
   assertFlag(.binary.discrete.as.logical)
 
   typenames <- c("numeric", "logical", "integer", "discrete")  # supported types
+  required.opargs <- list(numeric = c("lower", "upper"), integer = c("lower", "upper"), discrete = "values", logical = character(0))
   param.ids <- getParamIds(param.set)
 
   operatorclasses <- c("ecr_recombinator", "ecr_mutator")
@@ -50,7 +50,7 @@ combine.operators(param.set, ..., .binary.discrete.as.logical = TRUE) {
   typeargnames <- intersect(names(args), typenames)                  # types for which operators are  given explicitly or in a group
   paramtypes <- gsub("vector$", "", getParamTypes(param.set))        # parameter types
   if (.binary.discrete.as.logical) {                                 #   [possibly adapted to treat binary categories as logical]
-    is.discrete.binary = vnapply(extractSubList(param.set$pars, "values"), length) == 2
+    is.discrete.binary = vnapply(extractSubList(param.set$pars, "values", simplify = FALSE), length) == 2
     paramtypes[paramtypes == "discrete" & is.discrete.binary] = "logical"
   }
   names(paramtypes) <- param.ids
@@ -108,7 +108,7 @@ combine.operators(param.set, ..., .binary.discrete.as.logical = TRUE) {
   }
 
   #   - arguments that are not a group must name a parameter ID or special type
-  nopar <- setdiff(names(args), c(param.ids, typenames))
+  nopar <- setdiff(names(args), c(names(groups), param.ids, typenames))
   if (length(nopar)) {
     stopf("Argument(s) %s neither a special type nor a parameter name.", collapse(nopar))
   }
@@ -137,26 +137,27 @@ combine.operators(param.set, ..., .binary.discrete.as.logical = TRUE) {
 
   #   - make sure operators agree in number of parents / children
   if ("ecr_recombinator" %in% whichop) {
-    if (length(unique(vnapply(args, ecr:::getNumberOfChildren)))) {
+    if (length(unique(vnapply(args, ecr:::getNumberOfChildren.ecr_recombinator))) != 1) {
       stop("Recombinator operators have differing number of children.")
     }
-    if (length(unique(vnapply(args, ecr:::getNumberOfParentsNeededForMating)))) {
+    if (length(unique(vnapply(args, ecr:::getNumberOfParentsNeededForMating.ecr_recombinator))) != 1) {
       stop("Recombinator operators need differing number of parents.")
     }
   }
 
-  #   - TODO: this may change later, if necessary
   if (length(whichop) != 1) {
     stop("Only one type of operator currently supported")
   }
 
   #  - warn if an operator is given for a type that does not occur or
   #    if all parameters of that type have overriding definitions
-  unusedtypes <- setdiff(, requiredtypegroupnames)
+  unusedtypes <- setdiff(typeargnames, requiredtypegroupnames)
   if (length(unusedtypes)) {
     warningf("Function defined for type(s) %s, but no parameters of that type present or non-covered by other group/function.",
       collapse(unusedtypes))
   }
+
+
 
   # ------------------------------------------------------------------------- #
   # Collect parameters into groups                                            #
@@ -166,7 +167,7 @@ combine.operators(param.set, ..., .binary.discrete.as.logical = TRUE) {
     param.ids[paramtypes == type & unnamed]
   }, simplify = FALSE)
 
-  singletongroups <- sapply(setdiff(names(args), names(groups)), identity, simplify = FALSE)
+  singletongroups <- sapply(setdiff(names(args), c(names(groups), typenames)), identity, simplify = FALSE)
 
   allgroups <- c(groups, typegroups, singletongroups)
   operators <- args[names(allgroups)]  # this drops operators for types that are not needed
@@ -175,25 +176,49 @@ combine.operators(param.set, ..., .binary.discrete.as.logical = TRUE) {
     ps$pars <- ps$pars[content]
     ps
   })
+  optypes <- vcapply(allgroups, function(content) unique(paramtypes[content]))
 
-  unify.operators(param.set, operators, paramsets, whichop, paramtypes)
+  # one last sanity check: operators need to have the specified parameters
+  # Note: we don't always need the lower / upper argument
+  mapply(optypes, operators, names(allgroups), SIMPLIFY = FALSE, FUN = function(type, op, opname) {
+    nondefaults <- names(Filter(function(x) identical(x, substitute()), formals(args(op))))
+    required <- required.opargs[[type]]
+    leftargs <- setdiff(nondefaults, c(required, "..."))
+    if (length(leftargs) > 1) {
+      stopf("Operator %s must have only 1 parameter%s, but has parameters %s",
+        opname, if (length(required)) sprintf(" (additionally to required parameters %s)", collapse(required)) else "",
+        collapse(leftargs))
+    }
+  })
+
+  unify.operators(param.set, operators, paramsets, optypes, whichop)
 }
 
 # at this point we have
 # - orig.param.set: original paramset, used to preserve order
 # - operators: named list of operators to use for that group
 # - paramsets: named list of paramsets for each group
-# - optype: nonempty subset of all possible operator types (currently ecr_recombinator, ecr_mutator)
-#   [ this is currently limited to length 1 ]
 # - paramtypes: named character 'param name' -> 'effective type' ('effective' in the sense that a binary discrete can be a logical)
-unify.operators <- function(orig.param.set, operators, paramsets, optype, paramtypes) {
+# - optype: character(1) operator type (currently one of "ecr_recombinator", "ecr_mutator")
+unify.operators <- function(orig.param.set, operators, paramsets, paramtypes, optype) {
   assertChoice(optype, c("ecr_recombinator", "ecr_mutator"))
-  param.ids = getParamIds(orig.param.set)
-  group.param.ids = lapply(paramsets, getParamIds)
-  group.truetypes = lapply(paramsets, function(x) gsub("vector$", "", getParamTypes(x)))
-  group.effectivetypes = vcapply(group.param.ids, function(x) unique(paramtypes[x]))
-  group.param.lengths = lapply(paramsets, getParamLengths)
-  group.param.startidx = lapply(group.param.lengths, cumsum)
+  param.ids <- getParamIds(orig.param.set)
+  group.param.ids <- lapply(paramsets, getParamIds)
+  group.truetypes <- lapply(paramsets, function(x) gsub("vector$", "", getParamTypes(x)))
+  group.effectivetypes <- paramtypes
+  group.param.lengths <- lapply(paramsets, getParamLengths)
+  group.param.startidx <- lapply(group.param.lengths, function(x) c(0, cumsum(x)[-length(x)]))
+
+
+
+  curried.operators <- mapply(operators, group.effectivetypes, paramsets, SIMPLIFY = FALSE, FUN = function(op, type, parset) {
+    switch(type,
+      logical = op,
+      discrete = ecr::setup(op, values = getValues(parset)),
+      numeric = ecr::setup(op, lower = getLower(parset), upper = getUpper(parset)),
+      integer = ecr::setup(op, lower = getLower(parset), upper = getUpper(parset))
+    )
+  })
 
   # input: list of parameter values
   # returns: list of simple vectors to feed to operators
@@ -203,8 +228,11 @@ unify.operators <- function(orig.param.set, operators, paramsets, optype, paramt
       FUN = function(curps, groupmembers, type, truetypes) {
         curvals <- mapply(input[groupmembers], curps$pars, truetypes, SIMPLIFY = FALSE,
           FUN = function(curval, par, truet) {
-            if (type == "logical" && truet == "discrete") {
-              curval <- curval == names(par$values)[2]
+            if (type == "logical") {
+              if (truet == "discrete") {
+                curval <- curval == names(par$values)[2]
+              }
+              curval <- as.numeric(curval)
             }
             if (isScalarNA(curval)) {
               curval <- rep(curval, par$len)
@@ -212,7 +240,7 @@ unify.operators <- function(orig.param.set, operators, paramsets, optype, paramt
             names(curval) <- par$cnames
             curval
           })
-        do.call(base::c, curval)
+        do.call(base::c, curvals)
       })
   }
 
@@ -220,13 +248,17 @@ unify.operators <- function(orig.param.set, operators, paramsets, optype, paramt
   # returns: list of parameter values as seen from outside.
   output.buildup <- function(output.list) {
     splitup <- mapply(output.list, paramsets, group.effectivetypes, group.truetypes,
-      group.param.lengths, group.param.startidx, SIMPLIFY = FALSE,
+      group.param.lengths, group.param.startidx, SIMPLIFY = FALSE, USE.NAMES = FALSE,
       FUN = function(curval, curps, type, truetypes, parlen, paridx) {
         mapply(curps$pars, truetypes, parlen, paridx, SIMPLIFY = FALSE,
           FUN = function(par, truet, len, idx) {
-            listelt <- curval[idx - 1 + seq_len(len)]
-            if (type == "logical" && truet == "discrete") {
-              listelt <- names(par$values)[listelt + 1]
+            listelt <- curval[idx + seq_len(len)]
+            if (type == "logical") {
+              if (truet == "discrete") {
+                listelt <- names(par$values)[listelt + 1]
+              } else {
+                listelt <- as.logical(listelt)
+              }
             }
             if (all(is.na(listelt))) {
               listelt <- listelt[1]
@@ -235,34 +267,39 @@ unify.operators <- function(orig.param.set, operators, paramsets, optype, paramt
             listelt
           })
       })
-    splitup <- unlist(splitup, recursive = FALSE, use.names = FALSE)
-    assertSetEqual(splitup, param.ids)
-    splitup <- splitup[param.ids]
+    splitup <- unlist(splitup, recursive = FALSE)
+    assertSetEqual(names(splitup), param.ids)
+    splitup[param.ids]
   }
 
-  switch(otype,
+  switch(optype,
     ecr_mutator = makeMutator(supported = "custom", function(input) {
       input.list <- input.breakdown(input)
-      output.list <- mapply(operators, input.list, FUN = function(x, y) x(y), SIMPLIFY = FALSE)
+      output.list <- mapply(curried.operators, input.list, FUN = function(x, y) x(y), SIMPLIFY = FALSE)
       output.buildup(output.list)
     }),
     ecr_recombinator = makeRecombinator(supported = "custom",
-      n.parents = ecr:::getNumberOfParentsNeededForMating(operators[[1]]),
-      n.children = ecr:::getNumberOfChildren(operators[[1]]),
+      n.parents = ecr:::getNumberOfParentsNeededForMating.ecr_recombinator(operators[[1]]),
+      n.children = ecr:::getNumberOfChildren.ecr_recombinator(operators[[1]]),
       function(input) {
         input.list <- transpose.list(lapply(input, input.breakdown))
-        output.list <- mapply(operators, input.list, SIMPLIFY = FALSE, FUN = function(x, y) {
+        output.list <- mapply(curried.operators, input.list, SIMPLIFY = FALSE, FUN = function(x, y) {
           val <- x(y)
           if (!isTRUE(attr(val, "multiple"))) {
             val <- list(val)
           }
           val
         })
-        wrapChildren(lapply(transpose.list(output.list), output.buildup))
+        do.call(wrapChildren, lapply(transpose.list(output.list), output.buildup))
       }),
     stop("This should never happen."))
 }
 
 transpose.list <- function(inlist) {
-  do.call(mapply, list(FUN = base::list, SIMPLIFY = FALSE), inlist)
+  do.call(mapply, c(list(FUN = base::list, SIMPLIFY = FALSE), inlist))
+}
+
+set.defaults = function(infun, ...) {
+  formals(infun) <- insert(formals(infun), list(...))
+  infun
 }
