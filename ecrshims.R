@@ -250,37 +250,19 @@ unify.operators <- function(orig.param.set, operators, paramsets, optype, paramt
       n.parents = ecr:::getNumberOfParentsNeededForMating(operators[[1]]),
       n.children = ecr:::getNumberOfChildren(operators[[1]]),
       function(input) {
-        input.lists <- lapply(input, input.breakdown)
-        output.lists.t <- do.call(mapply, c(list(FUN = function(op, ...) {
-          val <- op(list(...))
+        input.list <- transpose.list(lapply(input, input.breakdown))
+        output.list <- mapply(operators, input.list, SIMPLIFY = FALSE, FUN = function(x, y) {
+          val <- x(y)
           if (!isTRUE(attr(val, "multiple"))) {
             val <- list(val)
           }
           val
-        }, SIMPLIFY = FALSE, operators), input.lists))
-        output.lists <- do.call(mapply, c(list(FUN = function(...) {
-          output.buildup(list(...))
-        }, SIMPLIFY = FALSE), output.lists.t))
-        wrapChildren(output.lists)
+        })
+        wrapChildren(lapply(transpose.list(output.list), output.buildup))
       }),
     stop("This should never happen."))
 }
 
-
-##   switch(optype,
-##     ecr_mutator = function(x) makeMutator(x, supported = "custom"),
-##     ecr_recombinator = function(x) makeRecombinator(x, supported = "custom",
-##       n.parents = ecr:::getNumberOfParentsNeededForMating(operators[[1]]),
-##       n.children = ecr:::getNumberOfChildren(operators[[1]])),
-##     stop("This should never happen.")
-##   )(function(input) {
-##     if
-##   })
-## }
-
-discretize.params <- function(param.set, param.vals) {
-
-
+transpose.list <- function(inlist) {
+  do.call(mapply, list(FUN = base::list, SIMPLIFY = FALSE), inlist)
 }
-
-
