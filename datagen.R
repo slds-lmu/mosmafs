@@ -47,7 +47,7 @@ create.linear.data <- function(n, p, q = exp(-1), beta0 = 1, rho = 0, permute = 
 create.hypersphere.data <- function(dim, n, dist = function(x) runif(x, -1, 1), norm = 2) {
   X = replicate(dim, dist(n))
   Y = sign(1 - apply(X, 1, function(x) sum(x^norm))^(1/norm))
-  list(X = X, Y = Y, orig.features = rep(TRUE, n))
+  list(X = X, Y = Y, orig.features = rep(TRUE, dim))
 }
 
 # data must have $X and $Y
