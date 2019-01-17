@@ -89,3 +89,50 @@ library("ecr")
 
 library("mlrCPO")
 
+
+
+param.set = pSS(a: integer[1, 3]^2, b: logical, c: numeric[-1, 1], e: discrete[a=1, b=2]^2 [[requires=quote(c > 0)]])
+
+generateRandomDesign(par.set = param.set)
+samp <- sampleValues(param.set, 1, discrete.names = TRUE)
+
+samp <- sampleValues(param.set, 1, discrete.names = FALSE)
+samp
+
+samp
+
+dfRowToList(samp[[1]], param.set)
+
+extractSubList(param.set$pars, "cnames")
+
+getParamTypes(param.set)
+getValues(param.set)
+
+sampleValues(param.set, 4)[[1]]
+
+
+
+getParamIds(filterParams(param.set, type = "numeric"))
+
+
+param.set.numeric = pSS(a: numeric[1, 3]^2, b: numeric[0, 1])
+param.set.integer = pSS(a: integer[1, 3]^2, b: integer[0, 1])
+param.set.logical = pSS(a: logical^2, b: logical)
+param.set.logical.extended = pSS(a: logical^2, b: logical, c: discrete[l="m", n=10], d: discrete[a=exp, b=identity]^2)
+param.set.discrete = pSS(c: discrete[l="m", n=10], d: discrete[a=exp, b=identity]^2)
+
+
+
+
+sampleValue(param.set.discrete, discrete.names = TRUE)
+
+names(param.set.logical.extended$pars[[3]]$values)
+extractSubList(param.set.logical.extended$pars, "len")
+
+inlists <- list(
+    list(a=1, b=list(123, 456), c=letters[1:3]),
+    list(a=10, b=list(3, 6), c=letters[4:6]))
+
+do.call(mapply, c(list(FUN = base::list, SIMPLIFY = FALSE), inlists))
+
+mapply
