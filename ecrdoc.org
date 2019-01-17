@@ -56,8 +56,8 @@
   - <<<asemoa>>>(fitness.fun, n.objectives, minimize, n.dim, lower, upper, mu = 10, aspiration.set, normalize.fun, dist.fun [function(x), default euclidean], p = 1, parent.selector = selSimple, mutator = mutPolynomial(eta = 25, p = 0.2, lower = lower, upper = upper), recombinator = recSBX(eta = 15, p = 0.7, lower = lower, upper = upper), terminators = list(stopOnIters(100))) :: 
     "Aspiration set evolutionary multi-objective algorithm"
     - =aspiration.set= is a matrix of aspiration points
-    - =normalize.fun= a function(set, aspiration.set) ->
-    - defines **fastASEMOASelector**: 
+    - =normalize.fun= a function(fitnessmatrix, aspiration.set) -> fitnessmatrix
+    - defines **fastASEMOASelector**: drop point such that computeAverageHausdorffDistance of (=normalize.fun=-normalized) remaining set to aspirational set is minimized (tie-breaking by computeGenerationalDistance)
     calls ecr() with representation = "float", lambda = 1, initial.solution a set of nondominated uniformly sampled individuals, and survival.selector the "fastASEMOASelector".
 
 ** Init functions
@@ -230,5 +230,3 @@
  - makeECRMonitor
  - setupECRDefaultMonitor
  - normalizeFront
-
-- asemoa

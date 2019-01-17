@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2019-01-16 Wed 16:27 -->
+<!-- 2019-01-17 Thu 09:42 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>&lrm;</title>
@@ -255,45 +255,45 @@ for the JavaScript code in this tag.
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#org739dd64">1. GA Control Flow</a>
+<li><a href="#orgc1f2e10">1. GA Control Flow</a>
 <ul>
-<li><a href="#orgbd5b20b">1.1. Full Optimization</a></li>
-<li><a href="#org3e9fba9">1.2. Init functions</a></li>
-<li><a href="#org8f9f7c2">1.3. Individual Action</a></li>
+<li><a href="#org6c97db4">1.1. Full Optimization</a></li>
+<li><a href="#org83aec21">1.2. Init functions</a></li>
+<li><a href="#org2af99e2">1.3. Individual Action</a></li>
 </ul>
 </li>
-<li><a href="#org26da823">2. Operators</a>
+<li><a href="#orgd61b4e9">2. Operators</a>
 <ul>
-<li><a href="#org6882ed1">2.1. mutation operators</a></li>
-<li><a href="#org30d12c8">2.2. selection operators</a></li>
-<li><a href="#org5139d65">2.3. generator operators</a></li>
-<li><a href="#org9144638">2.4. crossover operators</a></li>
-<li><a href="#org22500bd">2.5. terminator operators</a></li>
-<li><a href="#orgbf46f2d">2.6. EMOA</a></li>
+<li><a href="#orge9e14dc">2.1. mutation operators</a></li>
+<li><a href="#orge15b3ea">2.2. selection operators</a></li>
+<li><a href="#orgf34839d">2.3. generator operators</a></li>
+<li><a href="#org75b1c2d">2.4. crossover operators</a></li>
+<li><a href="#org396669b">2.5. terminator operators</a></li>
+<li><a href="#org69e12b2">2.6. EMOA</a></li>
 </ul>
 </li>
-<li><a href="#orgdf58156">3. helper functions</a>
+<li><a href="#org5e1786f">3. helper functions</a>
 <ul>
-<li><a href="#org65b2b4e">3.1. Computation</a></li>
-<li><a href="#org97c751e">3.2. domination</a></li>
-<li><a href="#org111cb4b">3.3. logger</a></li>
-<li><a href="#org8927248">3.4. Pareto Archive</a></li>
-<li><a href="#orgd2bc62c">3.5. Plotting</a></li>
+<li><a href="#orgaeda24d">3.1. Computation</a></li>
+<li><a href="#orgc3b5907">3.2. domination</a></li>
+<li><a href="#org86278c6">3.3. logger</a></li>
+<li><a href="#org0fcc9d7">3.4. Pareto Archive</a></li>
+<li><a href="#org9002986">3.5. Plotting</a></li>
 </ul>
 </li>
-<li><a href="#orgd048e25">4. Orphaned</a></li>
+<li><a href="#orgb4c10c1">4. Orphaned</a></li>
 </ul>
 </div>
 </div>
-<div id="outline-container-org739dd64" class="outline-2">
-<h2 id="org739dd64"><span class="section-number-2">1</span> GA Control Flow</h2>
+<div id="outline-container-orgc1f2e10" class="outline-2">
+<h2 id="orgc1f2e10"><span class="section-number-2">1</span> GA Control Flow</h2>
 <div class="outline-text-2" id="text-1">
 </div>
-<div id="outline-container-orgbd5b20b" class="outline-3">
-<h3 id="orgbd5b20b"><span class="section-number-3">1.1</span> Full Optimization</h3>
+<div id="outline-container-org6c97db4" class="outline-3">
+<h3 id="org6c97db4"><span class="section-number-3">1.1</span> Full Optimization</h3>
 <div class="outline-text-3" id="text-1-1">
 <dl class="org-dl">
-<dt><a id="orgbd2c58d">ecr</a>(fitness.fun, minimize [TRUE if not given or in fitnes.fun], n.objectives, n.dim, lower, upper, n.bits, representation {"binary", "float", "permutation", "custom"}, mu, lambda, perm, p.recomb = 0.7, p.mut = 0.3, survival.strategy = {"plus", "comma"}, n.elite = 0, custom.constants = list(), log.stats = list(fitness = list("min", "mean", "max")), log.pop = FALSE, monitor, initial.solution, parent.selector, survival.selector, mutator, recombinator, terminators = list(stopOnIters(100)))</dt><dd><p>
+<dt><a id="orgc866686">ecr</a>(fitness.fun, minimize [TRUE if not given or in fitnes.fun], n.objectives, n.dim, lower, upper, n.bits, representation {"binary", "float", "permutation", "custom"}, mu, lambda, perm, p.recomb = 0.7, p.mut = 0.3, survival.strategy = {"plus", "comma"}, n.elite = 0, custom.constants = list(), log.stats = list(fitness = list("min", "mean", "max")), log.pop = FALSE, monitor, initial.solution, parent.selector, survival.selector, mutator, recombinator, terminators = list(stopOnIters(100)))</dt><dd><p>
     performs whole optimization. Params:
 </p>
 <ul class="org-ul">
@@ -307,11 +307,11 @@ for the JavaScript code in this tag.
 <dt>"permutation"</dt><dd><code>perm</code></dd>
 <dt>"custom"</dt><dd><code>initial.solution</code></dd>
 </dl></li>
-<li><code>survival.strategy</code> selects <a href="#org71e8716">replaceMuPlusLambda</a> / <a href="#org8ea0c06">replaceMuCommaLambda</a>
+<li><code>survival.strategy</code> selects <a href="#org6bbf471">replaceMuPlusLambda</a> / <a href="#org295d362">replaceMuCommaLambda</a>
 <ul class="org-ul">
 <li><code>n.elite</code> for "comma"</li>
 </ul></li>
-<li><code>p.recomb</code>, <code>p.mut</code> for <a href="#org522935d">generateOffspring</a></li>
+<li><code>p.recomb</code>, <code>p.mut</code> for <a href="#org35c3ed9">generateOffspring</a></li>
 <li><code>custom.constants</code> is not used.</li>
 <li><code>log.stats</code>, <code>log.pop</code> for logging; <code>monitor</code> probably as well, but not used.</li>
 <li><code>parent.selector</code>, <code>survival.selector</code>, <code>mutator</code>, <code>recombinator</code>, <code>terminators</code>: operators</li>
@@ -320,49 +320,49 @@ for the JavaScript code in this tag.
 Flow:
 </p>
 <ul class="org-ul">
-<li><a href="#orgc2fdaf2">initECRControl</a>()</li>
-<li><a href="#orgf8b1e5d">registerECROperator</a> \(\circ\) <a href="#orgb75fc3c">getDefaultEvolutionaryOperators</a></li>
-<li><a href="#orgc5c7e03">initLogger</a>()</li>
-<li><a href="#org57675e4">initPopulation</a>()
+<li><a href="#orgbeb8375">initECRControl</a>()</li>
+<li><a href="#org1fb24d2">registerECROperator</a> \(\circ\) <a href="#orgab65821">getDefaultEvolutionaryOperators</a></li>
+<li><a href="#org07c5157">initLogger</a>()</li>
+<li><a href="#org8e78d6c">initPopulation</a>()
 <ul class="org-ul">
-<li>[using <a href="#org5139d65">generator operators</a>]</li>
+<li>[using <a href="#orgf34839d">generator operators</a>]</li>
 </ul></li>
 <li>Loop:
 <ul class="org-ul">
-<li><a href="#org522935d">generateOffspring</a>
+<li><a href="#org35c3ed9">generateOffspring</a>
 <ul class="org-ul">
-<li>[calls <a href="#org889d376">recombinate</a> (or skips this, but getMatingPool still gets called)]
+<li>[calls <a href="#orge6bf60f">recombinate</a> (or skips this, but getMatingPool still gets called)]
 <ul class="org-ul">
 <li>[calls getMatingPool]
 <ul class="org-ul">
-<li>[calls <a href="#org1c7a918">selectForMating</a>]
+<li>[calls <a href="#orgfb34880">selectForMating</a>]
 <ul class="org-ul">
-<li>[calls <b>$<a href="#org1c7a918">selectForMating</a></b> slot <a href="#org30d12c8">selection operators</a>]</li>
+<li>[calls <b>$<a href="#orgfb34880">selectForMating</a></b> slot <a href="#orge15b3ea">selection operators</a>]</li>
 </ul></li>
 </ul></li>
-<li>[calls <b>$recombine</b> slot <a href="#org9144638">crossover operators</a>]</li>
+<li>[calls <b>$recombine</b> slot <a href="#org75b1c2d">crossover operators</a>]</li>
 </ul></li>
-<li>[calls <a href="#orgf16518e">mutate</a>]
+<li>[calls <a href="#orgfe7e2eb">mutate</a>]
 <ul class="org-ul">
-<li>[calls <b>$<a href="#orgf16518e">mutate</a></b> slot <a href="#org6882ed1">mutation operators</a>]</li>
+<li>[calls <b>$<a href="#orgfe7e2eb">mutate</a></b> slot <a href="#orge9e14dc">mutation operators</a>]</li>
 </ul></li>
 </ul></li>
-<li><a href="#org2c65bfc">evaluateFitness</a>
+<li><a href="#orge1d25cc">evaluateFitness</a>
 <ul class="org-ul">
 <li>[evaluates the task's *$fitness.fun*]</li>
 </ul></li>
-<li><a href="#org71e8716">replaceMuPlusLambda</a> / <a href="#org8ea0c06">replaceMuCommaLambda</a>
+<li><a href="#org6bbf471">replaceMuPlusLambda</a> / <a href="#org295d362">replaceMuCommaLambda</a>
 <ul class="org-ul">
-<li>[calls <a href="#orgdc3eae0">selectForSurvival</a>]
+<li>[calls <a href="#org68e9889">selectForSurvival</a>]
 <ul class="org-ul">
-<li>[calls <b>$<a href="#orgdc3eae0">selectForSurvival</a></b> slot <a href="#org30d12c8">selection operators</a>]</li>
+<li>[calls <b>$<a href="#org68e9889">selectForSurvival</a></b> slot <a href="#orge15b3ea">selection operators</a>]</li>
 </ul></li>
 </ul></li>
 </ul></li>
-<li><a href="#orgd2f9e66">updateLogger</a></li>
+<li><a href="#org3fa4bba">updateLogger</a></li>
 </ul>
 <p>
-Returns <a id="org9b3b75b">ecr_result</a> (<a id="orgdfce16e">ecr_multi_objective_result</a> or <a id="org58d08c8">ecr_single_objective_result</a>)
+Returns <a id="orgab8e03a">ecr_result</a> (<a id="org3720d8f">ecr_multi_objective_result</a> or <a id="orgcddcda6">ecr_single_objective_result</a>)
 </p>
 <ul class="org-ul">
 <li>$task</li>
@@ -376,40 +376,40 @@ Returns <a id="org9b3b75b">ecr_result</a> (<a id="orgdfce16e">ecr_multi_objectiv
 <li>last.fitness <b>single objective</b></li>
 <li>message</li>
 </ul></dd>
-<dt><a id="org851b0b2">nsga2</a>(fitness.fun, n.objectives, n.dim, minimize, lower, uppwer, mu = 100, lambda, mutator = <a href="#org9759fec">mutPolynomial</a>(eta = 25, p = 0.2, lower = lower, upper = upper), recombinator = <a href="#org0fbb153">recSBX</a>(eta = 15, p = 0.7, lower = lower, upper = upper), terminators = list(stopOnIters(100)))</dt><dd>performs NSGA-II EMOA algorithm: calls <a href="#orgbd2c58d">ecr</a>() with representation = "float", survival.strategy = "plus", parent.selector = <a href="#org1175f57">selSimple</a>, survival.selector = <a href="#orgfe09887">selNondom</a></dd>
-<dt><a id="org442de53">smsemoa</a>(fitness.fun, n.objectives, n.dim, minimize, lower, upper, mu = 100, ref.point [numeric, defaults to rep(11, n.objectives), wtf!], mutator = <a href="#org9759fec">mutPolynomial</a>(eta = 25, p = 0.2, lower = lower, upper = upper), recombinator = <a href="#org0fbb153">recSBX</a>(eta = 15, p = 0.7, lower = lower, upper = upper), terminators = list(stopOnIters(100)))</dt><dd>performs SMS-EMOA algorithm: calls <a href="#orgbd2c58d">ecr</a>() with lambda = 1, representation = "float", survival.strategy = "plus", parent.selector = <a href="#org1175f57">selSimple</a>, survival.selector = <a href="#org926cac4">selDomHV</a>(ref.point)</dd>
-<dt><a id="org67d3da3">asemoa</a>(fitness.fun, n.objectives, minimize, n.dim, lower, upper, mu = 10, aspiration.set, normalize.fun, dist.fun [function(x), default euclidean], p = 1, parent.selector = <a href="#org1175f57">selSimple</a>, mutator = <a href="#org9759fec">mutPolynomial</a>(eta = 25, p = 0.2, lower = lower, upper = upper), recombinator = <a href="#org0fbb153">recSBX</a>(eta = 15, p = 0.7, lower = lower, upper = upper), terminators = list(stopOnIters(100)))</dt><dd><p>
+<dt><a id="org0eccdd2">nsga2</a>(fitness.fun, n.objectives, n.dim, minimize, lower, uppwer, mu = 100, lambda, mutator = <a href="#org398fe4f">mutPolynomial</a>(eta = 25, p = 0.2, lower = lower, upper = upper), recombinator = <a href="#org8d46fc8">recSBX</a>(eta = 15, p = 0.7, lower = lower, upper = upper), terminators = list(stopOnIters(100)))</dt><dd>performs NSGA-II EMOA algorithm: calls <a href="#orgc866686">ecr</a>() with representation = "float", survival.strategy = "plus", parent.selector = <a href="#org42dd0a4">selSimple</a>, survival.selector = <a href="#org541e5f5">selNondom</a></dd>
+<dt><a id="org0b400ed">smsemoa</a>(fitness.fun, n.objectives, n.dim, minimize, lower, upper, mu = 100, ref.point [numeric, defaults to rep(11, n.objectives), wtf!], mutator = <a href="#org398fe4f">mutPolynomial</a>(eta = 25, p = 0.2, lower = lower, upper = upper), recombinator = <a href="#org8d46fc8">recSBX</a>(eta = 15, p = 0.7, lower = lower, upper = upper), terminators = list(stopOnIters(100)))</dt><dd>performs SMS-EMOA algorithm: calls <a href="#orgc866686">ecr</a>() with lambda = 1, representation = "float", survival.strategy = "plus", parent.selector = <a href="#org42dd0a4">selSimple</a>, survival.selector = <a href="#orgb3c3f25">selDomHV</a>(ref.point)</dd>
+<dt><a id="org10e9e9b">asemoa</a>(fitness.fun, n.objectives, minimize, n.dim, lower, upper, mu = 10, aspiration.set, normalize.fun, dist.fun [function(x), default euclidean], p = 1, parent.selector = <a href="#org42dd0a4">selSimple</a>, mutator = <a href="#org398fe4f">mutPolynomial</a>(eta = 25, p = 0.2, lower = lower, upper = upper), recombinator = <a href="#org8d46fc8">recSBX</a>(eta = 15, p = 0.7, lower = lower, upper = upper), terminators = list(stopOnIters(100)))</dt><dd><p>
     "Aspiration set evolutionary multi-objective algorithm"
 </p>
 <ul class="org-ul">
 <li><code>aspiration.set</code> is a matrix of aspiration points</li>
-<li><code>normalize.fun</code> a function(set, aspiration.set) -&gt;</li>
-<li>defines <b><b>fastASEMOASelector</b></b>:</li>
+<li><code>normalize.fun</code> a function(fitnessmatrix, aspiration.set) -&gt; fitnessmatrix</li>
+<li>defines <b><b>fastASEMOASelector</b></b>: drop point such that <a href="#org0509d7a">computeAverageHausdorffDistance</a> of (<code>normalize.fun</code>-normalized) remaining set to aspirational set is minimized (tie-breaking by <a href="#orgb61cc0d">computeGenerationalDistance</a>)</li>
 </ul>
 <p>
-calls <a href="#orgbd2c58d">ecr</a>() with representation = "float", lambda = 1, initial.solution a set of nondominated uniformly sampled individuals, and survival.selector the "fastASEMOASelector".
+calls <a href="#orgc866686">ecr</a>() with representation = "float", lambda = 1, initial.solution a set of nondominated uniformly sampled individuals, and survival.selector the "fastASEMOASelector".
 </p></dd>
 </dl>
 </div>
 </div>
 
-<div id="outline-container-org3e9fba9" class="outline-3">
-<h3 id="org3e9fba9"><span class="section-number-3">1.2</span> Init functions</h3>
+<div id="outline-container-org83aec21" class="outline-3">
+<h3 id="org83aec21"><span class="section-number-3">1.2</span> Init functions</h3>
 <div class="outline-text-3" id="text-1-2">
 <dl class="org-dl">
-<dt><a id="orgc2fdaf2">initECRControl</a>(fitness.fun [function], n.objectives [int(1)], minimize [lgl, default TRUE])</dt><dd>inits <b><a id="org5d9b4ea">ecr_control</a></b> object.
+<dt><a id="orgbeb8375">initECRControl</a>(fitness.fun [function], n.objectives [int(1)], minimize [lgl, default TRUE])</dt><dd>inits <b><a id="org56806ef">ecr_control</a></b> object.
 <ul class="org-ul">
-<li>$task: <a href="#org9d5ba49">ecr_optimization_task</a></li>
-<li>$[slot]: function, added by <a href="#orgf8b1e5d">registerECROperator</a>. Special slots:
+<li>$task: <a href="#org1b28369">ecr_optimization_task</a></li>
+<li>$[slot]: function, added by <a href="#org1fb24d2">registerECROperator</a>. Special slots:
 <dl class="org-dl">
-<dt><a href="#orgf16518e">mutate</a></dt><dd><a href="#org6882ed1">mutation operators</a></dd>
-<dt>recombine</dt><dd><a href="#org9144638">crossover operators</a></dd>
-<dt><a href="#orgdc3eae0">selectForSurvival</a></dt><dd><a href="#org30d12c8">selection operators</a></dd>
-<dt><a href="#org1c7a918">selectForMating</a></dt><dd><a href="#org30d12c8">selection operators</a></dd>
+<dt><a href="#orgfe7e2eb">mutate</a></dt><dd><a href="#orge9e14dc">mutation operators</a></dd>
+<dt>recombine</dt><dd><a href="#org75b1c2d">crossover operators</a></dd>
+<dt><a href="#org68e9889">selectForSurvival</a></dt><dd><a href="#orge15b3ea">selection operators</a></dd>
+<dt><a href="#orgfb34880">selectForMating</a></dt><dd><a href="#orge15b3ea">selection operators</a></dd>
 </dl></li>
-<li>$[slot].pars: list, added by <a href="#orgf8b1e5d">registerECROperator</a></li>
+<li>$[slot].pars: list, added by <a href="#org1fb24d2">registerECROperator</a></li>
 </ul></dd>
-<dt><a id="org9df51fe">makeOptimizationTask</a>(fun [function], n.objectives [int(1)], minimize [lgl, default TRUE], objective.names [chr])</dt><dd>inits <b><b><a id="org9d5ba49">ecr_optimization_task</a></b></b>.
+<dt><a id="orgc6c03da">makeOptimizationTask</a>(fun [function], n.objectives [int(1)], minimize [lgl, default TRUE], objective.names [chr])</dt><dd>inits <b><b><a id="org1b28369">ecr_optimization_task</a></b></b>.
 <ul class="org-ul">
 <li>$fitness.fun: must return a vector of <code>n.objectives</code> length</li>
 <li>$n.objectives</li>
@@ -417,17 +417,17 @@ calls <a href="#orgbd2c58d">ecr</a>() with representation = "float", lambda = 1,
 <li>$objective.names</li>
 <li>$par.set [initialized from <code>fun</code> if it has one, otherwise 'CharacterParam']</li>
 </ul></dd>
-<dt><a id="orgf8b1e5d">registerECROperator</a>(control [<a href="#org5d9b4ea">ecr_control</a>], slot [chr(1)], fun , &#x2026;)</dt><dd>adds [slot] and [slot].pars to `control`.</dd>
-<dt><a id="orgc5c7e03">initLogger</a>(control, log.stats [named list], log.extras, log.pop [logical(1)], init.size = 1000)</dt><dd>creates <a id="org2c012de">ecr_logger</a> <a href="#org111cb4b">logger</a> which mainly contains:
+<dt><a id="org1fb24d2">registerECROperator</a>(control [<a href="#org56806ef">ecr_control</a>], slot [chr(1)], fun , &#x2026;)</dt><dd>adds [slot] and [slot].pars to `control`.</dd>
+<dt><a id="org07c5157">initLogger</a>(control, log.stats [named list], log.extras, log.pop [logical(1)], init.size = 1000)</dt><dd>creates <a id="org42a38ee">ecr_logger</a> <a href="#org86278c6">logger</a> which mainly contains:
 <dl class="org-dl">
-<dt>$env</dt><dd>an environment with a data.frame $stats which gets the type  <a id="orga8e3b1f">ecr_statistics</a>
+<dt>$env</dt><dd>an environment with a data.frame $stats which gets the type  <a id="org5474253">ecr_statistics</a>
 <ul class="org-ul">
 <li><code>best.x</code>, <code>best.y</code> <b>single objective</b></li>
 </ul></dd>
 <dt>$log.stats</dt><dd>named list of functions to apply. name can be "fitness" or something names an attribute of individuals</dd>
 </dl></dd>
-<dt><a id="org57675e4">initPopulation</a>(mu [integer(1)], gen.fun [[[generator operators]<a href="#org5139d65">2.3</a>], initial.solutions = NULL)</dt><dd>fill up to <code>mu</code> with <code>initial.solutions</code> and then <code>gen.fun</code>.</dd>
-<dt><a id="org28a06c8">initParetoArchive</a>(control, max.size = Inf, trunc.fun = NULL [function(archive, inds, fitness, &#x2026;)])</dt><dd>A <a href="#org8927248">Pareto Archive</a> is a collection of pareto fronts of class <a id="orgbebd21c">ecr_pareto_archive</a> with one member $env which has members:
+<dt><a id="org8e78d6c">initPopulation</a>(mu [integer(1)], gen.fun [[[generator operators]<a href="#orgf34839d">2.3</a>], initial.solutions = NULL)</dt><dd>fill up to <code>mu</code> with <code>initial.solutions</code> and then <code>gen.fun</code>.</dd>
+<dt><a id="orgf2c701c">initParetoArchive</a>(control, max.size = Inf, trunc.fun = NULL [function(archive, inds, fitness, &#x2026;)])</dt><dd>A <a href="#org0fcc9d7">Pareto Archive</a> is a collection of pareto fronts of class <a id="org449a22f">ecr_pareto_archive</a> with one member $env which has members:
 <ul class="org-ul">
 <li>$task</li>
 <li>$size</li>
@@ -440,121 +440,121 @@ calls <a href="#orgbd2c58d">ecr</a>() with representation = "float", lambda = 1,
 </dl>
 </div>
 </div>
-<div id="outline-container-org8f9f7c2" class="outline-3">
-<h3 id="org8f9f7c2"><span class="section-number-3">1.3</span> Individual Action</h3>
+<div id="outline-container-org2af99e2" class="outline-3">
+<h3 id="org2af99e2"><span class="section-number-3">1.3</span> Individual Action</h3>
 <div class="outline-text-3" id="text-1-3">
 <p>
-These have all a <code>control</code> [<a href="#org5d9b4ea">ecr_control</a>] <a href="#orgbd2c58d">ecr</a> and (exept <a href="#org71e8716">replaceMuPlusLambda</a> / *CommaLambda) an <code>inds</code> [list] parameter.
+These have all a <code>control</code> [<a href="#org56806ef">ecr_control</a>] <a href="#orgc866686">ecr</a> and (exept <a href="#org6bbf471">replaceMuPlusLambda</a> / *CommaLambda) an <code>inds</code> [list] parameter.
 </p>
 <dl class="org-dl">
-<dt><a id="org2c65bfc">evaluateFitness</a>(&#x2026;)</dt><dd><code>lapply</code> control's $fitness.fun, return <b><b><a id="orga7f2837">ecr_fitness_matrix</a></b></b> of the result. This is a matrix with an additional
-"minimize" tag (from the <a href="#org9d5ba49">ecr_optimization_task</a>)</dd>
-<dt><a id="org522935d">generateOffspring</a>(fitness, lambda, p.recomb = 0.7, p.mut = 0.1)</dt><dd>Subsumes both:
+<dt><a id="orge1d25cc">evaluateFitness</a>(&#x2026;)</dt><dd><code>lapply</code> control's $fitness.fun, return <b><b><a id="org6b8ec48">ecr_fitness_matrix</a></b></b> of the result. This is a matrix with an additional
+"minimize" tag (from the <a href="#org1b28369">ecr_optimization_task</a>)</dd>
+<dt><a id="org35c3ed9">generateOffspring</a>(fitness, lambda, p.recomb = 0.7, p.mut = 0.1)</dt><dd>Subsumes both:
 <dl class="org-dl">
-<dt><a id="orgf16518e">mutate</a>(p.mut = 0.1, slot = "<a href="#orgf16518e">mutate</a>", &#x2026;)</dt><dd>applies the <code>slot</code> function in <code>control</code> to individuals w/ probability <code>p.mut</code>.</dd>
-<dt><a id="org889d376">recombinate</a>(fitness, lambda = length(inds), p.recomb = 0.7, slot = "recombine", &#x2026;)</dt><dd>uses <a href="#org1c7a918">selectForMating</a>(<code>fitness</code>), generates <code>lambda</code> children from them by recombinating w/ prob <code>p.recomb</code></dd>
+<dt><a id="orgfe7e2eb">mutate</a>(p.mut = 0.1, slot = "<a href="#orgfe7e2eb">mutate</a>", &#x2026;)</dt><dd>applies the <code>slot</code> function in <code>control</code> to individuals w/ probability <code>p.mut</code>.</dd>
+<dt><a id="orge6bf60f">recombinate</a>(fitness, lambda = length(inds), p.recomb = 0.7, slot = "recombine", &#x2026;)</dt><dd>uses <a href="#orgfb34880">selectForMating</a>(<code>fitness</code>), generates <code>lambda</code> children from them by recombinating w/ prob <code>p.recomb</code></dd>
 </dl></dd>
-<dt><a id="org71e8716">replaceMuPlusLambda</a>, <a id="org8ea0c06">replaceMuCommaLambda</a> (population, offspring, fitness, fitness.offspring, n.elite)</dt><dd>selects <code>lengt(population)</code> individuals from the combined pool.
+<dt><a id="org6bbf471">replaceMuPlusLambda</a>, <a id="org295d362">replaceMuCommaLambda</a> (population, offspring, fitness, fitness.offspring, n.elite)</dt><dd>selects <code>lengt(population)</code> individuals from the combined pool.
 <ul class="org-ul">
 <li>fitness, fitness.offspring: [matrix] that are optional if elements in population/offspring lists have attribute "fitness"</li>
-<li>n.elite (default <code>ceiling(length(population) * 0.1)</code>): number of elite in <a href="#org8ea0c06">replaceMuCommaLambda</a> to keep.</li>
+<li>n.elite (default <code>ceiling(length(population) * 0.1)</code>): number of elite in <a href="#org295d362">replaceMuCommaLambda</a> to keep.</li>
 </ul></dd>
-<dt><a id="orgdc3eae0">selectForSurvival</a>(fitness, n.select), <a id="org1c7a918">selectForMating</a>(fitness, n.select)</dt><dd>call the <a href="#orgab465e8">ecr_selector</a> function of the control slot with the appropriate name</dd>
+<dt><a id="org68e9889">selectForSurvival</a>(fitness, n.select), <a id="orgfb34880">selectForMating</a>(fitness, n.select)</dt><dd>call the <a href="#org50ee47c">ecr_selector</a> function of the control slot with the appropriate name</dd>
 </dl>
 </div>
 </div>
 </div>
-<div id="outline-container-org26da823" class="outline-2">
-<h2 id="org26da823"><span class="section-number-2">2</span> Operators</h2>
+<div id="outline-container-orgd61b4e9" class="outline-2">
+<h2 id="orgd61b4e9"><span class="section-number-2">2</span> Operators</h2>
 <div class="outline-text-2" id="text-2">
 <dl class="org-dl">
-<dt><a id="orged38ccd">makeOperator</a>(operator [function], supported {"permutation", "float", "binary", "custom"})</dt><dd>creates <a id="org1cf6c3d">ecr_operator</a> object which is a function with <code>supported</code> attribute</dd>
-<dt><a id="orgd651099">isEcrOperator</a>(obj)</dt><dd>check whether an object is an <a href="#org1cf6c3d">ecr_operator</a>.</dd>
-<dt><a id="orgfd39a6d">getSupportedRepresentations</a>(operator)</dt><dd>returns <code>supported</code> archive of <a href="#org1cf6c3d">ecr_operator</a></dd>
+<dt><a id="org3325358">makeOperator</a>(operator [function], supported {"permutation", "float", "binary", "custom"})</dt><dd>creates <a id="org543bc6f">ecr_operator</a> object which is a function with <code>supported</code> attribute</dd>
+<dt><a id="org6f50323">isEcrOperator</a>(obj)</dt><dd>check whether an object is an <a href="#org543bc6f">ecr_operator</a>.</dd>
+<dt><a id="orgb6dbc3f">getSupportedRepresentations</a>(operator)</dt><dd>returns <code>supported</code> archive of <a href="#org543bc6f">ecr_operator</a></dd>
 <dt>&lt;&lt;&lt;is.supported(operator, representation [character(1)])</dt><dd>get whether <code>representation</code> is supported by <code>operator</code>.</dd>
-<dt><a id="org16b1eef">setup</a>(operator, &#x2026;)</dt><dd>currying: turns <a href="#org16b1eef">setup</a>(operator, a, b) turns <code>opperator(x, a, b)</code> into <code>operator'(x)</code></dd>
+<dt><a id="orgd6b272b">setup</a>(operator, &#x2026;)</dt><dd>currying: turns <a href="#orgd6b272b">setup</a>(operator, a, b) turns <code>opperator(x, a, b)</code> into <code>operator'(x)</code></dd>
 </dl>
 </div>
-<div id="outline-container-org6882ed1" class="outline-3">
-<h3 id="org6882ed1"><span class="section-number-3">2.1</span> mutation operators</h3>
+<div id="outline-container-orge9e14dc" class="outline-3">
+<h3 id="orge9e14dc"><span class="section-number-3">2.1</span> mutation operators</h3>
 <div class="outline-text-3" id="text-2-1">
 <dl class="org-dl">
-<dt><a id="org3e8e71e">makeMutator</a>(mutator, supported)</dt><dd><a id="orgba630aa">ecr_mutator</a>: subclass of <a href="#org1cf6c3d">ecr_operator</a></dd>
+<dt><a id="orgd375fc6">makeMutator</a>(mutator, supported)</dt><dd><a id="org266dd16">ecr_mutator</a>: subclass of <a href="#org543bc6f">ecr_operator</a></dd>
 </dl>
 <p>
-These all have parameter 'ind': individuum / vector to <a href="#orgf16518e">mutate</a>. <a href="#org2c65bfc">evaluateFitness</a>
+These all have parameter 'ind': individuum / vector to <a href="#orgfe7e2eb">mutate</a>. <a href="#orge1d25cc">evaluateFitness</a>
 </p>
 <dl class="org-dl">
-<dt><a id="orgcf359e3">mutBitflip</a>(p = 0.1)</dt><dd><a href="#orgf16518e">mutate</a> binary w/ probability <code>p</code></dd>
-<dt><a id="orgfb961b9">mutGauss</a>(p = 1, sdev = .05, lower, upper)</dt><dd><a href="#orgf16518e">mutate</a> each w/ probability p:
+<dt><a id="org8a5ee6e">mutBitflip</a>(p = 0.1)</dt><dd><a href="#orgfe7e2eb">mutate</a> binary w/ probability <code>p</code></dd>
+<dt><a id="orgd078622">mutGauss</a>(p = 1, sdev = .05, lower, upper)</dt><dd><a href="#orgfe7e2eb">mutate</a> each w/ probability p:
 add rnorm(sd = sdev), truncate at lower / upper</dd>
-<dt><a id="orgd2c9b21">mutInsertion</a>()</dt><dd>moves random component to a different position without swapping</dd>
-<dt><a id="org37a2d08">mutInversion</a>()</dt><dd>reverse region between random indices</dd>
-<dt><a id="org9759fec">mutPolynomial</a>(p = 0.2, eta = 10, lower, upper)</dt><dd><a href="#orgf16518e">mutate</a> each w/ probability p:
+<dt><a id="orgf6524b1">mutInsertion</a>()</dt><dd>moves random component to a different position without swapping</dd>
+<dt><a id="org8e7c321">mutInversion</a>()</dt><dd>reverse region between random indices</dd>
+<dt><a id="org398fe4f">mutPolynomial</a>(p = 0.2, eta = 10, lower, upper)</dt><dd><a href="#orgfe7e2eb">mutate</a> each w/ probability p:
 add <i><i>something random polynomial</i></i></dd>
-<dt><a id="org3b12fbf">mutScramble</a>()</dt><dd>shuffles region between random indices</dd>
-<dt><a id="org3f88d27">mutSwap</a>()</dt><dd>swaps random two components</dd>
-<dt><a id="orgea90490">mutUniform</a>(lower, upper)</dt><dd>replaces random element with uniformly distributed value</dd>
+<dt><a id="orgea095a9">mutScramble</a>()</dt><dd>shuffles region between random indices</dd>
+<dt><a id="orga04ad69">mutSwap</a>()</dt><dd>swaps random two components</dd>
+<dt><a id="orgeeefed9">mutUniform</a>(lower, upper)</dt><dd>replaces random element with uniformly distributed value</dd>
 </dl>
 </div>
 </div>
-<div id="outline-container-org30d12c8" class="outline-3">
-<h3 id="org30d12c8"><span class="section-number-3">2.2</span> selection operators</h3>
+<div id="outline-container-orge15b3ea" class="outline-3">
+<h3 id="orge15b3ea"><span class="section-number-3">2.2</span> selection operators</h3>
 <div class="outline-text-3" id="text-2-2">
 <dl class="org-dl">
-<dt><a id="org1c9960c">makeSelector</a>(selector, supported, supported.objectives {"single-objective", "multi-objective"}, supported.opt.direction {"minimize", "maximize", or c() of both})</dt><dd><a id="orgab465e8">ecr_selector</a>, an <a href="#org1cf6c3d">ecr_operator</a> with additional attributes <code>supported.objectives</code>, <code>supported.opt.direction</code></dd>
+<dt><a id="org91901ff">makeSelector</a>(selector, supported, supported.objectives {"single-objective", "multi-objective"}, supported.opt.direction {"minimize", "maximize", or c() of both})</dt><dd><a id="org50ee47c">ecr_selector</a>, an <a href="#org543bc6f">ecr_operator</a> with additional attributes <code>supported.objectives</code>, <code>supported.opt.direction</code></dd>
 </dl>
 <p>
 These all have parameter 'fitness': [dim] x [n indiv] matrix, n.select: number of inds to select.
 </p>
 <dl class="org-dl">
-<dt><a id="org926cac4">selDomHV</a>(ref.point)</dt><dd>drops individual from last paretofront with minimal hypervolume contribution. This ignores n.select! <b><b>minimizes</b></b></dd>
-<dt><a id="orge406518">selGreedy</a>()</dt><dd>select best n.select individuals. <b><b>minimizes</b></b>, <b><b>1-dim</b></b></dd>
-<dt><a id="orgfe09887">selNondom</a>()</dt><dd>nondominated sorting + crowding distance to select subset of individuals. used in NSGA-II EMOA <b><b>minimizes</b></b></dd>
-<dt><a id="org5f958d2">selRoulette</a>(offset = 0.1)</dt><dd>fitness-proportional selection, with minimum set to `offset`. <b><b>maximizes</b></b>, <b><b>1-dim</b></b></dd>
-<dt><a id="org1175f57">selSimple</a>()</dt><dd>random sampling</dd>
-<dt><a id="org4148a83">selTournament</a>(k)</dt><dd>select best individuals from random subsets of size `k`. <b><b>minimizes</b></b>, <b><b>1-dim</b></b></dd>
+<dt><a id="orgb3c3f25">selDomHV</a>(ref.point)</dt><dd>drops individual from last paretofront with minimal hypervolume contribution. This ignores n.select! <b><b>minimizes</b></b></dd>
+<dt><a id="org8551fd5">selGreedy</a>()</dt><dd>select best n.select individuals. <b><b>minimizes</b></b>, <b><b>1-dim</b></b></dd>
+<dt><a id="org541e5f5">selNondom</a>()</dt><dd>nondominated sorting + crowding distance to select subset of individuals. used in NSGA-II EMOA <b><b>minimizes</b></b></dd>
+<dt><a id="org9c59bf5">selRoulette</a>(offset = 0.1)</dt><dd>fitness-proportional selection, with minimum set to `offset`. <b><b>maximizes</b></b>, <b><b>1-dim</b></b></dd>
+<dt><a id="org42dd0a4">selSimple</a>()</dt><dd>random sampling</dd>
+<dt><a id="org5ac67cf">selTournament</a>(k)</dt><dd>select best individuals from random subsets of size `k`. <b><b>minimizes</b></b>, <b><b>1-dim</b></b></dd>
 </dl>
 </div>
 </div>
-<div id="outline-container-org5139d65" class="outline-3">
-<h3 id="org5139d65"><span class="section-number-3">2.3</span> generator operators</h3>
+<div id="outline-container-orgf34839d" class="outline-3">
+<h3 id="orgf34839d"><span class="section-number-3">2.3</span> generator operators</h3>
 <div class="outline-text-3" id="text-2-3">
 <p>
 Except <code>gen</code>, these have parameters (n, n.dim).
 </p>
 <dl class="org-dl">
 <dt>gen(expr, n)</dt><dd>generate individuals by expression (this is <code>replicate(simplify = FALSE)</code>);</dd>
-<dt><a id="org697d2c9">genBin</a>()</dt><dd>initialize random binary vector individuals</dd>
-<dt><a id="org4ccead8">genPerm</a>()</dt><dd>initialize random permutation of 1:n individuals</dd>
-<dt><a id="org179fd65">genReal</a>(lower, upper)</dt><dd>uniform random reals between lower and upper</dd>
+<dt><a id="orgc2059c7">genBin</a>()</dt><dd>initialize random binary vector individuals</dd>
+<dt><a id="org0ae87db">genPerm</a>()</dt><dd>initialize random permutation of 1:n individuals</dd>
+<dt><a id="org49fa7be">genReal</a>(lower, upper)</dt><dd>uniform random reals between lower and upper</dd>
 </dl>
 </div>
 </div>
-<div id="outline-container-org9144638" class="outline-3">
-<h3 id="org9144638"><span class="section-number-3">2.4</span> crossover operators</h3>
+<div id="outline-container-org75b1c2d" class="outline-3">
+<h3 id="org75b1c2d"><span class="section-number-3">2.4</span> crossover operators</h3>
 <div class="outline-text-3" id="text-2-4">
 <dl class="org-dl">
-<dt>makeRecombinator(recombinator, supported, n.parents [probably does not work with values != 1 or 2], n.children = 1)</dt><dd><a id="orgb183058">ecr_recombinator</a>, an <a href="#org1cf6c3d">ecr_operator</a> with additional attributes <code>n.parents</code>, <code>n.children</code></dd>
+<dt>makeRecombinator(recombinator, supported, n.parents [probably does not work with values != 1 or 2], n.children = 1)</dt><dd><a id="org6394555">ecr_recombinator</a>, an <a href="#org543bc6f">ecr_operator</a> with additional attributes <code>n.parents</code>, <code>n.children</code></dd>
 </dl>
 <p>
 These all have <code>inds</code>: list of exactly two vectors representing parents
 </p>
 <dl class="org-dl">
-<dt><a id="org10eb148">recCrossover</a>()</dt><dd>chromosomal crossover at random point, returns two children</dd>
-<dt><a id="org5ed8dd0">recIntermediate</a>()</dt><dd>component-wise mean of parents. can possibly have more than two parents.</dd>
-<dt><a id="org2a8711a">recOX</a>()</dt><dd>for permutations. randomly selects two cut points, keeps subsquence cut1:cut2 of one parent, fills remaining points with sequence <code>cut2:(cut2 + LENGTH) MOD length</code> of the other parent and removes duplicates.</dd>
-<dt><a id="orgb5f31d6">recPMX</a>()</dt><dd>for permutations. randomly selects two cut points, keeps subsequence cut1:cut2 of one parent, fills remaining points with other parent's values, except where this would produce duplicates. The would-be duplicates are instead filled with the values at the corresponding positions from the second parent (recursively, if this still gives duplicates).</dd>
-<dt><a id="org0fbb153">recSBX</a>(eta = 5, p = 1, lower, upper)</dt><dd>"simulated binary crossover", whatever that means. For continuous vectors.</dd>
-<dt><a id="orgbc5aeef">recUnifCrossover</a>(p = 0.5)</dt><dd>swap components with componentwise probability <code>p</code></dd>
+<dt><a id="org066f5f4">recCrossover</a>()</dt><dd>chromosomal crossover at random point, returns two children</dd>
+<dt><a id="orgeeb01d9">recIntermediate</a>()</dt><dd>component-wise mean of parents. can possibly have more than two parents.</dd>
+<dt><a id="orgd0831bd">recOX</a>()</dt><dd>for permutations. randomly selects two cut points, keeps subsquence cut1:cut2 of one parent, fills remaining points with sequence <code>cut2:(cut2 + LENGTH) MOD length</code> of the other parent and removes duplicates.</dd>
+<dt><a id="org756a87c">recPMX</a>()</dt><dd>for permutations. randomly selects two cut points, keeps subsequence cut1:cut2 of one parent, fills remaining points with other parent's values, except where this would produce duplicates. The would-be duplicates are instead filled with the values at the corresponding positions from the second parent (recursively, if this still gives duplicates).</dd>
+<dt><a id="org8d46fc8">recSBX</a>(eta = 5, p = 1, lower, upper)</dt><dd>"simulated binary crossover", whatever that means. For continuous vectors.</dd>
+<dt><a id="org7161d68">recUnifCrossover</a>(p = 0.5)</dt><dd>swap components with componentwise probability <code>p</code></dd>
 </dl>
 </div>
 </div>
-<div id="outline-container-org22500bd" class="outline-3">
-<h3 id="org22500bd"><span class="section-number-3">2.5</span> terminator operators</h3>
+<div id="outline-container-org396669b" class="outline-3">
+<h3 id="org396669b"><span class="section-number-3">2.5</span> terminator operators</h3>
 <div class="outline-text-3" id="text-2-5">
 <p>
-Have class <a id="orged96179">ecr_terminator</a>: function with argument 'log' and attributes <code>name</code> and <code>message</code>. 
+Have class <a id="orgadc305c">ecr_terminator</a>: function with argument 'log' and attributes <code>name</code> and <code>message</code>. 
 </p>
 <dl class="org-dl">
 <dt>makeTerminator(condition.fun, name, message)</dt><dd>general creator</dd>
@@ -563,11 +563,11 @@ Have class <a id="orged96179">ecr_terminator</a>: function with argument 'log' a
 </dl>
 </div>
 </div>
-<div id="outline-container-orgbf46f2d" class="outline-3">
-<h3 id="orgbf46f2d"><span class="section-number-3">2.6</span> EMOA</h3>
+<div id="outline-container-org69e12b2" class="outline-3">
+<h3 id="org69e12b2"><span class="section-number-3">2.6</span> EMOA</h3>
 <div class="outline-text-3" id="text-2-6">
 <p>
-Have class <a id="orgcaeb2d2">ecr_emoa_indicator</a>: function with argument 'points', 'ref.points', and attribute <code>lates_name</code>
+Have class <a id="orgb8ce885">ecr_emoa_indicator</a>: function with argument 'points', 'ref.points', and attribute <code>lates_name</code>
 </p>
 <dl class="org-dl">
 <dt>emoaIndEps()</dt><dd>???</dd>
@@ -577,55 +577,55 @@ Have class <a id="orgcaeb2d2">ecr_emoa_indicator</a>: function with argument 'po
 </div>
 </div>
 </div>
-<div id="outline-container-orgdf58156" class="outline-2">
-<h2 id="orgdf58156"><span class="section-number-2">3</span> helper functions</h2>
+<div id="outline-container-org5e1786f" class="outline-2">
+<h2 id="org5e1786f"><span class="section-number-2">3</span> helper functions</h2>
 <div class="outline-text-2" id="text-3">
 <dl class="org-dl">
-<dt><a id="orgeadf107">doNondominatedSorting</a>(x [matrix])</dt><dd>sort into nondominated fronts.
+<dt><a id="orge6171c5">doNondominatedSorting</a>(x [matrix])</dt><dd>sort into nondominated fronts.
 <ul class="org-ul">
 <li>x "dominates" y if it is <b>smaller</b> in all dimensions.</li>
 <li>x: each <b><b>column</b></b> contains one point</li>
 <li>return list(ranks, dom.counter)</li>
 </ul></dd>
-<dt><a id="org01bad0a">approximateNadirPoint</a>(&#x2026;, sets = NULL), <a id="org3972d54">approximateIdealPoint</a>(&#x2026;, sets = NULL)</dt><dd>for each set (given in &#x2026; or sets), calculate dimensionwise max (Nadir) or min (Ideal) point.</dd>
-<dt><a id="org5749e51">wrapChildren</a>(&#x2026;)</dt><dd>turns returns <code>list(...)</code> tagged with "multiple"</dd>
-<dt><a id="orgb75fc3c">getDefaultEvolutionaryOperators</a>(representation, type, n.objectives, control)</dt><dd><dl class="org-dl">
+<dt><a id="org960611d">approximateNadirPoint</a>(&#x2026;, sets = NULL), <a id="org0cc9489">approximateIdealPoint</a>(&#x2026;, sets = NULL)</dt><dd>for each set (given in &#x2026; or sets), calculate dimensionwise max (Nadir) or min (Ideal) point.</dd>
+<dt><a id="orgb1d667f">wrapChildren</a>(&#x2026;)</dt><dd>turns returns <code>list(...)</code> tagged with "multiple"</dd>
+<dt><a id="orgab65821">getDefaultEvolutionaryOperators</a>(representation, type, n.objectives, control)</dt><dd><dl class="org-dl">
 <dt><code>control</code></dt><dd>not used</dd>
 <dt><code>n.objectives</code></dt><dd>only used to choose between getSingleObjectiveDefaults() and getMultiObjectiveDefaults().</dd>
 <dt><code>representation</code></dt><dd>"float", "binary", "permutation", "custom"</dd>
 <dt><code>type</code></dt><dd>what function to get
 <dl class="org-dl">
-<dt>"mutator"</dt><dd><a href="#orgfb961b9">mutGauss</a>, <a href="#orgcf359e3">mutBitflip</a>, or <a href="#org3f88d27">mutSwap</a></dd>
-<dt>"recombinator"</dt><dd><a href="#org5ed8dd0">recIntermediate</a>, <a href="#org10eb148">recCrossover</a>, <a href="#orgb5f31d6">recPMX</a></dd>
-<dt>"survival.selector"</dt><dd><a href="#orge406518">selGreedy</a> in single-o, <a href="#orgfe09887">selNondom</a> in multi-o</dd>
-<dt>"parent.selector"</dt><dd><a href="#org4148a83">selTournament</a> in single-o, <a href="#org1175f57">selSimple</a> in multi-o</dd>
+<dt>"mutator"</dt><dd><a href="#orgd078622">mutGauss</a>, <a href="#org8a5ee6e">mutBitflip</a>, or <a href="#orga04ad69">mutSwap</a></dd>
+<dt>"recombinator"</dt><dd><a href="#orgeeb01d9">recIntermediate</a>, <a href="#org066f5f4">recCrossover</a>, <a href="#org756a87c">recPMX</a></dd>
+<dt>"survival.selector"</dt><dd><a href="#org8551fd5">selGreedy</a> in single-o, <a href="#org541e5f5">selNondom</a> in multi-o</dd>
+<dt>"parent.selector"</dt><dd><a href="#org5ac67cf">selTournament</a> in single-o, <a href="#org42dd0a4">selSimple</a> in multi-o</dd>
 </dl></dd>
 </dl></dd>
 </dl>
 </div>
-<div id="outline-container-org65b2b4e" class="outline-3">
-<h3 id="org65b2b4e"><span class="section-number-3">3.1</span> Computation</h3>
+<div id="outline-container-orgaeda24d" class="outline-3">
+<h3 id="orgaeda24d"><span class="section-number-3">3.1</span> Computation</h3>
 <div class="outline-text-3" id="text-3-1">
 <dl class="org-dl">
-<dt><a id="org7253810">computeHV</a>(x, ref.point = NULL), <a id="org2d31a3f">computeHVContr</a>(x, ref.point = NULL, offset = 1)</dt><dd>dominated hypervolume w.r.t. reference point.
+<dt><a id="orga7083bc">computeHV</a>(x, ref.point = NULL), <a id="orgccba7d1">computeHVContr</a>(x, ref.point = NULL, offset = 1)</dt><dd>dominated hypervolume w.r.t. reference point.
 <ul class="org-ul">
 <li>if ref.point is NULL, the dimension-wise maximum is used</li>
 <li>'offset' is added to the computed ref.point if it is given as NULL for *Contr</li>
 </ul></dd>
-<dt><a id="org911dee6">computeCrowdingDistance</a>(x [matrix)</dt><dd>compute "crowding distance": dimension-wise sum of distance to both neighbouring points (in that dimension)</dd>
-<dt><a id="org4e1083e">computeGenerationalDistance</a>, <a id="orgbe49a56">computeInvertedGenerationalDistance</a>(A [matrix], B [matrix], p = 1, normalize = FALSE, dist.fun = [function(x), default euclidean distance, is ignored])</dt><dd>Compute "generational distance" betwen <code>A</code> and <code>B</code>. computeInverted* does the same as computeGenerational*, with <code>A</code> and <code>B</code> swapped.
+<dt><a id="orgd49c2b1">computeCrowdingDistance</a>(x [matrix)</dt><dd>compute "crowding distance": dimension-wise sum of distance to both neighbouring points (in that dimension)</dd>
+<dt><a id="orgb61cc0d">computeGenerationalDistance</a>, <a id="orgc00e45e">computeInvertedGenerationalDistance</a>(A [matrix], B [matrix], p = 1, normalize = FALSE, dist.fun = [function(x), default euclidean distance, is ignored])</dt><dd>Compute "generational distance" betwen <code>A</code> and <code>B</code>. computeInverted* does the same as computeGenerational*, with <code>A</code> and <code>B</code> swapped.
 <ul class="org-ul">
 <li>if <code>normalize</code> is TRUE, <code>A</code> is scaled to have same dimension-wise mins / maxes as <code>B</code></li>
 <li>for each in <code>A</code>, calculate minimal distance to any in <code>B</code></li>
 <li>calculate exponent-<code>p</code> mean of the vector of these minimal distances.</li>
 </ul></dd>
-<dt><a id="orgd0e2eb8">computeDistanceFromPointToSetOfPoints</a>(a, B, dist.fun [function(x), euclidean by default])</dt><dd>calculates minimum distance from <code>a</code> to any point in <code>B</code></dd>
-<dt><a id="orga4c0254">computeAverageHausdorffDistance</a>(A, B, p = 1, normalize, dist.fun [function(x), euclidean by default])</dt><dd>max of <a href="#org4e1083e">computeGenerationalDistance</a> and <a href="#orgbe49a56">computeInvertedGenerationalDistance</a> (i.e. generational distance with both matrices swapped)</dd>
+<dt><a id="orgea58e95">computeDistanceFromPointToSetOfPoints</a>(a, B, dist.fun [function(x), euclidean by default])</dt><dd>calculates minimum distance from <code>a</code> to any point in <code>B</code></dd>
+<dt><a id="org0509d7a">computeAverageHausdorffDistance</a>(A, B, p = 1, normalize, dist.fun [function(x), euclidean by default])</dt><dd>max of <a href="#orgb61cc0d">computeGenerationalDistance</a> and <a href="#orgc00e45e">computeInvertedGenerationalDistance</a> (i.e. generational distance with both matrices swapped)</dd>
 </dl>
 </div>
 </div>
-<div id="outline-container-org97c751e" class="outline-3">
-<h3 id="org97c751e"><span class="section-number-3">3.2</span> domination</h3>
+<div id="outline-container-orgc3b5907" class="outline-3">
+<h3 id="orgc3b5907"><span class="section-number-3">3.2</span> domination</h3>
 <div class="outline-text-3" id="text-3-2">
 <ul class="org-ul">
 <li>dominated(x), nondominated(x), which.dominated(x), which.nondominated(x)</li>
@@ -635,66 +635,63 @@ Have class <a id="orgcaeb2d2">ecr_emoa_indicator</a>: function with argument 'po
 </ul>
 </div>
 </div>
-<div id="outline-container-org111cb4b" class="outline-3">
-<h3 id="org111cb4b"><span class="section-number-3">3.3</span> logger</h3>
+<div id="outline-container-org86278c6" class="outline-3">
+<h3 id="org86278c6"><span class="section-number-3">3.3</span> logger</h3>
 <div class="outline-text-3" id="text-3-3">
 <p>
-See also <a href="#orgc5c7e03">initLogger</a>.
+See also <a href="#org07c5157">initLogger</a>.
 </p>
 <dl class="org-dl">
-<dt><a id="orgd2f9e66">updateLogger</a>(log, population [list], fitness [matrix], n.evals [integer(1)], extras)</dt><dd><ul class="org-ul">
+<dt><a id="org3fa4bba">updateLogger</a>(log, population [list], fitness [matrix], n.evals [integer(1)], extras)</dt><dd><ul class="org-ul">
 <li>updates log</li>
 </ul></dd>
-<dt><a id="org2fa8be5">toGG</a>(x, strop.stats [character])</dt><dd>convert logger to ggplot2-friendly data.frame</dd>
-<dt><a id="org8662bd8">getStatistics</a>(log, trim = TRUE)</dt><dd>get $stats slot of log's $env, trims unused rows by default.</dd>
-<dt><a id="orgb5d2c5e">getPopulations</a>(log, trim = TRUE)</dt><dd>get the $pop slot of the log's $env, trim unused rows by default.</dd>
-<dt><a id="org7bce3ab">getParetoFront</a>(x)</dt><dd>get the fitness values. can also be applied to <a href="#orgdfce16e">ecr_multi_objective_result</a>.</dd>
+<dt><a id="orga8d5ca3">toGG</a>(x, strop.stats [character])</dt><dd>convert logger to ggplot2-friendly data.frame</dd>
+<dt><a id="orgdbb2855">getStatistics</a>(log, trim = TRUE)</dt><dd>get $stats slot of log's $env, trims unused rows by default.</dd>
+<dt><a id="orgc288db8">getPopulations</a>(log, trim = TRUE)</dt><dd>get the $pop slot of the log's $env, trim unused rows by default.</dd>
+<dt><a id="org351897c">getParetoFront</a>(x)</dt><dd>get the fitness values. can also be applied to <a href="#org3720d8f">ecr_multi_objective_result</a>.</dd>
 </dl>
 </div>
 </div>
-<div id="outline-container-org8927248" class="outline-3">
-<h3 id="org8927248"><span class="section-number-3">3.4</span> Pareto Archive</h3>
+<div id="outline-container-org0fcc9d7" class="outline-3">
+<h3 id="org0fcc9d7"><span class="section-number-3">3.4</span> Pareto Archive</h3>
 <div class="outline-text-3" id="text-3-4">
 <p>
-See also <a href="#org28a06c8">initParetoArchive</a>.
+See also <a href="#orgf2c701c">initParetoArchive</a>.
 </p>
 <dl class="org-dl">
-<dt><a id="orga1a3918">updateParetoArchive</a>(archive, inds [list], fitness [matrix], &#x2026;)</dt><dd><ul class="org-ul">
+<dt><a id="org947c6ba">updateParetoArchive</a>(archive, inds [list], fitness [matrix], &#x2026;)</dt><dd><ul class="org-ul">
 <li>adds points to <code>archive</code> and then reduces them to the nondominated individuals.</li>
 <li>Possibly calls archive$trunc.fun if size oferflows.</li>
 </ul></dd>
-<dt><a id="orgd26c12e">getSize</a>(x)</dt><dd>number of stored individuals in pareto archive.</dd>
-<dt><a id="orgd8e797e">getIndividuals</a>(x)</dt><dd>get the $individuals slot of the archive's $env slot</dd>
+<dt><a id="org05e77d0">getSize</a>(x)</dt><dd>number of stored individuals in pareto archive.</dd>
+<dt><a id="org31ee782">getIndividuals</a>(x)</dt><dd>get the $individuals slot of the archive's $env slot</dd>
 </dl>
 </div>
 </div>
-<div id="outline-container-orgd2bc62c" class="outline-3">
-<h3 id="orgd2bc62c"><span class="section-number-3">3.5</span> Plotting</h3>
+<div id="outline-container-org9002986" class="outline-3">
+<h3 id="org9002986"><span class="section-number-3">3.5</span> Plotting</h3>
 <div class="outline-text-3" id="text-3-5">
 <dl class="org-dl">
-<dt><a id="org2d72d36">plotFront</a>(x, obj.names [character], minimize&gt; [logical])</dt><dd>plot scatterplot of a front</dd>
-<dt><a id="org4be879a">plotStatistics</a>(x [<a href="#orga8e3b1f">ecr_statistics</a> | <a href="#org2c012de">ecr_logger</a>], drop.stats [character])</dt><dd>plot from a <a href="#org111cb4b">logger</a></dd>
+<dt><a id="orga7d809b">plotFront</a>(x, obj.names [character], minimize&gt; [logical])</dt><dd>plot scatterplot of a front</dd>
+<dt><a id="org6a4ff4d">plotStatistics</a>(x [<a href="#org5474253">ecr_statistics</a> | <a href="#org42a38ee">ecr_logger</a>], drop.stats [character])</dt><dd>plot from a <a href="#org86278c6">logger</a></dd>
 </dl>
 </div>
 </div>
 </div>
-<div id="outline-container-orgd048e25" class="outline-2">
-<h2 id="orgd048e25"><span class="section-number-2">4</span> Orphaned</h2>
+<div id="outline-container-orgb4c10c1" class="outline-2">
+<h2 id="orgb4c10c1"><span class="section-number-2">4</span> Orphaned</h2>
 <div class="outline-text-2" id="text-4">
 <ul class="org-ul">
 <li>makeECRMonitor</li>
 <li>setupECRDefaultMonitor</li>
 <li>normalizeFront</li>
 </ul>
-<ul class="org-ul">
-<li><a href="#org67d3da3">asemoa</a></li>
-</ul>
 </div>
 </div>
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: user</p>
-<p class="date">Created: 2019-01-16 Wed 16:27</p>
+<p class="date">Created: 2019-01-17 Thu 09:42</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
