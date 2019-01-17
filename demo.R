@@ -55,7 +55,7 @@ crossover <- combine.operators(ps,
   logical = recUnifCrossover)
 
 # --- create fitness function ---
-resinst <- makeResampleInstance(makeResampleDesc("CV", iters = 10, reps = 1, stratify = TRUE), task = task)
+resinst <- makeResampleInstance(makeResampleDesc("CV", iters = 10, stratify = TRUE), task = task)
 fitness.fun <- function(args) {
   val <- resample(setHyperPars(lrn, par.vals = args), task, resinst, show.info = FALSE)$aggr
   propfeat <- mean(args$selector)
