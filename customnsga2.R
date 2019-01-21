@@ -1,8 +1,8 @@
 
 
 
-my.nsga2 = function(fitness.fun, ...) {
-  args = list(fitness.fun = fitness.fun,
+my.nsga2 = function(...) {
+  args = list(
     mutator = setup(mutPolynomial, eta = 25, p = 0.2),
     recombinator = setup(recSBX, eta = 15, p = 0.7),
     representation = "float",
