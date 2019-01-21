@@ -208,13 +208,14 @@ unify.operators <- function(orig.param.set, operators, paramsets, paramtypes, op
   group.effectivetypes <- paramtypes
   group.param.lengths <- lapply(paramsets, getParamLengths)
   group.param.startidx <- lapply(group.param.lengths, function(x) c(0, cumsum(x)[-length(x)]))
+  group.param.vals <- lapply(paramsets, function(ps) rep(lapply(getValues(ps), names), getParamLengths(ps)))  # TODO: test this!
 
 
-
-  curried.operators <- mapply(operators, group.effectivetypes, paramsets, SIMPLIFY = FALSE, FUN = function(op, type, parset) {
+  curried.operators <- mapply(operators, group.effectivetypes, paramsets, group.param.vals,
+    SIMPLIFY = FALSE, FUN = function(op, type, parset, vals) {
     switch(type,
       logical = op,
-      discrete = ecr::setup(op, values = getValues(parset)),
+      discrete = ecr::setup(op, values = vals),
       numeric = ecr::setup(op, lower = getLower(parset), upper = getUpper(parset)),
       integer = ecr::setup(op, lower = getLower(parset), upper = getUpper(parset))
     )
