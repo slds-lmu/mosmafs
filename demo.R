@@ -70,7 +70,7 @@ initials <- sampleValues(ps, MU, discrete.names = TRUE)
 # --- call ecr() ---
 parallelStartMulticore()
 
-results <- nsga2(fitness.fun = fitness.fun, n.objectives = 2, minimize = TRUE,
+results <- my.nsga2(fitness.fun = fitness.fun, n.objectives = 2, minimize = TRUE,
   mu = MU, lambda = LAMBDA,
   mutator = mutator, recombinator = crossover,
   representation = "custom",
