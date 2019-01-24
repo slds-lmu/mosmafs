@@ -33,7 +33,7 @@ mutRandomChoice <- makeMutator(function(ind, values, p = 0.1) {
 
 
 mutDoubleGeom <- makeMutator(function(ind, p = 1, geomp = 0.9, lower, upper) {
-  affect <- sample(c(FALSE, TRUE), length(ind), replace = TRUE, prob = c(1 - p, p))
+  affect <- runif(length(ind)) < p
   naffect <- sum(affect)
   ind[affect] <- ind[affect] + rgeom(naffect, prob = geomp) - rgeom(naffect, prob = geomp)
   pmin(pmax(lower, ind), upper)
@@ -42,7 +42,7 @@ mutDoubleGeom <- makeMutator(function(ind, p = 1, geomp = 0.9, lower, upper) {
 # crossover mutation operator that crosses over each position iid with prob. p
 # and can also be used for non-binary operators.
 recPCrossover <- makeRecombinator(function(ind, p = 0.1, ...) {
-  crossovers = sample(c(FALSE, TRUE), size = length(ind[[1]]), replace = TRUE, prob = c(1 - p, p))
+  crossovers = runif(length(ind[[1]])) < p
   tmp = ind[[1]][crossovers]
   ind[[1]][crossovers] = ind[[2]][crossovers]
   ind[[2]][crossovers] = tmp
@@ -55,10 +55,10 @@ mutUniformReset <- makeMutator(function(ind, p = 0.1, reset.dist) {
   if (length(reset.dist) == 1) {
     reset.dist = rep(reset.dist, length(ind))
   }
-  assertNumeric(reset.dist, lower = 0, upper = 1, len = length(ind), na.ok = FALSE)
-  affect <- sample(c(FALSE, TRUE), length(ind), replace = TRUE, prob = c(1 - p, p))
+  assertNumeric(reset.dist, lower = 0, upper = 1, len = length(ind), any.missing = FALSE)
+  affect <- runif(length(ind)) < p
   naffect <- sum(affect)
-  ind[affect] <- sample(c(0, 1), naffect, replace = TRUE, prob = c(1 - reset.dist, reset.dist)[affect])
+  ind[affect] <- as.numeric(runif(naffect) < reset.dist[affect])
   ind
 }, supported = "binary")
 
@@ -66,12 +66,23 @@ mutUniformReset <- makeMutator(function(ind, p = 0.1, reset.dist) {
 # reset.dists must be a matrix with `length(ind)` rows and `length(reset.dist.weights)` rows
 # reset.dist.weights must be a numeric greater 0 and smaller than 1
 mutUniformMetaReset <- makeMutator(function(ind, p = 0.1, reset.dists, reset.dist.weights) {
-  assertNumeric(reset.dist.weights, lower = 0, upper = 1 - .Machine$double.eps, na.ok = FALSE)
+  assertNumeric(reset.dist.weights, lower = 0, upper = 1 - .Machine$double.eps, any.missing = FALSE)
   assertMatrix(reset.dists, nrows = length(ind), ncol = length(reset.dist.weights))
   reset.dist.weights <- -log(1 - reset.dist.weights)
   reset.dist.weights <- reset.dist.weights / sum(reset.dist.weights)  # TODO: this could go into trafo
   mutUniformReset(ind, p = p, reset.dist = reset.dists %*% reset.dist.weights)
 }, supported = "binary")
+
+makeFilterStrategy <- function(filtermat, weight.param.name, output.name) {
+  function(ind) {
+    weights <- ind[[weight.param.name]]
+    assertNumeric(weights, lower = 0, upper = 1 - .Machine$double.eps, any.missing = FALSE)
+    assertMatrix(filtermat, ncol = length(weights))
+    weights <- -log(1 - weights)
+    weights <- weights / sum(weights)
+    namedList(output.name, filtermat %*% weights)
+  }
+}
 
 # --------------- tests / experiments -------------------
 
@@ -92,7 +103,7 @@ initials
 resdf = do.call(rbind, replicate(1000, as.data.frame(unlist(lapply(eco(initials[[1]]), as.list), recursive = FALSE)), simplify = FALSE))
 
 
-debug(mutRandomChoice)
+# debug(mutRandomChoice)
 
 eco(initials[[1]])
 
