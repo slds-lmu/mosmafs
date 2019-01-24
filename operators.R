@@ -49,6 +49,30 @@ recPCrossover <- makeRecombinator(function(ind, p = 0.1, ...) {
   wrapChildren(ind[[1]], ind[[2]])
 }, n.parents = 2, n.children = 2)
 
+# uniformly with probability `p`, draw each bit again: 1 w/prob `reset.dist`, 0 otherwise
+# reset.dist can be length 1 or same length as `ind` (which uses a different distribution for each bit).
+mutUniformReset <- makeMutator(function(ind, p = 0.1, reset.dist) {
+  if (length(reset.dist) == 1) {
+    reset.dist = rep(reset.dist, length(ind))
+  }
+  assertNumeric(reset.dist, lower = 0, upper = 1, len = length(ind), na.ok = FALSE)
+  affect <- sample(c(FALSE, TRUE), length(ind), replace = TRUE, prob = c(1 - p, p))
+  naffect <- sum(affect)
+  ind[affect] <- sample(c(0, 1), naffect, replace = TRUE, prob = c(1 - reset.dist, reset.dist)[affect])
+  ind
+}, supported = "binary")
+
+# perform `mutUniformReset`, with reset.dist = reset.dists %*% reset.dist.weights.
+# reset.dists must be a matrix with `length(ind)` rows and `length(reset.dist.weights)` rows
+# reset.dist.weights must be a numeric greater 0 and smaller than 1
+mutUniformMetaReset <- makeMutator(function(ind, p = 0.1, reset.dists, reset.dist.weights) {
+  assertNumeric(reset.dist.weights, lower = 0, upper = 1 - .Machine$double.eps, na.ok = FALSE)
+  assertMatrix(reset.dists, nrows = length(ind), ncol = length(reset.dist.weights))
+  reset.dist.weights <- -log(1 - reset.dist.weights)
+  reset.dist.weights <- reset.dist.weights / sum(reset.dist.weights)  # TODO: this could go into trafo
+  mutUniformReset(ind, p = p, reset.dist = reset.dists %*% reset.dist.weights)
+}, supported = "binary")
+
 # --------------- tests / experiments -------------------
 
 testps <- pSS(x: discrete[a, b, c], y: discrete[m, n, o], z: discrete[x, y, z]^3,
