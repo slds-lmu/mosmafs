@@ -6,7 +6,7 @@ library("checkmate")
 
 # combine operators to be applied to individuals that conform to parameter set param.set.
 # Parameters are the param.set, and the names / types of params with the operator to use.
-# Parameter groups that use a single operator can be defined using `.params.<groupname>` = [character]`
+# Parameter groups that use a single operator can be defined using `.params.<groupname>` = [character]`.
 #
 # say param.set has three logical params 'l1', 'l2', 'l3' and two numeric params 'n1', 'n2'.
 # We want to use operatorA for 'l1' and 'l2', operatorB for 'l3', and operatorC for all numeric
@@ -15,6 +15,14 @@ library("checkmate")
 #
 # Use arguments by types, names of parameters, or group name. Valid types are 'numeric', 'logical', 'integer', 'discrete'.
 # Operators given for groups or individual parameters supercede operators given for types.
+#
+# Strategy parameters can be created by using `.strategy.<groupname|parametername|type>`. They must be a *function*
+# taking a named list of parameter values (i.e. an individuum) as input and return a named list of parameter values
+# to be given to the respective group's / parameter's or type's operator. If, in the example above, `operatorA` has
+# a parameter `sigma` that should also be treated as a parameter under evolution (and in fact be equal to `l3`), then
+# the above call would become
+# combineOperator(param.set, .params.group1 = c("l1", "l2"), group1 = operatorA, .strategy.group1 = function(x) list(sigma = x$l3),
+#   l3 = operatorB, numeric = operatorC)
 #
 # If .binary.discrete.as.logical is TRUE, then binary discrete params are handled as logical params.
 #
@@ -37,10 +45,13 @@ combine.operators <- function(param.set, ..., .binary.discrete.as.logical = TRUE
 
   if (hasRequires(param.set)) stop("Parameters with requirements not currently supported.")
 
-  groupdefidx = grep("^\\.params\\.", names(args))
+  groupdefidx <- grep("^\\.params\\.", names(args))
   groups <- args[groupdefidx]
-  args[groupdefidx] <- NULL
+  stratdefidx <- grep("^\\.strategy\\.", names(args))
+  strats <- args[stratdefidx]
+  args[c(groupdefidx, stratdefidx)] <- NULL
   names(groups) <- gsub("^\\.params\\.", "", names(groups))
+  names(strats) <- gsub("^\\.strategy\\.", "", names(strats))
 
   # at this point *groups* should be a named list of character vectors, and
   # *args* should be a named list of 'ecr_operator' functions
@@ -149,6 +160,15 @@ combine.operators <- function(param.set, ..., .binary.discrete.as.logical = TRUE
     stop("Only one type of operator currently supported")
   }
 
+  #  - check that 'strats' is a list of functions
+  assertList(strats, types = "function", any.missing = FALSE, names = "unique")
+
+  #  - check that strats are only defined for groups / parameters / types that have functions named
+  stratnotfound <- setdiff(names(strats), names(args))
+  if (length(stratnotfound)) {
+    stopf("Strategy/ies defined for %s without corresponding function.", stratnotfound)
+  }
+
   #  - warn if an operator is given for a type that does not occur or
   #    if all parameters of that type have overriding definitions
   unusedtypes <- setdiff(typeargnames, requiredtypegroupnames)
@@ -156,8 +176,6 @@ combine.operators <- function(param.set, ..., .binary.discrete.as.logical = TRUE
     warningf("Function defined for type(s) %s, but no parameters of that type present or non-covered by other group/function.",
       collapse(unusedtypes))
   }
-
-
 
   # ------------------------------------------------------------------------- #
   # Collect parameters into groups                                            #
@@ -171,6 +189,12 @@ combine.operators <- function(param.set, ..., .binary.discrete.as.logical = TRUE
 
   allgroups <- c(groups, typegroups, singletongroups)
   operators <- args[names(allgroups)]  # this drops operators for types that are not needed
+  strats[unusedtypes] <- NULL
+  assertSubset(names(strats), names(allgroups))  # debug assertion
+
+  fullstrats <- namedList(names(allgroups))  # want to have correct ordering
+  fullstrats[names(strats)] <- strats
+
   paramsets <- lapply(allgroups, function(content) {
     ps <- param.set
     ps$pars <- ps$pars[content]
@@ -191,7 +215,7 @@ combine.operators <- function(param.set, ..., .binary.discrete.as.logical = TRUE
     }
   })
 
-  unify.operators(param.set, operators, paramsets, optypes, whichop)
+  unify.operators(param.set, operators, paramsets, optypes, whichop, fullstrats)
 }
 
 # at this point we have
@@ -200,7 +224,8 @@ combine.operators <- function(param.set, ..., .binary.discrete.as.logical = TRUE
 # - paramsets: named list of paramsets for each group
 # - paramtypes: named character 'param name' -> 'effective type' ('effective' in the sense that a binary discrete can be a logical)
 # - optype: character(1) operator type (currently one of "ecr_recombinator", "ecr_mutator")
-unify.operators <- function(orig.param.set, operators, paramsets, paramtypes, optype) {
+# - strats: named list of functions that extract extra parameters ("strategies") from individuals for operators.
+unify.operators <- function(orig.param.set, operators, paramsets, paramtypes, optype, strats) {
   assertChoice(optype, c("ecr_recombinator", "ecr_mutator"))
   param.ids <- getParamIds(orig.param.set)
   group.param.ids <- lapply(paramsets, getParamIds)
@@ -211,14 +236,23 @@ unify.operators <- function(orig.param.set, operators, paramsets, paramtypes, op
   group.param.vals <- lapply(paramsets, function(ps) rep(lapply(getValues(ps), names), getParamLengths(ps)))  # TODO: test this!
 
 
-  curried.operators <- mapply(operators, group.effectivetypes, paramsets, group.param.vals,
-    SIMPLIFY = FALSE, FUN = function(op, type, parset, vals) {
-    switch(type,
-      logical = op,
-      discrete = ecr::setup(op, values = vals),
-      numeric = ecr::setup(op, lower = getLower(parset), upper = getUpper(parset)),
-      integer = ecr::setup(op, lower = getLower(parset), upper = getUpper(parset))
+  curried.operators <- mapply(operators, group.effectivetypes, paramsets, group.param.vals, strats,
+    SIMPLIFY = FALSE, FUN = function(op, type, parset, vals, strategy) {
+    vallist <- switch(type,
+      logical = list(),
+      discrete = list(values = vals),
+      numeric = list(lower = getLower(parset), upper = getUpper(parset)),
+      integer = list(lower = getLower(parset), upper = getUpper(parset))
     )
+    if (is.null(strategy)) {
+      function(ind, fullind) {
+        do.call(op, c(list(ind), vallist))
+      }
+    } else {
+      function(ind, fullind) {
+        do.call(op, c(list(ind), vallist, strategy(fullind)))
+      }
+    }
   })
 
   # input: list of parameter values
@@ -276,7 +310,7 @@ unify.operators <- function(orig.param.set, operators, paramsets, paramtypes, op
   switch(optype,
     ecr_mutator = makeMutator(supported = "custom", function(input) {
       input.list <- input.breakdown(input)
-      output.list <- mapply(curried.operators, input.list, FUN = function(x, y) x(y), SIMPLIFY = FALSE)
+      output.list <- mapply(curried.operators, input.list, strats, FUN = function(x, y) x(y, input), SIMPLIFY = FALSE)
       output.buildup(output.list)
     }),
     ecr_recombinator = makeRecombinator(supported = "custom",
@@ -285,7 +319,7 @@ unify.operators <- function(orig.param.set, operators, paramsets, paramtypes, op
       function(input) {
         input.list <- transpose.list(lapply(input, input.breakdown))
         output.list <- mapply(curried.operators, input.list, SIMPLIFY = FALSE, FUN = function(x, y) {
-          val <- x(y)
+          val <- x(y, input)
           if (!isTRUE(attr(val, "multiple"))) {
             val <- list(val)
           }
