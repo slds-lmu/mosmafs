@@ -1,4 +1,23 @@
 
+intifyMutator <- function(operator) makeMutator(function(ind, ..., lower, upper) {
+  ind <- operator(ind + 0.5, ..., lower = lower, upper = upper + 1)
+  pmin(pmax(lower, floor(ind)), upper)
+}, supported = "custom")
+
+intifyRecombinator <- function(operator) makeRecombinator(function(inds, ..., lower, upper) {
+  children <- operator(list(inds[[1]] + 0.5, inds[[2]] + 0.5), ..., lower, upper + 1)
+  if (attr(children, "multiple")) {
+    return(do.call(wrapChildren, lapply(children, function(x) pmin(pmax(lower, x), upper))))
+  }
+  wrapChildren(pmin(pmax(lower, children), upper))
+},
+n.parents = ecr:::getNumberOfParentsNeededForMating.ecr_recombinator(operator),
+n.children = ecr:::getNumberOfChildren.ecr_recombinator(operator))
+
+mutGaussInt <- intifyMutator(mutGauss)
+mutPolynomialInt <- intifyMutator(mutPolynomial)
+mutUniformInt <- intifyMutator(mutUniform)
+recIntSBX <- intifyRecombinator(recSBX)
 
 # "random choice" mutation operator for discrete parameters: with prob. p chooses
 # one of the available categories at random (this /may/ be the original value!)
@@ -12,6 +31,14 @@ mutRandomChoice <- makeMutator(function(ind, values, p = 0.1) {
   }, ind, values)
 }, supported = "custom")
 
+
+mutDoubleGeom <- makeMutator(function(ind, p = 1, geomp = 0.9, lower, upper) {
+  affect <- sample(c(FALSE, TRUE), length(ind), replace = TRUE, prob = c(1 - p, p))
+  naffect <- sum(affect)
+  ind[affect] <- ind[affect] + rgeom(naffect, prob = geomp) - rgeom(naffect, prob = geomp)
+  pmin(pmax(lower, ind), upper)
+}, supported = "custom")
+
 # crossover mutation operator that crosses over each position iid with prob. p
 # and can also be used for non-binary operators.
 recPCrossover <- makeRecombinator(function(ind, p = 0.1, ...) {
@@ -21,7 +48,6 @@ recPCrossover <- makeRecombinator(function(ind, p = 0.1, ...) {
   ind[[2]][crossovers] = tmp
   wrapChildren(ind[[1]], ind[[2]])
 }, n.parents = 2, n.children = 2)
-
 
 # --------------- tests / experiments -------------------
 
