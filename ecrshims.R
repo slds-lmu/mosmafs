@@ -310,7 +310,7 @@ unify.operators <- function(orig.param.set, operators, paramsets, paramtypes, op
   switch(optype,
     ecr_mutator = makeMutator(supported = "custom", function(input) {
       input.list <- input.breakdown(input)
-      output.list <- mapply(curried.operators, input.list, strats, FUN = function(x, y) x(y, input), SIMPLIFY = FALSE)
+      output.list <- mapply(curried.operators, input.list, FUN = function(x, y) x(y, input), SIMPLIFY = FALSE)
       output.buildup(output.list)
     }),
     ecr_recombinator = makeRecombinator(supported = "custom",

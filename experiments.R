@@ -121,6 +121,10 @@ specrec <- makeRecombinator(identity, supported = "custom", n.parents = 2, n.chi
 class(specrec) <- c(class(specrec), "ecr_mutator")
 expect_error(combine.operators(param.set.numeric, .params.x = c("a", "b"), x = specrec),
   "Only one type of operator")
+expect_error(combine.operators(param.set.numeric, .params.x = c("a", "b"), x = recIntermediate, .strategy.x = 1),
+  "only contain.*function")
+expect_error(combine.operators(param.set.numeric, .params.x = c("a", "b"), x = recIntermediate,
+  .strategy.x = identity, .strategy.a = identity), " a without corresponding function")
 expect_warning(combine.operators(param.set.numeric, .params.x = c("a", "b"), x = recSBX, numeric = recPMX),
   " numeric, but no parameters of that type present")
 
@@ -175,6 +179,17 @@ op <- combine.operators(fullps,
 
 op(sampleValue(fullps, discrete.names = TRUE))
 
+op <- combine.operators(
+  pSS(one: numeric[, ]^4, two: numeric[, ], three: numeric[0, ]),
+  three = mutGauss,
+  numeric = mutGauss,
+  .strategy.numeric = function(ind) list(sdev = ind$three))
+
+indiv1 <- list(one = c(0, 0, 0, 0), two = 0, three = .01)
+indiv2 <- list(one = c(0, 0, 0, 0), two = 0, three = 100)
+
+op(indiv1)
+op(indiv2)
 
 
 op(sampleValue(param.set.numeric, discrete.names = TRUE))
