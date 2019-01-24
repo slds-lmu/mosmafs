@@ -204,7 +204,8 @@ combine.operators <- function(param.set, ..., .binary.discrete.as.logical = TRUE
 
   # one last sanity check: operators need to have the specified parameters
   # Note: we don't always need the lower / upper argument
-  mapply(optypes, operators, names(allgroups), SIMPLIFY = FALSE, FUN = function(type, op, opname) {
+  mapply(optypes, operators, names(allgroups), fullstrats, SIMPLIFY = FALSE, FUN = function(type, op, opname, strategy) {
+    if (!is.null(strategy)) return(NULL)  # if there is a strategy it will hopefully fill the gap.
     nondefaults <- names(Filter(function(x) identical(x, substitute()), formals(args(op))))
     required <- required.opargs[[type]]
     leftargs <- setdiff(nondefaults, c(required, "..."))
