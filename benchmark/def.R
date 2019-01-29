@@ -20,14 +20,13 @@ pdes = list("hypersphere" = CJ(p.inf = p.inf, p.noise = p.noise, n = n))
 # --- Specify algorithm design ---
 # This needs to be completed
 MU = 15L
-LAMBDA = 5L 
+LAMBDA = 3L 
 MAXEVAL = 5L
 
-LEARNERS = list("SVM" = cpoSelector() %>>% makeLearner("classif.ksvm", kernel = "polydot"))
+LEARNERS = list("SVM" = cpoSelector() %>>% makeLearner("classif.ksvm", kernel = "rbfdot"))
 
 PAR.SETS = list(
 	SVM = pSS(	  
-	degree: integer[1, 10],
 	C: numeric[0.1, 10]
 	)
 )

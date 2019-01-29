@@ -52,12 +52,12 @@ mosmafs = function(data, job, instance, learner, lambda, mu, maxeval) {
   ps = c(ps, pSS(selector.selection: logical^getTaskNFeats(task)))
   
   # --- create operators ---
-  mutator <- combine.operators(ps,
+  mutator = combine.operators(ps,
     numeric = mutGauss,
     logical = mutBitflip,
     integer = mutUniformInt,
     selector.selection = mutBitflip
-    )
+  )
 
   crossover = combine.operators(ps,
     numeric = recSBX,
@@ -81,7 +81,7 @@ mosmafs = function(data, job, instance, learner, lambda, mu, maxeval) {
     representation = "custom",
     initial.solutions = initials,
     log.pop = TRUE,
-    terminators = list(stopOnEvals(maxeval)))
+    terminators = list(stopOnIters(15)))
 
   return(results)
 }
