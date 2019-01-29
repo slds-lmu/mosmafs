@@ -5,9 +5,9 @@ intifyMutator <- function(operator) makeMutator(function(ind, ..., lower, upper)
 }, supported = "custom")
 
 intifyRecombinator <- function(operator) makeRecombinator(function(inds, ..., lower, upper) {
-  children <- operator(list(inds[[1]] + 0.5, inds[[2]] + 0.5), ..., lower, upper + 1)
+  children <- operator(list(inds[[1]] + 0.5, inds[[2]] + 0.5), ..., lower = lower, upper = upper + 1)
   if (attr(children, "multiple")) {
-    return(do.call(wrapChildren, lapply(children, function(x) pmin(pmax(lower, x), upper))))
+    return(do.call(wrapChildren, lapply(children, function(x) pmin(pmax(lower, floor(x)), upper))))
   }
   wrapChildren(pmin(pmax(lower, children), upper))
 },
