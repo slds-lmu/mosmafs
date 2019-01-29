@@ -21,7 +21,7 @@ pdes = list("hypersphere" = CJ(p.inf = p.inf, p.noise = p.noise, n = n))
 # This needs to be completed
 MU = 15L
 LAMBDA = 3L 
-MAXEVAL = 5L
+MAXEVAL = 1000L
 
 LEARNERS = list("SVM" = cpoSelector() %>>% makeLearner("classif.ksvm", kernel = "rbfdot"))
 

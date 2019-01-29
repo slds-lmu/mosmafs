@@ -1,12 +1,12 @@
 library(batchtools)
 library("magrittr")
 
-source("def.R")
 source("../datagen.R")
 source("../ecrshims.R")
 source("../selectorcpo.R")
 source("../customnsga2.R")
 source("../operators.R")
+source("def.R")
 
 
 if (file.exists("registry")) {
@@ -37,10 +37,6 @@ for (i in seq_along(task.type)) {
 
 
 mosmafs = function(data, job, instance, learner, lambda, mu, maxeval) {
-
-  dataset = create.hypersphere.data(4, 100) 
-  task = dataset %>% create.classif.task(id = "test") %>% task.add.random.cols(num = 10)
-  learner = "SVM"
 
   # task, learner and parameter set
   task = instance$task
