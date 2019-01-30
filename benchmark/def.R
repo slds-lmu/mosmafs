@@ -3,41 +3,46 @@ library(data.table)
 # do not overwrite registry
 OVERWRITE = FALSE
 
-# --- Specify problem design ---
-# p.inf: number of informative features
-# p.noise: number of uninformative, noisy features
-# n: number of observations
-# task.type: hypersphere data or linear data
-p.inf = 4
-p.noise = c(10, 100, 1000)
-n = 1000
-
-task.type = list("hypersphere" = create.hypersphere.data)
+# --- problem design ---
 
 # problem design
-pdes = list("hypersphere" = CJ(p.inf = p.inf, p.noise = p.noise, n = n))
+pdes = list(hypersphere = data.table(p.inf = 4, p.noise = c(10, 100, 1000), n = 1000),
+			vehicle = data.table(id = 53))
+
 
 # --- Specify algorithm design ---
-# This needs to be completed
-MU = 15L
-LAMBDA = 3L 
-MAXEVAL = 1000L
 
-LEARNERS = list("SVM" = cpoSelector() %>>% makeLearner("classif.ksvm", kernel = "rbfdot"))
+# Machine learning algorithms to be benchmarked
+LEARNERS = list("SVM" = cpoSelector() %>>% makeLearner("classif.ksvm", kernel = "polynomial"))
 
+# Tuning parameter sets to be benchmarked
 PAR.SETS = list(
 	SVM = pSS(	  
-	C: numeric[0.1, 10]
+	C: numeric[0.1, 10],
+	degree: integer[1, 10],
 	)
 )
 
+# EA hyperparameters
+MU = 15L
+LAMBDA = 3L 
+MAXEVAL = 500L
+
+# Filtering and Initialization hyperparameters
+FILTER_METHOD = list("auc" = "auc")
+FILTER_PARAMS = list("auc" = list(expectfeats = 5, minprob = 0.1, maxprob = 0.9))
+
+
 ades = CJ(learner = c("SVM"), 
-	mu = MU, 
-	lambda = LAMBDA,
+	mu = MU, lambda = LAMBDA,
 	maxeval = MAXEVAL, 
+	filter.method = c(NA, "auc"),
 	sorted = FALSE)
 
-REPLICATIONS = 10
+
+REPLICATIONS = 1
+
+
 
 
 # Datasets used by Bourani et al. 
