@@ -29,7 +29,7 @@ fun = function(job, data, p.inf, p.noise, n, ...) {
 addProblem("lin.toy.data", fun = fun, reg = reg)
 
 fun = function(job, data, id) convertOMLTaskToMlr(getOMLTask(task.id = id))$mlr.task
-addProblem("vehicle", fun = fun, reg = reg)
+addProblem("ionosphere", fun = fun, reg = reg)
 
 mosmafs = function(data, job, instance, learner, lambda, mu, maxeval, filter.method) {
 

@@ -8,6 +8,6 @@ tosubmit = ijoin(tab, findNotDone(), by = "job.id")
 
 # tosubmit = tosubmit[- which(job.id %in% findOnSystem()$job.id), ]
 
-reg$cluster.functions = makeClusterFunctionsSocket()
+# reg$cluster.functions = makeClusterFunctionsSocket()
 
 submitJobs(tosubmit$job.id)

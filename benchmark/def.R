@@ -16,7 +16,7 @@ OVERWRITE = FALSE
 # problem design
 pdes = list(hypersphere = data.table(p.inf = 4, p.noise = c(10, 100, 200), n = 100),
 			lin.toy.data = data.table(n = 100),
-			vehicle = data.table(id = 53))
+			ionosphere = data.table(id = 287))
 
 
 # --- Specify algorithm design ---
@@ -27,15 +27,15 @@ LEARNERS = list("SVM" = cpoSelector() %>>% makeLearner("classif.ksvm", kernel = 
 # Tuning parameter sets to be benchmarked
 PAR.SETS = list(
 	SVM = pSS(	  
-	C: numeric[0.1, 10],
-	degree: integer[1, 10]
+	C: numeric[10^(-3), 10^3],
+	degree: integer[1, 20]
 	)
 )
 
 # EA hyperparameters
-MU = 15L
-LAMBDA = 3L 
-MAXEVAL = 30L
+MU = 20L
+LAMBDA = 5L 
+MAXEVAL = 200L
 
 # Filtering and Initialization hyperparameters
 FILTER_METHOD = list("none" = "none", "auc" = "auc")
@@ -49,7 +49,7 @@ ades = CJ(learner = c("SVM"),
 	sorted = FALSE)
 
 
-REPLICATIONS = 1
+REPLICATIONS = 10
 
 
 
