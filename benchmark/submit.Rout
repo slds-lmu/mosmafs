@@ -1,0 +1,81 @@
+
+R version 3.4.4 (2018-03-15) -- "Someone to Lean On"
+Copyright (C) 2018 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+[Previously saved workspace restored]
+
+> library(batchtools)
+Loading required package: data.table
+> library(stringi)
+> 
+> reg = loadRegistry("registry", writeable = TRUE)
+Reading registry in read-write mode
+Loading required package: mlr
+Loading required package: ParamHelpers
+Loading required package: ecr
+Loading required package: BBmisc
+
+Attaching package: ‘BBmisc’
+
+The following object is masked from ‘package:batchtools’:
+
+    chunk
+
+Loading required package: smoof
+Loading required package: checkmate
+Loading required package: OpenML
+Loading required package: magrittr
+Loading required package: mlrCPO
+No readable configuration file found
+> tab = summarizeExperiments(by = c("job.id", "problem", "p.inf", "p.noise", "n", "filter.method"))
+> 
+> tosubmit = ijoin(tab, findNotDone(), by = "job.id")
+> 
+> # tosubmit = tosubmit[- which(job.id %in% findOnSystem()$job.id), ]
+> 
+> reg$cluster.functions = makeClusterFunctionsSocket()
+Auto-detected 8 CPUs
+> 
+> submitJobs(tosubmit$job.id)
+Submitting 8 jobs in 8 chunks using cluster functions 'Socket' ...
+> 
+> proc.time()
+   user  system elapsed 
+ 70.124   1.624  39.134 
+Error in summary.connection(connection) : invalid connection
+Calls: <Anonymous> ... sendData.SOCKnode -> serialize -> summary -> summary.connection
+Error in unserialize(node$con) : error reading from connection
+Calls: local ... doTryCatch -> recvData -> recvData.SOCKnode -> unserializError in unserialize(node$con) : error reading from connection
+Calls: local ... doTryCatch -> recvData -> recvData.SOCKnode -> unserialize
+Execution halted
+Error in unserialize(node$con) : error reading from connection
+Calls: local ... doTryCatch -> recvData -> recvData.SOCKnode -> unserialize
+Execution halted
+Error in unserialize(node$con) : error reading from connection
+Calls: local ... doTryCatch -> recvData -> recvData.SOCKnode -> unserialize
+Execution halted
+Error in unserializError in unserialize(node$con) : error reading from connection
+Calls: local ... doTryCatch -> recvData -> recvData.SOCKnode -> unserializError in unserialize(node$con) : error reading from connection
+Calls: local ... doTryCatch -> recvData -> recvData.SOCKnode -> unserialize
+Execution halted
+Error in unserialize(node$con) : error reading from connection
+Calls: local ... doTryCatch -> recvData -> recvData.SOCKnode -> unserialize
+Execution halted
+e
+Execution halted
+Error in unserialize(node$con) : error reading from connection
+Calls: local ... doTryCatch -> recvData -> recvData.SOCKnode -> unserialize
+Execution halted

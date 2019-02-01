@@ -1,4 +1,12 @@
-library(data.table)
+packages = c("mlr", "ecr", "OpenML", "magrittr", "mlrCPO", "data.table", "farff")
+
+sapply(packages, require, character.only = TRUE)
+
+source("../datagen.R")
+source("../ecrshims.R")
+source("../selectorcpo.R")
+source("../customnsga2.R")
+source("../operators.R")
 
 # do not overwrite registry
 OVERWRITE = FALSE
@@ -6,37 +14,38 @@ OVERWRITE = FALSE
 # --- problem design ---
 
 # problem design
-pdes = list(hypersphere = data.table(p.inf = 4, p.noise = c(10, 100, 1000), n = 1000),
+pdes = list(hypersphere = data.table(p.inf = 4, p.noise = c(10, 100, 200), n = 100),
+			lin.toy.data = data.table(n = 100),
 			vehicle = data.table(id = 53))
 
 
 # --- Specify algorithm design ---
 
 # Machine learning algorithms to be benchmarked
-LEARNERS = list("SVM" = cpoSelector() %>>% makeLearner("classif.ksvm", kernel = "polynomial"))
+LEARNERS = list("SVM" = cpoSelector() %>>% makeLearner("classif.ksvm", kernel = "polydot"))
 
 # Tuning parameter sets to be benchmarked
 PAR.SETS = list(
 	SVM = pSS(	  
 	C: numeric[0.1, 10],
-	degree: integer[1, 10],
+	degree: integer[1, 10]
 	)
 )
 
 # EA hyperparameters
 MU = 15L
 LAMBDA = 3L 
-MAXEVAL = 500L
+MAXEVAL = 30L
 
 # Filtering and Initialization hyperparameters
-FILTER_METHOD = list("auc" = "auc")
-FILTER_PARAMS = list("auc" = list(expectfeats = 5, minprob = 0.1, maxprob = 0.9))
+FILTER_METHOD = list("none" = "none", "auc" = "auc")
+FILTER_PARAMS = list("none" = NA, "auc" = list(expectfeats = 5, minprob = 0.1, maxprob = 0.9))
 
 
 ades = CJ(learner = c("SVM"), 
 	mu = MU, lambda = LAMBDA,
 	maxeval = MAXEVAL, 
-	filter.method = c(NA, "auc"),
+	filter.method = c("none", "auc"),
 	sorted = FALSE)
 
 

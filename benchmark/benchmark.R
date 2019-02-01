@@ -1,26 +1,21 @@
 library(batchtools)
 library("magrittr")
 library(OpenML)
+library(ecr)
 
-source("../datagen.R")
-source("../ecrshims.R")
-source("../selectorcpo.R")
-source("../customnsga2.R")
-source("../operators.R")
 source("def.R")
-
 
 if (file.exists("registry")) {
   if (OVERWRITE) {
     unlink("registry", recursive = TRUE)
     reg = makeExperimentRegistry(seed = 123L,
-      packages = c("mlr", "ecr", "OpenML"), source = "def.R")
+      packages = packages, source = "def.R")
   } else {
     reg = loadRegistry("registry", writeable = TRUE)
   }
 } else {
   reg = makeExperimentRegistry(seed = 123L,
-    packages = c("mlr", "ecr", "OpenML"), source = "def.R")
+    packages = packages, source = "def.R")
 }
 
 fun = function(job, data, p.inf, p.noise, n, ...) {
@@ -28,9 +23,13 @@ fun = function(job, data, p.inf, p.noise, n, ...) {
 }
 addProblem("hypersphere", fun = fun, reg = reg)
 
+fun = function(job, data, p.inf, p.noise, n, ...) {
+    create.linear.toy.data(n) %>% create.classif.task(id = "lin.toy.task")
+}
+addProblem("lin.toy.data", fun = fun, reg = reg)
+
 fun = function(job, data, id) convertOMLTaskToMlr(getOMLTask(task.id = id))$mlr.task
 addProblem("vehicle", fun = fun, reg = reg)
-
 
 mosmafs = function(data, job, instance, learner, lambda, mu, maxeval, filter.method) {
 
@@ -54,22 +53,16 @@ mosmafs = function(data, job, instance, learner, lambda, mu, maxeval, filter.met
   initials = sampleValues(ps, mu, discrete.names = TRUE)
 
 
-  if (!is.na(filter.method)) {
+  if (filter.method != "none") {
     filtervals = generateFilterValuesData(task, method = FILTER_METHOD[[filter.method]])
     filtervals = filtervals$data[-(1:2)]
     
-    EXPECTFEATS = 5  # expectation value of number of features to include in genesis population
-    MINPROB = .1  # min prob per feature to be in genesis pop
-    MAXPROB = .9  # max prob per feature to be in genesis pop
+
 
     FILTERMAT = apply(filtervals, 2, function(col) {
+      
       col = col - mean(col)
-      meanprob = EXPECTFEATS / getTaskNFeats(task)
-      if (0 %in% range(col)) {
-        return(col + meanprob)
-      }
-      shrinkage = max(range(col) / (c(MINPROB, MAXPROB) - meanprob))
-      col / shrinkage + meanprob
+      col = (col - min(col)) / (max(col) - min(col))
     })
         
     initials = lapply(initials, function(x) {
@@ -111,10 +104,4 @@ addExperiments(reg = reg,
   prob.designs = pdes, 
   algo.designs = list(mosmafs = ades),
   repls = REPLICATIONS)
-
-tab = summarizeExperiments(by = c("job.id", "problem", "p.inf", "p.noise", "n", "filter.method"))
-
-
-
-
 
