@@ -50,6 +50,24 @@ create.hypersphere.data <- function(dim, n, dist = function(x) runif(x, -1, 1), 
   list(X = X, Y = Y, orig.features = rep(TRUE, dim))
 }
 
+# linear toy data (Weston, Feature Selection for SVMs)
+# Creates matrix X and vector Y:
+# With six dimensions out of 202 relevant
+# probability of y = 1 or -1 equal
+# With a prob of 0.7: we draw xi = y * norm(i, 1) for i = 1, 2, 3 and xi = norm(0, 1) for i = 4, 5, 6
+# otherwise: xi = norm(0, 1) for i = 1, 2, 3 and xi = y * N(i - 3, 1)
+# all other features are noise
+create.linear.toy.data <- function(n) {
+  Y = sample(c(- 1, 1), n, replace = TRUE)
+  X1 = cbind(apply(matrix(1:3, nrow = 1), 2, function(i) Y * rnorm(n, i, 1)), replicate(3, rnorm(n)))
+  X2 = cbind(replicate(3, rnorm(n)), apply(matrix(1:3, nrow = 1), 2, function(i) Y * rnorm(n, i - 3, 1)))
+  u = runif(n)
+  X = rbind(X1[u <= 0.7, ], X2[u > 0.7, ])
+  X = cbind(X, replicate(196, rnorm(n, 0, 20)))
+  list(X = X, Y = Y)
+}
+
+
 # data must have $X and $Y
 create.regr.task <- function(id, data) {
   makeRegrTask(id, data.frame(X = data$X, Y = data$Y), target = "Y")
@@ -134,3 +152,4 @@ task.add.permuted.cols <- function(task, num) {
   newid <- paste0(getTaskId(task), ".withperm")
   clonetask(task, newdata, newid, orig.features)
 }
+
