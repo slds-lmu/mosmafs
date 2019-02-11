@@ -41,12 +41,16 @@ MAXEVAL = 200L
 FILTER_METHOD = list("none" = "none", "auc" = "auc")
 FILTER_PARAMS = list("none" = NA, "auc" = list(expectfeats = 5, minprob = 0.1, maxprob = 0.9))
 
+RESAMPLING = list("10CV" = makeResampleDesc("CV", iters = 10, stratify = TRUE))
+
 
 ades = CJ(learner = c("SVM"), 
 	mu = MU, lambda = LAMBDA,
 	maxeval = MAXEVAL, 
 	filter.method = c("none", "auc"),
+	resampling = c("10CV"),
 	sorted = FALSE)
+
 
 
 REPLICATIONS = 10
