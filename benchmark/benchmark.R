@@ -34,7 +34,7 @@ addProblem("ionosphere", fun = fun, reg = reg)
 
 
 
-mosmafs = function(data, job, instance, learner, lambda, mu, maxeval, filter.method, resampling) {
+mosmafs = function(data, job, instance, learner, lambda, mu, maxeval, filter.method, resampling, initialization) {
 
   # --- task and learner ---
   task = instance
@@ -63,20 +63,25 @@ mosmafs = function(data, job, instance, learner, lambda, mu, maxeval, filter.met
 
   initials = sampleValues(ps, mu, discrete.names = TRUE)
 
-  if (filter.method != "none") {
-    filtervals = generateFilterValuesData(task.train, method = FILTER_METHOD[[filter.method]])
-    filtervals = filtervals$data[-(1:2)]
+  sample.pars = INITIALIZATION[[initialization]]
+  args = sample.pars[-1]
+  sampler = sample.pars[[1]]
+  initials = resamplePopulationFeatures(inds = initials, ps = ps, sampler = sampler, args = args) 
 
-    FILTERMAT = apply(filtervals, 2, function(col) {
-      col = col - mean(col)
-      col = (col - min(col)) / (max(col) - min(col))
-    })
+  # if (filter.method != "none") {
+  #   filtervals = generateFilterValuesData(task.train, method = FILTER_METHOD[[filter.method]])
+  #   filtervals = filtervals$data[-(1:2)]
+
+  #   FILTERMAT = apply(filtervals, 2, function(col) {
+  #     col = col - mean(col)
+  #     col = (col - min(col)) / (max(col) - min(col))
+  #   })
         
-    initials = lapply(initials, function(x) {
-      x$selector.selection = sapply(FILTERMAT[, 1], function(x) sample(c(FALSE, TRUE), size = 1, p = c(1 - x, x)))
-      x
-    })
-  } 
+  #   initials = lapply(initials, function(x) {
+  #     x$selector.selection = sapply(FILTERMAT[, 1], function(x) sample(c(FALSE, TRUE), size = 1, p = c(1 - x, x)))
+  #     x
+  #   })
+  # } 
 
   mutator = combine.operators(ps,
   numeric = mutGauss,

@@ -7,6 +7,8 @@ source("../ecrshims.R")
 source("../selectorcpo.R")
 source("../customnsga2.R")
 source("../operators.R")
+source("../initialization.R")
+
 
 # do not overwrite registry
 OVERWRITE = FALSE
@@ -35,6 +37,11 @@ PAR.SETS = list(
 # Maximum number of evaluations allowed
 MAXEVAL = 20L
 
+
+# feature initialization of initial population
+INITIALIZATION = list("none" = NULL, "unif" = list(dist = runif), "rgeom0.3" = list(dist = rgeom, prob = 0.3))
+
+
 # Filtering and Initialization hyperparameters
 FILTER_METHOD = list("none" = "none", "auc" = "auc")
 FILTER_PARAMS = list("none" = NA, "auc" = list(expectfeats = 5, minprob = 0.1, maxprob = 0.9))
@@ -47,11 +54,15 @@ ades = CJ(learner = c("SVM"),
 	maxeval = MAXEVAL, 
 	filter.method = c("none", "auc"),
 	resampling = c("10CV"),
+	initialization = c("unif", "rgeom0.3"),
 	sorted = FALSE)
 
 # add baseline with random sampling
-baseline = CJ(learner = unique(ades$learner), mu = MAXEVAL, lambda = 1L,
-	maxeval = MAXEVAL, filter.method = "none", resampling = c("10CV"), sorted = FALSE)
+baseline = CJ(learner = unique(ades$learner), 
+	mu = MAXEVAL, lambda = 1L,
+	maxeval = MAXEVAL, filter.method = "none", 
+	resampling = c("10CV"), initialization = c("none"), 
+	sorted = FALSE)
 
 # add baseline
 ades = rbind(ades, baseline)
