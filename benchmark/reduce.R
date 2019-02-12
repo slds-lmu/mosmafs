@@ -17,11 +17,3 @@ saveRDS(res, "registry/res.rds")
 
 
 
-getAllIndividuals = function(results) {
-	pops = lapply(getPopulations(results$log), function(x) do.call("rbind", lapply(x$population, unlist)))
-	pops = lapply(1:length(pops), function(i) cbind(i, pops[[i]]))
-	pops = do.call("rbind", pops)
-	pops = pops[!duplicated(pops[, -1]), ]
-
-}
-

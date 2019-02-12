@@ -93,7 +93,7 @@ mosmafs = function(data, job, instance, learner, lambda, mu, maxeval, filter.met
 
   results = my.nsga2(
     fitness.fun = fitness.fun, n.objectives = 2L, minimize = TRUE,
-    mu = mu, lambda = lambda,
+    mu = mu, lambda = round(lambda * mu),
     mutator = mutator, recombinator = crossover,
     representation = "custom",
     initial.solutions = initials,
@@ -103,36 +103,10 @@ mosmafs = function(data, job, instance, learner, lambda, mu, maxeval, filter.met
   return(list(results = results, task.test = task.test))
 }
 
-randomsearch = function(data, job, instance, learner, maxeval) {
-
-  # task, learner and parameter set
-  task = instance
-  lrn = LEARNERS[[learner]]
-  resinst = makeResampleInstance(makeResampleDesc("CV", iters = 10, stratify = TRUE), task = task) 
-  
-  # --- parameter set ---
-  ps = PAR.SETS[[learner]]
-  ps = c(ps, pSS(selector.selection: logical^getTaskNFeats(task)))
-  
-  # --- create fitness function ---
-  fitness.fun = function(args) {
-    args = args[intersect(names(args), getParamIds(getParamSet(lrn)))]
-    val = resample(setHyperPars(lrn, par.vals = args), task, resinst, show.info = FALSE)$aggr
-    propfeat = mean(args$selector)
-    c(perf = val, feat = propfeat)
-  }
-
-  initials = sampleValues(ps, maxeval, discrete.names = TRUE)
-  fitnesses = sapply(initials, fitness.fun)
-
-  return(list(initials = initials, fitnesses = fitnesses))
-}
-
 addAlgorithm(name = "mosmafs", reg = reg, fun = mosmafs)
-addAlgorithm(name = "randomsearch", reg = reg, fun = randomsearch)
 
 addExperiments(reg = reg, 
   prob.designs = pdes, 
-  algo.designs = list(mosmafs = ades, randomsearch = data.table(learner = "SVM", maxeval = MAXEVAL)),
+  algo.designs = list(mosmafs = ades),
   repls = REPLICATIONS)
 

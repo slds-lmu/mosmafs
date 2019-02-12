@@ -32,10 +32,8 @@ PAR.SETS = list(
 	)
 )
 
-# EA hyperparameters
-MU = 20L
-LAMBDA = 5L 
-MAXEVAL = 200L
+# Maximum number of evaluations allowed
+MAXEVAL = 20L
 
 # Filtering and Initialization hyperparameters
 FILTER_METHOD = list("none" = "none", "auc" = "auc")
@@ -45,15 +43,20 @@ RESAMPLING = list("10CV" = makeResampleDesc("CV", iters = 10, stratify = TRUE))
 
 
 ades = CJ(learner = c("SVM"), 
-	mu = MU, lambda = LAMBDA,
+	mu = c(10), lambda = c(0.1, 0.5),
 	maxeval = MAXEVAL, 
 	filter.method = c("none", "auc"),
 	resampling = c("10CV"),
 	sorted = FALSE)
 
+# add baseline with random sampling
+baseline = CJ(learner = unique(ades$learner), mu = MAXEVAL, lambda = 1L,
+	maxeval = MAXEVAL, filter.method = "none", resampling = c("10CV"), sorted = FALSE)
 
+# add baseline
+ades = rbind(ades, baseline)
 
-REPLICATIONS = 10
+REPLICATIONS = 1
 
 
 

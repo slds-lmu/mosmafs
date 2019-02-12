@@ -7,16 +7,6 @@ dir.create("registry/plots")
 dir.create("registry/plots/domhypervol")
 dir.create("registry/plots/paretofront")
 
-fitnesses <- function(results) {
-  pops <- getPopulations(results$log)
-  do.call(rbind, lapply(seq_along(pops), function(idx) {
-    pop <- pops[[idx]]
-    df <- as.data.frame(t(pop$fitness))
-    colnames(df) <- c("perf", "propfeat")
-    df$iter <- idx
-    df
-  }))
-}
 
 for (i in 1:nrow(res)) {
 	job.id = res[i, ]$job.id
