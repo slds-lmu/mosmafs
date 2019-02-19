@@ -24,11 +24,6 @@ fun = function(job, data, p.inf, p.noise, n, ...) {
 }
 addProblem("hypersphere", fun = fun, reg = reg)
 
-fun = function(job, data, p.inf, p.noise, n, ...) {
-    create.linear.toy.data(n) %>% create.classif.task(id = "lin.toy.task")
-}
-addProblem("lin.toy.data", fun = fun, reg = reg)
-
 fun = function(job, data, id) convertOMLTaskToMlr(getOMLTask(task.id = id))$mlr.task
 addProblem("ionosphere", fun = fun, reg = reg)
 
@@ -54,20 +49,23 @@ mosmafs = function(data, job, instance, learner, lambda, mu, maxeval, filter.met
   ps = c(ps, pSS(selector.selection: logical^getTaskNFeats(task)))
   
   # --- create fitness function ---
-  fitness.fun = function(args) {
+  fitness.fun = function(args, task = task.train, resampling = resinner) {
     args = args[intersect(names(args), getParamIds(getParamSet(lrn)))]
-    val = resample(setHyperPars(lrn, par.vals = args), task.train, resinner, show.info = FALSE)$aggr
+    val = resample(setHyperPars(lrn, par.vals = args), task, resampling, show.info = FALSE)$aggr
     propfeat = mean(args$selector)
     c(perf = val, feat = propfeat)
   }
 
   initials = sampleValues(ps, mu, discrete.names = TRUE)
 
-  sample.pars = INITIALIZATION[[initialization]]
-  args = sample.pars[-1]
-  sampler = sample.pars[[1]]
-  initials = resamplePopulationFeatures(inds = initials, ps = ps, sampler = sampler, args = args) 
-
+  if (initialization != "none"){
+    sample.pars = INITIALIZATION[[initialization]]
+    args = sample.pars[-1]
+    if (is.null(args))
+      args = list()
+    sampler = sample.pars[[1]]
+    initials = resamplePopulationFeatures(inds = initials, ps = ps, sampler = sampler, args = args) 
+  }
   # if (filter.method != "none") {
   #   filtervals = generateFilterValuesData(task.train, method = FILTER_METHOD[[filter.method]])
   #   filtervals = filtervals$data[-(1:2)]
@@ -96,6 +94,8 @@ mosmafs = function(data, job, instance, learner, lambda, mu, maxeval, filter.met
     discrete = recPCrossover,
     logical = recUnifCrossover)
 
+  time = proc.time()
+
   results = my.nsga2(
     fitness.fun = fitness.fun, n.objectives = 2L, minimize = TRUE,
     mu = mu, lambda = round(lambda * mu),
@@ -105,7 +105,28 @@ mosmafs = function(data, job, instance, learner, lambda, mu, maxeval, filter.met
     log.pop = TRUE, 
     terminators = list(stopOnEvals(maxeval)))
 
-  return(list(results = results, task.test = task.test))
+  runtime = proc.time() - time
+
+  # do nondom sorting for every step
+  pops = getPopulations(results$log)
+  ranks = lapply(pops, function(x) doNondominatedSorting(x$fitness)) 
+  paretofront = lapply(ranks, function(x) which(x$ranks == 1))
+  domhypervol = lapply(seq_along(pops), function(x) computeHV(pops[[x]]$fitness[, paretofront[[x]]], ref.point = c(1, 1)))
+
+  # evaluate the final candidates on the testset
+  eval.outer = function(args) {
+    args = args[intersect(names(args), getParamIds(getParamSet(lrn)))]
+    mod = train(setHyperPars(lrn, par.vals = args), task.train)
+    pred = predict(mod, task.test)
+    perf = performance(pred)
+    propfeat = mean(args$selector)
+    c(perf = perf, feat = propfeat)
+  }  
+
+  pareto.front.test = lapply(results$pareto.set, eval.outer)
+
+  return(list(results = results, task.test = task.test, task.train = task.train, runtime = runtime, ps = ps, paretofront = paretofront, 
+    pareto.front.test = pareto.front.test, domhypervol = domhypervol))
 }
 
 addAlgorithm(name = "mosmafs", reg = reg, fun = mosmafs)

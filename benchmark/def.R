@@ -11,31 +11,35 @@ source("../initialization.R")
 
 
 # do not overwrite registry
-OVERWRITE = FALSE
+OVERWRITE = TRUE
 
 # --- problem design ---
 
 # problem design
-pdes = list(hypersphere = data.table(p.inf = 4, p.noise = c(10, 100, 200), n = 100),
-			lin.toy.data = data.table(n = 100),
-			ionosphere = data.table(id = 287))
+pdes = list(hypersphere = data.table(p.inf = 4, p.noise = c(20, 100), n = c(200, 1000))) #,
+			# ionosphere = data.table(id = 287))
 
 
 # --- Specify algorithm design ---
 
 # Machine learning algorithms to be benchmarked
-LEARNERS = list("SVM" = cpoSelector() %>>% makeLearner("classif.ksvm", kernel = "polydot"))
+LEARNERS = list("SVM" = cpoSelector() %>>% makeLearner("classif.ksvm", kernel = "polydot"),
+	"kknn" = cpoSelector() %>>% makeLearner("classif.kknn"))
 
 # Tuning parameter sets to be benchmarked
 PAR.SETS = list(
 	SVM = pSS(	  
-	C: numeric[10^(-3), 10^3],
-	degree: integer[1, 20]
-	)
+		C: numeric[10^(-3), 10^3],
+		degree: integer[1, 20]
+	),
+	kknn = pSS(
+		k: integer[1, 50],
+		distance: numeric[0, 100])#,
+		#kernel: discrete[rectangular, optimal, triangular, triweight, biweight, cos, inv, gaussian])
 )
 
 # Maximum number of evaluations allowed
-MAXEVAL = 20L
+MAXEVAL = 5000L
 
 
 # feature initialization of initial population
@@ -46,38 +50,27 @@ INITIALIZATION = list("none" = NULL, "unif" = list(dist = runif), "rgeom0.3" = l
 FILTER_METHOD = list("none" = "none", "auc" = "auc")
 FILTER_PARAMS = list("none" = NA, "auc" = list(expectfeats = 5, minprob = 0.1, maxprob = 0.9))
 
-RESAMPLING = list("10CV" = makeResampleDesc("CV", iters = 10, stratify = TRUE))
+RESAMPLING = list("5CV" = makeResampleDesc("CV", iters = 5, stratify = TRUE))
 
 
-ades = CJ(learner = c("SVM"), 
-	mu = c(10), lambda = c(0.1, 0.5),
+ades = CJ(learner = c("SVM", "kknn"), 
+	mu = c(40, 100, 200), lambda = c(0.05, 0.1, 0.2),
 	maxeval = MAXEVAL, 
-	filter.method = c("none", "auc"),
-	resampling = c("10CV"),
-	initialization = c("unif", "rgeom0.3"),
+	filter.method = c("none"),
+	resampling = c("5CV"),
+	initialization = c("none", "unif"),
 	sorted = FALSE)
 
 # add baseline with random sampling
 baseline = CJ(learner = unique(ades$learner), 
 	mu = MAXEVAL, lambda = 1L,
 	maxeval = MAXEVAL, filter.method = "none", 
-	resampling = c("10CV"), initialization = c("none"), 
+	resampling = c("5CV"), initialization = c("none"), 
 	sorted = FALSE)
 
 # add baseline
 ades = rbind(ades, baseline)
 
-REPLICATIONS = 1
+REPLICATIONS = 1L
 
 
-
-
-# Datasets used by Bourani et al. 
-# TASK_IDS = list("australian" = 146818, 
-# 				"ionosphere" = 116,
-# 				"heart" = 12717,
-# 				"pima" = 146241,
-# 				"glass" = 40,
-# 				"german" = 12715,
-# 				"sonar" = 269,
-# 				"vehicle" = 53)

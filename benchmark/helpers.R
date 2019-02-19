@@ -11,6 +11,20 @@ fitnesses <- function(results) {
   }))
 }
 
+getIndividualsChromosomes <- function(results) {
+  pops = getPopulations(results$log)
+  do.call(rbind, lapply(seq_along(pops), function(idx) {
+    pop = pops[[idx]]
+    df = lapply(pop$population, function(x) t(x$selector.selection))
+    df = do.call("rbind", df)
+    fitnesses = as.data.frame(t(pop$fitness))
+    colnames(fitnesses) = c("perf", "propfeat")
+    fitnesses$iter = idx
+    df = cbind(fitnesses, df)
+  }))
+}
+
+
 
 getAllIndividuals = function(ecr_res) {
 	pops = lapply(getPopulations(ecr_res$log), function(x) do.call("rbind", lapply(x$population, unlist)))

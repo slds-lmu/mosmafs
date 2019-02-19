@@ -1,11 +1,80 @@
 library(ggplot2)
 library(data.table)
+library(ecr)
 
-source("reduce.R")
+# source("reduce.R")
+dir.create("plots/performance-front")
+dir.create("plots/performance-population")
+dir.create("plots/runtime")
+dir.create("plots/hypvervol")
 
-dir.create("registry/plots")
-dir.create("registry/plots/domhypervol")
-dir.create("registry/plots/paretofront")
+res = readRDS("res_test.rds")
+runtime = readRDS("runtime_test.rds")
+
+# runtime plot
+
+
+# development of hypervolume
+vars = unique(res[, c("problem", "n", "p.noise", "learner")])
+
+# can this be done more efficiently?
+dfs = lapply(res$job.id, function(x) as.matrix(cbind(job.id = x, res[job.id == x, ]$result[[1]])))
+domhypervol = lapply(seq_along(dfs), function(x) cbind(job.id = unique(dfs[[x]][, "job.id"]), iter = unique(dfs[[x]][, "iter"]), domHV = sapply(unique(dfs[[x]][, "iter"]), function(i) computeHV(t(dfs[[x]][dfs[[x]][, "iter"] == i, c("perf", "propfeat")])))))
+
+
+# one mu, different lambdas
+prob = "hypersphere"
+idx = which(res$problem == prob)
+p = ggplot(data = )
+
+
+
+
+
+
+
+
+
+    data.fitnesses = fitnesses(data)
+    fitness.matrix = t(as.matrix(data.fitnesses))
+    hypervol = sapply(unique(data.fitnesses$iter), function(x) computeHV(fitness.matrix[c(1, 2), fitness.matrix[3, ] == x], ref.point = c(1, 1)))
+
+
+# dataframe
+
+  job.id = res[i, ]$job.id
+  data = res[i, ]$result[[1]]
+
+  if (res[i, ]$algorithm == "mosmafs") {
+      data.fitnesses = fitnesses(data)
+      p = ggplot(data = data.fitnesses) + geom_point(aes(x = perf, y = propfeat, color = iter))
+  } else {
+    data.fitnesses = data.frame(t(res[i, ]$result[[1]]$fitnesses))
+    names(data.fitnesses) = c("perf", "propfeat")
+
+
+
+# x pop | isnew | fitness valid | fitness test set | nfeat | hyperpars | features |
+
+
+
+
+
+# Viz 1: Performance of Population on Test set (boxplots) vs. iteration
+
+# Viz 2: Performance of Population on Validation set (boxplots) vs. iteration
+
+# Viz 3: Plot Development of Pareto-Fronts (on test set)
+
+# Viz 4: Plot Developtment of Whole Population 
+
+# Viz 5: Compare initial population sizes
+
+# Viz 6: Compare Offspring sizes
+
+
+
+
 
 
 for (i in 1:nrow(res)) {
