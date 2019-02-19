@@ -1,12 +1,12 @@
 # A new version of the sampleValue function
 # allows to specify a distribution over a function of the parameterset
 
-resampleIndividual = function(ind, ones = 1L, length) {
+resampleIndividual = function(ind, ones = 1L, length, probs = NULL) {
 
 	res = rep(FALSE, length)
 	
 	if (ones > 0L) {
-		idx = sample(length, ones, replace = FALSE)
+		idx = sample(length, ones, replace = FALSE, probs)
 		res[idx] = TRUE
 	}
 
@@ -16,7 +16,7 @@ resampleIndividual = function(ind, ones = 1L, length) {
 
 
 # modify with respect to a distribution over the number of features
-resamplePopulationFeatures = function(inds, ps, minfeat = 0L, maxfeat = NULL, sampler = NULL, args) {
+resamplePopulationFeatures = function(inds, ps, minfeat = 0L, maxfeat = NULL, sampler = NULL, args, probs = NULL) {
 	
 	length = ps$pars$selector.selection$len
 
@@ -29,7 +29,7 @@ resamplePopulationFeatures = function(inds, ps, minfeat = 0L, maxfeat = NULL, sa
 	dist[dist > maxfeat] = maxfeat
 	dist[dist < minfeat] = minfeat
 
-	inds = lapply(seq_along(dist), function(i) resampleIndividual(inds[[i]], ones = dist[i], length = length))
+	inds = lapply(seq_along(dist), function(i) resampleIndividual(inds[[i]], ones = dist[i], length = length, probs = probs))
 
 	return(inds)
 }
