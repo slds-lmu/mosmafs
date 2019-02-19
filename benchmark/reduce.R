@@ -7,6 +7,12 @@ reg = loadRegistry("registry")
 tab = summarizeExperiments(by = c("job.id", "algorithm", "problem", "initialization", "mu", "lambda", "maxeval", "p.inf", "p.noise", "n", "filter.method", "learner"))
 
 # Extract all populations
+res = reduceResultsDataTable(findDone())
+res = ijoin(tab, res, by = "job.id")
+saveRDS(res, "res.rds")
+
+
+
 runtime = reduceResultsDataTable(findDone(), function(x) x$runtime[[3]])
 runtime = ijoin(tab, runtime, by = "job.id")
 res = reduceResultsDataTable(findDone(), function(x) getIndividualsChromosomes(x$results))

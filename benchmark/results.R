@@ -6,10 +6,42 @@ library(ecr)
 dir.create("plots/performance-front")
 dir.create("plots/performance-population")
 dir.create("plots/runtime")
-dir.create("plots/hypvervol")
+dir.create("plots/hypervol")
 
-res = readRDS("res_test.rds")
-runtime = readRDS("runtime_test.rds")
+res = readRDS("res.rds")
+
+# runtime depending on problem size
+res$runtime = sapply(res$result, function(x) x$runtime[[3]])
+res$p = as.factor(res$p.inf + res$p.noise)
+p = ggplot(data = res, aes(x = n, y = runtime, colour = p, lty = learner)) + geom_line()
+p
+
+# plot development of hypervolume
+hypervol = lapply(1:nrow(res), function(x) data.frame(job.id = res[x, ]$job.id, hypervol = unlist(res[x, ]$result[[1]]$domhypervol), iter = 1:length(res[x, ]$result[[1]]$domhypervol)))
+hypervol = do.call("rbind", hypervol)
+hypervol = merge(res[, - c("result")], hypervol, all = FALSE, by = "job.id")
+hypervol$mu = as.factor(hypervol$mu)
+hypervol$lambda = as.factor(hypervol$lambda)
+
+for (prob in unique(hypervol$problem)) {
+   dir.create(paste("plots/hypervol/", prob, sep = ""))
+   for (lrn in unique(hypervol$learner)) {
+      savedir = paste("plots/hypervol/", prob, sep = "")
+      df = hypervol[learner == lrn & problem == prob, ]
+      baseline = which(df$mu == df$maxeval & df$lambda == 1L)
+      df$strategy = paste("lambda = ", df$lambda, "mu = ", df$mu)
+      p = ggplot(data = df[- baseline, ], aes(x = iter, y = hypervol, colour = strategy, lty = initialization)) + geom_line()
+      p = p + geom_hline(data = df[baseline, ], aes(yintercept = hypervol), colour = "red")
+      p = p + ylim(c(0, 1)) + theme_bw()
+      p = p + facet_grid(n ~ p)
+      p = p + ggtitle("Hypersphere data")
+      ggsave(filename = paste(savedir, "/", lrn, ".png", sep = ""), plot = p, width = 10, height = 6)
+    } 
+}
+
+
+
+
 
 # runtime plot
 

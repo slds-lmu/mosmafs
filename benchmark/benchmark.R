@@ -27,6 +27,18 @@ addProblem("hypersphere", fun = fun, reg = reg)
 fun = function(job, data, id) convertOMLTaskToMlr(getOMLTask(task.id = id))$mlr.task
 addProblem("ionosphere", fun = fun, reg = reg)
 
+fun = function(job, data, id) convertOMLTaskToMlr(getOMLTask(task.id = id))$mlr.task
+addProblem("australian", fun = fun, reg = reg)
+
+fun = function(job, data, id) convertOMLTaskToMlr(getOMLTask(task.id = id))$mlr.task
+addProblem("heart", fun = fun, reg = reg)
+
+fun = function(job, data, id) convertOMLTaskToMlr(getOMLTask(task.id = id))$mlr.task
+addProblem("pima", fun = fun, reg = reg)
+
+fun = function(job, data, id) convertOMLTaskToMlr(getOMLTask(task.id = id))$mlr.task
+addProblem("glass", fun = fun, reg = reg)
+
 
 
 mosmafs = function(data, job, instance, learner, lambda, mu, maxeval, filter.method, resampling, initialization) {
@@ -57,6 +69,20 @@ mosmafs = function(data, job, instance, learner, lambda, mu, maxeval, filter.met
   }
 
   initials = sampleValues(ps, mu, discrete.names = TRUE)
+  probs = NULL
+  FILTERMAT = NULL
+
+  if (filter.method != "none") {
+    filtervals = generateFilterValuesData(task.train, method = FILTER_METHOD[[filter.method]])
+    filtervals = filtervals$data[-(1:2)]
+
+    FILTERMAT = apply(filtervals, 2, function(col) {
+      col = col - mean(col)
+      col = (col - min(col)) / (max(col) - min(col))
+    })
+
+    probs = FILTERMAT %*% c(0.9, 0.1)       
+  } 
 
   if (initialization != "none"){
     sample.pars = INITIALIZATION[[initialization]]
@@ -64,22 +90,9 @@ mosmafs = function(data, job, instance, learner, lambda, mu, maxeval, filter.met
     if (is.null(args))
       args = list()
     sampler = sample.pars[[1]]
-    initials = resamplePopulationFeatures(inds = initials, ps = ps, sampler = sampler, args = args) 
+    initials = resamplePopulationFeatures(inds = initials, ps = ps, sampler = sampler, args = args, probs = probs) 
   }
-  # if (filter.method != "none") {
-  #   filtervals = generateFilterValuesData(task.train, method = FILTER_METHOD[[filter.method]])
-  #   filtervals = filtervals$data[-(1:2)]
 
-  #   FILTERMAT = apply(filtervals, 2, function(col) {
-  #     col = col - mean(col)
-  #     col = (col - min(col)) / (max(col) - min(col))
-  #   })
-        
-  #   initials = lapply(initials, function(x) {
-  #     x$selector.selection = sapply(FILTERMAT[, 1], function(x) sample(c(FALSE, TRUE), size = 1, p = c(1 - x, x)))
-  #     x
-  #   })
-  # } 
 
   mutator = combine.operators(ps,
   numeric = mutGauss,
@@ -126,7 +139,7 @@ mosmafs = function(data, job, instance, learner, lambda, mu, maxeval, filter.met
   pareto.front.test = lapply(results$pareto.set, eval.outer)
 
   return(list(results = results, task.test = task.test, task.train = task.train, runtime = runtime, ps = ps, paretofront = paretofront, 
-    pareto.front.test = pareto.front.test, domhypervol = domhypervol))
+    pareto.front.test = pareto.front.test, domhypervol = domhypervol, filtermat = FILTERMAT))
 }
 
 addAlgorithm(name = "mosmafs", reg = reg, fun = mosmafs)
