@@ -44,9 +44,10 @@ create.linear.data <- function(n, p, q = exp(-1), beta0 = 1, rho = 0, permute = 
 # `n -> vector length (n)` and should probably sample randomly to create X.
 # Y[i] is +1 if the L_`norm`-norm of X[i, ] is < 1, and -1 otherwise.
 # Returns list(X = [Matrix], Y = [vector], orig.features = logical)
-create.hypersphere.data <- function(dim, n, dist = function(x) runif(x, -1, 1), norm = 2) {
+create.hypersphere.data <- function(dim, n, dist = function(x) runif(x, -1, 1), norm = 2, radius = 1) {
   X = replicate(dim, dist(n))
-  Y = sign(1 - apply(X, 1, function(x) sum(x^norm))^(1/norm))
+  Y = 
+  sign(radius^2 - apply(X, 1, function(x) sum(x^norm))) # for 1-norm this is false!
   list(X = X, Y = Y, orig.features = rep(TRUE, dim))
 }
 
