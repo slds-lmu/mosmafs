@@ -1,4 +1,4 @@
-packages = c("mlr", "ecr", "OpenML", "magrittr", "mlrCPO", "data.table", "farff")
+packages = c("mlr", "ecr", "OpenML", "magrittr", "mlrCPO", "data.table", "farff", "RWeka")
 
 sapply(packages, require, character.only = TRUE)
 
@@ -14,14 +14,8 @@ source("../initialization.R")
 OVERWRITE = TRUE
 
 # --- problem design ---
-
-# problem design
-pdes = list(# hypersphere = CJ(p.inf = 4, p.noise = c(20, 100), n = c(200, 1000))),
-			ionosphere = data.table(id = 287),
-			australian = data.table(id = 146818),
-			heart = data.table(id = 282),
-			pima = data.table(id = 37),
-			glass = data.table(id = 4573))
+datafolder = "data"
+datasets = list.dirs(path = datafolder, recursive = FALSE, full.names = FALSE)
 
 
 # --- Specify algorithm design ---
@@ -43,38 +37,39 @@ PAR.SETS = list(
 )
 
 # Maximum number of evaluations allowed
-MAXEVAL = 10L
-
+MAXEVAL = 5000L
 
 # feature initialization of initial population
 INITIALIZATION = list("none" = NULL, "unif" = list(dist = runif), "rgeom0.3" = list(dist = rgeom, prob = 0.3))
 
-
 # Filtering and Initialization hyperparameters
 FILTER_METHOD = list("none" = "none", "auc" = "auc")
-FILTER_PARAMS = list("none" = NA, "auc" = list(expectfeats = 5, minprob = 0.1, maxprob = 0.9))
 
-RESAMPLING = list("5CV" = makeResampleDesc("CV", iters = 5, stratify = TRUE))
+RESAMPLING = list("10CV" = makeResampleDesc("CV", iters = 10, stratify = TRUE))
 
+PARENTSEL = list("selSimple" = setup(selSimple), "selTournament" = setup(selTournament, k = 2L))
 
 ades = CJ(learner = c("SVM", "kknn"), 
-	mu = c(15L, 40L, 100L), lambda = c(15L, 30L),
+	mu = c(15L, 40L, 80L, 120L, 160L), 
+	lambda = c(5L, 15L, 30L, 60L),
 	maxeval = MAXEVAL, 
-	filter.method = c("auc"),
-	resampling = c("5CV"),
-	initialization = c("none", "unif"),
+	filter.method = c("none"),
+	resampling = c("10CV"),
+	initialization = c("none"), 
+	parent.sel = c("selSimple"),
 	sorted = FALSE)
 
 # add baseline with random sampling
 baseline = CJ(learner = unique(ades$learner), 
 	mu = MAXEVAL, lambda = 1L,
-	maxeval = MAXEVAL, filter.method = "auc", 
-	resampling = c("5CV"), initialization = c("none"), 
+	maxeval = MAXEVAL, filter.method = "none", 
+	resampling = c("10CV"), initialization = c("none"), 
+	parent.sel = c("selSimple"),
 	sorted = FALSE)
 
 # add baseline
 ades = rbind(ades, baseline)
 
-REPLICATIONS = 1L
+REPLICATIONS = 5L
 
 

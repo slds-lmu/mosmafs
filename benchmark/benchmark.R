@@ -19,32 +19,16 @@ if (file.exists("registry")) {
     packages = packages, source = "def.R")
 }
 
-fun = function(job, data, p.inf, p.noise, n, ...) {
-    task = create.hypersphere.data(p.inf, n) %>% create.classif.task(id = "hypersphere") %>% task.add.random.cols(num = p.noise)   
+# return the filepath for each 
+for (ds in datasets) {  
+  addProblem(name = ds, data = paste(datafolder, ds, "task.rds", sep = "/"), reg = reg)
 }
-addProblem("hypersphere", fun = fun, reg = reg)
-
-fun = function(job, data, id) convertOMLTaskToMlr(getOMLTask(task.id = id))$mlr.task
-addProblem("ionosphere", fun = fun, reg = reg)
-
-fun = function(job, data, id) convertOMLTaskToMlr(getOMLTask(task.id = id))$mlr.task
-addProblem("australian", fun = fun, reg = reg)
-
-fun = function(job, data, id) convertOMLTaskToMlr(getOMLTask(task.id = id))$mlr.task
-addProblem("heart", fun = fun, reg = reg)
-
-fun = function(job, data, id) convertOMLTaskToMlr(getOMLTask(task.id = id))$mlr.task
-addProblem("pima", fun = fun, reg = reg)
-
-fun = function(job, data, id) convertOMLTaskToMlr(getOMLTask(task.id = id))$mlr.task
-addProblem("glass", fun = fun, reg = reg)
 
 
-
-mosmafs = function(data, job, instance, learner, lambda, mu, maxeval, filter.method, resampling, initialization) {
+mosmafs = function(data, job, instance, learner, lambda, mu, maxeval, filter.method, resampling, initialization, parent.sel) {
 
   # --- task and learner ---
-  task = instance
+  task = readRDS(instance)
   lrn = LEARNERS[[learner]]
   n = getTaskSize(task)
 
@@ -93,7 +77,6 @@ mosmafs = function(data, job, instance, learner, lambda, mu, maxeval, filter.met
     initials = resamplePopulationFeatures(inds = initials, ps = ps, sampler = sampler, args = args, probs = probs) 
   }
 
-
   mutator = combine.operators(ps,
   numeric = mutGauss,
   logical = mutBitflip,
@@ -111,12 +94,12 @@ mosmafs = function(data, job, instance, learner, lambda, mu, maxeval, filter.met
 
   results = my.nsga2(
     fitness.fun = fitness.fun, n.objectives = 2L, minimize = TRUE,
-    mu = mu, lambda = round(lambda * mu),
+    mu = mu, lambda = lambda,
     mutator = mutator, recombinator = crossover,
     representation = "custom",
     initial.solutions = initials,
     log.pop = TRUE, 
-    terminators = list(stopOnEvals(maxeval)))
+    terminators = list(stopOnEvals(maxeval)), parent.selector = PARENTSEL[[parent.sel]])
 
   runtime = proc.time() - time
 
@@ -124,7 +107,7 @@ mosmafs = function(data, job, instance, learner, lambda, mu, maxeval, filter.met
   pops = getPopulations(results$log)
   ranks = lapply(pops, function(x) doNondominatedSorting(x$fitness)) 
   paretofront = lapply(ranks, function(x) which(x$ranks == 1))
-  domhypervol = lapply(seq_along(pops), function(x) computeHV(pops[[x]]$fitness[, paretofront[[x]]], ref.point = c(1, 1)))
+  domhypervol = lapply(seq_along(pops), function(x) computeHV(as.matrix(pops[[x]]$fitness[, paretofront[[x]]]), ref.point = c(1, 1)))
 
   # evaluate the final candidates on the testset
   eval.outer = function(args) {
@@ -145,7 +128,6 @@ mosmafs = function(data, job, instance, learner, lambda, mu, maxeval, filter.met
 addAlgorithm(name = "mosmafs", reg = reg, fun = mosmafs)
 
 addExperiments(reg = reg, 
-  prob.designs = pdes, 
   algo.designs = list(mosmafs = ades),
   repls = REPLICATIONS)
 
