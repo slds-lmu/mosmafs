@@ -1,41 +1,186 @@
 library(ggplot2)
 library(data.table)
 library(ecr)
+library(batchtools)
+library(reshape2)
 
 # source("reduce.R")
-dir.create("plots/performance-front")
-dir.create("plots/performance-population")
-dir.create("plots/runtime")
-dir.create("plots/hypervol")
+# dir.create("results/plots/performance-front")
+# dir.create("results/plots/performance-population")
+# dir.create("results/plots/runtime")
+respath = "results/reduced"
+plotpath = "results/plots"
 
-res = readRDS("res.rds")
 
-# runtime depending on problem size
-res$runtime = sapply(res$result, function(x) x$runtime[[3]])
-res$p = as.factor(res$p.inf + res$p.noise)
-p = ggplot(data = res, aes(x = n, y = runtime, colour = p, lty = learner)) + geom_line()
-p
+# create plots for hypervolume development
+type = "hypervol"
+
+# create directory
+dir.create(file.path(plotpath, type))
+res = readRDS(paste(respath, "/", type, ".rds", sep = ""))
 
 # plot development of hypervolume
-hypervol = lapply(1:nrow(res), function(x) data.frame(job.id = res[x, ]$job.id, hypervol = unlist(res[x, ]$result[[1]]$domhypervol), iter = 1:length(res[x, ]$result[[1]]$domhypervol)))
+hypervol = lapply(1:nrow(res), function(x) data.frame(job.id = res[x, ]$job.id, hypervol = unlist(res[x, ]$result[[1]])))
+hypervol = lapply(hypervol, function(x) ijoin(x, res[, - c("result")], by = "job.id"))
+hypervol = lapply(hypervol, function(x) cbind(x, data.frame(generation = 1:nrow(x), evals = seq(from = x[1, ]$mu, by = x[1, ]$lambda, length.out = nrow(x)))))
 hypervol = do.call("rbind", hypervol)
-hypervol = merge(res[, - c("result")], hypervol, all = FALSE, by = "job.id")
 hypervol$mu = as.factor(hypervol$mu)
 hypervol$lambda = as.factor(hypervol$lambda)
 
 for (prob in unique(hypervol$problem)) {
-   dir.create(paste("plots/hypervol/", prob, sep = ""))
+   savepath = paste(plotpath, "/", type, "/", prob, sep = "")
+   dir.create(savepath)
    for (lrn in unique(hypervol$learner)) {
-      savedir = paste("plots/hypervol/", prob, sep = "")
       df = hypervol[learner == lrn & problem == prob, ]
-      baseline = which(df$mu == df$maxeval & df$lambda == 1L)
-      df$strategy = paste("lambda = ", df$lambda, "mu = ", df$mu)
-      p = ggplot(data = df[- baseline, ], aes(x = iter, y = hypervol, colour = strategy, lty = initialization)) + geom_line()
-      p = p + geom_hline(data = df[baseline, ], aes(yintercept = hypervol), colour = "red")
-      p = p + ylim(c(0, 1)) + theme_bw()
-      p = p + facet_grid(n ~ p)
-      p = p + ggtitle("Hypersphere data")
-      ggsave(filename = paste(savedir, "/", lrn, ".png", sep = ""), plot = p, width = 10, height = 6)
+      # baseline = which(df$mu == df$maxeval & df$lambda == 1L)
+      df.sum = df[, hypervol := mean(hypervol), by = c("mu", "lambda", "evals")]
+      p = ggplot(data = df.sum, aes(x = evals, y = hypervol, colour = mu, lty = lambda)) + geom_line()
+      # p = p + geom_hline(data = df[baseline, ], aes(yintercept = hypervol), colour = "red")
+      p = p + theme_bw()
+      # p = p + facet_grid(n ~ p)
+      p = p + ggtitle(paste(prob, " data, ", lrn, ", averaged over 5 replications", sep = ""))
+      ggsave(filename = paste(savepath, "/", lrn, ".png", sep = ""), plot = p, width = 10, height = 6)
+    } 
+}
+
+# calculate ranks across problems and ids
+dfr = calculateRanks(hypervol, 1000L)
+names(dfr)[3] = "rank_1000"
+for (i in 2:5) {
+  dfr = cbind(dfr, calculateRanks(hypervol, i * 1000L)$V1) 
+  names(dfr)[i + 2] = paste("rank", 1000 * i, sep = "_")
+}
+
+
+
+
+
+
+
+
+createRanks = function(df, respath, method, noise_type) {
+    wb = createWorkbook()
+    dir.create(file.path(respath, noise_type, method))
+    df = df[problem != "X5.d.Sphere.Function", ]
+    df = df[problem != "X20.d.Sphere.Function", ]
+
+    # do a rank analysis  
+    # w. r. t. criterion
+    for (mycrit in c("iderror_noise", "iderror", "crit", "learners", "aggregation", "repl_method", "overall_noise", "overall")) {
+      sheet = createSheet(wb, mycrit)
+      dfr = df[rank == 1, replication := 1:length(rank), by = c("repl_method", "aggregation", "learners", "crit", "problem", "noise")]
+      
+      if (mycrit == "iderror_noise") {
+        dfr = dfr[, rank_method := rank(iderror), by = c("problem", "noise", "replication")]    
+        dfr = dfr[, mean(rank_method), by = c("noise", "repl_method", "aggregation", "crit", "learners", "crit")]              
+      } else if (mycrit == "iderror") {
+        dfr = dfr[, rank_method := rank(iderror), by = c("problem", "noise", "replication")]    
+        dfr = dfr[, mean(rank_method), by = c("repl_method", "aggregation", "crit", "learners", "crit")]              
+      }
+        else {
+        dfr = dfr[, rank_method := rank(ytrue), by = c("problem", "noise", "replication")] # create rank for each problem, noise and replication                
+        if (mycrit == "overall_noise") {
+          dfr = dfr[, mean(rank_method), by = c("noise", "repl_method", "aggregation", "crit", "learners", "crit")]
+        } else {
+          if (mycrit == "overall")
+            dfr = dfr[, mean(rank_method), by = c("repl_method", "aggregation", "crit", "learners", "crit")]
+          else
+            dfr = dfr[, mean(rank_method), by = c(mycrit)]
+        }
+      }
+      addDataFrame(dfr, sheet = sheet, startColumn = 1, row.names = FALSE)
+    }
+    saveWorkbook(wb, file.path(respath, noise_type, method, "ranks.xlsx"))
+
+
+    if (method != "papermethods") {
+      final.candidates = dfr[order(dfr$V1)[1], ]
+      return(final.candidates)
+    }
+}
+
+
+
+
+
+
+# create plots for hypervolume development
+type = "paretotest"
+type = "paretovalid"
+
+# create directory
+dir.create(file.path(plotpath, type))
+res = readRDS(paste(respath, "/", type, ".rds", sep = ""))
+res[, index := seq_len(.N), by = c("problem", "mu", "lambda", "maxeval", "learner")]
+
+# plot development of hypervolume
+df = lapply(1:nrow(res), function(x) data.frame(job.id = res[x, ]$job.id, pareto = unlist(res[x, ]$result[[1]])))
+df = lapply(df, function(x) ijoin(x, res[, - c("result")], by = "job.id"))
+df = lapply(1:length, function(x) cbind(x, data.frame(generation = seq(from = x[1, ]$mu, by = x[1, ]$lambda, length.out = nrow(x)))))
+
+df = do.call("rbind", df)
+names(df)[2:3] = c("mmce", "nfeat") 
+df$mu = as.factor(df$mu)
+df$lambda = as.factor(df$lambda)
+df$index = as.factor(df$index)
+
+for (prob in unique(df$problem)) {
+   savepath = paste(plotpath, "/", type, "/", prob, sep = "")
+   dir.create(savepath)
+   for (lrn in unique(df$learner)) {
+      dfs = df[learner == lrn & problem == prob, ]
+      baseline = which(dfs$lambda == 1L)
+      p = ggplot(data = dfs[- baseline, ], aes(x = mmce, y = nfeat, colour = index)) + geom_point() + geom_line()
+      p = p + theme_bw()
+      p = p + facet_grid(lambda ~ mu)
+      p = p + theme(legend.position = "none")
+      p = p + ggtitle(paste(prob, " data, ", lrn, ", 5 replications", sep = ""))
+      ggsave(filename = paste(savepath, "/", lrn, ".png", sep = ""), plot = p, width = 10, height = 6)
+    } 
+}
+
+
+
+# create boxplots for accuracies 
+
+type = "mmce"
+# create directory
+dir.create(file.path(plotpath, type))
+
+# data for 
+data = "pareto_all"
+res = readRDS(paste(respath, "/", data, ".rds", sep = ""))
+df = lapply(1:nrow(res), function(x) data.frame(job.id = res[x, ]$job.id, pareto = unlist(res[x, ]$result[[1]])))
+df = lapply(df, function(x) ijoin(x, res[, - c("result")], by = "job.id"))
+df = do.call("rbind", df)
+names(df)[2:4] = c("generation", "mmce", "nfeat") 
+df$mu = as.factor(df$mu)
+df$lambda = as.factor(df$lambda)
+
+# data = "paretotest"
+# res2 = readRDS(paste(respath, "/", data, ".rds", sep = ""))
+# df2 = lapply(1:nrow(res2), function(x) data.frame(job.id = res[x, ]$job.id, pareto = unlist(res[x, ]$result[[1]])))
+# df2 = lapply(df2, function(x) ijoin(x, res[, - c("result")], by = "job.id"))
+# df2 = do.call("rbind", df2)
+# names(df2)[2:3] = c("mmce", "nfeat") 
+# df2$mu = as.factor(df2$mu)
+# df2$lambda = as.factor(df2$lambda)
+
+for (prob in unique(df$problem)) {
+   savepath = paste(plotpath, "/", type, "/", prob, sep = "")
+   dir.create(savepath)
+   for (lrn in unique(df$learner)) {
+      dfs = df[learner == lrn & problem == prob, ]
+      dfs = dfs[, .(mmce = mean(mmce), min = min(mmce), max = max(mmce)), by = c("job.id", "generation", "mu", "lambda")]
+      dfs = dfs[, .(mean.mmce = mean(mmce), min.mmce = mean(min), max.mmce = mean(max)), by = c("generation", "mu", "lambda")]
+      dfs = dfs[- which(dfs$lambda == 1L), ]
+      dfs = melt(dfs, id.vars = names(dfs)[1:3])
+      p = ggplot(data = dfs, aes(x = generation, y = value, colour = variable)) + geom_line()
+      p = p + theme_bw()
+      p = p + facet_grid(lambda ~ mu)
+      p = p + theme(legend.position = "none")
+      p = p + ggtitle(paste(prob, " data, ", lrn, ", 5 replications", sep = ""))
+      ggsave(filename = paste(savepath, "/", lrn, ".png", sep = ""), plot = p, width = 10, height = 6)
     } 
 }
 
@@ -43,7 +188,19 @@ for (prob in unique(hypervol$problem)) {
 
 
 
+
+
+
+
+
+
+
 # runtime plot
+# runtime depending on problem size
+res$runtime = sapply(res$result, function(x) x$runtime[[3]])
+res$p = as.factor(res$p.inf + res$p.noise)
+p = ggplot(data = res, aes(x = n, y = runtime, colour = p, lty = learner)) + geom_line()
+p
 
 
 # development of hypervolume

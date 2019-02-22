@@ -11,11 +11,12 @@ source("../initialization.R")
 
 
 # do not overwrite registry
-OVERWRITE = TRUE
+OVERWRITE = FALSE
 
 # --- problem design ---
 datafolder = "data"
 datasets = list.dirs(path = datafolder, recursive = FALSE, full.names = FALSE)
+datasets = datasets[-1]
 
 
 # --- Specify algorithm design ---
@@ -62,7 +63,7 @@ ades = CJ(learner = c("SVM", "kknn"),
 # add baseline with random sampling
 baseline = CJ(learner = unique(ades$learner), 
 	mu = MAXEVAL, lambda = 1L,
-	maxeval = MAXEVAL, filter.method = "none", 
+	maxeval = 1L, filter.method = "none", 
 	resampling = c("10CV"), initialization = c("none"), 
 	parent.sel = c("selSimple"),
 	sorted = FALSE)

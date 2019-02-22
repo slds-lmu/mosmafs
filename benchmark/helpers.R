@@ -54,3 +54,12 @@ saveHypersphereTask = function(path, p.inf = 10, p.noise, n = 200, r = 1.8) {
   task = create.hypersphere.data(p.inf, n, radius = r) %>% create.classif.task(id = id) %>% task.add.random.cols(num = p.noise)   
   saveRDS(task, paste(path, id, "task.rds", sep = "/"))
 }
+
+calculateRanks = function(dfr, nevals) {
+  dfr = dfr[evals <= nevals, ]
+  dfr = dfr[, .SD[which.max(generation)], by = job.id]
+  dfr = dfr[, replication := 1:length(job.id), by = c("problem", "mu", "lambda", "learner")]
+  dfr = dfr[, ranks_hypervol := rank(1 - hypervol), by = c("problem", "learner", "replication")]    
+  dfr = dfr[, mean(ranks_hypervol), by = c("mu", "lambda")]              
+  return(dfr)
+}
