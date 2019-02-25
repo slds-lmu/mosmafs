@@ -42,7 +42,13 @@ mosmafs = function(data, job, instance, learner, lambda, mu, maxeval, filter.met
 
   # --- parameter set ---
   ps = PAR.SETS[[learner]]
-  ps = c(ps, pSS(selector.selection: logical^getTaskNFeats(task)))
+  ps = c(ps, 
+        pSS(selector.selection: logical^getTaskNFeats(task),
+            .strategy.numeric: numeric[10^(-3), 10],
+            .strategy.logical: numeric[0, 1],
+            .strategy.numeric: numeric[0, 1],
+            .strategy.selector.selection: numeric[0, 1])
+        )
   
   # --- create fitness function ---
   fitness.fun = function(args, task = task.train, resampling = resinner) {
@@ -53,6 +59,11 @@ mosmafs = function(data, job, instance, learner, lambda, mu, maxeval, filter.met
   }
 
   initials = sampleValues(ps, mu, discrete.names = TRUE)
+  initials = setStrategyParametersFixed(initials, ".strategy.numeric", 0.1 * (getUpper(ps)[".strategy.numeric"] - getLower(ps)[".strategy.numeric"]))
+  initials = setStrategyParametersFixed(initials, ".strategy.logical", 0.1)
+  initials = setStrategyParametersFixed(initials, ".strategy.discrete", 0.1)
+  initials = setStrategyParametersFixed(initials, ".strategy.selector.selection", 1 /  getParamLengths(ps)["selector.selection"]) # recommendation of jakob bossek
+
   probs = NULL
   FILTERMAT = NULL
 
@@ -78,11 +89,16 @@ mosmafs = function(data, job, instance, learner, lambda, mu, maxeval, filter.met
   }
 
   mutator = combine.operators(ps,
-  numeric = mutGauss,
-  logical = mutBitflip,
-  integer = mutUniformInt,
-  discrete = mutRandomChoice,
-  selector.selection = mutBitflip)
+    numeric = mutGauss,
+    logical = mutBitflip,
+    integer = mutUniformInt,
+    discrete = mutRandomChoice,
+    selector.selection = mutBitflip,
+    .strategy.numeric = makeMutationStrategyNumeric(".strategy.numeric", "sdev", lr = 1 / sqrt(2 * lambda), lower = getLower(ps$pars$.strategy.numeric), upper = getUpper(ps$pars$.strategy.numeric)),
+    .strategy.logical = makeMutationStrategyNumeric(".strategy.logical", "p", lr = 1 / sqrt(2 * lambda), lower = 0, upper = 1),
+    .strategy.discrete = makeMutationStrategyNumeric(".strategy.integer", "p", lr = 1 / sqrt(2 * lambda), lower = 0, upper = 1),  
+    .strategy.selector.selection = makeMutationStrategyNumeric(".strategy.integer", "p", lr = 1 / sqrt(2 * lambda), lower = 0, upper = 1)
+  )
 
   crossover = combine.operators(ps,
     numeric = recSBX,

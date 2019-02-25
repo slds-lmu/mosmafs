@@ -84,6 +84,26 @@ makeFilterStrategy <- function(filtermat, weight.param.name, output.name) {
   }
 }
 
+# mutation strategy according to MIES (R. Li et al. )
+makeMutationStrategyNumeric <- function(param.name, output.name, lr, lower, upper) {
+  function(ind) {
+    param <- ind[[param.name]]
+    # assertNumeric(param, lower = 0, upper = 1 - .Machine$double.eps, any.missing = FALSE)
+    res = res * exp(lr * rnorm(0, 1))
+    res = max(res, lower)
+    res = min(res, upper)
+    namedList(output.name, res)
+  }
+}
+
+setStrategyParametersFixed <- function(inds, param.name, value) {
+  for (i in seq_along(inds)) {
+    inds[[i]][[param.name]] = value
+  }
+  return(inds)
+}
+
+
 # --------------- tests / experiments -------------------
 
 testps <- pSS(x: discrete[a, b, c], y: discrete[m, n, o], z: discrete[x, y, z]^3,

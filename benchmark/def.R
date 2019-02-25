@@ -11,7 +11,7 @@ source("../initialization.R")
 
 
 # do not overwrite registry
-OVERWRITE = FALSE
+OVERWRITE = TRUE
 
 # --- problem design ---
 datafolder = "data"
@@ -38,7 +38,7 @@ PAR.SETS = list(
 )
 
 # Maximum number of evaluations allowed
-MAXEVAL = 5000L
+MAXEVAL = 5L
 
 # feature initialization of initial population
 INITIALIZATION = list("none" = NULL, "unif" = list(dist = runif), "rgeom0.3" = list(dist = rgeom, prob = 0.3))
