@@ -24,6 +24,13 @@ library("magrittr")
 library("ggplot2")
 library("parallelMap")
 
+
+curvals = list(chas = factor(0, levels = c(0, 1)))
+str(curvals)
+do.call(base::c, curvals)
+
+
+
 # --- create task ---
 dataset <- create.hypersphere.data(4, 10000)
 keep <- apply(dataset$X, 1, function(x) all(x > 0))

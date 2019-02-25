@@ -185,6 +185,49 @@ op <- combine.operators(
   numeric = mutGauss,
   .strategy.numeric = function(ind) list(sdev = ind$three))
 
+
+ps <- pSS(a: logical,
+  b: logical^3,
+  c: discrete[x, y],
+  d: discrete[xx, yy]^4,
+  e: discrete[l, m, n],
+  f: discrete[ll, mm, nn]^5)
+
+op <- combine.operators(ps,
+  logical = ecr::setup(debugmut, extra = "logical"),
+  discrete = ecr::setup(debugmut, extra = "discrete"))
+
+op(list(a = TRUE, b = c(TRUE, TRUE, FALSE), c = "x", d = c("xx", "yy", "xx", "yy"), e = "l", f = c("ll", "mm", "nn", "mm", "ll")))
+
+op(list(a = FALSE, b = c(FALSE, FALSE, TRUE), c = "y", d = c("yy", "xx", "yy", "xx"), e = "m", f = c("mm", "ll", "nn", "ll", "mm")))
+
+op(list(a = FALSE, b = c(FALSE, FALSE, TRUE), c = factor("y", levels = c("x", "y")), d = list("yy", "xx", "yy", "xx"), e = factor("m", levels = c("l", "m", "n")), f = list("mm", "ll", "nn", "ll", "mm")))
+
+
+ps <- makeParamSet(
+    makeDiscreteParam("param1", c("x", "y")),
+    makeDiscreteParam("param2", c("a", "b")))
+
+sampleValue(ps, discrete.names = TRUE)
+
+op <- combine.operators(ps,
+  logical = makeMutator(function(x, ...) {
+    print(x)
+    x
+  }, "custom"))
+
+op(list(param1 = "x", param2 = "b"))
+
+op <- combine.operators(ps,
+  discrete = makeMutator(function(x, ...) {
+    print(x)
+    x
+  }, "custom"),
+  .binary.discrete.as.logical = FALSE)
+
+op(list(param1 = "x", param2 = "b"))
+
+
 indiv1 <- list(one = c(0, 0, 0, 0), two = 0, three = .01)
 indiv2 <- list(one = c(0, 0, 0, 0), two = 0, three = 100)
 
