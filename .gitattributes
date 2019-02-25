@@ -1,0 +1,5 @@
+man/* linguist-generated
+man-roxygen/* linguist-documentation
+vignettes/* linguist-documentation
+todo-files/*.html linguist-generated
+
