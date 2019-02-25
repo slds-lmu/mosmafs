@@ -30,6 +30,7 @@
 #' @param permute `[logical(1)]` whether to permute columns of `X` and coefficient
 #'   vector (`beta`).
 #' @return `list(X=[Matrix], Y=[vector], beta = [vector], orig.features = logical)`
+#' @family Artificial Datasets
 #' @export
 create.linear.data <- function(n, p, q = exp(-1), beta0 = 1, rho = 0, permute = TRUE) {
   cormat <- sapply(seq_len(p), function(x) rho ^ abs(x - seq_len(p)))
@@ -65,6 +66,7 @@ create.linear.data <- function(n, p, q = exp(-1), beta0 = 1, rho = 0, permute = 
 #' @param norm `[numeric(1)]` Norm Exponent
 #' @param radius `[numeric(1)]` Radious to check against
 #' @return `list(X = [Matrix], Y = [vector], orig.features = logical)`
+#' @family Artificial Datasets
 #' @export
 create.hypersphere.data <- function(dim, n, dist = function(x) runif(x, -1, 1), norm = 2, radius = 1) {
   X = replicate(dim, dist(n))
@@ -87,6 +89,7 @@ create.hypersphere.data <- function(dim, n, dist = function(x) runif(x, -1, 1), 
 #' All other features are noise
 #' @param n `[integer(1)]` number of samples to draw
 #' @return `list(X = [Matrix], Y = [vector], orig.features = logical)`
+#' @family Artificial Datasets
 #' @export
 create.linear.toy.data <- function(n) {
   Y = sample(c(-1, 1), n, replace = TRUE)
@@ -109,6 +112,7 @@ create.linear.toy.data <- function(n) {
 #' @param id `[character(1)]` ID to use for [`Task`]
 #' @param data `[named list]` with columns entries `$X`, `$Y`, and `orig.features`.
 #' @return [`Task`]
+#' @family Artificial Datasets
 #' @export
 create.regr.task <- function(id, data) {
   task <- makeRegrTask(id, data.frame(X = data$X, Y = data$Y), target = "Y")
@@ -118,6 +122,7 @@ create.regr.task <- function(id, data) {
 
 #' @rdname create.regr.task
 #' @param cutoff `[numeric(1)]` cutoff at which to binarize target.
+#' @family Artificial Datasets
 #' @export
 create.classif.task <- function(id, data, cutoff = 0) {
   makeClassifTask(id, data.frame(X = data$X,
@@ -138,6 +143,7 @@ create.classif.task <- function(id, data, cutoff = 0) {
 #' @param newid `[character(1)]` ID to use for new `Task`
 #' @param orig.features `[logical]` features that correspond to original task's data.
 #' @return [`Task`]
+#' @family Artificial Datasets
 #' @export
 clonetask <- function(task, newdata, newid,
   orig.features = rep(TRUE, ncol(newdata) - length(getTaskTargetNames(task)))) {
@@ -180,6 +186,8 @@ clonetask <- function(task, newdata, newid,
 #' @param dist `[function]` function `n` -> `numeric(n)` that samples
 #'   random noise features
 #' @return [`Task`]
+#' @family Artificial Datasets
+#' @export
 task.add.random.cols <- function(task, num, dist = rnorm) {
 
   # use 'task$env$data' instead of 'getTaskData' because we want
@@ -213,6 +221,8 @@ task.add.random.cols <- function(task, num, dist = rnorm) {
 #' @param task `[Task]` the input task
 #' @param num `[integer(1)]` Number of noise features to add
 #' @return [`Task`]
+#' @family Artificial Datasets
+#' @export
 task.add.permuted.cols <- function(task, num) {
   data <- task$env$data
   target <- data[getTaskTargetNames(task)]

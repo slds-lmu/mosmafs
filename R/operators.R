@@ -66,7 +66,8 @@ recIntSBX <- intifyRecombinator(recSBX)
 #' "Random Choice" mutation operator for discrete parameters: with prob. `p` chooses
 #' one of the available categories at random (this *may* be the original value!)
 #' @param ind `[character]` individuum to mutate
-#' @param values `[character]` set of possible values for `ind` entries to take
+#' @param values `[list of character]` set of possible values for `ind` entries to take.
+#'   May be a list of length 1, in which case it is recycled.
 #' @param p `[numeric(1)]` probability with which to mutate
 #' @return [`character`]
 #' @family operators
@@ -173,6 +174,7 @@ mutUniformMetaReset <- makeMutator(function(ind, p = 0.1, reset.dists, reset.dis
 #' @param weight.param.name `[character(1)]` name of parameter to use as
 #'   `reset.dist.weights` in [mutUniformMetaReset].
 #' @return `function`
+#' @export
 makeFilterStrategy <- function(reset.dists, weight.param.name) {
   function(ind) {
     list(reset.dists = reset.dists, reset.dist.weights = ind[[weight.param.name]])

@@ -71,7 +71,7 @@ test_that("ecrshims error messages", {
     bl = mutBitflip),
     " al must have only .* but has parameters ind,lower,upper")
 })
-
+# TODO: mixing types must be forbidden
 test_that("ecrshims operation", {
   combop <- combine.operators(param.set.numeric, a = recSBX, b = recOX)
   expect_class(combop, "ecr_operator")
