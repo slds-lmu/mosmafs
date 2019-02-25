@@ -1,0 +1,25 @@
+Package: mosmafs
+Title: Multi-Objective Simultaneous Model and Feature Selection
+Description: Using the ecr2-package to perform simultaneous feature selection
+  and hyperparameter optimization.
+Authors@R: c(
+  person("Martin", "Binder", email = "developer.mb706@mb706.com", role = c("aut", "cre")),
+  person("Julia", "Moosbauer", email = "ju.moosbauer@googlemail.com", role = "aut"))
+URL: https://github.com/compstat-lmu/mosmafs
+BugReports: https://github.com/compstat-lmu/mosmafs/issues
+License: Proprietary
+Encoding: UTF-8
+Roxygen: list(wrap = FALSE, markdown = TRUE)
+ByteCompile: yes
+Version: 0.0.1
+VignetteBuilder: knitr
+Imports:
+  BBmisc,
+  checkmate,
+  ParamHelpers,
+  MASS,
+  mlrCPO
+Suggests:
+  mlr,
+  knitr
+RoxygenNote: 6.1.1

@@ -86,7 +86,7 @@ makeFilterStrategy <- function(filtermat, weight.param.name, output.name) {
 
 # --------------- tests / experiments -------------------
 
-testps <- pSS(x: discrete[a, b, c], y: discrete[m, n, o], z: discrete[x, y, z]^3,
+testps <- mlrCPO::pSS(x: discrete[a, b, c], y: discrete[m, n, o], z: discrete[x, y, z]^3,
   one: logical, two: numeric[1, 10], three: numeric[0, 1])
 
 

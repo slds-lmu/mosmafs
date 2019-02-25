@@ -1,7 +1,4 @@
 
-library("MASS")
-library("mlr")
-
 # create linear model data Y = X * beta + \epsilon
 # with X = X' if [permute] == FALSE, and X = shuffle_columns(X') if [permute] == TRUE
 # X' an [n] * [p] matrix of MVN rows with covariance matrix
@@ -46,7 +43,7 @@ create.linear.data <- function(n, p, q = exp(-1), beta0 = 1, rho = 0, permute = 
 # Returns list(X = [Matrix], Y = [vector], orig.features = logical)
 create.hypersphere.data <- function(dim, n, dist = function(x) runif(x, -1, 1), norm = 2, radius = 1) {
   X = replicate(dim, dist(n))
-  Y = 
+  Y =
   sign(radius^2 - apply(X, 1, function(x) sum(x^norm))) # for 1-norm this is false!
   list(X = X, Y = Y, orig.features = rep(TRUE, dim))
 }
