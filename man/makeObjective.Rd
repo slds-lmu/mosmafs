@@ -13,8 +13,12 @@ makeObjective(learner, task, ps, resampling, measure = NULL)
 
 \item{ps}{\code{[ParamSet]} The \code{\link[ParamHelpers:makeParamSet]{ParamSet}} to optimize over.}
 
-\item{resampling}{\code{[ResampleDesc | ResampleInst]} The \code{\link[mlr:makeResampleDesc]{ResampleDesc}} or
-\code{\link[mlr:makeResampleInstance]{ResampleInst}} object to use.}
+\item{resampling}{\code{[ResampleDesc | ResampleInst | function]} The \code{\link[mlr:makeResampleDesc]{ResampleDesc}} or
+\code{\link[mlr:makeResampleInstance]{ResampleInst}} object to use. This may be a function
+\code{numeric(1)} -> \code{ResampleDesc}/\code{ResampleInst} which maps fidelity to the resampling to use.
+If this is used, then the resampling should be chosen such that an average value, weighted by fidelity,
+makes sense. For example, the function could map an integer to a corresponding number of resampling folds
+or repetitions.}
 
 \item{measure}{\code{[Measure | NULL]} The \code{\link[mlr:makeMeasure]{Measure}} to optimize for.
 The default is \code{NULL}, which uses the \code{task}'s default \code{Measure}.}

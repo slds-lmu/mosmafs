@@ -61,7 +61,7 @@ mosmafs.nsga2 = function(...) {
 #'   population is re-evaluated, so it is recommended to use only few different
 #'   fidelity jumps throughout all generations.
 #' @param log.status `[list]` information to log
-#' @
+#' @export
 slickEcr <- function(fitness.fun, lambda, population, mutator, recombinator, generations = 100, parent.selector = selSimple, survival.selector = selNondom, p.recomb = 0.7, p.mut = 0.3, survival.strategy = c("plus", "comma"), n.elite = 0, fidelity = NULL, log.stats = list(fitness = list("min", "mean", "max"))) {
 
   if (!smoof::isSmoofFunction(fitness.fun)) {
@@ -84,11 +84,11 @@ slickEcr <- function(fitness.fun, lambda, population, mutator, recombinator, gen
   if (!is.null(fidelity)) {
     assertIntegerish(fidelity[[1]], lower = 0, sorted = TRUE,
       unique = TRUE, any.missing = FALSE)
-    assertTRUE(fidelity[[1]][1] == 0)
+    assertTRUE(fidelity[[1]][1] == 1)
     assertNumeric(fidelity[[2]], any.missing = FALSE)
-    assertNumeric(fidelity[[3]], any.missing = FALSE, null.ok = TRUE)
+    assertNumeric(fidelity[[length(fidelity)]], any.missing = FALSE)
   }
-  assertList(log.stats, named = "unique")
+  assertList(log.stats, names = "unique")
 
   # workaround for for https://github.com/jakobbossek/ecr2/issues/107
   n.objectives <- smoof::getNumberOfObjectives(fitness.fun)
@@ -104,8 +104,8 @@ slickEcr <- function(fitness.fun, lambda, population, mutator, recombinator, gen
 
 
   ef <- slickEvaluateFitness(ctrl, population,
-    fidelity = fidelity[[3]][1] %??% fidelity[[2]][1],  # high fidelity for first generation
-    population = matrix(Inf, nrow = n.objectives))
+    fidelity = fidelity[[length(fidelity)]][1],  # high fidelity for first generation
+    previous.points = matrix(Inf, nrow = n.objectives))
   fitness <- ef$fitness
   population <- ef$population
 
@@ -116,8 +116,8 @@ slickEcr <- function(fitness.fun, lambda, population, mutator, recombinator, gen
       fidelity.row <- fidelity.row + 1
       # reset population sampled with new fidelity
       ef <- slickEvaluateFitness(ctrl, population,
-        fidelity = fidelity[ncol(fidelity), fidelity.row],
-        population = matrix(Inf, nrow = n.objectives))
+        fidelity = fidelity[[ncol(fidelity)]][fidelity.row],
+        previous.points = matrix(Inf, nrow = n.objectives))
       fitness <- ef$fitness
       population <- ef$population
     }
@@ -125,8 +125,8 @@ slickEcr <- function(fitness.fun, lambda, population, mutator, recombinator, gen
     offspring <- generateOffspring(ctrl, population,
       fitness, lambda = lambda, p.recomb = p.recomb, p.mut = p.mut)
     ef <- slickEvaluateFitness(ctrl, offspring,
-      fidelity = c(fidelity[[2]][fidelity.row], fidelity[[3]][fidelity.row]),
-      population = population)
+      fidelity = c(fidelity[[2]][fidelity.row], if (length(fidelity) > 2) fidelity[[3]][fidelity.row]),
+      previous.points = fitness)
     fitness.offspring <- ef$fitness
     offspring <- ef$population
 
@@ -140,7 +140,7 @@ slickEcr <- function(fitness.fun, lambda, population, mutator, recombinator, gen
 
     updateLogger(log, population, fitness, n.evals = lambda)
   }
-  ecr:::makeECRResult(ctrl, log, population, fitness, stop.object)
+  ecr:::makeECRResult(ctrl, log, population,  fitness, list(message = "out of generations"))
 }
 
 #' @title Compute the Fitness of Individuals
@@ -160,14 +160,16 @@ slickEcr <- function(fitness.fun, lambda, population, mutator, recombinator, gen
 #'   given in `population` it is again evaluated with the
 #'   second fidelity given, and the result is averaged weighted
 #'   by the fidelity parameter.
-#' @param population `[matrix]` population to compare points
+#' @param previous.points `[matrix]` population to compare points
 #'   to if `fidelity` has two elements. Otherwise not used.
 #' @return `list(population = list, fitness = matrix)`
-slickEvaluateFitness <- function(ctrl, population, fidelity = NULL, population = NULL) {
+#' @export
+slickEvaluateFitness <- function(ctrl, population, fidelity = NULL, previous.points = NULL) {
+  assertList(population)
   assertNumeric(fidelity, min.len = 1, max.len = 2, null.ok = TRUE)
-  assertMatrix(population, min.rows = 1, null.ok = length(fidelity) < 2)
+  assertMatrix(previous.points, min.rows = 1, null.ok = length(fidelity) < 2)
 
-  fitness.fun = control$task$fitness
+  fitness.fun = ctrl$task$fitness
   ps <- getParamSet(fitness.fun)
   n.obj <- smoof::getNumberOfObjectives(fitness.fun)
   wrapped.fitness <- function(x, fidelity) {
@@ -183,7 +185,7 @@ slickEvaluateFitness <- function(ctrl, population, fidelity = NULL, population =
   } else {
     invocation <- function(x) {
       phyttniss <- wrapped.fitness(x, fidelity = fidelity[1])
-      is.dominated <- dominated(cbind(matrix(phyttniss, ncol = 1), population))[1]
+      is.dominated <- dominated(cbind(matrix(phyttniss, ncol = 1), previous.points))[1]
       if (!is.dominated) {
         phyttniss.addnl <- wrapped.fitness(x, fidelity = fidelity[2])
         phyttniss <- (phyttniss * fidelity[1] + phyttniss.addnl * fidelity[2]) / sum(fidelity)
@@ -192,10 +194,11 @@ slickEvaluateFitness <- function(ctrl, population, fidelity = NULL, population =
     }
   }
 
-  fitness <- parallelMap(invocation, population, level = "ecr.evaluateFitness")
+  fitness <- parallelMap::parallelMap(invocation, population, level = "ecr.evaluateFitness")
   list(
     population = mapply(function(ind, fit) {
       attr(ind, "fitness") <- fit
-    }, population, fitness),
+      ind
+    }, population, fitness, SIMPLIFY = FALSE),
     fitness = ecr:::makeFitnessMatrix(do.call(cbind, fitness), ctrl))
 }

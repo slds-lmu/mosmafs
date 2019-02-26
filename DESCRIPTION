@@ -21,12 +21,12 @@ Imports:
   smoof,
   mlrCPO,
   mlr,
-  ecr
+  ecr,
+  parallelMap
 Suggests:
   knitr,
   ggplot2,
   magrittr,
-  parallelMap,
   testthat,
   rpart
 Remotes:

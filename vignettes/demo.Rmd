@@ -310,17 +310,16 @@ The initial population to sample over can be generated using the `ParamHelpers` 
 initials.simple <- sampleValues(ps.simple, 64, discrete.names = TRUE)
 ```
 
-This is all that is necessary, and it can be used to call the `ecr()` function in the `ecr` package. The `mosmafs` package comes with a useful interface that sets some defaults: `mosmafs.nsga2()`. The run time, 10 generations, would probably be to short for serious applications, but should be enough for demonstration purposes.
+This is all that is necessary, and it can be used to call the `ecr()` function in the `ecr` package. The `mosmafs` package comes with a useful interface that sets some defaults: `slickEcr()`. The run time, 10 generations, would probably be to short for serious applications, but should be enough for demonstration purposes.
 
 ```{r}
-run.simple <- mosmafs.nsga2(
+run.simple <- slickEcr(
   fitness.fun = makeObjective(lrn, task, ps.simple, cv5),
-  initial.solutions = initials.simple,
   lambda = 32,
+  population = initials.simple,
   mutator = mutator.simple,
   recombinator = crossover.simple,
-  log.pop = TRUE,
-  terminators = list(stopOnIters(10)))
+  generations = 10)
 ```
 
 There is a multitude of methods for analysing and plotting the result. The following plots the succession of pareto fronts for each generation:
@@ -392,14 +391,13 @@ initials.strat <- sampleValues(ps.strat, 62, discrete.names = TRUE) %>%
 
 These are all preparations needed for a heuristic-backed NSGA2 fun for feature-selection:
 ```{r}
-run.strat <- mosmafs.nsga2(
+run.strat <- slickEcr(
   fitness.fun = makeObjective(lrn, task, ps.strat, cv5),
-  initial.solutions = initials.strat,
   lambda = 32,
+  population = initials.strat,
   mutator = mutator.strat,
   recombinator = crossover.strat,
-  log.pop = TRUE,
-  terminators = list(stopOnIters(10)))
+  generations = 10)
 ```
 
 The pareto-fronts of this run look as follows:
