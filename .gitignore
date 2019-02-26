@@ -9,4 +9,4 @@
 .project
 .ipynb_checkpoints
 registry
-
+vignettes/*.html

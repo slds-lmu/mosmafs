@@ -15,6 +15,10 @@ library("ecr")
 library("mosmafs")
 library("magrittr")
 library("parallelMap")
+library("ggplot")
+library("ParamHelpers")
+library("mlr")
+library("mlrCPO")
 set.seed(8008135)
 
 options(width = 100)
@@ -42,11 +46,16 @@ knitr::opts_chunk$set(
 
 `mosmafs` offers a variety of tools that make it possible to use the [`ecr`](https://github.com/jakobbossek/ecr2) package for multi-objective optimization of mixed parameter spaces. Mixed here means spaces that both include categorical and numeric hyperparameters. The following (a little contrived) example shows how to use these tools.
 
-`mosmafs` crucially depends on the `ecr` package (currently the github-version!), so make sure you have it installed and loaded.
+`mosmafs` crucially depends on the `ecr` package (currently the github-version!), so make sure you have it installed and loaded. Other packages for this example should also be loaded.
 
 ```{r, eval = FALSE}
 devtools::install_github("jakobbossek/ecr2")
 library("ecr")
+library("magrittr")
+library("ggplot")
+library("ParamHelpers")
+library("mlr")
+library("mlrCPO")
 ```
 
 ## Demo Setup
@@ -242,7 +251,7 @@ When using the `ecr` package with its vanilla operators, individuals are usually
 
 The only possible surprise here is that individuals must have "`character`" entries for discrete parameters^[In particular, they must have entries corresponding to the **names** of the possible values of a discrete parameter. Consider the `ParamSet` `makeParamSet(makeDiscreteParam("fn", values = list(a = identity, b = exp)))`. An individuum corresponding to this `ParamSet` would have to be one of `list(fn = "a")` or `list(fn = "b")`.]. That means, no `factor` entries, and no lists of characters for `makeDiscreteVectorParam` types.
 
-One can use the `sampleValue` function from the `ParamSet` package to generate valid, randomly sampled individuals to use with combined operators. The `discrete.names` option must be set to `TRUE` for that:
+One can use the `sampleValue` function from the `ParamHelpers` package to generate valid, randomly sampled individuals to use with combined operators. The `discrete.names` option must be set to `TRUE` for that:
 
 ```{r}
 
@@ -312,14 +321,15 @@ run.simple <- mosmafs.nsga2(
 
 There is a multitude of methods for analysing and plotting the result. The following plots the succession of pareto fronts for each generation:
 
-```{r}
+```{r, fig.width = 6, fig.height = 5}
 plot_fronts <- function(run) {
   fronts <- fitnesses(run, function(x) paretoEdges(x, c(1, 1)))
   ggplot(data = fronts, aes(x = perf, y = propfeat, color = ordered(iter))) +
     geom_line() +
     geom_point(data = fronts[fronts$point, ], shape = "x", size = 5) +
     xlim(0, 1) +
-    ylim(0, 1)
+    ylim(0, 1) +
+    coord_fixed()
 }
 
 plot_fronts(run.simple)
@@ -389,6 +399,6 @@ run.strat <- mosmafs.nsga2(
 ```
 
 The pareto-fronts of this run look as follows:
-```{r}
+```{r, fig.width = 6, fig.height = 5}
 plot_fronts(run.strat)
 ```
