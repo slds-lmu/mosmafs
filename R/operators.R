@@ -180,3 +180,31 @@ makeFilterStrategy <- function(reset.dists, weight.param.name) {
     list(reset.dists = reset.dists, reset.dist.weights = ind[[weight.param.name]])
   }
 }
+
+
+#' @title Integer Scaled Gaussian Mutator
+#'
+#' @description
+#' See [ecr::mutGauss]. Allows a vector of standard deviations. Scales
+#' standard deviations to the range of `[lower, upper]`.
+#' @family operators
+#' @export
+mutGaussScaled <- makeMutator(function(ind, p = 1, sdev = 0.05, lower, upper) {
+  assertNumber(p, lower = 0, upper = 1, na.ok = FALSE)
+  assertNumeric(sdev, lower = 0, any.missing = FALSE, finite = TRUE)
+  assertNumeric(lower, any.missing = FALSE, finite = TRUE)
+  assertNumeric(upper, any.missing = FALSE, finite = TRUE)
+  sdev.scaled <- sdev * (upper - lower)
+  new.ind <- rnorm(length(ind), mean = ind, sd = sdev.scaled)
+  which.step <- runif(length(ind)) < p
+  ind[which.step] <- new.ind[which.step]
+  pmin(pmax(lower, ind), upper)
+})
+
+#' @title Integer Scaled Gaussian Mutator
+#'
+#' @description
+#' See [mutGaussScaled]
+#' @family operators
+#' @export
+mutGaussIntScaled <- intifyMutator(mutGaussScaled)
