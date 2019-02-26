@@ -16,8 +16,12 @@
 #' @param learner `[Learner]` A [`Learner`][mlr::makeLearner] object to optimize.
 #' @param task `[Task]` The [`mlr::Task`] object to optimize on.
 #' @param ps `[ParamSet]` The [`ParamSet`][ParamHelpers::makeParamSet] to optimize over.
-#' @param resampling `[ResampleDesc | ResampleInst]` The [`ResampleDesc`][mlr::makeResampleDesc] or
-#'   [`ResampleInst`][mlr::makeResampleInstance] object to use.
+#' @param resampling `[ResampleDesc | ResampleInst | function]` The [`ResampleDesc`][mlr::makeResampleDesc] or
+#'   [`ResampleInst`][mlr::makeResampleInstance] object to use. This may be a function
+#'   `numeric(1)` -> `ResampleDesc`/`ResampleInst` which maps fidelity to the resampling to use.
+#'   If this is used, then the resampling should be chosen such that an average value, weighted by fidelity,
+#'   makes sense. For example, the function could map an integer to a corresponding number of resampling folds
+#'   or repetitions.
 #' @param measure `[Measure | NULL]` The [`Measure`][mlr::makeMeasure] to optimize for.
 #'   The default is `NULL`, which uses the `task`'s default `Measure`.
 #' @return `function` an objective function for [`ecr::ecr`].
@@ -26,16 +30,31 @@ makeObjective <- function(learner, task, ps, resampling, measure = NULL) {
   if (is.null(measure)) {
     measure <- getDefaultMeasure(task)
   }
+  assertClass(learner, "Learner")
+  assertClass(task, "Task")
+  assertClass(ps, "ParamSet")
+  assert(
+      checkClass(resampling, "ResampleInstance"),
+      checkClass(resampling, "ResampleDesc"),
+      checkFunction(resampling, nargs = 1)
+  )
+  assertClass(measure, "Measure")
   obj.factor <- if (measure$minimize) 1 else -1
   learner <- cpoSelector() %>>% checkLearner(learner, type = getTaskType(task))
   argnames <- getParamIds(getParamSet(learner))
   smoof::makeMultiObjectiveFunction(sprintf("mosmafs_%s", learner$id),
     has.simple.signature = FALSE, par.set = ps, n.objectives = 2, noisy = TRUE,
-    fn = function(args) {
+    fn = function(args, fidelity = NULL) {
       args <- valuesFromNames(ps, args)
       args <- trafoValue(ps, args)
       args <- args[intersect(names(args), argnames)]  # filter out strategy parameters
-      val <- resample(setHyperPars(learner, par.vals = args), task, resampling,
+      if (is.function(resampling)) {
+        assertNumber(fidelity)
+        res <- resampling(fidelity)
+      } else {
+        res <- resampling
+      }
+      val <- resample(setHyperPars(learner, par.vals = args), task, res,
         list(measure), show.info = FALSE)$aggr
       propfeat <- mean(args$selector.selection)
       c(val * obj.factor, propfeat)
