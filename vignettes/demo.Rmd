@@ -14,14 +14,18 @@ vignette: >
 library("ecr")
 library("mosmafs")
 library("magrittr")
-
+library("parallelMap")
 set.seed(8008135)
 
 options(width = 100)
 
+parallelStartMulticore(show.info = FALSE)
+
 print.list <- function(x) {
   if (all(vlapply(x, is.atomic))) {
-    catf("list(%s)", collapse(sprintf("%s=%s", names(x), vcapply(x, deparse)), ", "))
+    catf("list(%s)",
+      collapse(sprintf("%s=%s", names(x),
+        vcapply(x, deparse, width.cutoff = 500)), ", "))
   } else {
     NextMethod(x)
   }
@@ -287,23 +291,38 @@ crossover.simple <- combine.operators(ps.simple,
   selector.selection = recPCrossover)
 ```
 
-The initial population to sample over can be generated using the `ParamHelpers` function `sampleValues()`:
+The initial population to sample over can be generated using the `ParamHelpers` function `sampleValues()`. Note that by generating an initial population of a certain size (64 here), we implicitly determine the ECR hyperparameter `mu` of individuals in a generation.
 
 ```{r}
-initials.simple <- sampleValues(ps.simple, 15, discrete.names = TRUE)
+initials.simple <- sampleValues(ps.simple, 64, discrete.names = TRUE)
 ```
 
-This is all that is necessary, and it can be used to call the `ecr()` function in the `ecr` package. The `mosmafs` package comes with a useful interface that sets some defaults: `mosmafs.nsga2()`.
+This is all that is necessary, and it can be used to call the `ecr()` function in the `ecr` package. The `mosmafs` package comes with a useful interface that sets some defaults: `mosmafs.nsga2()`. The run time, 10 generations, would probably be to short for serious applications, but should be enough for demonstration purposes.
 
 ```{r}
 run.simple <- mosmafs.nsga2(
   fitness.fun = makeObjective(lrn, task, ps.simple, cv5),
   initial.solutions = initials.simple,
-  lambda = 4,
+  lambda = 32,
   mutator = mutator.simple,
   recombinator = crossover.simple,
   log.pop = TRUE,
-  terminators = list(stopOnIters(100)))
+  terminators = list(stopOnIters(10)))
+```
+
+There is a multitude of methods for analysing and plotting the result. The following plots the succession of pareto fronts for each generation:
+
+```{r}
+plot_fronts <- function(run) {
+  fronts <- fitnesses(run, function(x) paretoEdges(x, c(1, 1)))
+  ggplot(data = fronts, aes(x = perf, y = propfeat, color = ordered(iter))) +
+    geom_line() +
+    geom_point(data = fronts[fronts$point, ], shape = "x", size = 5) +
+    xlim(0, 1) +
+    ylim(0, 1)
+}
+
+plot_fronts(run.simple)
 ```
 
 ### Filter Values as Strategy Parameters
@@ -337,7 +356,7 @@ mutator.strat <- combine.operators(ps.strat,
 ```
 We are going to use the same crossover operator as before, but we have to construct it with the new `ParamSet`:
 ```{r}
-crossover.simple <- combine.operators(ps.strat,
+crossover.strat <- combine.operators(ps.strat,
   numeric = recPCrossover,
   integer = recPCrossover,
   selector.selection = recPCrossover)
@@ -346,10 +365,12 @@ crossover.simple <- combine.operators(ps.strat,
 The initial population we sample again using the `ParamHelpers` function `sampleValues()`. We are then sampling the `$selector.selection` part again from the equilibrium-distribution of `mutUniformMetaReset`:
 
 ```{r}
-initials.strat <- sampleValues(ps.simple, 15, discrete.names = TRUE) %>%
-  lapply(initials.strat, function(x) {
+initials.strat <- sampleValues(ps.strat, 62, discrete.names = TRUE) %>%
+  lapply(function(x) {
     x$selector.selection %<>% as.numeric %>%
-      mutUniformMetaReset(p = 1, fima, x$filterweights) %>%
+      mutUniformMetaReset(p = 1,
+        reset.dists = fima,
+        reset.dist.weights = x$filterweights) %>%
       as.logical
     x
   })
@@ -360,39 +381,14 @@ These are all preparations needed for a heuristic-backed NSGA2 fun for feature-s
 run.strat <- mosmafs.nsga2(
   fitness.fun = makeObjective(lrn, task, ps.strat, cv5),
   initial.solutions = initials.strat,
-  lambda = 4,
+  lambda = 32,
   mutator = mutator.strat,
-  recombinator = crossover.simple,
+  recombinator = crossover.strat,
   log.pop = TRUE,
-  terminators = list(stopOnIters(100)))
+  terminators = list(stopOnIters(10)))
 ```
 
-
-```{r, eval = FALSE}
-fitnesses <- function(results) {
-  pops <- getPopulations(results$log)
-  do.call(rbind, lapply(seq_along(pops), function(idx) {
-    pop <- pops[[idx]]
-    df <- as.data.frame(t(pop$fitness))
-    colnames(df) <- c("perf", "propfeat")
-    df$iter <- idx
-    df
-  }))
-}
-
-# pareto front
-plotFront(results$pareto.front)
-
-# development of pareto fronts
-ggplot(data = fitnesses(results), aes(x = perf, y = propfeat, color = iter)) + geom_point()
-
-# pareto set
-results$pareto.set
-
-# features in task that are original
-task$orig.features
-
-# population at generation x
-x <- 50
-getPopulations(results$log)[[x]]
+The pareto-fronts of this run look as follows:
+```{r}
+plot_fronts(run.strat)
 ```
