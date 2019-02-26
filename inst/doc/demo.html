@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="author" content="Martin Binder" />
+
+
+<title>Introduction to MOSMaFS</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css" data-origin="pandoc">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; position: absolute; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; }
+pre.numberSource a.sourceLine:empty
+  { position: absolute; }
+pre.numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: absolute; left: -5em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' || rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#header {
+text-align: center;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Introduction to MOSMaFS</h1>
+<h4 class="author"><em>Martin Binder</em></h4>
+
+
+<div id="TOC">
+<ul>
+<li><a href="#using-mosmafs">Using MOSMaFS</a></li>
+<li><a href="#demo-setup">Demo Setup</a><ul>
+<li><a href="#example-operators">Example Operators</a></li>
+<li><a href="#example-datasets">Example Datasets</a></li>
+</ul></li>
+<li><a href="#mixed-operators">Mixed Operators</a><ul>
+<li><a href="#operators-for-each-parameter">Operators for each Parameter</a></li>
+<li><a href="#operators-for-parameter-types-and-groups">Operators for Parameter Types and Groups</a></li>
+<li><a href="#strategy-parameters">Strategy Parameters</a></li>
+<li><a href="#recombination-operators">Recombination Operators</a></li>
+<li><a href="#mixed-operator-individuals">Mixed Operator Individuals</a></li>
+</ul></li>
+<li><a href="#ga-application">GA Application</a><ul>
+<li><a href="#first-steps">First Steps</a></li>
+<li><a href="#filter-values-as-strategy-parameters">Filter Values as Strategy Parameters</a></li>
+</ul></li>
+</ul>
+</div>
+
+<div id="using-mosmafs" class="section level2">
+<h2>Using MOSMaFS</h2>
+<p><code>mosmafs</code> offers a variety of tools that make it possible to use the <a href="https://github.com/jakobbossek/ecr2"><code>ecr</code></a> package for multi-objective optimization of mixed parameter spaces. Mixed here means spaces that both include categorical and numeric hyperparameters. The following (a little contrived) example shows how to use these tools.</p>
+<p><code>mosmafs</code> crucially depends on the <code>ecr</code> package (currently the github-version!), so make sure you have it installed and loaded.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1">devtools<span class="op">::</span><span class="kw">install_github</span>(<span class="st">&quot;jakobbossek/ecr2&quot;</span>)</a>
+<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="kw">library</span>(<span class="st">&quot;ecr&quot;</span>)</a></code></pre></div>
+</div>
+<div id="demo-setup" class="section level2">
+<h2>Demo Setup</h2>
+<div id="example-operators" class="section level3">
+<h3>Example Operators</h3>
+<p>To visualise what is going on, we will introduce a few deterministic operators that perform operations that can be easily understood and followed. These will all be mutation operators; recombination operators work the same but are more annoying to visualize.</p>
+<p>The <strong>flipflop</strong> operator negates all bits of a binary individuum:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1">mutFlipflop &lt;-<span class="st"> </span><span class="kw">makeMutator</span>(</a>
+<a class="sourceLine" id="cb2-2" data-line-number="2">  <span class="dt">mutator =</span> <span class="cf">function</span>(ind, ...) {</a>
+<a class="sourceLine" id="cb2-3" data-line-number="3">    <span class="dv">1</span> <span class="op">-</span><span class="st"> </span>ind</a>
+<a class="sourceLine" id="cb2-4" data-line-number="4">  }, <span class="dt">supported =</span> <span class="st">&quot;binary&quot;</span>)</a>
+<a class="sourceLine" id="cb2-5" data-line-number="5"></a>
+<a class="sourceLine" id="cb2-6" data-line-number="6"><span class="kw">mutFlipflop</span>(<span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>))</a>
+<a class="sourceLine" id="cb2-7" data-line-number="7"><span class="co">#&gt; [1] 0 1 0</span></a></code></pre></div>
+<p>The <strong>cycle</strong> operator cycles through the values of a discrete (<code>character</code>) individuum:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">mutCycle &lt;-<span class="st"> </span><span class="kw">makeMutator</span>(</a>
+<a class="sourceLine" id="cb3-2" data-line-number="2">  <span class="dt">mutator =</span> <span class="cf">function</span>(ind, values) {</a>
+<a class="sourceLine" id="cb3-3" data-line-number="3">    index &lt;-<span class="st"> </span><span class="kw">mapply</span>(match, ind, values)</a>
+<a class="sourceLine" id="cb3-4" data-line-number="4">    index &lt;-<span class="st"> </span>index <span class="op">%%</span><span class="st"> </span><span class="kw">viapply</span>(values, length) <span class="op">+</span><span class="st"> </span><span class="dv">1</span></a>
+<a class="sourceLine" id="cb3-5" data-line-number="5">    <span class="kw">mapply</span>(<span class="st">`</span><span class="dt">[[</span><span class="st">`</span>, values, index)</a>
+<a class="sourceLine" id="cb3-6" data-line-number="6">  }, <span class="dt">supported =</span> <span class="st">&quot;custom&quot;</span>)</a>
+<a class="sourceLine" id="cb3-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb3-8" data-line-number="8"><span class="kw">mutCycle</span>(<span class="kw">c</span>(<span class="st">&quot;a&quot;</span>, <span class="st">&quot;x&quot;</span>, <span class="st">&quot;z&quot;</span>), <span class="dt">values =</span> <span class="kw">list</span>(letters))</a>
+<a class="sourceLine" id="cb3-9" data-line-number="9"><span class="co">#&gt; [1] &quot;b&quot; &quot;y&quot; &quot;a&quot;</span></a></code></pre></div>
+<p>The <strong>plus</strong> operator adds a parametervalue (default one) to the value of an individuum.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1">mutPlus &lt;-<span class="st"> </span><span class="kw">makeMutator</span>(</a>
+<a class="sourceLine" id="cb4-2" data-line-number="2">  <span class="dt">mutator =</span> <span class="cf">function</span>(ind, <span class="dt">summand =</span> <span class="dv">1</span>, ...) {</a>
+<a class="sourceLine" id="cb4-3" data-line-number="3">    ind <span class="op">+</span><span class="st"> </span>summand</a>
+<a class="sourceLine" id="cb4-4" data-line-number="4">  }, <span class="dt">supported =</span> <span class="st">&quot;custom&quot;</span>)</a>
+<a class="sourceLine" id="cb4-5" data-line-number="5"></a>
+<a class="sourceLine" id="cb4-6" data-line-number="6"><span class="kw">mutPlus</span>(<span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>))</a>
+<a class="sourceLine" id="cb4-7" data-line-number="7"><span class="co">#&gt; [1] 2 3 4</span></a></code></pre></div>
+<p>The <strong>reverse</strong> operator reverses the order of an individuum:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1">mutReverse &lt;-<span class="st"> </span><span class="kw">makeMutator</span>(</a>
+<a class="sourceLine" id="cb5-2" data-line-number="2">  <span class="dt">mutator =</span> <span class="cf">function</span>(ind, ...) {</a>
+<a class="sourceLine" id="cb5-3" data-line-number="3">    <span class="kw">rev</span>(ind)</a>
+<a class="sourceLine" id="cb5-4" data-line-number="4">  }, <span class="dt">supported =</span> <span class="st">&quot;custom&quot;</span>)</a>
+<a class="sourceLine" id="cb5-5" data-line-number="5"></a>
+<a class="sourceLine" id="cb5-6" data-line-number="6"><span class="kw">mutReverse</span>(<span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>))</a>
+<a class="sourceLine" id="cb5-7" data-line-number="7"><span class="co">#&gt; [1] 3 2 1</span></a></code></pre></div>
+</div>
+<div id="example-datasets" class="section level3">
+<h3>Example Datasets</h3>
+<p>The <code>mosmafs</code> package comes with a few functions that generate synthetic datasets that can be used for feature selection. The following creates three columns of randomly sampled points in the <code>[-1, 1]^3</code> cube and a target column indicating whether each point is a distance greater than 1 away from the origin. Then ten more copies of that task are added, but with permuted rows—effectively giving 30 noise columns. (The piping operator <code>%&gt;%</code> from the <code>magrittr</code> package is used for parsimonity).</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1">task &lt;-<span class="st"> </span><span class="kw">create.hypersphere.data</span>(<span class="dv">3</span>, <span class="dv">500</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb6-2" data-line-number="2"><span class="st">  </span><span class="kw">create.classif.task</span>(<span class="dt">id =</span> <span class="st">&quot;sphere&quot;</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb6-3" data-line-number="3"><span class="st">  </span><span class="kw">task.add.permuted.cols</span>(<span class="dv">10</span>)</a></code></pre></div>
+</div>
+</div>
+<div id="mixed-operators" class="section level2">
+<h2>Mixed Operators</h2>
+<p>The heart of this package is the <code>comibine.operators</code> function that can be used to apply different operators to different parts of the search space; in particular, to different types of search space dimensions. It works by accepting a <code>ParamSet</code> (from the <a href="https://github.com/berndbischl/ParamHelpers"><code>ParamHelpers</code></a> package) that defines the search-space, and operators that define the operators to use on individual parameters.</p>
+<div id="operators-for-each-parameter" class="section level3">
+<h3>Operators for each Parameter</h3>
+<p>We may have a <code>ParamSet</code> with a logical parameter <code>bin1</code>, a discrete (but binary) parameter <code>bin2</code>, a discrete vector parameter <code>disc1</code>, and a numeric parameter <code>num1</code>. We define this <code>ParamSet</code> using the <code>pSS</code> function from the excellent <a href="https://github.com/mlr-org/mlrCPO"><code>mlrCPO</code></a> package.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1">ps &lt;-<span class="st"> </span><span class="kw">pSS</span>(</a>
+<a class="sourceLine" id="cb7-2" data-line-number="2">  bin1<span class="op">:</span><span class="st"> </span>logical,</a>
+<a class="sourceLine" id="cb7-3" data-line-number="3">  bin2<span class="op">:</span><span class="st"> </span>discrete[no, yes],</a>
+<a class="sourceLine" id="cb7-4" data-line-number="4">  disc1<span class="op">:</span><span class="st"> </span>discrete[letters]<span class="op">^</span><span class="dv">3</span>,</a>
+<a class="sourceLine" id="cb7-5" data-line-number="5">  num1<span class="op">:</span><span class="st"> </span>numeric[<span class="dv">0</span>, <span class="dv">10</span>])</a></code></pre></div>
+<p>We can now define an operator that uses the <code>mutFlipflop</code> operator on both <code>bin1</code> and <code>bin2</code>, the <code>mutCycle</code> operator on <code>disc1</code>, and the <code>mutPlus</code> operator on <code>num1</code>:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1">combo &lt;-<span class="st"> </span><span class="kw">combine.operators</span>(ps,</a>
+<a class="sourceLine" id="cb8-2" data-line-number="2">  <span class="dt">bin1 =</span> mutFlipflop,</a>
+<a class="sourceLine" id="cb8-3" data-line-number="3">  <span class="dt">bin2 =</span> mutFlipflop,</a>
+<a class="sourceLine" id="cb8-4" data-line-number="4">  <span class="dt">disc1 =</span> mutCycle,</a>
+<a class="sourceLine" id="cb8-5" data-line-number="5">  <span class="dt">num1 =</span> mutPlus)</a></code></pre></div>
+<p>Here we are treating <code>bin2</code> as a binary parameter, so we have to leave the <code>.binary.discrete.as.logical</code> parameter of <code>combine.operators</code> as <code>TRUE</code>. If we wanted to use the <code>mutCycle</code> operation on the <code>bin2</code> operator, we would have to tell <code>combine.operators</code> to treat it as a discrete parameter:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1">combo2 &lt;-<span class="st"> </span><span class="kw">combine.operators</span>(ps,</a>
+<a class="sourceLine" id="cb9-2" data-line-number="2">  <span class="dt">bin1 =</span> mutFlipflop,</a>
+<a class="sourceLine" id="cb9-3" data-line-number="3">  <span class="dt">bin2 =</span> mutCycle,</a>
+<a class="sourceLine" id="cb9-4" data-line-number="4">  <span class="dt">disc1 =</span> mutCycle,</a>
+<a class="sourceLine" id="cb9-5" data-line-number="5">  <span class="dt">num1 =</span> mutPlus,</a>
+<a class="sourceLine" id="cb9-6" data-line-number="6">  <span class="dt">.binary.discrete.as.logical =</span> <span class="ot">FALSE</span>)</a></code></pre></div>
+<p>Both these operators do essentially the same: They flip / cycle the binary and discrete parameters, and increase the numeric parameter by one.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" data-line-number="1"><span class="kw">combo</span>(<span class="kw">list</span>(<span class="dt">bin1 =</span> <span class="ot">TRUE</span>, <span class="dt">bin2 =</span> <span class="st">&quot;no&quot;</span>, <span class="dt">disc1 =</span> <span class="kw">c</span>(<span class="st">&quot;a&quot;</span>, <span class="st">&quot;x&quot;</span>, <span class="st">&quot;z&quot;</span>), <span class="dt">num1 =</span> <span class="dv">3</span>))</a>
+<a class="sourceLine" id="cb10-2" data-line-number="2"><span class="co">#&gt; list(bin1=FALSE, bin2=&quot;yes&quot;, disc1=c(&quot;b&quot;, &quot;y&quot;, &quot;a&quot;), num1=4)</span></a>
+<a class="sourceLine" id="cb10-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb10-4" data-line-number="4"><span class="kw">combo2</span>(<span class="kw">list</span>(<span class="dt">bin1 =</span> <span class="ot">TRUE</span>, <span class="dt">bin2 =</span> <span class="st">&quot;no&quot;</span>, <span class="dt">disc1 =</span> <span class="kw">c</span>(<span class="st">&quot;a&quot;</span>, <span class="st">&quot;x&quot;</span>, <span class="st">&quot;z&quot;</span>), <span class="dt">num1 =</span> <span class="dv">3</span>))</a>
+<a class="sourceLine" id="cb10-5" data-line-number="5"><span class="co">#&gt; list(bin1=FALSE, bin2=&quot;yes&quot;, disc1=c(&quot;b&quot;, &quot;y&quot;, &quot;a&quot;), num1=4)</span></a></code></pre></div>
+</div>
+<div id="operators-for-parameter-types-and-groups" class="section level3">
+<h3>Operators for Parameter Types and Groups</h3>
+<p>Especially with larger parameter spaces it may be more desirable to define operations not for each parameter individually, but for groups of parameters. Groups can be declared by setting the special <code>.params.&lt;GROUPNAME&gt;</code> value to a <code>character</code> vector of parameter values to combine into a group. The special groups <code>numeric</code>, <code>logical</code>, <code>integer</code>, and <code>discrete</code> are pre-defined and group all parameters of a type that are not otherwise given an operator.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1">combo.group &lt;-<span class="st"> </span><span class="kw">combine.operators</span>(ps,</a>
+<a class="sourceLine" id="cb11-2" data-line-number="2">  <span class="dt">.params.group1 =</span> <span class="kw">c</span>(<span class="st">&quot;bin1&quot;</span>, <span class="st">&quot;bin2&quot;</span>),</a>
+<a class="sourceLine" id="cb11-3" data-line-number="3">  <span class="dt">group1 =</span> mutFlipflop,</a>
+<a class="sourceLine" id="cb11-4" data-line-number="4">  <span class="dt">discrete =</span> mutCycle,</a>
+<a class="sourceLine" id="cb11-5" data-line-number="5">  <span class="dt">num1 =</span> mutPlus)</a></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1"><span class="kw">combo.group</span>(<span class="kw">list</span>(<span class="dt">bin1 =</span> <span class="ot">TRUE</span>, <span class="dt">bin2 =</span> <span class="st">&quot;no&quot;</span>, <span class="dt">disc1 =</span> <span class="kw">c</span>(<span class="st">&quot;a&quot;</span>, <span class="st">&quot;x&quot;</span>, <span class="st">&quot;z&quot;</span>), <span class="dt">num1 =</span> <span class="dv">3</span>))</a>
+<a class="sourceLine" id="cb12-2" data-line-number="2"><span class="co">#&gt; list(bin1=FALSE, bin2=&quot;yes&quot;, disc1=c(&quot;b&quot;, &quot;y&quot;, &quot;a&quot;), num1=4)</span></a></code></pre></div>
+<p>When parameters are put in a group, they are passed to the underlying operators as a vector. This may make a difference if operations depend on the global state of a vector and don’t just operate component-wise. This can be shown with the <code>mutReverse</code> operator, when given for a group vs. when given for parameters individually:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1">combo.rev.indiv &lt;-<span class="st"> </span><span class="kw">combine.operators</span>(ps,</a>
+<a class="sourceLine" id="cb13-2" data-line-number="2">  <span class="dt">bin1 =</span> mutReverse,</a>
+<a class="sourceLine" id="cb13-3" data-line-number="3">  <span class="dt">bin2 =</span> mutReverse,</a>
+<a class="sourceLine" id="cb13-4" data-line-number="4">  <span class="dt">discrete =</span> mutCycle,</a>
+<a class="sourceLine" id="cb13-5" data-line-number="5">  <span class="dt">num1 =</span> mutPlus)</a>
+<a class="sourceLine" id="cb13-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb13-7" data-line-number="7">combo.rev.group &lt;-<span class="st"> </span><span class="kw">combine.operators</span>(ps,</a>
+<a class="sourceLine" id="cb13-8" data-line-number="8">  <span class="dt">.params.group1 =</span> <span class="kw">c</span>(<span class="st">&quot;bin1&quot;</span>, <span class="st">&quot;bin2&quot;</span>),</a>
+<a class="sourceLine" id="cb13-9" data-line-number="9">  <span class="dt">group1 =</span> mutReverse,</a>
+<a class="sourceLine" id="cb13-10" data-line-number="10">  <span class="dt">discrete =</span> mutCycle,</a>
+<a class="sourceLine" id="cb13-11" data-line-number="11">  <span class="dt">num1 =</span> mutPlus)</a></code></pre></div>
+<p>When applied to <code>bin1</code> and <code>bin2</code> individually, the <code>mutReverse</code> operator does not change the values:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1"><span class="kw">combo.rev.indiv</span>(<span class="kw">list</span>(<span class="dt">bin1 =</span> <span class="ot">TRUE</span>, <span class="dt">bin2 =</span> <span class="st">&quot;no&quot;</span>, <span class="dt">disc1 =</span> <span class="kw">c</span>(<span class="st">&quot;a&quot;</span>, <span class="st">&quot;x&quot;</span>, <span class="st">&quot;z&quot;</span>), <span class="dt">num1 =</span> <span class="dv">3</span>))</a>
+<a class="sourceLine" id="cb14-2" data-line-number="2"><span class="co">#&gt; list(bin1=TRUE, bin2=&quot;no&quot;, disc1=c(&quot;b&quot;, &quot;y&quot;, &quot;a&quot;), num1=4)</span></a></code></pre></div>
+<p>However, when they are in a group, the values of <code>bin1</code> and <code>bin2</code> are combined as a vector and given to <code>mutReverse</code>. The <code>TRUE</code> value is given as value <code>1</code>, the <code>&quot;no&quot;</code> value is given as value <code>0</code>. They are swapped, and the return list contains <code>bin1 = FALSE</code> and <code>bin2 = &quot;yes&quot;</code>:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" data-line-number="1"><span class="kw">combo.rev.group</span>(<span class="kw">list</span>(<span class="dt">bin1 =</span> <span class="ot">TRUE</span>, <span class="dt">bin2 =</span> <span class="st">&quot;no&quot;</span>, <span class="dt">disc1 =</span> <span class="kw">c</span>(<span class="st">&quot;a&quot;</span>, <span class="st">&quot;x&quot;</span>, <span class="st">&quot;z&quot;</span>), <span class="dt">num1 =</span> <span class="dv">3</span>))</a>
+<a class="sourceLine" id="cb15-2" data-line-number="2"><span class="co">#&gt; list(bin1=FALSE, bin2=&quot;yes&quot;, disc1=c(&quot;b&quot;, &quot;y&quot;, &quot;a&quot;), num1=4)</span></a></code></pre></div>
+<p>Because of this, it is <strong>usually a bad idea</strong> to combine parameters of different types into a single group. Discrete parameters (non-binary discrete parameters if <code>.binary.discrete.as.logical</code> is <code>TRUE</code>) can not be grouped together with other types of parameters.</p>
+</div>
+<div id="strategy-parameters" class="section level3">
+<h3>Strategy Parameters</h3>
+<p>A further extension offered by the <code>combine.operators</code> function is the ability to use “strategy parameters”. These make it is possible to have the effect of an operator be dependent on the individuals involved. To do this, a <code>.strategy.&lt;PARAMETER/GROUPNAME&gt;</code> value must be given, which should be a function that gets the individuum as input, and returns a named list of function parameters as output. This named list is added to the configuration of the operator associated with <code>&lt;PARAMETER&gt;</code> or <code>&lt;GROUPNAME&gt;</code>.</p>
+<p>One could, for example, make the <code>summand</code> parameter of the <code>mutPlus</code> operation dependent on the <code>bin2</code> value: If it is <code>&quot;yes&quot;</code>, it adds a value, if it is <code>&quot;no&quot;</code> it subtracts a value.</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" data-line-number="1">combo.strategy &lt;-<span class="st"> </span><span class="kw">combine.operators</span>(ps,</a>
+<a class="sourceLine" id="cb16-2" data-line-number="2">  <span class="dt">logical =</span> mutFlipflop,</a>
+<a class="sourceLine" id="cb16-3" data-line-number="3">  <span class="dt">discrete =</span> mutCycle,</a>
+<a class="sourceLine" id="cb16-4" data-line-number="4">  <span class="dt">numeric =</span> mutPlus,</a>
+<a class="sourceLine" id="cb16-5" data-line-number="5">  <span class="dt">.strategy.numeric =</span> <span class="cf">function</span>(ind) {</a>
+<a class="sourceLine" id="cb16-6" data-line-number="6">    <span class="cf">if</span> (ind<span class="op">$</span>bin2 <span class="op">==</span><span class="st"> &quot;yes&quot;</span>) {</a>
+<a class="sourceLine" id="cb16-7" data-line-number="7">      <span class="kw">return</span>(<span class="kw">list</span>(<span class="dt">summand =</span> <span class="dv">1</span>))</a>
+<a class="sourceLine" id="cb16-8" data-line-number="8">    } <span class="cf">else</span> {</a>
+<a class="sourceLine" id="cb16-9" data-line-number="9">      <span class="kw">return</span>(<span class="kw">list</span>(<span class="dt">summand =</span> <span class="dv">-1</span>))</a>
+<a class="sourceLine" id="cb16-10" data-line-number="10">    }</a>
+<a class="sourceLine" id="cb16-11" data-line-number="11">  })</a></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" data-line-number="1"><span class="kw">combo.strategy</span>(<span class="kw">list</span>(<span class="dt">bin1 =</span> <span class="ot">TRUE</span>, <span class="dt">bin2 =</span> <span class="st">&quot;yes&quot;</span>, <span class="dt">disc1 =</span> <span class="kw">c</span>(<span class="st">&quot;a&quot;</span>, <span class="st">&quot;x&quot;</span>, <span class="st">&quot;z&quot;</span>), <span class="dt">num1 =</span> <span class="dv">3</span>))</a>
+<a class="sourceLine" id="cb17-2" data-line-number="2"><span class="co">#&gt; list(bin1=FALSE, bin2=&quot;no&quot;, disc1=c(&quot;b&quot;, &quot;y&quot;, &quot;a&quot;), num1=4)</span></a>
+<a class="sourceLine" id="cb17-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb17-4" data-line-number="4"><span class="kw">combo.strategy</span>(<span class="kw">list</span>(<span class="dt">bin1 =</span> <span class="ot">TRUE</span>, <span class="dt">bin2 =</span> <span class="st">&quot;no&quot;</span>, <span class="dt">disc1 =</span> <span class="kw">c</span>(<span class="st">&quot;a&quot;</span>, <span class="st">&quot;x&quot;</span>, <span class="st">&quot;z&quot;</span>), <span class="dt">num1 =</span> <span class="dv">3</span>))</a>
+<a class="sourceLine" id="cb17-5" data-line-number="5"><span class="co">#&gt; list(bin1=FALSE, bin2=&quot;yes&quot;, disc1=c(&quot;b&quot;, &quot;y&quot;, &quot;a&quot;), num1=2)</span></a></code></pre></div>
+<p>Note how the value of <code>ind$bin2</code> from <em>before</em> the <code>mutFlipflop</code> operation is used: The value that counts is always the input value given to the operator. It is therefore possible to use the values as strategy parameters for their own mutation.</p>
+</div>
+<div id="recombination-operators" class="section level3">
+<h3>Recombination Operators</h3>
+<p>Recombination operators can be combined in the same way that mutation operators can be. The input to a recombination operator is usually a list with two individuals, so the input to the strategy parameter function is also a list with two vectors. This function has to decide whether to construct a strategy depending to one of these individuals, or whether to combine their values, for example averaging them.</p>
+</div>
+<div id="mixed-operator-individuals" class="section level3">
+<h3>Mixed Operator Individuals</h3>
+<p>When using the <code>ecr</code> package with its vanilla operators, individuals are usually vectors of numbers, for example 0-1-vectors for binary individuals, or <code>numeric</code> values for continuous valued individuals. When using mixed operators, the individuals have to be <em>named lists</em>, with names and types corresponding to the <code>ParamSet</code> given to <code>combine.operators</code>. The supported <code>Param</code> types, and the expected entries in the individual lists, are the following:</p>
+<table>
+<thead>
+<tr class="header">
+<th>Parameter Construction (<code>ParamHelpers</code>)</th>
+<th><code>pSS()</code> sugar</th>
+<th>Type Expected</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>makeNumericParam</code>/<code>makeNumericVectorParam</code></td>
+<td><code>numeric[, ]</code></td>
+<td><code>numeric</code></td>
+</tr>
+<tr class="even">
+<td><code>makeIntegerParam</code>/<code>makeIntegerVectorParam</code></td>
+<td><code>integer[, ]</code></td>
+<td>(integer) <code>numeric</code></td>
+</tr>
+<tr class="odd">
+<td><code>makeLogicalParam</code>/<code>makeLogicalVectorParam</code></td>
+<td><code>logical</code></td>
+<td><code>logical</code></td>
+</tr>
+<tr class="even">
+<td><code>makeDiscreteParam</code>/<code>makeDiscreteVectorParam</code></td>
+<td><code>discrete[]</code></td>
+<td><code>character</code></td>
+</tr>
+</tbody>
+</table>
+<p>The only possible surprise here is that individuals must have “<code>character</code>” entries for discrete parameters<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>. That means, no <code>factor</code> entries, and no lists of characters for <code>makeDiscreteVectorParam</code> types.</p>
+<p>One can use the <code>sampleValue</code> function from the <code>ParamSet</code> package to generate valid, randomly sampled individuals to use with combined operators. The <code>discrete.names</code> option must be set to <code>TRUE</code> for that:</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" data-line-number="1"></a>
+<a class="sourceLine" id="cb18-2" data-line-number="2">value &lt;-<span class="st"> </span><span class="kw">sampleValue</span>(ps, <span class="dt">discrete.names  =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb18-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb18-4" data-line-number="4"><span class="kw">print</span>(value)</a>
+<a class="sourceLine" id="cb18-5" data-line-number="5"><span class="co">#&gt; list(bin1=TRUE, bin2=&quot;no&quot;, disc1=c(&quot;r&quot;, &quot;e&quot;, &quot;s&quot;), num1=2.65156168490648)</span></a>
+<a class="sourceLine" id="cb18-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb18-7" data-line-number="7"><span class="kw">combo</span>(value)</a>
+<a class="sourceLine" id="cb18-8" data-line-number="8"><span class="co">#&gt; list(bin1=FALSE, bin2=&quot;yes&quot;, disc1=c(&quot;s&quot;, &quot;f&quot;, &quot;t&quot;), num1=3.65156168490648)</span></a></code></pre></div>
+</div>
+</div>
+<div id="ga-application" class="section level2">
+<h2>GA Application</h2>
+<div id="first-steps" class="section level3">
+<h3>First Steps</h3>
+<p>Having a way to use mutation and recombination operators for mixed type individuals is already a big step towards using the <code>ecr</code> package for simultaneous model and feature selection (“SMaFS”). It is still necessary to define the actual objective, for which we need a <code>Learner</code>, a <code>Task</code>, as well as a hyperparameter space to optimize over.</p>
+<p>In this example, we choose to optimize the <code>&quot;classif.rpart&quot;</code> learner from the <code>rpart</code> package, on the <code>task</code> defined <a href="#example-datasets">above</a>.</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" data-line-number="1">lrn &lt;-<span class="st"> </span><span class="kw">makeLearner</span>(<span class="st">&quot;classif.rpart&quot;</span>, <span class="dt">maxsurrogate =</span> <span class="dv">0</span>)</a></code></pre></div>
+<p>The parameter set we optimize over is the following:</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" data-line-number="1">ps.simple &lt;-<span class="st"> </span><span class="kw">pSS</span>(</a>
+<a class="sourceLine" id="cb20-2" data-line-number="2">  maxdepth<span class="op">:</span><span class="st"> </span>integer[<span class="dv">1</span>, <span class="dv">30</span>],</a>
+<a class="sourceLine" id="cb20-3" data-line-number="3">  minsplit<span class="op">:</span><span class="st"> </span>integer[<span class="dv">2</span>, <span class="dv">30</span>],</a>
+<a class="sourceLine" id="cb20-4" data-line-number="4">  cp<span class="op">:</span><span class="st"> </span>numeric[<span class="fl">0.001</span>, <span class="fl">0.999</span>],</a>
+<a class="sourceLine" id="cb20-5" data-line-number="5">  selector.selection<span class="op">:</span><span class="st"> </span>logical<span class="op">^</span><span class="kw">getTaskNFeats</span>(task))</a></code></pre></div>
+<p>Notably we have included the parameter <code>selector.selection</code>, which controls what features are selected.</p>
+<p>We are using some standard mutation and recombination operators for the parameters: Gaussian and rounded-gaussian mutation for numeric parameters, random bitflip for <code>selector.selection</code>, and generally uniform crossover mutation. We use the <code>ecr::setup</code> method to set hyperparameters of some mutation operators.</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" data-line-number="1">mutator.simple &lt;-<span class="st"> </span><span class="kw">combine.operators</span>(ps.simple,</a>
+<a class="sourceLine" id="cb21-2" data-line-number="2">  <span class="dt">numeric =</span> ecr<span class="op">::</span><span class="kw">setup</span>(mutGauss, <span class="dt">sdev =</span> <span class="fl">0.1</span>),</a>
+<a class="sourceLine" id="cb21-3" data-line-number="3">  <span class="dt">integer =</span> ecr<span class="op">::</span><span class="kw">setup</span>(mutGaussInt, <span class="dt">sdev =</span> <span class="dv">3</span>),</a>
+<a class="sourceLine" id="cb21-4" data-line-number="4">  <span class="dt">selector.selection =</span> mutBitflip)</a>
+<a class="sourceLine" id="cb21-5" data-line-number="5"></a>
+<a class="sourceLine" id="cb21-6" data-line-number="6">crossover.simple &lt;-<span class="st"> </span><span class="kw">combine.operators</span>(ps.simple,</a>
+<a class="sourceLine" id="cb21-7" data-line-number="7">  <span class="dt">numeric =</span> recPCrossover,</a>
+<a class="sourceLine" id="cb21-8" data-line-number="8">  <span class="dt">integer =</span> recPCrossover,</a>
+<a class="sourceLine" id="cb21-9" data-line-number="9">  <span class="dt">selector.selection =</span> recPCrossover)</a></code></pre></div>
+<p>The initial population to sample over can be generated using the <code>ParamHelpers</code> function <code>sampleValues()</code>. Note that by generating an initial population of a certain size (64 here), we implicitly determine the ECR hyperparameter <code>mu</code> of individuals in a generation.</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" data-line-number="1">initials.simple &lt;-<span class="st"> </span><span class="kw">sampleValues</span>(ps.simple, <span class="dv">64</span>, <span class="dt">discrete.names =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
+<p>This is all that is necessary, and it can be used to call the <code>ecr()</code> function in the <code>ecr</code> package. The <code>mosmafs</code> package comes with a useful interface that sets some defaults: <code>mosmafs.nsga2()</code>. The run time, 10 generations, would probably be to short for serious applications, but should be enough for demonstration purposes.</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" data-line-number="1">run.simple &lt;-<span class="st"> </span><span class="kw">mosmafs.nsga2</span>(</a>
+<a class="sourceLine" id="cb23-2" data-line-number="2">  <span class="dt">fitness.fun =</span> <span class="kw">makeObjective</span>(lrn, task, ps.simple, cv5),</a>
+<a class="sourceLine" id="cb23-3" data-line-number="3">  <span class="dt">initial.solutions =</span> initials.simple,</a>
+<a class="sourceLine" id="cb23-4" data-line-number="4">  <span class="dt">lambda =</span> <span class="dv">32</span>,</a>
+<a class="sourceLine" id="cb23-5" data-line-number="5">  <span class="dt">mutator =</span> mutator.simple,</a>
+<a class="sourceLine" id="cb23-6" data-line-number="6">  <span class="dt">recombinator =</span> crossover.simple,</a>
+<a class="sourceLine" id="cb23-7" data-line-number="7">  <span class="dt">log.pop =</span> <span class="ot">TRUE</span>,</a>
+<a class="sourceLine" id="cb23-8" data-line-number="8">  <span class="dt">terminators =</span> <span class="kw">list</span>(<span class="kw">stopOnIters</span>(<span class="dv">10</span>)))</a></code></pre></div>
+<p>There is a multitude of methods for analysing and plotting the result. The following plots the succession of pareto fronts for each generation:</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb24-1" data-line-number="1">plot_fronts &lt;-<span class="st"> </span><span class="cf">function</span>(run) {</a>
+<a class="sourceLine" id="cb24-2" data-line-number="2">  fronts &lt;-<span class="st"> </span><span class="kw">fitnesses</span>(run, <span class="cf">function</span>(x) <span class="kw">paretoEdges</span>(x, <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">1</span>)))</a>
+<a class="sourceLine" id="cb24-3" data-line-number="3">  <span class="kw">ggplot</span>(<span class="dt">data =</span> fronts, <span class="kw">aes</span>(<span class="dt">x =</span> perf, <span class="dt">y =</span> propfeat, <span class="dt">color =</span> <span class="kw">ordered</span>(iter))) <span class="op">+</span></a>
+<a class="sourceLine" id="cb24-4" data-line-number="4"><span class="st">    </span><span class="kw">geom_line</span>() <span class="op">+</span></a>
+<a class="sourceLine" id="cb24-5" data-line-number="5"><span class="st">    </span><span class="kw">geom_point</span>(<span class="dt">data =</span> fronts[fronts<span class="op">$</span>point, ], <span class="dt">shape =</span> <span class="st">&quot;x&quot;</span>, <span class="dt">size =</span> <span class="dv">5</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb24-6" data-line-number="6"><span class="st">    </span><span class="kw">xlim</span>(<span class="dv">0</span>, <span class="dv">1</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb24-7" data-line-number="7"><span class="st">    </span><span class="kw">ylim</span>(<span class="dv">0</span>, <span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb24-8" data-line-number="8">}</a>
+<a class="sourceLine" id="cb24-9" data-line-number="9"></a>
+<a class="sourceLine" id="cb24-10" data-line-number="10"><span class="kw">plot_fronts</span>(run.simple)</a></code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+</div>
+<div id="filter-values-as-strategy-parameters" class="section level3">
+<h3>Filter Values as Strategy Parameters</h3>
+<p>It is possible to use “Feature Filter” values from <code>mlr</code> feature filters to heuristically guide mutation of the <code>selector.selection</code> bitvector. For this, the filter matrix can be generated using the <code>makeFilterMat</code> function, with a few features we choose. (The github-version of <code>mlr</code> needs to be installed for this: <code>devtools::install_github(&quot;mlr-org/mlr&quot;)</code>). For demonstration purposes, this contains the useless-in-this-case <code>&quot;variance&quot;</code> Filter that just measures each feature’s variance:</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb25-1" data-line-number="1">filters &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;praznik_JMI&quot;</span>, <span class="st">&quot;auc&quot;</span>, <span class="st">&quot;anova.test&quot;</span>, <span class="st">&quot;variance&quot;</span>)</a>
+<a class="sourceLine" id="cb25-2" data-line-number="2">fima &lt;-<span class="st"> </span><span class="kw">makeFilterMat</span>(task, <span class="dt">filters =</span> filters)</a></code></pre></div>
+<p>We now create a <code>ParamSet</code> that includes one strategy parameter “<code>filterweights</code>”, which puts weights on the filter values and thereby controls how strong each one influences the mutation:</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb26-1" data-line-number="1">ps.strat &lt;-<span class="st"> </span><span class="kw">pSS</span>(</a>
+<a class="sourceLine" id="cb26-2" data-line-number="2">  maxdepth<span class="op">:</span><span class="st"> </span>integer[<span class="dv">1</span>, <span class="dv">30</span>],</a>
+<a class="sourceLine" id="cb26-3" data-line-number="3">  minsplit<span class="op">:</span><span class="st"> </span>integer[<span class="dv">2</span>, <span class="dv">30</span>],</a>
+<a class="sourceLine" id="cb26-4" data-line-number="4">  cp<span class="op">:</span><span class="st"> </span>numeric[<span class="fl">0.001</span>, <span class="fl">0.999</span>],</a>
+<a class="sourceLine" id="cb26-5" data-line-number="5">  selector.selection<span class="op">:</span><span class="st"> </span>logical<span class="op">^</span><span class="kw">getTaskNFeats</span>(task),</a>
+<a class="sourceLine" id="cb26-6" data-line-number="6">  filterweights<span class="op">:</span><span class="st"> </span>numeric[<span class="fl">0.001</span>, <span class="fl">0.999</span>]<span class="op">^</span><span class="kw">length</span>(filters))</a></code></pre></div>
+<p>The mutation operator must now include information on how to use the strategy parameter. Instead of writing out the function, we are using the helper <code>makeFilterStrategy</code> that is designed out for this usecase:</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb27-1" data-line-number="1">mutator.strat &lt;-<span class="st"> </span><span class="kw">combine.operators</span>(ps.strat,</a>
+<a class="sourceLine" id="cb27-2" data-line-number="2">  <span class="dt">numeric =</span> ecr<span class="op">::</span><span class="kw">setup</span>(mutGauss, <span class="dt">sdev =</span> <span class="fl">0.1</span>),</a>
+<a class="sourceLine" id="cb27-3" data-line-number="3">  <span class="dt">integer =</span> ecr<span class="op">::</span><span class="kw">setup</span>(mutGaussInt, <span class="dt">sdev =</span> <span class="dv">3</span>),</a>
+<a class="sourceLine" id="cb27-4" data-line-number="4">  <span class="dt">selector.selection =</span> mutUniformMetaReset,</a>
+<a class="sourceLine" id="cb27-5" data-line-number="5">  <span class="dt">.strategy.selector.selection =</span> <span class="kw">makeFilterStrategy</span>(</a>
+<a class="sourceLine" id="cb27-6" data-line-number="6">    <span class="dt">reset.dists =</span> fima, <span class="dt">weight.param.name =</span> <span class="st">&quot;filterweights&quot;</span>))</a></code></pre></div>
+<p>We are going to use the same crossover operator as before, but we have to construct it with the new <code>ParamSet</code>:</p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb28-1" data-line-number="1">crossover.strat &lt;-<span class="st"> </span><span class="kw">combine.operators</span>(ps.strat,</a>
+<a class="sourceLine" id="cb28-2" data-line-number="2">  <span class="dt">numeric =</span> recPCrossover,</a>
+<a class="sourceLine" id="cb28-3" data-line-number="3">  <span class="dt">integer =</span> recPCrossover,</a>
+<a class="sourceLine" id="cb28-4" data-line-number="4">  <span class="dt">selector.selection =</span> recPCrossover)</a></code></pre></div>
+<p>The initial population we sample again using the <code>ParamHelpers</code> function <code>sampleValues()</code>. We are then sampling the <code>$selector.selection</code> part again from the equilibrium-distribution of <code>mutUniformMetaReset</code>:</p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb29-1" data-line-number="1">initials.strat &lt;-<span class="st"> </span><span class="kw">sampleValues</span>(ps.strat, <span class="dv">62</span>, <span class="dt">discrete.names =</span> <span class="ot">TRUE</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb29-2" data-line-number="2"><span class="st">  </span><span class="kw">lapply</span>(<span class="cf">function</span>(x) {</a>
+<a class="sourceLine" id="cb29-3" data-line-number="3">    x<span class="op">$</span>selector.selection <span class="op">%&lt;&gt;%</span><span class="st"> </span>as.numeric <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb29-4" data-line-number="4"><span class="st">      </span><span class="kw">mutUniformMetaReset</span>(<span class="dt">p =</span> <span class="dv">1</span>,</a>
+<a class="sourceLine" id="cb29-5" data-line-number="5">        <span class="dt">reset.dists =</span> fima,</a>
+<a class="sourceLine" id="cb29-6" data-line-number="6">        <span class="dt">reset.dist.weights =</span> x<span class="op">$</span>filterweights) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb29-7" data-line-number="7"><span class="st">      </span>as.logical</a>
+<a class="sourceLine" id="cb29-8" data-line-number="8">    x</a>
+<a class="sourceLine" id="cb29-9" data-line-number="9">  })</a></code></pre></div>
+<p>These are all preparations needed for a heuristic-backed NSGA2 fun for feature-selection:</p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb30-1" data-line-number="1">run.strat &lt;-<span class="st"> </span><span class="kw">mosmafs.nsga2</span>(</a>
+<a class="sourceLine" id="cb30-2" data-line-number="2">  <span class="dt">fitness.fun =</span> <span class="kw">makeObjective</span>(lrn, task, ps.strat, cv5),</a>
+<a class="sourceLine" id="cb30-3" data-line-number="3">  <span class="dt">initial.solutions =</span> initials.strat,</a>
+<a class="sourceLine" id="cb30-4" data-line-number="4">  <span class="dt">lambda =</span> <span class="dv">32</span>,</a>
+<a class="sourceLine" id="cb30-5" data-line-number="5">  <span class="dt">mutator =</span> mutator.strat,</a>
+<a class="sourceLine" id="cb30-6" data-line-number="6">  <span class="dt">recombinator =</span> crossover.strat,</a>
+<a class="sourceLine" id="cb30-7" data-line-number="7">  <span class="dt">log.pop =</span> <span class="ot">TRUE</span>,</a>
+<a class="sourceLine" id="cb30-8" data-line-number="8">  <span class="dt">terminators =</span> <span class="kw">list</span>(<span class="kw">stopOnIters</span>(<span class="dv">10</span>)))</a></code></pre></div>
+<p>The pareto-fronts of this run look as follows:</p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb31-1" data-line-number="1"><span class="kw">plot_fronts</span>(run.strat)</a></code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+</div>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>In particular, they must have entries corresponding to the <strong>names</strong> of the possible values of a discrete parameter. Consider the <code>ParamSet</code> <code>makeParamSet(makeDiscreteParam(&quot;fn&quot;, values = list(a = identity, b = exp)))</code>. An individuum corresponding to this <code>ParamSet</code> would have to be one of <code>list(fn = &quot;a&quot;)</code> or <code>list(fn = &quot;b&quot;)</code>.<a href="#fnref1" class="footnote-back">↩</a></p></li>
+</ol>
+</div>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
