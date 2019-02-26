@@ -18,6 +18,7 @@ Imports:
   checkmate,
   ParamHelpers,
   MASS,
+  smoof,
   mlrCPO
 Suggests:
   mlr,
