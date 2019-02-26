@@ -166,14 +166,14 @@ run.dom.mufi <- slickEcr(
     fidelity = fidelity)
 ```
 
-```{r}
+```{r, fig.width = 6, fig.height = 5}
 plot_fronts(run.dom.mufi)
 ```
 
 
 ## All of the Above
 
-The two approaches can, of course, be combined.
+The two approaches can, of course, be combined. It should be noted that the initial generation, as well as each generation after a fidelity-jump, is evaluated with the "high" fidelity column number. The following, for example, evaluates generation 1 with fidelity 10, generation 6 with fidelity 20, and generation 11 with fidelity 30. In between, new points are evaluated with low fidelity first and then re-evaluated on high-fidelity if they seem to not be dominated by the previous generation. Because of this, fidelity-jumps tend to be relatively computationally expensive and should be done sparingly if at all.
 
 ```{r}
 fidelity <- data.frame(
@@ -193,6 +193,6 @@ run.all.mufi <- slickEcr(
     fidelity = fidelity)
 ```
 
-```{r}
+```{r, fig.width = 6, fig.height = 5}
 plot_fronts(run.all.mufi)
 ```
