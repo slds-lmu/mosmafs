@@ -24,17 +24,44 @@
 #' @export
 makeObjective <- function(learner, task, ps, resampling, measure = NULL) {
   if (is.null(measure)) {
-    measure <- getDefaultMeasure(measure)
+    measure <- getDefaultMeasure(task)
   }
   obj.factor <- if (measure$minimize) 1 else -1
   learner <- cpoSelector() %>>% checkLearner(learner, type = getTaskType(task))
-  smoof::makeMultiObjectiveFunction(sprintf("mosmafs_%s", lrn$id),
+  argnames <- getParamIds(getParamSet(learner))
+  smoof::makeMultiObjectiveFunction(sprintf("mosmafs_%s", learner$id),
     has.simple.signature = FALSE, par.set = ps, n.objectives = 2, noisy = TRUE,
     fn = function(args) {
-    args <- args[intersect(names(args), getParamIds(getParamSet(lrn)))]
-    val <- resample(setHyperPars(lrn, par.vals = args), task, resampling,
-      list(measure), show.info = FALSE)$aggr
-    propfeat <- mean(args$selector.selection)
-    c(val * obj.factor, propfeat)
+      args <- valuesFromNames(ps, args)
+      args <- trafoValue(ps, args)
+      args <- args[intersect(names(args), argnames)]  # filter out strategy parameters
+      val <- resample(setHyperPars(learner, par.vals = args), task, resampling,
+        list(measure), show.info = FALSE)$aggr
+      propfeat <- mean(args$selector.selection)
+      c(val * obj.factor, propfeat)
   })
+}
+
+#' @title Convert Discrete Parameters from Names to Values
+#'
+#' @description
+#' Convert parameter values sampled with [ParamHelpers::sampleValue()] and
+#' `discrete.names = TRUE` to true parameter values.
+#'
+#' @param paramset `[ParamSet]` The [`ParamHelpers::ParamSet`] used to generate the value.
+#' @param value `[named list]` Names list of parameters sampled from `paramset`.
+#' @return `named list` of parameter values, with `character` entries representing names
+#'   of values of discrete params converted to the actual values.
+#' @export
+valuesFromNames <- function(paramset, value) {
+  adapt <- getParamIds(paramset)[getParamTypes(paramset) %in% c("discrete", "discretevector")]
+  for (pname in adapt) {
+    param <- paramset$pars[[pname]]
+    if (isVector(param)) {
+      value[[pname]] <- param$values[value[[pname]]]
+    } else {
+      value[[pname]] <- param$values[[value[[pname]]]]
+    }
+  }
+  value
 }
