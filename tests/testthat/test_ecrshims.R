@@ -71,8 +71,20 @@ test_that("ecrshims error messages", {
     bl = mutBitflip),
     " al must have only .* but has parameters ind,lower,upper")
 })
-# TODO: mixing types must be forbidden
+# TODO: mixing types with discrete nonbinary must be forbidden
 test_that("ecrshims operation", {
+
+  param.set.numeric = pSS(a: numeric[1, 3]^2, b: numeric[0, 1])
+  param.set.integer = pSS(ai: integer[1, 3]^2, bi: integer[0, 1])
+  param.set.logical = pSS(al: logical^2, bl: logical)
+  param.set.logical.extended = pSS(ale: logical^2, ble: logical,
+    cle: discrete[l="m", n=10], dle: discrete[a=exp, b=identity]^2)
+  param.set.discrete = pSS(cd: discrete[l="m", n=10, o=NULL],
+    d: discrete[a=exp, b=identity, c=`[`]^2)
+  fullps <- c(param.set.numeric, param.set.integer,
+    param.set.logical.extended, param.set.discrete)
+
+
   combop <- combine.operators(param.set.numeric, a = recSBX, b = recOX)
   expect_class(combop, "ecr_operator")
   expect_class(combop, "ecr_recombinator")
@@ -92,11 +104,11 @@ test_that("ecrshims operation", {
 
   op <- combine.operators(param.set.numeric, a = ecr::setup(debugrec, extra = 1),
     b = ecr::setup(debugrec, extra = 2))
-  op(sampleValues(param.set.numeric, 2, discrete.names = TRUE))
+  expect_output(op(sampleValues(param.set.numeric, 2, discrete.names = TRUE)))
 
   op <- combine.operators(param.set.numeric,
     numeric = ecr::setup(debugrec, extra = 1))
-  op(sampleValues(param.set.numeric, 2, discrete.names = TRUE))
+  expect_output(op(sampleValues(param.set.numeric, 2, discrete.names = TRUE)))
 
 
   op <- combine.operators(fullps,
@@ -105,7 +117,7 @@ test_that("ecrshims operation", {
     integer = ecr::setup(debugrec, extra = "integer"),
     discrete = ecr::setup(debugrec, extra = "discrete"))
 
-  op(sampleValues(fullps, 2, discrete.names = TRUE))[[1]]
+  expect_output(op(sampleValues(fullps, 2, discrete.names = TRUE))[[1]])
 
   op <- combine.operators(fullps,
     numeric = ecr::setup(debugmut, extra = "numeric"),
@@ -113,7 +125,7 @@ test_that("ecrshims operation", {
     integer = ecr::setup(debugmut, extra = "integer"),
     discrete = ecr::setup(debugmut, extra = "discrete"))
 
-  op(sampleValue(fullps, discrete.names = TRUE))
+  expect_output(op(sampleValue(fullps, discrete.names = TRUE)))
 
   op <- combine.operators(
     pSS(one: numeric[, ]^4, two: numeric[, ], three: numeric[0, ]),
@@ -133,17 +145,17 @@ test_that("ecrshims operation", {
     logical = ecr::setup(debugmut, extra = "logical"),
     discrete = ecr::setup(debugmut, extra = "discrete"))
 
-  op(list(a = TRUE, b = c(TRUE, TRUE, FALSE), c = "x",
-    d = c("xx", "yy", "xx", "yy"), e = "l", f = c("ll", "mm", "nn", "mm", "ll")))
+  expect_output(op(list(a = TRUE, b = c(TRUE, TRUE, FALSE), c = "x",
+    d = c("xx", "yy", "xx", "yy"), e = "l", f = c("ll", "mm", "nn", "mm", "ll"))))
 
-  op(list(a = FALSE, b = c(FALSE, FALSE, TRUE), c = "y",
-    d = c("yy", "xx", "yy", "xx"), e = "m", f = c("mm", "ll", "nn", "ll", "mm")))
+  expect_output(op(list(a = FALSE, b = c(FALSE, FALSE, TRUE), c = "y",
+    d = c("yy", "xx", "yy", "xx"), e = "m", f = c("mm", "ll", "nn", "ll", "mm"))))
 
-  op(list(a = FALSE, b = c(FALSE, FALSE, TRUE),
+  expect_output(op(list(a = FALSE, b = c(FALSE, FALSE, TRUE),
     c = factor("y", levels = c("x", "y")),
     d = list("yy", "xx", "yy", "xx"),
     e = factor("m", levels = c("l", "m", "n")),
-    f = list("mm", "ll", "nn", "ll", "mm")))
+    f = list("mm", "ll", "nn", "ll", "mm"))))
 
   ps <- makeParamSet(
       makeDiscreteParam("param1", c("x", "y")),
@@ -157,7 +169,7 @@ test_that("ecrshims operation", {
       x
     }, "custom"))
 
-  op(list(param1 = "x", param2 = "b"))
+  expect_output(op(list(param1 = "x", param2 = "b")))
 
   op <- combine.operators(ps,
     discrete = makeMutator(function(x, ...) {
@@ -166,7 +178,7 @@ test_that("ecrshims operation", {
     }, "custom"),
     .binary.discrete.as.logical = FALSE)
 
-  op(list(param1 = "x", param2 = "b"))
+  expect_output(op(list(param1 = "x", param2 = "b")))
 
 })
 

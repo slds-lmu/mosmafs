@@ -11,5 +11,5 @@ test_that("generating data", {
   htaskplus <- task.add.random.cols(htask, 5)
   htaskperm <- task.add.permuted.cols(htask, 4)
 
-  htaskperm$orig.features
+  expect_equal(sum(htaskperm$orig.features), 2)
 })

@@ -42,4 +42,5 @@ test_that("intified operators", {
     logical = recCrossover,
     numeric = recSBX)
 
+  expect_true(TRUE)
 })
