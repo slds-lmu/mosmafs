@@ -10,11 +10,11 @@ intifyMutator(operator)
 intifyRecombinator(operator)
 }
 \arguments{
-\item{operator}{\code{[ecr_operator]} \code{\link{ecr_operator}} that supports continuous
+\item{operator}{\code{[ecr_operator]} \code{\link[ecr:makeOperator]{ecr_operator}} that supports continuous
 variables.}
 }
 \value{
-\code{\link{ecr_operator}} operator that operates on integers.
+\code{\link[ecr:makeOperator]{ecr_operator}} operator that operates on integers.
 }
 \description{
 The input \code{operator} is wrapped: individuals are fed to it as-is, and

@@ -26,8 +26,8 @@ vector (\code{beta}).}
 }
 \description{
 Create linear model data \code{Y = X * beta + epsilon} with
-\code{X = X'} if \code{[permute] == FALSE}, and \code{X = shuffle_columns(X')}
-if \code{[permute] == TRUE} where \code{X'} is an \code{[n] * [p]} matrix of MVN distributed
+\code{X = X^} if \code{[permute] == FALSE}, and \code{X = shuffle_columns(X^)}
+if \code{[permute] == TRUE} where \code{X^} is an \code{[n] * [p]} matrix of MVN distributed
 rows with covariance matrix\preformatted{1     rho rho^2 rho^3 ... rho^p
 rho     1 rho   rho^2 ... rho^(p-1)
 rho^2 rho   1   rho ...   rho^(p-2)
@@ -37,8 +37,8 @@ rho^p ...
 
 \code{epsilon} is normally distributed with stdev 1.
 
-\code{beta = shuffle(beta')} if \code{[permute] == TRUE} and \code{beta = beta'} otherwise,
-and \code{beta'[i] = beta0 * q ^ (i - 1)} for \code{i} = \code{1..p}
+\code{beta = shuffle(beta^)} if \code{[permute] == TRUE} and \code{beta = beta^} otherwise,
+and \code{beta^[i] = beta0 * q ^ (i - 1)} for \code{i} = \code{1..p}
 
 \code{$orig.features} are the features with \code{beta > 1 / sqrt(n)}
 }

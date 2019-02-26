@@ -3,8 +3,8 @@
 #'
 #' @description
 #' Create linear model data `Y = X * beta + epsilon` with
-#' `X = X'` if `[permute] == FALSE`, and `X = shuffle_columns(X')`
-#' if `[permute] == TRUE` where `X'` is an `[n] * [p]` matrix of MVN distributed
+#' `X = X^` if `[permute] == FALSE`, and `X = shuffle_columns(X^)`
+#' if `[permute] == TRUE` where `X^` is an `[n] * [p]` matrix of MVN distributed
 #' rows with covariance matrix
 #'
 #' ```
@@ -17,8 +17,8 @@
 #'
 #' `epsilon` is normally distributed with stdev 1.
 #'
-#' `beta = shuffle(beta')` if `[permute] == TRUE` and `beta = beta'` otherwise,
-#' and `beta'[i] = beta0 * q ^ (i - 1)` for `i` = `1..p`
+#' `beta = shuffle(beta^)` if `[permute] == TRUE` and `beta = beta^` otherwise,
+#' and `beta^[i] = beta0 * q ^ (i - 1)` for `i` = `1..p`
 #'
 #' `$orig.features` are the features with `beta > 1 / sqrt(n)`
 #'
@@ -34,7 +34,7 @@
 #' @export
 create.linear.data <- function(n, p, q = exp(-1), beta0 = 1, rho = 0, permute = TRUE) {
   cormat <- sapply(seq_len(p), function(x) rho ^ abs(x - seq_len(p)))
-  X <- mvrnorm(n, rep(0, p), cormat)
+  X <- MASS::mvrnorm(n, rep(0, p), cormat)
   if (permute) {
     X <- X[, sample(p)]
   }

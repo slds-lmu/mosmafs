@@ -33,11 +33,11 @@
 #'
 #' use the ecr::setup function to set parameters for operators ("currying")
 #'
-#' @param param.set `[ParamSet]` [`ParamSet`] that defines the search space
+#' @param param.set `[ParamSet]` [`ParamSet`][ParamHelpers::makeParamSet] that defines the search space
 #' @param ... see description
 #' @param .binary.discrete.as.logical `[logical(1)]` whether to treat binary discrete parameters as `logical` parameters and
 #'   use bitwise operators.
-#' @return [`Operator`] ECR operator
+#' @return [`ecr_operator`][ecr::makeOperator] ECR operator
 #' @export
 combine.operators <- function(param.set, ..., .binary.discrete.as.logical = TRUE) {
 

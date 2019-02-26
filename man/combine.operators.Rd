@@ -7,7 +7,7 @@
 combine.operators(param.set, ..., .binary.discrete.as.logical = TRUE)
 }
 \arguments{
-\item{param.set}{\code{[ParamSet]} \code{\link{ParamSet}} that defines the search space}
+\item{param.set}{\code{[ParamSet]} \code{\link[ParamHelpers:makeParamSet]{ParamSet}} that defines the search space}
 
 \item{...}{see description}
 
@@ -15,7 +15,7 @@ combine.operators(param.set, ..., .binary.discrete.as.logical = TRUE)
 use bitwise operators.}
 }
 \value{
-\code{\link{Operator}} ECR operator
+\code{\link[ecr:makeOperator]{ecr_operator}} ECR operator
 }
 \description{
 TODO: This seriously needs better documentation.

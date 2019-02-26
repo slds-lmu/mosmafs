@@ -19,8 +19,17 @@ Imports:
   ParamHelpers,
   MASS,
   smoof,
-  mlrCPO
-Suggests:
+  mlrCPO,
   mlr,
-  knitr
+  ecr
+Suggests:
+  knitr,
+  ggplot2,
+  magrittr,
+  parallelMap,
+  testthat,
+  rpart
+Remotes:
+  jakobbossek/ecr2,
+  mlr-org/mlr
 RoxygenNote: 6.1.1

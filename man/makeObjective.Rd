@@ -7,16 +7,16 @@
 makeObjective(learner, task, ps, resampling, measure = NULL)
 }
 \arguments{
-\item{learner}{\code{[Learner]} An \code{\link[mlr:Learner]{mlr::Learner}} object to optimize.}
+\item{learner}{\code{[Learner]} A \code{\link[mlr:makeLearner]{Learner}} object to optimize.}
 
 \item{task}{\code{[Task]} The \code{\link[mlr:Task]{mlr::Task}} object to optimize on.}
 
-\item{ps}{\code{[ParamSet]} The \code{\link[ParamHelpers:ParamSet]{ParamHelpers::ParamSet}} to optimize over.}
+\item{ps}{\code{[ParamSet]} The \code{\link[ParamHelpers:makeParamSet]{ParamSet}} to optimize over.}
 
-\item{resampling}{\code{[ResampleDesc | ResampleInst]} The \code{\link[mlr:ResampleDesc]{mlr::ResampleDesc}} or
-\code{\link[mlr:ResampleInst]{mlr::ResampleInst}} object to use.}
+\item{resampling}{\code{[ResampleDesc | ResampleInst]} The \code{\link[mlr:makeResampleDesc]{ResampleDesc}} or
+\code{\link[mlr:makeResampleInstance]{ResampleInst}} object to use.}
 
-\item{measure}{\code{[Measure | NULL]} The \code{\link[mlr:Measure]{mlr::Measure}} to optimize for.
+\item{measure}{\code{[Measure | NULL]} The \code{\link[mlr:makeMeasure]{Measure}} to optimize for.
 The default is \code{NULL}, which uses the \code{task}'s default \code{Measure}.}
 }
 \value{

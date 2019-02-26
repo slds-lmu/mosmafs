@@ -11,14 +11,18 @@ vignette: >
 ---
 
 ```{r setup, include = FALSE}
-library("ecr")
-library("mosmafs")
-library("magrittr")
 library("parallelMap")
-library("ggplot")
 library("ParamHelpers")
 library("mlr")
 library("mlrCPO")
+
+library("ecr")
+library("mosmafs")
+
+library("magrittr")
+library("ggplot2")
+
+
 set.seed(8008135)
 
 options(width = 100)
@@ -28,7 +32,7 @@ parallelStartMulticore(show.info = FALSE)
 print.list <- function(x) {
   if (all(vlapply(x, is.atomic))) {
     catf("list(%s)",
-      collapse(sprintf("%s=%s", names(x),
+      collapse(sprintf("%s = %s", names(x),
         vcapply(x, deparse, width.cutoff = 500)), ", "))
   } else {
     NextMethod(x)
@@ -337,7 +341,7 @@ plot_fronts(run.simple)
 
 ### Filter Values as Strategy Parameters
 
-It is possible to use "Feature Filter" values from `mlr` feature filters to heuristically guide mutation of the `selector.selection` bitvector. For this, the filter matrix can be generated using the `makeFilterMat` function, with a few features we choose. (The github-version of `mlr` needs to be installed for this: `devtools::install_github("mlr-org/mlr")`). For demonstration purposes, this contains the useless-in-this-case `"variance"` Filter that just measures each feature's variance:
+It is possible to use "Feature Filter" values from `mlr` feature filters to heuristically guide mutation of the `selector.selection` bitvector. For this, the filter matrix can be generated using the `makeFilterMat` function, with a few features we choose. (The github-version of `mlr` needs to be installed for this: `devtools::install_github("mlr-org/mlr")`). For demonstration purposes, this contains the useless-in-this-case `"variance"` Filter that just measures each feature's variance. (To use the relatively good `"praznik_JMI"` filter it is necessary to install the github-version of `mlr`, e.g. by using `devtools::install_github("mlr-org/mlr")`).
 
 ```{r}
 filters <- c("praznik_JMI", "auc", "anova.test", "variance")

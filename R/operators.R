@@ -6,9 +6,9 @@
 #' output is rounded. Upper and lower bounds are both shifted by 0.5 down or
 #' up, respectively, to retain a fair distribution.
 #'
-#' @param operator `[ecr_operator]` [`ecr_operator`] that supports continuous
+#' @param operator `[ecr_operator]` [`ecr_operator`][ecr::makeOperator] that supports continuous
 #'   variables.
-#' @return [`ecr_operator`] operator that operates on integers.
+#' @return [`ecr_operator`][ecr::makeOperator] operator that operates on integers.
 #' @export
 intifyMutator <- function(operator) makeMutator(function(ind, ..., lower, upper) {
   ind <- operator(ind, ..., lower = lower - 0.5, upper = upper + 0.5)
@@ -157,7 +157,7 @@ mutUniformReset <- makeMutator(function(ind, p = 0.1, reset.dist) {
 #' @export
 mutUniformMetaReset <- makeMutator(function(ind, p = 0.1, reset.dists, reset.dist.weights) {
   assertNumeric(reset.dist.weights, lower = 0, upper = 1 - .Machine$double.eps, any.missing = FALSE)
-  assertMatrix(reset.dists, nrows = length(ind), ncol = length(reset.dist.weights))
+  assertMatrix(reset.dists, nrows = length(ind), ncols = length(reset.dist.weights))
   reset.dist.weights <- -log(1 - reset.dist.weights)
   reset.dist.weights <- reset.dist.weights / sum(reset.dist.weights)  # TODO: this could go into trafo
   mutUniformReset(ind, p = p, reset.dist = reset.dists %*% reset.dist.weights)

@@ -17,6 +17,14 @@ mosmafs.nsga2 = function(...) {
     survival.selector = selNondom,
     mu = length(given$initial.solutions)
   )
+  if (smoof::isSmoofFunction(given$fitness.fun) &&
+      !smoof::isVectorized(given$fitness.fun)) {
+    # workaround for for https://github.com/jakobbossek/ecr2/issues/107
+    given$n.objectives <- smoof::getNumberOfObjectives(given$fitness.fun)
+    given$n.dim <- smoof::getNumberOfParameters(given$fitness.fun)
+    # given$par.set <- getParamSet(given$fitness.fun)
+    attributes(given$fitness.fun) <- list()
+  }
 
   do.call(ecr::ecr, insert(args, given))
 }

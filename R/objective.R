@@ -13,12 +13,12 @@
 #' `learner` must *not* include a `cpoSelector()` applied to it, this
 #' happens automatically within `makeObjective`.
 #'
-#' @param learner `[Learner]` An [`mlr::Learner`] object to optimize.
+#' @param learner `[Learner]` A [`Learner`][mlr::makeLearner] object to optimize.
 #' @param task `[Task]` The [`mlr::Task`] object to optimize on.
-#' @param ps `[ParamSet]` The [`ParamHelpers::ParamSet`] to optimize over.
-#' @param resampling `[ResampleDesc | ResampleInst]` The [`mlr::ResampleDesc`] or
-#'   [`mlr::ResampleInst`] object to use.
-#' @param measure `[Measure | NULL]` The [`mlr::Measure`] to optimize for.
+#' @param ps `[ParamSet]` The [`ParamSet`][ParamHelpers::makeParamSet] to optimize over.
+#' @param resampling `[ResampleDesc | ResampleInst]` The [`ResampleDesc`][mlr::makeResampleDesc] or
+#'   [`ResampleInst`][mlr::makeResampleInstance] object to use.
+#' @param measure `[Measure | NULL]` The [`Measure`][mlr::makeMeasure] to optimize for.
 #'   The default is `NULL`, which uses the `task`'s default `Measure`.
 #' @return `function` an objective function for [`ecr::ecr`].
 #' @export
@@ -48,7 +48,7 @@ makeObjective <- function(learner, task, ps, resampling, measure = NULL) {
 #' Convert parameter values sampled with [ParamHelpers::sampleValue()] and
 #' `discrete.names = TRUE` to true parameter values.
 #'
-#' @param paramset `[ParamSet]` The [`ParamHelpers::ParamSet`] used to generate the value.
+#' @param paramset `[ParamSet]` The [`ParamSet`][ParamHelpers::makeParamSet] used to generate the value.
 #' @param value `[named list]` Names list of parameters sampled from `paramset`.
 #' @return `named list` of parameter values, with `character` entries representing names
 #'   of values of discrete params converted to the actual values.

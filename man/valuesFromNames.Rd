@@ -7,7 +7,7 @@
 valuesFromNames(paramset, value)
 }
 \arguments{
-\item{paramset}{\code{[ParamSet]} The \code{\link[ParamHelpers:ParamSet]{ParamHelpers::ParamSet}} used to generate the value.}
+\item{paramset}{\code{[ParamSet]} The \code{\link[ParamHelpers:makeParamSet]{ParamSet}} used to generate the value.}
 
 \item{value}{\code{[named list]} Names list of parameters sampled from \code{paramset}.}
 }
