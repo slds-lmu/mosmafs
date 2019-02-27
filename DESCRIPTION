@@ -29,7 +29,8 @@ Suggests:
   magrittr,
   testthat,
   rpart,
-  parallel
+  parallel,
+  praznik
 Remotes:
   jakobbossek/ecr2,
   mlr-org/mlr
