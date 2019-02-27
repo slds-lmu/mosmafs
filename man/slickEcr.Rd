@@ -50,7 +50,7 @@ of the first column must always be 1. Whenever fidelity changes, the whole
 population is re-evaluated, so it is recommended to use only few different
 fidelity jumps throughout all generations.}
 
-\item{log.status}{\code{[list]} information to log}
+\item{log.stats}{\code{[list]} information to log}
 }
 \description{
 Mostly \code{\link[ecr:ecr]{ecr::ecr}}, with some simplifications and extensions.
