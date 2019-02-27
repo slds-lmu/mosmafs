@@ -60,7 +60,7 @@ mosmafs.nsga2 = function(...) {
 #'   of the first column must always be 1. Whenever fidelity changes, the whole
 #'   population is re-evaluated, so it is recommended to use only few different
 #'   fidelity jumps throughout all generations.
-#' @param log.status `[list]` information to log
+#' @param log.stats `[list]` information to log
 #' @export
 slickEcr <- function(fitness.fun, lambda, population, mutator, recombinator, generations = 100, parent.selector = selSimple, survival.selector = selNondom, p.recomb = 0.7, p.mut = 0.3, survival.strategy = c("plus", "comma"), n.elite = 0, fidelity = NULL, log.stats = list(fitness = list("min", "mean", "max"))) {
 

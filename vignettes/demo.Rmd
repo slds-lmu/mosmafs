@@ -26,8 +26,15 @@ library("ggplot2")
 set.seed(8008135)
 
 options(width = 100)
-
-parallelStartMulticore(show.info = FALSE)
+cores <- parallel::detectCores()
+if (Sys.getenv("FASTVIGNETTE") != "true") {
+  cores <- min(cores, 2)
+}
+if (.Platform$OS.type == "windows") {
+  parallelStartSocket(cores, show.info = FALSE)
+} else {
+  parallelStartMulticore(cores, show.info = FALSE)
+}
 
 print.list <- function(x) {
   if (all(vlapply(x, is.atomic))) {

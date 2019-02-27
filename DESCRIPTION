@@ -28,7 +28,8 @@ Suggests:
   ggplot2,
   magrittr,
   testthat,
-  rpart
+  rpart,
+  parallel
 Remotes:
   jakobbossek/ecr2,
   mlr-org/mlr
