@@ -160,25 +160,25 @@ slickEvaluateFitness <- function(ctrl, population, fidelity = NULL, previous.poi
   }
   if (is.null(fidelity)) {
     invocation <- function(x) {
-      list(time = system.time(res <- wrapped.fitness(x))[3], res = res)
+      list(time = system.time(res <- wrapped.fitness(x), gcFirst = FALSE)[3], res = res)
     }
   } else if (length(fidelity) == 1) {
     invocation <- function(x) {
-      list(time = system.time(res <- wrapped.fitness(x, fidelity = fidelity))[3],
+      list(time = system.time(res <- wrapped.fitness(x, fidelity = fidelity), gcFirst = FALSE)[3],
         res = res, fidelity = fidelity)
     }
   } else {
     invocation <- function(x) {
       time <- system.time(
-          phyttniss <- wrapped.fitness(x, fidelity = fidelity[1])
-      )[3]
+        phyttniss <- wrapped.fitness(x, fidelity = fidelity[1]),
+        gcFirst = FALSE)[3]
       is.dominated <- dominated(cbind(matrix(phyttniss, ncol = 1), previous.points))[1]
       if (is.dominated) {
         return(list(time = time, res = phyttniss, fidelity = fidelity[1]))
       }
       time <- time + system.time(
-        phyttniss.addnl <- wrapped.fitness(x, fidelity = fidelity[2])
-      )[3]
+        phyttniss.addnl <- wrapped.fitness(x, fidelity = fidelity[2]),
+        gcFirst = FALSE)[3]
       phyttniss <- (phyttniss * fidelity[1] + phyttniss.addnl * fidelity[2]) / sum(fidelity)
       list(time = time, res = phyttniss, fidelity = sum(fidelity))
     }
