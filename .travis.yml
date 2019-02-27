@@ -52,6 +52,8 @@ jobs:
         skip-cleanup: true
         github-token: $GITHUB_TOKEN
         local-dir: docs
+        on:
+          branch: mosmafs-package
       after_deploy:
         - git checkout mosmafs-package  # otherwise we're in detached head
         - "export TRAVIS_COMMIT_MSG=\"$(git log --format=%B --no-merges -n 1)\""
