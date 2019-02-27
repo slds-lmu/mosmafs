@@ -31,7 +31,7 @@ jobs:
   include:
     - stage: test
       script:
-        - R CMD build .
+        - travis_wait 100 R CMD build .
         - travis_wait 100 R CMD check mosmafs*.tar.gz --as-cran --run-donttest
           #        - grep -q -R "WARNING" "mosmafs.Rcheck/00check.log" ; [ $? -ne 0 ]
     - stage: test
@@ -43,8 +43,8 @@ jobs:
       before_deploy:
         - rm -rf doc | true
         - rm -rf inst | true
-        - Rscript -e 'roxygen2::roxygenize(); devtools::install(quick = TRUE); pkgdown::build_site()'
-        - Rscript -e 'tools::buildVignettes(dir = ".")'
+        - travis_wait 100 Rscript -e 'roxygen2::roxygenize(); devtools::install(quick = TRUE); pkgdown::build_site()'
+        - travis_wait 100 Rscript -e 'tools::buildVignettes(dir = ".")'
         - mkdir -p inst/doc
         - mv -f vignettes/*.html inst/doc
       deploy:
