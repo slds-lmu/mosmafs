@@ -4,3 +4,4 @@
 ^\.gitignore$
 ^todo-files$
 ^notes$
+^pkgdown$
