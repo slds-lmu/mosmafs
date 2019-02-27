@@ -1,14 +1,4 @@
-packages = c("mlr", "ecr", "OpenML", "magrittr", "mlrCPO", "data.table", "farff", "RWeka", "parallelMap")
-
-sapply(packages, require, character.only = TRUE)
-
-source("../datagen.R")
-source("../ecrshims.R")
-source("../selectorcpo.R")
-source("../customnsga2.R")
-source("../operators.R")
-source("../initialization.R")
-
+source("../R/initialization.R")
 
 # do not overwrite registry
 OVERWRITE = FALSE
@@ -22,8 +12,8 @@ datasets = datasets[-1]
 # --- Specify algorithm design ---
 
 # Machine learning algorithms to be benchmarked
-LEARNERS = list("SVM" = cpoSelector() %>>% makeLearner("classif.ksvm", kernel = "rbfdot"),
-	"kknn" = cpoSelector() %>>% makeLearner("classif.kknn"))
+LEARNERS = list("SVM" = makeLearner("classif.ksvm", kernel = "rbfdot"),
+	"kknn" = makeLearner("classif.kknn"))
 
 # Tuning parameter sets to be benchmarked
 PAR.SETS = list(
@@ -38,7 +28,7 @@ PAR.SETS = list(
 )
 
 # Maximum number of evaluations allowed
-MAXEVAL = 10000L
+MAXEVAL = 50L
 
 # feature initialization of initial population
 INITIALIZATION = list("none" = NULL, "unif" = list(dist = runif), "rgeom0.3" = list(dist = rgeom, prob = 0.3))
@@ -51,13 +41,12 @@ RESAMPLING = list("10CV" = makeResampleDesc("CV", iters = 10, stratify = TRUE))
 PARENTSEL = list("selSimple" = setup(selSimple), "selTournament" = setup(selTournament, k = 2L))
 
 ades = CJ(learner = c("SVM", "kknn"), 
-	mu = c(15L, 40L, 80L, 120L, 160L), 
-	lambda = c(5L, 15L, 30L, 60L),
+	mu = c(15L, 80L, 160L), 
+	lambda = c(30L),
 	maxeval = MAXEVAL, 
 	filter.method = c("none"),
-	resampling = c("10CV"),
-	initialization = c("none", "unif"), 
-	parent.sel = c("selSimple"),
+	initialization = c("none"), 
+	parent.sel = c("selSimple", "selTournament"),
 	sorted = FALSE)
 
 # add baseline with random sampling
@@ -68,9 +57,7 @@ ades = CJ(learner = c("SVM", "kknn"),
 # 	parent.sel = c("selSimple"),
 # 	sorted = FALSE)
 
-# # add baseline
+# add baseline
 # ades = rbind(ades, baseline)
 
 REPLICATIONS = 5L
-
-

@@ -1,9 +1,10 @@
-library(batchtools)
-library(magrittr)
-library(OpenML)
-library(ecr)
-library(mlrCPO)
-library(parallelMap)
+library("batchtools")
+library("ecr")
+library("magrittr")
+library("ParamHelpers")
+library("mlr")
+library("mlrCPO")
+library("mosmafs")
 
 source("def.R")
 
@@ -25,7 +26,6 @@ for (ds in datasets) {
   addProblem(name = ds, data = paste(datafolder, ds, "task.rds", sep = "/"), reg = reg)
 }
 
-
 mosmafs = function(data, job, instance, learner, lambda, mu, maxeval, filter.method, resampling, initialization, parent.sel) {
 
   # --- task and learner ---
@@ -33,51 +33,48 @@ mosmafs = function(data, job, instance, learner, lambda, mu, maxeval, filter.met
   lrn = LEARNERS[[learner]]
   n = getTaskSize(task)
 
-  # --- nested resampling for proper evaluation ---
+  # --- split of a test set for outer resampling ---
   split = round(0.9 * n)
   id.train = sample(n, size = split)
   id.test = setdiff(seq(1, n), id.train)
   task.train = subsetTask(task, subset = id.train)
   task.test = subsetTask(task, subset = id.test)  
-  resinner = makeResampleInstance(RESAMPLING[[resampling]], task = task.train) 
 
   # --- parameter set ---
   ps = PAR.SETS[[learner]]
-  ps = c(ps, 
-        pSS(selector.selection: logical^getTaskNFeats(task),
-            .strategy.numeric: numeric[0, 1],
-            .strategy.logical: numeric[0, 1],
-            .strategy.discrete: numeric[0, 1],
-            .strategy.selector.selection: numeric[0, 1])
-        )
-  
-  # --- create fitness function ---
-  fitness.fun = function(args, task = task.train, resampling = resinner) {
-    args = args[intersect(names(args), getParamIds(getParamSet(lrn)))]
-    val = resample(setHyperPars(lrn, par.vals = args), task, resampling, show.info = FALSE)$aggr
-    propfeat = mean(args$selector)
-    c(perf = val, feat = propfeat)
-  }
+  ps = c(ps, pSS(selector.selection: logical^getTaskNFeats(task)))
 
+  # --- EA operators ---
+  mutator = combine.operators(ps,
+    numeric = mutGauss,
+    logical = mutBitflip,
+    integer = mutUniformInt,
+    discrete = mutRandomChoice,
+    selector.selection = mutBitflip#,
+    # .strategy.numeric = makeMutationStrategyNumeric(".strategy.numeric", "sdev", lr = 1 / sqrt(2 * lambda), lower = getLower(ps$pars$.strategy.numeric), upper = getUpper(ps$pars$.strategy.numeric)),
+    # .strategy.logical = makeMutationStrategyNumeric(".strategy.logical", "p", lr = 1 / sqrt(2 * lambda), lower = 0, upper = 1),
+    # .strategy.discrete = makeMutationStrategyNumeric(".strategy.integer", "p", lr = 1 / sqrt(2 * lambda), lower = 0, upper = 1),  
+    # .strategy.selector.selection = makeMutationStrategyNumeric(".strategy.integer", "p", lr = 1 / sqrt(2 * lambda), lower = 0, upper = 1)
+  )
+
+  crossover = combine.operators(ps,
+    numeric = recSBX,
+    integer = recIntSBX,
+    discrete = recPCrossover,
+    logical = recUnifCrossover,
+    selector.selection = recPCrossover)
+
+  # --- initialization of population
   initials = sampleValues(ps, mu, discrete.names = TRUE)
-  initials = setStrategyParametersFixed(initials, ".strategy.numeric", 0.1)
-  initials = setStrategyParametersFixed(initials, ".strategy.logical", 0.1)
-  initials = setStrategyParametersFixed(initials, ".strategy.discrete", 0.1)
-  initials = setStrategyParametersFixed(initials, ".strategy.selector.selection", 1 /  getParamLengths(ps)["selector.selection"]) # recommendation of jakob bossek
-
   probs = NULL
   FILTERMAT = NULL
 
+  time = proc.time()
+
   if (filter.method != "none") {
-    filtervals = generateFilterValuesData(task.train, method = FILTER_METHOD[[filter.method]])
-    filtervals = filtervals$data[-(1:2)]
-
-    FILTERMAT = apply(filtervals, 2, function(col) {
-      col = col - mean(col)
-      col = (col - min(col)) / (max(col) - min(col))
-    })
-
-    probs = FILTERMAT %*% c(0.9, 0.1)       
+    n.measures = length(FILTER_METHOD[[filter.method]])
+    FILTERMAT = makeFilterMat(task.train, FILTER_METHOD[[filter.method]])
+    probs = FILTERMAT %*% rep(1 / n.measures, n.measures)       
   } 
 
   if (initialization != "none"){
@@ -85,44 +82,23 @@ mosmafs = function(data, job, instance, learner, lambda, mu, maxeval, filter.met
     args = sample.pars[-1]
     if (is.null(args))
       args = list()
+    if (initialization == "unif")
+      args$max = ps$pars$selector.selection$len
     sampler = sample.pars[[1]]
     initials = resamplePopulationFeatures(inds = initials, ps = ps, sampler = sampler, args = args, probs = probs) 
   }
 
-  mutator = combine.operators(ps,
-    numeric = mutGauss,
-    logical = mutBitflip,
-    integer = mutUniformInt,
-    discrete = mutRandomChoice,
-    selector.selection = mutBitflip,
-    .strategy.numeric = makeMutationStrategyNumeric(".strategy.numeric", "sdev", lr = 1 / sqrt(2 * lambda), lower = getLower(ps$pars$.strategy.numeric), upper = getUpper(ps$pars$.strategy.numeric)),
-    .strategy.logical = makeMutationStrategyNumeric(".strategy.logical", "p", lr = 1 / sqrt(2 * lambda), lower = 0, upper = 1),
-    .strategy.discrete = makeMutationStrategyNumeric(".strategy.integer", "p", lr = 1 / sqrt(2 * lambda), lower = 0, upper = 1),  
-    .strategy.selector.selection = makeMutationStrategyNumeric(".strategy.integer", "p", lr = 1 / sqrt(2 * lambda), lower = 0, upper = 1)
+  results = slickEcr(
+    fitness.fun = makeObjective(lrn, task.train, ps, cv10),
+    lambda = lambda,
+    population = initials,
+    mutator = mutator,
+    recombinator = crossover,
+    generations = floor((neval - mu) / lambda), 
+    parent.selector = selGreedy
   )
 
-  crossover = combine.operators(ps,
-    numeric = recSBX,
-    integer = recIntSBX,
-    discrete = recPCrossover,
-    logical = recUnifCrossover)
-
-  parallelStartMulticore(cpus = 28L, level = "ecr.generateOffspring")
-
-  time = proc.time()
-
-  results = my.nsga2(
-    fitness.fun = fitness.fun, n.objectives = 2L, minimize = TRUE,
-    mu = mu, lambda = lambda,
-    mutator = mutator, recombinator = crossover,
-    representation = "custom",
-    initial.solutions = initials,
-    log.pop = TRUE, 
-    terminators = list(stopOnEvals(maxeval)), parent.selector = PARENTSEL[[parent.sel]])
-
   runtime = proc.time() - time
-
-  parallelStop()
 
   # do nondom sorting for every step
   pops = getPopulations(results$log)
@@ -132,11 +108,11 @@ mosmafs = function(data, job, instance, learner, lambda, mu, maxeval, filter.met
 
   # evaluate the final candidates on the testset
   eval.outer = function(args) {
+    propfeat = mean(args$selector)
     args = args[intersect(names(args), getParamIds(getParamSet(lrn)))]
     mod = train(setHyperPars(lrn, par.vals = args), task.train)
     pred = predict(mod, task.test)
     perf = performance(pred)
-    propfeat = mean(args$selector)
     c(perf = perf, feat = propfeat)
   }  
 
