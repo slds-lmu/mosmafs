@@ -208,3 +208,96 @@ mutGaussScaled <- makeMutator(function(ind, p = 1, sdev = 0.05, lower, upper) {
 #' @family operators
 #' @export
 mutGaussIntScaled <- intifyMutator(mutGaussScaled)
+
+
+#' @title Multi-Objective k-Tournament Selector
+#'
+#' @description
+#' k individuals are chosen randomly and the best one
+#' is chosen. This process is repeated `n.select` times.
+#'
+#' Choice is primarily by dominated sorting
+#' and secondarily by either dominated hypervolume
+#' or crowding distance, depending on `sorting`.
+#'
+#' Ties are broken randomly by adding random noise of relative magnitude
+#' `.Machine$double.eps * 2^10` to points.
+#'
+#' @param fitness `[matrix]` fitness matrix, one column per individuum
+#' @param n.select `[integer(1)]` number of individuums to select
+#' @param sorting `[character(1)]` one of `"domhv"` or `"crowding"` (default)
+#' @param ref.point `[numeric]` reference point for hypervolume, must be given
+#'   if `sorting` is `"domhv"`.
+#' @param k `[integer(1)]` number of individuals to select at once.
+#' @return `[integer]` vector of selected individuals
+#' @param return.unique `[logical(1)]` whether returned individual indices must be unique
+#' @family Selectors
+#' @export
+selTournamentMO <- makeSelector(function(fitness, n.select, sorting = "crowding", ref.point, k = 2, return.unique = FALSE) {
+  assertMatrix(fitness, min.cols = 1, min.rows = 2)
+  assertFlag(return.unique)
+  assertInt(n.select, lower = 1, upper = if (return.unique) ncol(fitness) else Inf)
+  assertInt(k, lower = 1)
+  k <- min(k, ncol(fitness))
+  rank.all <- overallRankMO(fitness, sorting, ref.point)
+
+  pool <- seq_len(ncol(fitness))
+  replicate(n.select, {
+    if (k >= length(pool)) {
+      competitors <- pool
+    } else {
+      competitors <- sample(pool, k, replace = FALSE)
+    }
+    choice <- competitors[which.min(rank.all[competitors])]
+    if (return.unique) {
+      pool <<- setdiff(pool, choice)
+    }
+    choice
+  })
+}, supported.objectives = "multi-objective")
+
+#' @title Rank by Nondominated Front and Crowding Distance or Hypervolume Contribution
+#'
+#' @description
+#' Rank individuals by nondominating sorted front first and by hypervolume contribution
+#' or crowding distance second.
+#'
+#' Ties are broken randomly by adding random noise of relative magnitude
+#' `.Machine$double.eps * 2^10` to points.
+#'
+#' @param fitness `[matrix]` fitness matrix, one column per individuum
+#' @param sorting `[character(1)]` one of `"domhv"` or `"crowding"` (default)
+#' @param ref.point `[numeric]` reference point for hypervolume, must be given
+#'   if `sorting` is `"domhv"`.
+#' @return `[integer]` vector of ranks with length `ncol(fitness)`, lower ranks are
+#'   associated with individuals that tend to dominate more points and that tend to
+#'   have larger crowding distance or hypervolume contribution.
+#' @export
+overallRankMO <- function(fitness, sorting = "crowding", ref.point) {
+  assertChoice(sorting, c("crowding", "domhv"))
+  if (sorting == "domhv") {
+    assertNumeric(ref.point, finite = TRUE, any.missing = FALSE, len = nrow(fitness))
+  }
+
+  assertMatrix(fitness, min.cols = 1, min.rows = 2)
+  ranksort0 <- doNondominatedSorting(fitness)$ranks
+  ranksort1 <- vector("numeric", length(ranksort0))
+  for (rnk in unique(ranksort0)) {
+    subfit <- fitness[, ranksort0 == rnk, drop = FALSE]
+    subfit <- subfit + runif(length(subfit), -1, 1) * .Machine$double.eps * 2^9 * subfit
+    if (sorting == "crowding") {
+      secondary <- computeCrowdingDistance(subfit)
+    } else {
+      if (ncol(subfit) == 1) {
+        # TODO: don't need this any more when https://github.com/jakobbossek/ecr2/issues/109 is fixed
+        secondary <- prod(ref.point - subfit)
+      } else {
+        secondary <- computeHVContr(subfit, ref.point)
+      }
+    }
+    ranksort1[ranksort0 == rnk] <- secondary
+  }
+  rankresult <- vector("integer", ncol(fitness))
+  rankresult[order(ranksort0, -ranksort1)] <- seq_len(ncol(fitness))
+  rankresult
+}

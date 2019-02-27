@@ -60,6 +60,18 @@ slickEcr <- function(fitness.fun, lambda, population, mutator, recombinator, gen
 
   # workaround for for https://github.com/jakobbossek/ecr2/issues/107
   n.objectives <- smoof::getNumberOfObjectives(fitness.fun)
+  if (n.objectives > 1) {
+    obj.name <- "multi-objective"
+  } else {
+    obj.name <- "single-objective"
+  }
+  if (obj.name %nin% attr(parent.selector, "supported.objectives")) {
+    stopf("parent.selector does not support %s fitness", obj.name)
+  }
+  if (obj.name %nin% attr(survival.selector, "supported.objectives")) {
+    stopf("parent.selector does not support %s fitness", obj.name)
+  }
+
   ctrl <- initECRControl(fitness.fun)
 
   ctrl <- registerECROperator(ctrl, "mutate", mutator)
