@@ -284,7 +284,7 @@ unify.operators <- function(orig.param.set, operators, paramsets, paramtypes, op
             names(curval) <- par$cnames
             curval
           })
-        do.call(base::c, curvals)
+        unlist(curvals, recursive = FALSE, use.names = FALSE)
       })
   }
 
