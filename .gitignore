@@ -10,3 +10,7 @@
 .ipynb_checkpoints
 registry
 vignettes/*.html
+/inst/doc/*
+!/inst/doc/*.html
+/doc/
+/docs/
