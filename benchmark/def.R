@@ -1,4 +1,4 @@
-packages = c("mlr", "ecr", "OpenML", "magrittr", "mlrCPO", "data.table", "farff", "RWeka")
+packages = c("mlr", "ecr", "OpenML", "magrittr", "mlrCPO", "data.table", "farff", "RWeka", "parallelMap")
 
 sapply(packages, require, character.only = TRUE)
 
@@ -11,7 +11,7 @@ source("../initialization.R")
 
 
 # do not overwrite registry
-OVERWRITE = TRUE
+OVERWRITE = FALSE
 
 # --- problem design ---
 datafolder = "data"
@@ -38,7 +38,7 @@ PAR.SETS = list(
 )
 
 # Maximum number of evaluations allowed
-MAXEVAL = 5L
+MAXEVAL = 10000L
 
 # feature initialization of initial population
 INITIALIZATION = list("none" = NULL, "unif" = list(dist = runif), "rgeom0.3" = list(dist = rgeom, prob = 0.3))
@@ -56,20 +56,20 @@ ades = CJ(learner = c("SVM", "kknn"),
 	maxeval = MAXEVAL, 
 	filter.method = c("none"),
 	resampling = c("10CV"),
-	initialization = c("none"), 
+	initialization = c("none", "unif"), 
 	parent.sel = c("selSimple"),
 	sorted = FALSE)
 
 # add baseline with random sampling
-baseline = CJ(learner = unique(ades$learner), 
-	mu = MAXEVAL, lambda = 1L,
-	maxeval = 1L, filter.method = "none", 
-	resampling = c("10CV"), initialization = c("none"), 
-	parent.sel = c("selSimple"),
-	sorted = FALSE)
+# baseline = CJ(learner = unique(ades$learner), 
+# 	mu = MAXEVAL, lambda = 1L,
+# 	maxeval = 1L, filter.method = "none", 
+# 	resampling = c("10CV"), initialization = c("none"), 
+# 	parent.sel = c("selSimple"),
+# 	sorted = FALSE)
 
-# add baseline
-ades = rbind(ades, baseline)
+# # add baseline
+# ades = rbind(ades, baseline)
 
 REPLICATIONS = 5L
 

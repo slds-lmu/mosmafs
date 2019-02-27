@@ -3,6 +3,7 @@ library(magrittr)
 library(OpenML)
 library(ecr)
 library(mlrCPO)
+library(parallelMap)
 
 source("def.R")
 
@@ -44,9 +45,9 @@ mosmafs = function(data, job, instance, learner, lambda, mu, maxeval, filter.met
   ps = PAR.SETS[[learner]]
   ps = c(ps, 
         pSS(selector.selection: logical^getTaskNFeats(task),
-            .strategy.numeric: numeric[10^(-3), 10],
-            .strategy.logical: numeric[0, 1],
             .strategy.numeric: numeric[0, 1],
+            .strategy.logical: numeric[0, 1],
+            .strategy.discrete: numeric[0, 1],
             .strategy.selector.selection: numeric[0, 1])
         )
   
@@ -59,7 +60,7 @@ mosmafs = function(data, job, instance, learner, lambda, mu, maxeval, filter.met
   }
 
   initials = sampleValues(ps, mu, discrete.names = TRUE)
-  initials = setStrategyParametersFixed(initials, ".strategy.numeric", 0.1 * (getUpper(ps)[".strategy.numeric"] - getLower(ps)[".strategy.numeric"]))
+  initials = setStrategyParametersFixed(initials, ".strategy.numeric", 0.1)
   initials = setStrategyParametersFixed(initials, ".strategy.logical", 0.1)
   initials = setStrategyParametersFixed(initials, ".strategy.discrete", 0.1)
   initials = setStrategyParametersFixed(initials, ".strategy.selector.selection", 1 /  getParamLengths(ps)["selector.selection"]) # recommendation of jakob bossek
@@ -106,6 +107,8 @@ mosmafs = function(data, job, instance, learner, lambda, mu, maxeval, filter.met
     discrete = recPCrossover,
     logical = recUnifCrossover)
 
+  parallelStartMulticore(cpus = 28L, level = "ecr.generateOffspring")
+
   time = proc.time()
 
   results = my.nsga2(
@@ -118,6 +121,8 @@ mosmafs = function(data, job, instance, learner, lambda, mu, maxeval, filter.met
     terminators = list(stopOnEvals(maxeval)), parent.selector = PARENTSEL[[parent.sel]])
 
   runtime = proc.time() - time
+
+  parallelStop()
 
   # do nondom sorting for every step
   pops = getPopulations(results$log)
