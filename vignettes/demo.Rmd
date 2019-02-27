@@ -345,6 +345,19 @@ plot_fronts <- function(run) {
 plot_fronts(run.simple)
 ```
 
+It is possible to inspect the runtimes of individuals, they are stored as attribute `"runtime"`:
+
+```{r, eval = FALSE}
+populations <- getPopulations(run.simple$log)
+pop.gen1 <- populations[[1]]
+
+individual.1 <- pop.gen1$population[[1]]
+attr(individual.1, "runtime")
+
+individual.2 <- pop.gen1$population[[2]]
+attr(individual.2, "runtime")
+```
+
 ### Filter Values as Strategy Parameters
 
 It is possible to use "Feature Filter" values from `mlr` feature filters to heuristically guide mutation of the `selector.selection` bitvector. For this, the filter matrix can be generated using the `makeFilterMat` function, with a few features we choose. (The github-version of `mlr` needs to be installed for this: `devtools::install_github("mlr-org/mlr")`). For demonstration purposes, this contains the useless-in-this-case `"variance"` Filter that just measures each feature's variance. (To use the relatively good `"praznik_JMI"` filter it is necessary to install the github-version of `mlr`, e.g. by using `devtools::install_github("mlr-org/mlr")`).

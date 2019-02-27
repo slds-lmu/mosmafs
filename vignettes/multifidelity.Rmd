@@ -155,6 +155,24 @@ plot_fronts <- function(run) {
 plot_fronts(run.gen.mufi)
 ```
 
+The fidelity that was used for each individuum can be extracted from its `"fidelity"` attribute. The runtime will scale approximately linearly in this case.
+
+```{r}
+populations <- getPopulations(run.gen.mufi$log)
+
+ind1.gen1 <- populations[[1]]$population[[1]]
+attr(ind1.gen1, "fidelity")
+attr(ind1.gen1, "runtime")
+
+ind1.gen7 <- populations[[7]]$population[[1]]
+attr(ind1.gen7, "fidelity")
+attr(ind1.gen7, "runtime")
+
+ind1.gen15 <- populations[[15]]$population[[1]]
+attr(ind1.gen15, "fidelity")
+attr(ind1.gen15, "runtime")
+```
+
 ## Multi-Fidelity by Dominance
 
 The `slickEcr` `fidelity` argument accepts `data.frames` with three columns in the case that different fidelity should be used for points that lie on the pareto-front than those that, in a first evaluation, are dominated. This can be combined with generation-wise multi-fidelity, but our first example will only have one row. It evaluates simple holdout-resampling for each point, and, if the result seems to be better than previous evaluations with the same number of features, re-does the resampling with ten-times repeated holdout resampling.
