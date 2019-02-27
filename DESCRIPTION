@@ -15,13 +15,13 @@ Version: 0.0.1
 VignetteBuilder: knitr
 Imports:
   BBmisc,
-  checkmate,
+  checkmate (>= 1.9.0),
   ParamHelpers,
   MASS,
   smoof,
-  mlrCPO,
+  mlrCPO (>= 0.3.4),
   mlr,
-  ecr,
+  ecr (>= 2.1.0.9000),
   parallelMap
 Suggests:
   knitr,
