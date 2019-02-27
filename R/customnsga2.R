@@ -147,26 +147,39 @@ slickEvaluateFitness <- function(ctrl, population, fidelity = NULL, previous.poi
     ret
   }
   if (is.null(fidelity)) {
-    invocation <- function(x) wrapped.fitness(x)
+    invocation <- function(x) {
+      list(time = system.time(res <- wrapped.fitness(x))[3], res = res)
+    }
   } else if (length(fidelity) == 1) {
-    invocation <- function(x) wrapped.fitness(x, fidelity = fidelity)
+    invocation <- function(x) {
+      list(time = system.time(res <- wrapped.fitness(x, fidelity = fidelity))[3],
+        res = res, fidelity = fidelity)
+    }
   } else {
     invocation <- function(x) {
-      phyttniss <- wrapped.fitness(x, fidelity = fidelity[1])
+      time <- system.time(
+          phyttniss <- wrapped.fitness(x, fidelity = fidelity[1])
+      )[3]
       is.dominated <- dominated(cbind(matrix(phyttniss, ncol = 1), previous.points))[1]
-      if (!is.dominated) {
-        phyttniss.addnl <- wrapped.fitness(x, fidelity = fidelity[2])
-        phyttniss <- (phyttniss * fidelity[1] + phyttniss.addnl * fidelity[2]) / sum(fidelity)
+      if (is.dominated) {
+        return(list(time = time, res = phyttniss, fidelity = fidelity[1]))
       }
-      phyttniss
+      time <- time + system.time(
+        phyttniss.addnl <- wrapped.fitness(x, fidelity = fidelity[2])
+      )[3]
+      phyttniss <- (phyttniss * fidelity[1] + phyttniss.addnl * fidelity[2]) / sum(fidelity)
+      list(time = time, res = phyttniss, fidelity = sum(fidelity))
     }
   }
 
-  fitness <- parallelMap::parallelMap(invocation, population, level = "ecr.evaluateFitness")
+  results <- parallelMap::parallelMap(invocation, population, level = "ecr.evaluateFitness")
+  fitness <- extractSubList(results, "res", simplify = FALSE)
   list(
-    population = mapply(function(ind, fit) {
-      attr(ind, "fitness") <- fit
+    population = mapply(function(ind, res) {
+      attr(ind, "fitness") <- res$res
+      attr(ind, "runtime") <- res$time
+      attr(ind, "fidelity") <- res$fidelity
       ind
-    }, population, fitness, SIMPLIFY = FALSE),
+    }, population, results, SIMPLIFY = FALSE),
     fitness = ecr:::makeFitnessMatrix(do.call(cbind, fitness), ctrl))
 }
