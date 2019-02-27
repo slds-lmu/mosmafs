@@ -7,7 +7,7 @@ Authors@R: c(
   person("Julia", "Moosbauer", email = "ju.moosbauer@googlemail.com", role = "aut"))
 URL: https://github.com/compstat-lmu/mosmafs
 BugReports: https://github.com/compstat-lmu/mosmafs/issues
-License: Proprietary
+License: AGPL-3
 Encoding: UTF-8
 Roxygen: list(wrap = FALSE, markdown = TRUE)
 ByteCompile: yes
