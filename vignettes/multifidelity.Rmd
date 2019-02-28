@@ -33,7 +33,7 @@ if (Sys.getenv("FASTVIGNETTE") != "true") {
 if (.Platform$OS.type == "windows") {
   parallelStartSocket(cores, show.info = FALSE)
 } else {
-  parallelStartMulticore(cores, show.info = FALSE)
+  parallelStartMulticore(cores, show.info = FALSE, mc.set.seed = FALSE)
 }
 
 print.list <- function(x) {
@@ -129,6 +129,9 @@ fidelity <- data.frame(
 ```
 
 This is given to `slickEcr`:
+```{r, include = FALSE}
+set.seed(3)
+```
 ```{r}
 run.gen.mufi <- slickEcr(
     fitness.fun = fitness.fun,
@@ -144,7 +147,7 @@ The plot of resulting pareto-fronts notably has later generation's pareto fronts
 ```{r, fig.width = 6, fig.height = 5}
 plot_fronts <- function(run) {
   fronts <- fitnesses(run, function(x) paretoEdges(x, c(1, 1)))
-  ggplot(data = fronts, aes(x = perf, y = propfeat, color = ordered(iter))) +
+  ggplot(data = fronts, aes(x = perf, y = propfeat, color = ordered(gen))) +
     geom_line() +
     geom_point(data = fronts[fronts$point, ], shape = "x", size = 5) +
     xlim(0, 1) +
@@ -155,7 +158,7 @@ plot_fronts <- function(run) {
 plot_fronts(run.gen.mufi)
 ```
 
-The fidelity that was used for each individuum can be extracted from its `"fidelity"` attribute. The runtime will scale approximately linearly in this case.
+The fidelity that was used for each individuum can be extracted from its `"fidelity"` attribute. The runtime will scale approximately linearly (with an added constant overhead) in this case. The sum of all fidelity options used for each generation can also be inspected using the `log.newinds` logging object--it may represent a proxy for the computational ressources that were used. Note how the generations with changing fidelity are present twice: for re-evaluation with new fidelity, and for ordinary evaluation of new individuals.
 
 ```{r}
 populations <- getPopulations(run.gen.mufi$log)
@@ -171,6 +174,8 @@ attr(ind1.gen7, "runtime")
 ind1.gen15 <- populations[[15]]$population[[1]]
 attr(ind1.gen15, "fidelity")
 attr(ind1.gen15, "runtime")
+
+getStatistics(run.gen.mufi$log.newinds)
 ```
 
 ## Multi-Fidelity by Dominance
@@ -180,6 +185,9 @@ The `slickEcr` `fidelity` argument accepts `data.frames` with three columns in t
 fidelity <- data.frame(1, 1, 10)
 ```
 
+```{r, include = FALSE}
+set.seed(4)
+```
 ```{r}
 run.dom.mufi <- slickEcr(
     fitness.fun = fitness.fun,
@@ -195,6 +203,43 @@ run.dom.mufi <- slickEcr(
 plot_fronts(run.dom.mufi)
 ```
 
+The `log.newinds` object will again provide information about the aggregated runtime and fidelity used. Some generations perform more high-fidelity evaluations than others (and consequently have longer runtime).
+
+```{r}
+getStatistics(run.dom.mufi$log.newinds)
+```
+
+Individual evaluation fidelity can be retrieved, again, from a logged individual's attributes. The following plots the pareto-front of generation 3, and the individuals sampled for generation 4. All individuals sampled with high fidelity lie close to the pareto-front, but some may, after high-fidelity evaluation, have turned out to actually be dominated by the old generation.
+
+```{r, fig.width = 6, fig.height = 5}
+gen.i <- 3
+
+stat <- getStatistics(run.dom.mufi$log.newinds)
+pop <- getPopulations(run.dom.mufi$log.newinds)
+front <- fitnesses(run.dom.mufi, function(x) paretoEdges(x, c(1, 1))) %>%
+    subset(gen == gen.i)
+
+ngen.info <- pop[[which(stat$gen == gen.i + 1)]]$population %>%
+  sapply(function(x) {
+    c(fidelity = attr(x, "fidelity"), fitness = attr(x, "fitness"))
+  }) %>%
+  t %>%
+  as.data.frame
+
+ggplot() +
+  geom_line(data = front, aes(x = perf, y = propfeat)) +
+  geom_point(data = ngen.info,
+    aes(x = fitness.perf, y = fitness.propfeat,
+      shape = as.factor(fidelity),
+      color = as.factor(fidelity),
+      size = 3)) +
+  scale_size_identity() +
+  guides(colour = guide_legend(override.aes = list(size=3))) +
+  xlim(0, 1) +
+  ylim(0, 1) +
+  coord_fixed()
+```
+
 
 ## All of the Above
 
@@ -207,6 +252,9 @@ fidelity <- data.frame(
     c(10, 20, 30))
 ```
 
+```{r, include = FALSE}
+set.seed(5)
+```
 ```{r}
 run.all.mufi <- slickEcr(
     fitness.fun = fitness.fun,

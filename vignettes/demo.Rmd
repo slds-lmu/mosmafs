@@ -33,7 +33,7 @@ if (Sys.getenv("FASTVIGNETTE") != "true") {
 if (.Platform$OS.type == "windows") {
   parallelStartSocket(cores, show.info = FALSE)
 } else {
-  parallelStartMulticore(cores, show.info = FALSE)
+  parallelStartMulticore(cores, show.info = FALSE, mc.set.seed = FALSE)
 }
 
 print.list <- function(x) {
@@ -319,6 +319,9 @@ initials.simple <- sampleValues(ps.simple, 64, discrete.names = TRUE)
 
 This is all that is necessary, and it can be used to call the `ecr()` function in the `ecr` package. The `mosmafs` package comes with a useful interface that sets some defaults: `slickEcr()`. The run time, 10 generations, would probably be to short for serious applications, but should be enough for demonstration purposes.
 
+```{r, include = FALSE}
+set.seed(1)
+```
 ```{r}
 run.simple <- slickEcr(
   fitness.fun = makeObjective(lrn, task, ps.simple, cv5),
@@ -334,7 +337,7 @@ There is a multitude of methods for analysing and plotting the result. The follo
 ```{r, fig.width = 6, fig.height = 5}
 plot_fronts <- function(run) {
   fronts <- fitnesses(run, function(x) paretoEdges(x, c(1, 1)))
-  ggplot(data = fronts, aes(x = perf, y = propfeat, color = ordered(iter))) +
+  ggplot(data = fronts, aes(x = perf, y = propfeat, color = ordered(gen))) +
     geom_line() +
     geom_point(data = fronts[fronts$point, ], shape = "x", size = 5) +
     xlim(0, 1) +
@@ -345,9 +348,9 @@ plot_fronts <- function(run) {
 plot_fronts(run.simple)
 ```
 
-It is possible to inspect the runtimes of individuals, they are stored as attribute `"runtime"`:
+It is possible to inspect the runtimes of individuals, they are stored as attribute `"runtime"`. The aggregated runtime for each generation can also be retrieved from the `log.newinds` logging object. 
 
-```{r, eval = FALSE}
+```{r}
 populations <- getPopulations(run.simple$log)
 pop.gen1 <- populations[[1]]
 
@@ -356,7 +359,10 @@ attr(individual.1, "runtime")
 
 individual.2 <- pop.gen1$population[[2]]
 attr(individual.2, "runtime")
+
+getStatistics(run.simple$log.newinds)
 ```
+
 
 ### Filter Values as Strategy Parameters
 
@@ -410,6 +416,9 @@ initials.strat <- sampleValues(ps.strat, 62, discrete.names = TRUE) %>%
 ```
 
 These are all preparations needed for a heuristic-backed NSGA2 fun for feature-selection:
+```{r, include = FALSE}
+set.seed(2)
+```
 ```{r}
 run.strat <- slickEcr(
   fitness.fun = makeObjective(lrn, task, ps.strat, cv5),
