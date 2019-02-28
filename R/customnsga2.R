@@ -3,6 +3,25 @@
 #' @description
 #' Mostly [`ecr::ecr`], with some simplifications and extensions.
 #'
+#' `slickEcr` does mostly what `ecr::ecr` does, with different default values at places.
+#' Note that `fitness.fun` must be a "[`smoof`][smoof::smoof-package]" function.
+#'
+#' `initEcr` only evaluates fitness for the initial population and does not perform any
+#' mutation or selection.
+#'
+#' `continueEcr` continues a run for another number of `generations`. Only `ecr.object`
+#' (a result from a previous `initEcr`, `slickEcr`, or `continueEcr` call) and
+#' `generations` must be given, the other arguments are optional *if* they were set
+#' in a previous `slickEcr` or `continueEcr` call, in which case the values from the
+#' previous run are used. Otherwise is possible to supply any combination of these values
+#' to set them to new values.
+#'
+#' Note, for `fidelity`, that the generation continue counting from previous runs,
+#' so if `initEcr` was ran for 5 generations and `continueEcr` is called with
+#' a `fidelity` with first column values `c(1, 8)`, then the fidelity given in the
+#' first row is applied for 2 generations, after which the fidelity given in the
+#' second row applies.
+#'
 #' @param fitness.fun `[smoof_multi_objective_function]` fitness function, must be a
 #'   "`smoof`" function.
 #' @param lambda `[integer(1)]` number of individuals to add each generation
@@ -28,74 +47,65 @@
 #'   of the first column must always be 1. Whenever fidelity changes, the whole
 #'   population is re-evaluated, so it is recommended to use only few different
 #'   fidelity jumps throughout all generations.
+#' @param unbiased.fidelity `[logical(1)]` Whether generations do not have to be re-evaluated when fidelity jumps downward.
 #' @param log.stats `[list]` information to log for each generation
 #' @param log.log.stats.newinds `[list]` information to log for each newly evaluated individuals
+#' @param ecr.object `[MosmafsResult]` an object retrieved from previous runs of
+#'   `initEcr`, `slickEcr`, or `continueEcr`
 #' @export
-slickEcr <- function(fitness.fun, lambda, population, mutator, recombinator, generations = 100, parent.selector = selSimple, survival.selector = selNondom, p.recomb = 0.7, p.mut = 0.3, survival.strategy = c("plus", "comma"), n.elite = 0, fidelity = NULL, log.stats = list(fitness = list("min", "mean", "max")), log.stats.newinds = c(list(runtime = list("mean", "sum")), if (!is.null(fidelity)) list(fidelity = list("sum")))) {
-
+slickEcr <- function(fitness.fun, lambda, population, mutator, recombinator, generations = 100, parent.selector = selSimple, survival.selector = selNondom, p.recomb = 0.7, p.mut = 0.3, survival.strategy = "plus", n.elite = 0, fidelity = NULL, unbiased.fidelity = TRUE, log.stats = list(fitness = list("min", "mean", "max")), log.stats.newinds = c(list(runtime = list("mean", "sum")), if (!is.null(fidelity)) list(fidelity = list("sum")))) {
   if (!smoof::isSmoofFunction(fitness.fun)) {
     stop("fitness.fun must be a SMOOF function")
   }
+  n.objectives <- smoof::getNumberOfObjectives(fitness.fun)
 
-  assertInt(lambda, lower = 1)
-  assertList(population)
-  assertClass(mutator, "ecr_mutator")
-  assertClass(recombinator, "ecr_recombinator")
-  assertInt(generations, lower = 0)
-  assertClass(parent.selector, "ecr_selector")
-  assertClass(survival.selector, "ecr_selector")
-  assertNumber(p.recomb, lower = 0, upper = 1)
-  assertNumber(p.mut, lower = 0, upper = 1)
-  survival.strategy <- match.arg(survival.strategy)
-  assertInt(n.elite, lower = 0)
-  assertDataFrame(fidelity, null.ok = TRUE, min.cols = 2,
-    max.cols = 3, min.rows = 1)
-  if (!is.null(fidelity)) {
-    assertIntegerish(fidelity[[1]], lower = 0, sorted = TRUE,
-      unique = TRUE, any.missing = FALSE)
-    assertTRUE(fidelity[[1]][1] == 1)
-    assertNumeric(fidelity[[2]], any.missing = FALSE)
-    assertNumeric(fidelity[[length(fidelity)]], any.missing = FALSE)
+  checkEcrArgs(lambda, population, mutator, recombinator, generations, parent.selector, survival.selector, p.recomb, p.mut, survival.strategy, n.elite, n.objectives)
+
+  ecr.object <- initEcr(fitness.fun, population, fidelity = fidelity, log.stats = log.stats, log.stats.newinds = log.stats.newinds, unbiased.fidelity = unbiased.fidelity)
+
+  continueEcr(ecr.object, generations, lambda, mutator, recombinator, parent.selector, survival.selector, p.recomb, p.mut, survival.strategy, n.elite, fidelity)
+}
+
+#' @rdname slickEcr
+#' @export
+initEcr <- function(fitness.fun, population, fidelity = NULL, log.stats = list(fitness = list("min", "mean", "max")), log.stats.newinds = c(list(runtime = list("mean", "sum")), if (!is.null(fidelity)) list(fidelity = list("sum"))), unbiased.fidelity = TRUE) {
+  if (!smoof::isSmoofFunction(fitness.fun)) {
+    stop("fitness.fun must be a SMOOF function")
   }
+  checkFidelity(fidelity)
   assertList(log.stats, names = "unique")
 
   assertList(log.stats.newinds, names = "unique")
 
-  # workaround for for https://github.com/jakobbossek/ecr2/issues/107
   n.objectives <- smoof::getNumberOfObjectives(fitness.fun)
-  if (n.objectives > 1) {
-    obj.name <- "multi-objective"
-  } else {
-    obj.name <- "single-objective"
-  }
-  if (obj.name %nin% attr(parent.selector, "supported.objectives")) {
-    stopf("parent.selector does not support %s fitness", obj.name)
-  }
-  if (obj.name %nin% attr(survival.selector, "supported.objectives")) {
-    stopf("parent.selector does not support %s fitness", obj.name)
-  }
 
   ctrl <- initECRControl(fitness.fun)
-
-  ctrl <- registerECROperator(ctrl, "mutate", mutator)
-  ctrl <- registerECROperator(ctrl, "recombine", recombinator)
-  ctrl <- registerECROperator(ctrl, "selectForMating", parent.selector)
-  ctrl <- registerECROperator(ctrl, "selectForSurvival", survival.selector)
 
   # log the state of each generation
   log <- initLogger(ctrl, log.stats = log.stats, log.pop = TRUE,
     log.extras = c(state = "character"),
-    init.size = max(generations + 1, 10))
+    init.size = 1000)
   log$env$n.gens <- log$env$n.gens - 1
 
   # log newly created individuals
   log.newinds <- initLogger(ctrl, log.stats = log.stats.newinds, log.pop = TRUE,
     log.extras = c(size = "integer", population = "character"),
-    init.size = max(generations + length(fidelity[[1]]), 10))
+    init.size = 1000)
   log.newinds$env$n.gens <- log.newinds$env$n.gens - 1
 
+
+  if (!is.null(fidelity)) {
+    if (ncol(fidelity) < 3) {
+      last.fidelity <- fidelity[[2]][1]
+    } else {
+      last.fidelity <- fidelity[[2]][1] + fidelity[[3]][1]
+    }
+  } else {
+    last.fidelity <- NULL
+  }
+
   ef <- slickEvaluateFitness(ctrl, population,
-    fidelity = fidelity[[length(fidelity)]][1],  # high fidelity for first generation
+    fidelity = last.fidelity,  # high fidelity for first generation
     previous.points = matrix(Inf, nrow = n.objectives))
   fitness <- ef$fitness
   population <- ef$population
@@ -104,21 +114,100 @@ slickEcr <- function(fitness.fun, lambda, population, mutator, recombinator, gen
   updateLogger(log.newinds, population, fitness, n.evals = length(population),
     extras = list(size = length(population), population = "init"))
 
-  fidelity.row <- 1
+  result <- ecr:::makeECRResult(ctrl, log, population,  fitness, list(message = "out of generations"))
+  result$log.newinds <- log.newinds
+  result$control <- ctrl
+  result$fidelity <- fidelity
+  result$last.fidelity <- last.fidelity
+  result$unbiased.fidelity <- unbiased.fidelity
+  addClasses(result, "MosmafsResult")
+}
 
-  for (gen in seq_len(generations)) {
+#' @rdname slickEcr
+#' @export
+continueEcr <- function(ecr.object, generations, lambda = NULL, mutator = NULL, recombinator = NULL, parent.selector = NULL, survival.selector = NULL, p.recomb = NULL, p.mut = NULL, survival.strategy = NULL, n.elite = NULL, fidelity = NULL, unbiased.fidelity = NULL) {
+
+  assertClass(ecr.object, "MosmafsResult")
+
+  population <- ecr.object$last.population
+  fitness <- tail(getPopulations(ecr.object$log), 1)[[1]]$fitness
+  ctrl <- ecr.object$control
+
+  lambda <- lambda %??% ecr.object$lambda
+  mutator <- mutator %??% ctrl$mutate
+  recombinator <- recombinator %??% ctrl$recombine
+  parent.selector <- parent.selector %??% ctrl$selectForMating
+  survival.selector <- survival.selector %??% ctrl$selectForSurvival
+  p.recomb <- p.recomb %??% ctrl$p.recomb
+  p.mut <- p.mut %??% ctrl$p.mut
+  survival.strategy <- survival.strategy %??% ecr.object$survival.strategy
+  n.elite <- n.elite %??% ecr.object$n.elite %??% 0
+  if (is.null(ecr.object$fidelity) && !is.null(fidelity)) {
+    stop("Can't use multifidelity when ecr.object was initialized without multifidelity")
+  }
+  fidelity <- fidelity %??% ecr.object$fidelity
+  unbiased.fidelity <- unbiased.fidelity %??% ecr.object$unbiased.fidelity
+  last.fidelity <- ecr.object$last.fidelity
+  if (!is.null(fidelity) && is.null(last.fidelity)) {
+    stop("Inconsistent ecr.object: 'last.fidelity' not given, but 'fidelity' is.")
+  }
+
+  needed.args <- c("lambda", "mutator", "recombinator", "parent.selector", "survival.selector", "p.recomb", "p.mut", "survival.strategy", "unbiased.fidelity")
+  for (na in needed.args) {
+    if (is.null(get(na))) {
+      stopf("%s is not given and could not be found in ecr.object", na)
+    }
+  }
+
+  n.objectives <- ecr.object$task$n.objectives
+  checkEcrArgs(lambda, population, mutator, recombinator, generations, parent.selector, survival.selector, p.recomb, p.mut, survival.strategy, n.elite, n.objectives)
+
+  ctrl[c("mutate", "recombine", "selectForMating", "selectForSurvival")] <- NULL
+
+  ctrl <- registerECROperator(ctrl, "mutate", mutator)
+  ctrl <- registerECROperator(ctrl, "recombine", recombinator)
+  ctrl <- registerECROperator(ctrl, "selectForMating", parent.selector)
+  ctrl <- registerECROperator(ctrl, "selectForSurvival", survival.selector)
+
+  log <- clonelog(ecr.object$log)
+  log.newinds <- clonelog(ecr.object$log.newinds)
+
+  gen <- log$env$n.gens + 1
+
+  fidelity.row <- max(c(which(fidelity[[1]] <= gen) - 1, 1))
+
+  if (!is.null(fidelity)) {
+    if (ncol(fidelity) < 3) {
+      fidelity.sum <- fidelity[[2]]
+    } else {
+      fidelity.sum <- fidelity[[2]] + fidelity[[3]]
+    }
+  }
+
+  for (gen in seq(gen, gen + generations - 1)) {
     if (length(fidelity[[1]]) > fidelity.row && fidelity[[1]][fidelity.row + 1] <= gen) {
       fidelity.row <- fidelity.row + 1
-      # reset population sampled with new fidelity
-      ef <- slickEvaluateFitness(ctrl, population,
-        fidelity = fidelity[[ncol(fidelity)]][fidelity.row],
-        previous.points = matrix(Inf, nrow = n.objectives))
-      fitness <- ef$fitness
-      population <- ef$population
-      updateLogger(log.newinds, population, fitness, n.evals = length(population),
-        extras = list(size = length(population), population = "fidelity.reeval"))
-      log.newinds$env$n.gens <- log.newinds$env$n.gens - 1
+      new.front.fidelity <- fidelity.sum[fidelity.row]
+      if (unbiased.fidelity) {
+        reeval <- new.front.fidelity > last.fidelity
+      } else {
+        reeval <- new.front.fidelity != last.fidelity
+      }
+      if (reeval) {
+        # reset population sampled with new fidelity
+        ef <- slickEvaluateFitness(ctrl, population,
+          fidelity = fidelity.sum[fidelity.row],
+          previous.points = matrix(Inf, nrow = n.objectives))
+        fitness <- ef$fitness
+        population <- ef$population
+        updateLogger(log.newinds, population, fitness, n.evals = length(population),
+          extras = list(size = length(population), population = "fidelity.reeval"))
+        log.newinds$env$n.gens <- log.newinds$env$n.gens - 1
+      }
+      last.fidelity <- new.front.fidelity
     }
+    assertTRUE(log.newinds$env$n.gens + 1 == gen)
+    assertTRUE(log$env$n.gens + 1 == gen)
 
     offspring <- generateOffspring(ctrl, population,
       fitness, lambda = lambda, p.recomb = p.recomb, p.mut = p.mut)
@@ -144,7 +233,16 @@ slickEcr <- function(fitness.fun, lambda, population, mutator, recombinator, gen
   }
   result <- ecr:::makeECRResult(ctrl, log, population,  fitness, list(message = "out of generations"))
   result$log.newinds <- log.newinds
-  result
+  result$lambda <- lambda
+  ctrl$p.recomb <- p.recomb
+  ctrl$p.mut <- p.mut
+  result$control <- ctrl
+  result$survival.strategy <- survival.strategy
+  result$n.elite <- n.elite
+  result$fidelity <- fidelity
+  result$unbiased.fidelity <- unbiased.fidelity
+  result$last.fidelity <- last.fidelity
+  addClasses(result, "MosmafsResult")
 }
 
 #' @title Compute the Fitness of Individuals
@@ -218,4 +316,43 @@ slickEvaluateFitness <- function(ctrl, population, fidelity = NULL, previous.poi
       ind
     }, population, results, SIMPLIFY = FALSE),
     fitness = ecr:::makeFitnessMatrix(do.call(cbind, fitness), ctrl))
+}
+
+
+checkFidelity <- function(fidelity) {
+  assertDataFrame(fidelity, null.ok = TRUE, min.cols = 2,
+    max.cols = 3, min.rows = 1)
+  if (!is.null(fidelity)) {
+    assertIntegerish(fidelity[[1]], lower = 0, sorted = TRUE,
+      unique = TRUE, any.missing = FALSE)
+    assertTRUE(fidelity[[1]][1] == 1)
+    assertNumeric(fidelity[[2]], any.missing = FALSE)
+    assertNumeric(fidelity[[length(fidelity)]], any.missing = FALSE)
+  }
+}
+
+checkEcrArgs <- function(lambda, population, mutator, recombinator, generations, parent.selector, survival.selector, p.recomb, p.mut, survival.strategy, n.elite, n.objectives) {
+  assertInt(lambda, lower = 1)
+  assertList(population)
+  assertClass(mutator, "ecr_mutator")
+  assertClass(recombinator, "ecr_recombinator")
+  assertInt(generations, lower = 0)
+  assertClass(parent.selector, "ecr_selector")
+  assertClass(survival.selector, "ecr_selector")
+  assertNumber(p.recomb, lower = 0, upper = 1)
+  assertNumber(p.mut, lower = 0, upper = 1)
+  assertChoice(survival.strategy, c("plus", "comma"))
+  assertInt(n.elite, lower = 0)
+
+  if (n.objectives > 1) {
+    obj.name <- "multi-objective"
+  } else {
+    obj.name <- "single-objective"
+  }
+  if (obj.name %nin% attr(parent.selector, "supported.objectives")) {
+    stopf("parent.selector does not support %s fitness", obj.name)
+  }
+  if (obj.name %nin% attr(survival.selector, "supported.objectives")) {
+    stopf("parent.selector does not support %s fitness", obj.name)
+  }
 }
