@@ -49,7 +49,7 @@
 #'   fidelity jumps throughout all generations.
 #' @param unbiased.fidelity `[logical(1)]` Whether generations do not have to be re-evaluated when fidelity jumps downward.
 #' @param log.stats `[list]` information to log for each generation
-#' @param log.log.stats.newinds `[list]` information to log for each newly evaluated individuals
+#' @param log.stats.newinds `[list]` information to log for each newly evaluated individuals
 #' @param ecr.object `[MosmafsResult]` an object retrieved from previous runs of
 #'   `initEcr`, `slickEcr`, or `continueEcr`
 #' @export
@@ -130,7 +130,7 @@ continueEcr <- function(ecr.object, generations, lambda = NULL, mutator = NULL, 
   assertClass(ecr.object, "MosmafsResult")
 
   population <- ecr.object$last.population
-  fitness <- tail(getPopulations(ecr.object$log), 1)[[1]]$fitness
+  fitness <- utils::tail(getPopulations(ecr.object$log), 1)[[1]]$fitness
   ctrl <- ecr.object$control
 
   lambda <- lambda %??% ecr.object$lambda
