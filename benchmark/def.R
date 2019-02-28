@@ -44,7 +44,7 @@ ades = CJ(learner = c("SVM"),
 	lambda = c(15L),
 	maxeval = MAXEVAL, 
 	filter.method = c("none"),
-	initialization = c("none"), 
+	initialization = c("none", "unif"), 
 	parent.sel = c("selNondom", "selDomHV"),
 	sorted = FALSE)
 

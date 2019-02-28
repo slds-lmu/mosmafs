@@ -11,6 +11,13 @@ res = reduceResultsDataTable(findDone(), function(x) unlist(x$domhypervol))
 res = ijoin(tab, res, by = "job.id")
 saveRDS(res, "results/reduced_results/hypervol_parentsel.rds")
 
+# Extract hypervolume
+res = reduceResultsDataTable(findDone(), function(x) x$results$pareto.front)
+res = ijoin(tab, res, by = "job.id")
+saveRDS(res, "results/reduced_results/paretovalid_parentsel.rds")
+
+
+
 # reduce pareto front test set
 res = reduceResultsDataTable(findDone(), function(x) do.call("rbind", x$pareto.front.test))
 res = ijoin(tab, res, by = "job.id")

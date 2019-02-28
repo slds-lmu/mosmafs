@@ -50,11 +50,11 @@ mosmafs = function(data, job, instance, learner, lambda, mu, maxeval, filter.met
     logical = mutBitflip,
     integer = mutUniformInt,
     discrete = mutRandomChoice,
-    selector.selection = mutBitflip#,
-    # .strategy.numeric = makeMutationStrategyNumeric(".strategy.numeric", "sdev", lr = 1 / sqrt(2 * lambda), lower = getLower(ps$pars$.strategy.numeric), upper = getUpper(ps$pars$.strategy.numeric)),
-    # .strategy.logical = makeMutationStrategyNumeric(".strategy.logical", "p", lr = 1 / sqrt(2 * lambda), lower = 0, upper = 1),
-    # .strategy.discrete = makeMutationStrategyNumeric(".strategy.integer", "p", lr = 1 / sqrt(2 * lambda), lower = 0, upper = 1),  
-    # .strategy.selector.selection = makeMutationStrategyNumeric(".strategy.integer", "p", lr = 1 / sqrt(2 * lambda), lower = 0, upper = 1)
+    selector.selection = mutBitflip,
+    .strategy.numeric = makeMutationStrategyNumeric(".strategy.numeric", "sdev", lr = 1 / sqrt(2 * lambda), lower = getLower(ps$pars$.strategy.numeric), upper = getUpper(ps$pars$.strategy.numeric)),
+    .strategy.logical = makeMutationStrategyNumeric(".strategy.logical", "p", lr = 1 / sqrt(2 * lambda), lower = 0, upper = 1),
+    .strategy.discrete = makeMutationStrategyNumeric(".strategy.integer", "p", lr = 1 / sqrt(2 * lambda), lower = 0, upper = 1),  
+    .strategy.selector.selection = makeMutationStrategyNumeric(".strategy.integer", "p", lr = 1 / sqrt(2 * lambda), lower = 0, upper = 1)
   )
 
   crossover = combine.operators(ps,
