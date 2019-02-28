@@ -57,7 +57,7 @@ makeObjective <- function(learner, task, ps, resampling, measure = NULL) {
       val <- resample(setHyperPars(learner, par.vals = args), task, res,
         list(measure), show.info = FALSE)$aggr
       propfeat <- mean(args$selector.selection)
-      c(val * obj.factor, propfeat)
+      c(perf = unname(val * obj.factor), propfeat = propfeat)
   })
 }
 
