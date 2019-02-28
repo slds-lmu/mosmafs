@@ -1,4 +1,6 @@
-source("../R/initialization.R")
+packages = c("batchtools", "ecr", "magrittr", "mosmafs", "ParamHelpers", "mlr", "mlrCPO")
+
+source("../initialization.R")
 
 # do not overwrite registry
 OVERWRITE = FALSE
@@ -7,7 +9,6 @@ OVERWRITE = FALSE
 datafolder = "data"
 datasets = list.dirs(path = datafolder, recursive = FALSE, full.names = FALSE)
 datasets = datasets[-1]
-
 
 # --- Specify algorithm design ---
 
@@ -28,7 +29,7 @@ PAR.SETS = list(
 )
 
 # Maximum number of evaluations allowed
-MAXEVAL = 50L
+MAXEVAL = 10000L
 
 # feature initialization of initial population
 INITIALIZATION = list("none" = NULL, "unif" = list(dist = runif), "rgeom0.3" = list(dist = rgeom, prob = 0.3))
@@ -36,17 +37,15 @@ INITIALIZATION = list("none" = NULL, "unif" = list(dist = runif), "rgeom0.3" = l
 # Filtering and Initialization hyperparameters
 FILTER_METHOD = list("none" = "none", "auc" = "auc")
 
-RESAMPLING = list("10CV" = makeResampleDesc("CV", iters = 10, stratify = TRUE))
+PARENTSEL = list("selSimple" = setup(selSimple), "selDomHV" = setup(selDomHV, ref.point = c(1, 1)), "selNondom" = setup(selNondom))
 
-PARENTSEL = list("selSimple" = setup(selSimple), "selTournament" = setup(selTournament, k = 2L))
-
-ades = CJ(learner = c("SVM", "kknn"), 
+ades = CJ(learner = c("SVM"), 
 	mu = c(15L, 80L, 160L), 
-	lambda = c(30L),
+	lambda = c(15L),
 	maxeval = MAXEVAL, 
 	filter.method = c("none"),
 	initialization = c("none"), 
-	parent.sel = c("selSimple", "selTournament"),
+	parent.sel = c("selNondom", "selDomHV"),
 	sorted = FALSE)
 
 # add baseline with random sampling

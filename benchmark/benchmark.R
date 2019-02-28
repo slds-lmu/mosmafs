@@ -26,7 +26,7 @@ for (ds in datasets) {
   addProblem(name = ds, data = paste(datafolder, ds, "task.rds", sep = "/"), reg = reg)
 }
 
-mosmafs = function(data, job, instance, learner, lambda, mu, maxeval, filter.method, resampling, initialization, parent.sel) {
+mosmafs = function(data, job, instance, learner, lambda, mu, maxeval, filter.method, initialization, parent.sel) {
 
   # --- task and learner ---
   task = readRDS(instance)
@@ -59,7 +59,7 @@ mosmafs = function(data, job, instance, learner, lambda, mu, maxeval, filter.met
 
   crossover = combine.operators(ps,
     numeric = recSBX,
-    integer = recIntSBX,
+    integer = recPCrossover,
     discrete = recPCrossover,
     logical = recUnifCrossover,
     selector.selection = recPCrossover)
@@ -94,8 +94,8 @@ mosmafs = function(data, job, instance, learner, lambda, mu, maxeval, filter.met
     population = initials,
     mutator = mutator,
     recombinator = crossover,
-    generations = floor((neval - mu) / lambda), 
-    parent.selector = selGreedy
+    generations = floor((maxeval - mu) / lambda), 
+    parent.selector = PARENTSEL[[parent.sel]]
   )
 
   runtime = proc.time() - time
