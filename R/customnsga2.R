@@ -28,9 +28,10 @@
 #'   of the first column must always be 1. Whenever fidelity changes, the whole
 #'   population is re-evaluated, so it is recommended to use only few different
 #'   fidelity jumps throughout all generations.
-#' @param log.stats `[list]` information to log
+#' @param log.stats `[list]` information to log for each generation
+#' @param log.log.stats.newinds `[list]` information to log for each newly evaluated individuals
 #' @export
-slickEcr <- function(fitness.fun, lambda, population, mutator, recombinator, generations = 100, parent.selector = selSimple, survival.selector = selNondom, p.recomb = 0.7, p.mut = 0.3, survival.strategy = c("plus", "comma"), n.elite = 0, fidelity = NULL, log.stats = list(fitness = list("min", "mean", "max"))) {
+slickEcr <- function(fitness.fun, lambda, population, mutator, recombinator, generations = 100, parent.selector = selSimple, survival.selector = selNondom, p.recomb = 0.7, p.mut = 0.3, survival.strategy = c("plus", "comma"), n.elite = 0, fidelity = NULL, log.stats = list(fitness = list("min", "mean", "max")), log.stats.newinds = c(list(runtime = list("mean", "sum")), if (!is.null(fidelity)) list(fidelity = list("sum")))) {
 
   if (!smoof::isSmoofFunction(fitness.fun)) {
     stop("fitness.fun must be a SMOOF function")
@@ -58,6 +59,8 @@ slickEcr <- function(fitness.fun, lambda, population, mutator, recombinator, gen
   }
   assertList(log.stats, names = "unique")
 
+  assertList(log.stats.newinds, names = "unique")
+
   # workaround for for https://github.com/jakobbossek/ecr2/issues/107
   n.objectives <- smoof::getNumberOfObjectives(fitness.fun)
   if (n.objectives > 1) {
@@ -79,15 +82,27 @@ slickEcr <- function(fitness.fun, lambda, population, mutator, recombinator, gen
   ctrl <- registerECROperator(ctrl, "selectForMating", parent.selector)
   ctrl <- registerECROperator(ctrl, "selectForSurvival", survival.selector)
 
+  # log the state of each generation
   log <- initLogger(ctrl, log.stats = log.stats, log.pop = TRUE,
-    init.size = generations * lambda + length(population))
+    log.extras = c(state = "character"),
+    init.size = max(generations + 1, 10))
+  log$env$n.gens <- log$env$n.gens - 1
 
+  # log newly created individuals
+  log.newinds <- initLogger(ctrl, log.stats = log.stats.newinds, log.pop = TRUE,
+    log.extras = c(size = "integer", population = "character"),
+    init.size = max(generations + length(fidelity[[1]]), 10))
+  log.newinds$env$n.gens <- log.newinds$env$n.gens - 1
 
   ef <- slickEvaluateFitness(ctrl, population,
     fidelity = fidelity[[length(fidelity)]][1],  # high fidelity for first generation
     previous.points = matrix(Inf, nrow = n.objectives))
   fitness <- ef$fitness
   population <- ef$population
+  updateLogger(log, population, fitness, n.evals = length(population),
+    extras = list(state = "init"))
+  updateLogger(log.newinds, population, fitness, n.evals = length(population),
+    extras = list(size = length(population), population = "init"))
 
   fidelity.row <- 1
 
@@ -100,6 +115,9 @@ slickEcr <- function(fitness.fun, lambda, population, mutator, recombinator, gen
         previous.points = matrix(Inf, nrow = n.objectives))
       fitness <- ef$fitness
       population <- ef$population
+      updateLogger(log.newinds, population, fitness, n.evals = length(population),
+        extras = list(size = length(population), population = "fidelity.reeval"))
+      log.newinds$env$n.gens <- log.newinds$env$n.gens - 1
     }
 
     offspring <- generateOffspring(ctrl, population,
@@ -110,6 +128,9 @@ slickEcr <- function(fitness.fun, lambda, population, mutator, recombinator, gen
     fitness.offspring <- ef$fitness
     offspring <- ef$population
 
+    updateLogger(log.newinds, offspring, fitness.offspring, n.evals = length(offspring),
+      extras = list(size = length(offspring), population = "offspring"))
+
     if (survival.strategy == "plus") {
       sel <- replaceMuPlusLambda(ctrl, population, offspring, fitness, fitness.offspring)
     } else {
@@ -118,9 +139,12 @@ slickEcr <- function(fitness.fun, lambda, population, mutator, recombinator, gen
     population <- sel$population
     fitness <- sel$fitness
 
-    updateLogger(log, population, fitness, n.evals = lambda)
+    updateLogger(log, population, fitness, n.evals = length(offspring),
+      extras = list(state = "generation"))
   }
-  ecr:::makeECRResult(ctrl, log, population,  fitness, list(message = "out of generations"))
+  result <- ecr:::makeECRResult(ctrl, log, population,  fitness, list(message = "out of generations"))
+  result$log.newinds <- log.newinds
+  result
 }
 
 #' @title Compute the Fitness of Individuals
