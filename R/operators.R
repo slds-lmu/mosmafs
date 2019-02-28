@@ -108,7 +108,7 @@ mutDoubleGeom <- makeMutator(function(ind, p = 1, geomp = 0.9, lower, upper) {
 #' @title General Uniform Crossover
 #'
 #' @description
-#' Crossover mutation operator that crosses over each position iid with prob. `p`
+#' Crossover recombination operator that crosses over each position iid with prob. `p`
 #' and can also be used for non-binary operators.
 #' @param ind `[list of any]` list of two individuals to perform uniform crossover on
 #' @param p `[numeric(1)]` per-entry probability to perform crossover
@@ -138,6 +138,7 @@ mutUniformReset <- makeMutator(function(ind, p = 0.1, reset.dist) {
     reset.dist = rep(reset.dist, length(ind))
   }
   assertNumeric(reset.dist, lower = 0, upper = 1, len = length(ind), any.missing = FALSE)
+  assertNumeric(p, lower = 0, upper = 1)
   affect <- runif(length(ind)) < p
   naffect <- sum(affect)
   ind[affect] <- as.numeric(runif(naffect) < reset.dist[affect])
@@ -159,7 +160,7 @@ mutUniformMetaReset <- makeMutator(function(ind, p = 0.1, reset.dists, reset.dis
   assertNumeric(reset.dist.weights, lower = 0, upper = 1 - .Machine$double.eps, any.missing = FALSE)
   assertMatrix(reset.dists, nrows = length(ind), ncols = length(reset.dist.weights))
   reset.dist.weights <- -log(1 - reset.dist.weights)
-  reset.dist.weights <- reset.dist.weights / sum(reset.dist.weights)  # TODO: this could go into trafo
+  reset.dist.weights <- reset.dist.weights / sum(reset.dist.weights)
   mutUniformReset(ind, p = p, reset.dist = reset.dists %*% reset.dist.weights)
 }, supported = "binary")
 
@@ -199,7 +200,7 @@ mutGaussScaled <- makeMutator(function(ind, p = 1, sdev = 0.05, lower, upper) {
   which.step <- runif(length(ind)) < p
   ind[which.step] <- new.ind[which.step]
   pmin(pmax(lower, ind), upper)
-})
+}, supported = "float")
 
 #' @title Integer Scaled Gaussian Mutator
 #'
@@ -301,3 +302,76 @@ overallRankMO <- function(fitness, sorting = "crowding", ref.point) {
   rankresult[order(ranksort0, -ranksort1)] <- seq_len(ncol(fitness))
   rankresult
 }
+
+#' @title Bitflip (Approximately, in Expectation) Conserving Hamming Weight
+#'
+#' @description
+#' If a given bitvector has `m` 1s and `n` 0s, then a bit is flipped from
+#' 0 to 1 with probability `2p(m+1)/(m+n+2)` and from
+#' 1 to 0 with probability `2p(n+1)/(m+n+2)`. This is
+#' equivalent with choosing bits uniformly at random with probability
+#' 2 * `p` and drawing them from a bernoulli-distribution with parameter
+#' `(m+1)/(m+n+2)`.
+#'
+#' @param ind `[integer]` binary individual
+#' @param p `[numeric]` average flip probability, must be between 0
+#'   and 0.5.
+#' @export
+mutBitflipCHW <- makeMutator(function(ind, p = 0.1) {
+  assertNumeric(p, lower = 0, upper = 0.5)
+  m <- sum(ind)
+  bern.p <- (m + 1) / (length(ind) + 2)
+
+  affect <- runif(length(ind)) < 2 * p
+  ind[affect] <- rbinom(sum(affect), 1, bern.p)
+  ind
+}, supported = "binary")
+
+#' @title Uniform Reset Scaled by Hamming Weight
+#'
+#' @description
+#' Combination of the idea of [`mutBitflipCHW`] with [`mutUniformReset`].
+#'
+#' If a given bitvector has `m` 1s and `n` 0s, then, with probability `p` for
+#' each bit, it is drawn anew from the distribution
+#' `((m + 1) * reset.dist) / (m * reset.dist + n * (1 - reset.dist) + 1)`.
+#'
+#' The reasoning behind this is that, without Laplace smoothing, drawing from
+#' `m * reset.dist` / (m * reset.dist + n * (1 - reset.dist))` would lead to
+#' probabilities of drawing a "0" or "1" such that
+#' `mean(P("1") / P("0")) = m / n * mean(reset.dist / (1 - reset.dist))`.
+#'
+#' The `mutUniformMetaResetSHW` does reset with a weighted mean of distributions.
+#'
+#' @param ind `[integer]` binary individual
+#' @param p `[numeric]` average reset probability, must be between 0 and 1
+#' @param reset.dist `[numeric]` approximate probability to draw 1-bit per entry
+#' @param reset.dists `[matrix]` columns of probabilities, with `length(ind)` cols and
+#'   `length(reset.dist.weights)` rows.
+#' @param reset.dist.weights `[numeric]` weight vector to select among `reset.dist` columns.
+#' @return `[integer]` the mutated individuum
+#' @export
+mutUniformResetSHW <- makeMutator(function(ind, p = 0.1, reset.dist) {
+  if (length(reset.dist) == 1) {
+    reset.dist <- rep(reset.dist, length(ind))
+  }
+  assertNumeric(reset.dist, lower = 0, upper = 1, len = length(ind), any.missing = FALSE)
+  assertNumeric(p, lower = 0, upper = 1)
+  affect <- runif(length(ind)) < p
+
+  m <- sum(ind)
+  bern.p <- ((m + 1) * reset.dist) / (m * reset.dist + (length(ind) - m) * (1 - reset.dist) + 1)
+
+  ind[affect] <- rbinom(sum(affect), 1, bern.p[affect])
+  ind
+}, supported = "binary")
+
+#' @rdname mutUniformResetSHW
+#' @export
+mutUniformMetaResetSHW <- makeMutator(function(ind, p = 0.1, reset.dists, reset.dist.weights) {
+  assertNumeric(reset.dist.weights, lower = 0, upper = 1 - .Machine$double.eps, any.missing = FALSE)
+  assertMatrix(reset.dists, nrows = length(ind), ncols = length(reset.dist.weights))
+  reset.dist.weights <- -log(1 - reset.dist.weights)
+  reset.dist.weights <- reset.dist.weights / sum(reset.dist.weights)
+  mutUniformResetSHW(ind, p = p, reset.dist = reset.dists %*% reset.dist.weights)
+}, supported = "binary")
