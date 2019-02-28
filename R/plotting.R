@@ -42,11 +42,12 @@ paretoEdges <- function(fitness, refpoint) {
 #' @export
 fitnesses <- function(results, trafo = identity) {
   pops <- getPopulations(results$log)
+  stats <- getStatistics(results$log)
   do.call(rbind, lapply(seq_along(pops), function(idx) {
     pop <- pops[[idx]]
     df <- as.data.frame(trafo(t(pop$fitness)))
     colnames(df)[1:2] <- c("perf", "propfeat")
-    df$iter <- idx
+    df$gen <- stats$gen[[idx]]
     df
   }))
 }
