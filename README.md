@@ -8,6 +8,19 @@
 
 This project is work in progress, it will probably not be useful in its current state.
 
+## Installation
+
+To install, use `devtools`:
+
+```r
+devtools::install_github("compstat-lmu/mosmafs", 
+```
+
+## Documentation
+
+* [Introduction](https://compstat-lmu.github.io/mosmafs/articles/demo.html)
+* [Multi-Fidelity](https://compstat-lmu.github.io/mosmafs/articles/multifidelity.html)
+
 ## License
 
 [GNU AGPL-3](https://opensource.org/licenses/AGPL-3.0)
