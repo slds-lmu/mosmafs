@@ -15,6 +15,6 @@ recPCrossover(ind, p = 0.1, ...)
 \code{[list of any]} The mutated individuals.
 }
 \description{
-Crossover mutation operator that crosses over each position iid with prob. \code{p}
+Crossover recombination operator that crosses over each position iid with prob. \code{p}
 and can also be used for non-binary operators.
 }

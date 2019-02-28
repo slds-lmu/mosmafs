@@ -2,14 +2,29 @@
 % Please edit documentation in R/customnsga2.R
 \name{slickEcr}
 \alias{slickEcr}
+\alias{initEcr}
+\alias{continueEcr}
 \title{Modified Interface to ECR}
 \usage{
 slickEcr(fitness.fun, lambda, population, mutator, recombinator,
   generations = 100, parent.selector = selSimple,
   survival.selector = selNondom, p.recomb = 0.7, p.mut = 0.3,
-  survival.strategy = c("plus", "comma"), n.elite = 0,
-  fidelity = NULL, log.stats = list(fitness = list("min", "mean",
-  "max")))
+  survival.strategy = "plus", n.elite = 0, fidelity = NULL,
+  unbiased.fidelity = TRUE, log.stats = list(fitness = list("min",
+  "mean", "max")), log.stats.newinds = c(list(runtime = list("mean",
+  "sum")), if (!is.null(fidelity)) list(fidelity = list("sum"))))
+
+initEcr(fitness.fun, population, fidelity = NULL,
+  log.stats = list(fitness = list("min", "mean", "max")),
+  log.stats.newinds = c(list(runtime = list("mean", "sum")), if
+  (!is.null(fidelity)) list(fidelity = list("sum"))),
+  unbiased.fidelity = TRUE)
+
+continueEcr(ecr.object, generations, lambda = NULL, mutator = NULL,
+  recombinator = NULL, parent.selector = NULL,
+  survival.selector = NULL, p.recomb = NULL, p.mut = NULL,
+  survival.strategy = NULL, n.elite = NULL, fidelity = NULL,
+  unbiased.fidelity = NULL)
 }
 \arguments{
 \item{fitness.fun}{\code{[smoof_multi_objective_function]} fitness function, must be a
@@ -50,8 +65,34 @@ of the first column must always be 1. Whenever fidelity changes, the whole
 population is re-evaluated, so it is recommended to use only few different
 fidelity jumps throughout all generations.}
 
-\item{log.stats}{\code{[list]} information to log}
+\item{unbiased.fidelity}{\code{[logical(1)]} Whether generations do not have to be re-evaluated when fidelity jumps downward.}
+
+\item{log.stats}{\code{[list]} information to log for each generation}
+
+\item{ecr.object}{\code{[MosmafsResult]} an object retrieved from previous runs of
+\code{initEcr}, \code{slickEcr}, or \code{continueEcr}}
+
+\item{log.log.stats.newinds}{\code{[list]} information to log for each newly evaluated individuals}
 }
 \description{
 Mostly \code{\link[ecr:ecr]{ecr::ecr}}, with some simplifications and extensions.
+
+\code{slickEcr} does mostly what \code{ecr::ecr} does, with different default values at places.
+Note that \code{fitness.fun} must be a "\code{\link[smoof:smoof-package]{smoof}}" function.
+
+\code{initEcr} only evaluates fitness for the initial population and does not perform any
+mutation or selection.
+
+\code{continueEcr} continues a run for another number of \code{generations}. Only \code{ecr.object}
+(a result from a previous \code{initEcr}, \code{slickEcr}, or \code{continueEcr} call) and
+\code{generations} must be given, the other arguments are optional \emph{if} they were set
+in a previous \code{slickEcr} or \code{continueEcr} call, in which case the values from the
+previous run are used. Otherwise is possible to supply any combination of these values
+to set them to new values.
+
+Note, for \code{fidelity}, that the generation continue counting from previous runs,
+so if \code{initEcr} was ran for 5 generations and \code{continueEcr} is called with
+a \code{fidelity} with first column values \code{c(1, 8)}, then the fidelity given in the
+first row is applied for 2 generations, after which the fidelity given in the
+second row applies.
 }
