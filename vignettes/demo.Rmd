@@ -299,13 +299,13 @@ ps.simple <- pSS(
 
 Notably we have included the parameter `selector.selection`, which controls what features are selected.
 
-We are using some standard mutation and recombination operators for the parameters: Gaussian and rounded-gaussian mutation for numeric parameters, random bitflip for `selector.selection`, and generally uniform crossover mutation. We use the `ecr::setup` method to set hyperparameters of some mutation operators.
+We are using some standard mutation and recombination operators for the parameters: Gaussian and rounded-gaussian mutation for numeric parameters, hamming weight preserving bitflip for `selector.selection`, and generally uniform crossover mutation. We use the `ecr::setup` method to set hyperparameters of some mutation operators.
 
 ```{r}
 mutator.simple <- combine.operators(ps.simple,
   numeric = ecr::setup(mutGauss, sdev = 0.1),
   integer = ecr::setup(mutGaussInt, sdev = 3),
-  selector.selection = mutBitflip)
+  selector.selection = mutBitflipCHW)
 
 crossover.simple <- combine.operators(ps.simple,
   numeric = recPCrossover,
@@ -319,6 +319,11 @@ The initial population to sample over can be generated using the `ParamHelpers` 
 initials.simple <- sampleValues(ps.simple, 64, discrete.names = TRUE)
 ```
 
+At last we need to define the objective function which we try to optimize. If we are doing feature selection, the `makeObjective` function does this for us; otherwise we would need to define a "`smoof`" function using `smoof::makeSingleObjectiveFunction` or `smoof::makeMultiObjectiveFunction`.
+```{r}
+fitness.fun.simple <- makeObjective(lrn, task, ps.simple, cv5)
+```
+
 This is all that is necessary, and it can be used to call the `ecr()` function in the `ecr` package. The `mosmafs` package comes with a useful interface that sets some defaults: `slickEcr()`. The run time, 10 generations, would probably be to short for serious applications, but should be enough for demonstration purposes.
 
 ```{r, include = FALSE}
@@ -326,7 +331,7 @@ set.seed(1)
 ```
 ```{r}
 run.simple <- slickEcr(
-  fitness.fun = makeObjective(lrn, task, ps.simple, cv5),
+  fitness.fun = fitness.fun.simple,
   lambda = 32,
   population = initials.simple,
   mutator = mutator.simple,
@@ -365,7 +370,6 @@ attr(individual.2, "runtime")
 getStatistics(run.simple$log.newinds)
 ```
 
-
 ### Filter Values as Strategy Parameters
 
 It is possible to use "Feature Filter" values from `mlr` feature filters to heuristically guide mutation of the `selector.selection` bitvector. For this, the filter matrix can be generated using the `makeFilterMat` function, with a few features we choose. (The github-version of `mlr` needs to be installed for this: `devtools::install_github("mlr-org/mlr")`). For demonstration purposes, this contains the useless-in-this-case `"variance"` Filter that just measures each feature's variance. (To use the relatively good `"praznik_JMI"` filter it is necessary to install the github-version of `mlr`, e.g. by using `devtools::install_github("mlr-org/mlr")`).
@@ -391,7 +395,7 @@ The mutation operator must now include information on how to use the strategy pa
 mutator.strat <- combine.operators(ps.strat,
   numeric = ecr::setup(mutGauss, sdev = 0.1),
   integer = ecr::setup(mutGaussInt, sdev = 3),
-  selector.selection = mutUniformMetaReset,
+  selector.selection = mutUniformMetaResetSHW,
   .strategy.selector.selection = makeFilterStrategy(
     reset.dists = fima, weight.param.name = "filterweights"))
 ```
@@ -435,3 +439,37 @@ The pareto-fronts of this run look as follows:
 ```{r, fig.width = 6, fig.height = 5}
 plot_fronts(run.strat)
 ```
+
+### Run Continuation
+
+The results returned by `slickEcr` contain all information to continue an optimization for more generations. To continue a run, use the `continueEcr` function. It is possible to change a few settings compared to the previous invocation of `slickEcr`. (It is in fact possible to just create a result object without any generations using `initEcr`, and then call `continueEcr` at a later point on it).
+
+```{r}
+run.strat.20 <- continueEcr(run.strat, 10, lambda = 16)
+```
+```{r}
+getStatistics(run.strat.20$log.newinds)
+```
+```{r, fig.width = 6, fig.height = 5}
+plot_fronts(run.strat.20)
+```
+
+
+
+## Things to Keep in Mind
+
+### Operators
+
+These operators are supplied by the `mosmafs` package:
+
+* **`mutGaussInt`, `mutPolynomialInt`, `mutUniformInt`, `recIntSBX`**: mutation with rounding, for integer individuals. This is achieved through trivial application of `intifyMutator`.
+* **`mutDoubleGeom`**: geometric distribution mutation, for integer individuals.
+* **`mutRandomChoice`**: mutation for discrete individuals.
+* **`recPCrossover`**: crossover recombination operator for individuals of any type.
+* **`mutBitflipCHW`**: bitflip that approximately conserves hamming weight (sum of digits) of binary individuals in expectation. This is useful for the `selector.selection` vector because it does not bias mutation away from the extremes (very few features selected, or very many features selected) as strongly.
+* **`mutUniformReset`**: extension of the `mutBitflip` operator that draws new values from a distribution `reset.dist`.
+* **`mutUniformMetaReset`**: extension of the `mutBitflip` operator that draws new values from a set of distribution `reset.dists`, weighted by another parameter `reset.dist.weights`.
+* **`mutGaussScaled`, `mutGaussIntScaled`**: Gaussian mutation with standard deviation scaled to the range of possible values.
+* **`selTournamentMO`**: Multi-Objective k-tournament selection with individual rankging by nondominated sorting and secondarily either crowding distance or contribution to dominated hypervolume.
+* **`mutBitflipCHW`, `mutUniformResetSHW`, `mutUniformMetaResetSHW`**: Binary operators that emulate `mutBitflip`, `mutUniformReset`, and `mutUniformMetaReset` but keep the fraction of ones in the result more constant.
+
