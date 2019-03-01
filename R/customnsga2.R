@@ -297,7 +297,11 @@ slickEvaluateFitness <- function(ctrl, population, fidelity = NULL, previous.poi
       if ("holdout" %nin% names(formals(fitness.fun))) {
         return(rep_len(Inf, n.obj))
       }
-      ret <- c(fitness.fun(x, fidelity = fidelity, holdout = holdout))
+      if (!missing(fidelity)) {
+        ret <- c(fitness.fun(x, fidelity = fidelity, holdout = holdout))
+      } else {
+        ret <- c(fitness.fun(x, holdout = holdout))
+      }
     } else {
       ret <- c(fitness.fun(x, fidelity = fidelity))
     }
