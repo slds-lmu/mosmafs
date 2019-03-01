@@ -30,13 +30,19 @@
 #'   for dominated hypervolume calculation. Will be extracted from the
 #'   given measure if not given, but will raise an error if the extracted
 #'   (or given) value is infinite.
+#' @param cpo `[CPO]` CPO pipeline to apply before feature selection.
+#'   (A CPO that should be applied *after* feature selection should already be
+#'   part of `learner` when given). Care should be taken that the
+#'   `selector.selection` parameter in `ps` has the appropriate length of
+#'   the data that `cpo` emits.
 #' @return `function` an objective function for [`ecr::ecr`].
 #' @export
-makeObjective <- function(learner, task, ps, resampling, measure = NULL, holdout.data = NULL, worst.measure = NULL) {
+makeObjective <- function(learner, task, ps, resampling, measure = NULL, holdout.data = NULL, worst.measure = NULL, cpo = NULL) {
   if (is.null(measure)) {
     measure <- getDefaultMeasure(task)
   }
   assertClass(learner, "Learner")
+  assertClass(cpo, "CPO", null.ok = TRUE)
   assertClass(task, "Task")
   assertClass(holdout.data, "Task", null.ok = TRUE)
   assertClass(ps, "ParamSet")
@@ -58,6 +64,9 @@ makeObjective <- function(learner, task, ps, resampling, measure = NULL, holdout
 
 
   learner <- cpoSelector() %>>% checkLearner(learner, type = getTaskType(task))
+  if (!is.null(cpo)) {
+    learner %<<<% cpo
+  }
   argnames <- getParamIds(getParamSet(learner))
   smoof::makeMultiObjectiveFunction(sprintf("mosmafs_%s", learner$id),
     has.simple.signature = FALSE, par.set = ps, n.objectives = 2, noisy = TRUE,
