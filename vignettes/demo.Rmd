@@ -169,11 +169,11 @@ task.hout <- subsetTask(task.whole, rows.whole[501:2000])
 
 ## Mixed Operators
 
-The heart of this package is the `comibine.operators` function that can be used to apply different operators to different parts of the search space; in particular, to different types of search space dimensions. It works by accepting a `ParamSet` (from the [`ParamHelpers`](https://github.com/berndbischl/ParamHelpers) package) that defines the search-space, and operators that define the operators to use on individual parameters.
+The heart of this package is the `comibine.operators()` function that can be used to apply different operators to different parts of the search space; in particular, to different types of search space dimensions. It works by accepting a `ParamSet` (from the [`ParamHelpers`](https://github.com/berndbischl/ParamHelpers) package) that defines the search-space, and operators that define the operators to use on individual parameters.
 
 ### Operators for each Parameter
 
-We may have a `ParamSet` with a logical parameter `bin1`, a discrete (but binary) parameter `bin2`, a discrete vector parameter `disc1`, and a numeric parameter `num1`. We define this `ParamSet` using the `pSS` function from the excellent [`mlrCPO`](https://github.com/mlr-org/mlrCPO) package.
+We may have a `ParamSet` with a logical parameter `bin1`, a discrete (but binary) parameter `bin2`, a discrete vector parameter `disc1`, and a numeric parameter `num1`. We define this `ParamSet` using the `pSS()` function from the excellent [`mlrCPO`](https://github.com/mlr-org/mlrCPO) package.
 
 ```{r}
 ps <- pSS(
@@ -193,7 +193,7 @@ combo <- combine.operators(ps,
   num1 = mutPlus)
 ```
 
-Here we are treating `bin2` as a binary parameter, so we have to leave the `.binary.discrete.as.logical` parameter of `combine.operators` as `TRUE`. If we wanted to use the `mutCycle` operation on the `bin2` operator, we would have to tell `combine.operators` to treat it as a discrete parameter:
+Here we are treating `bin2` as a binary parameter, so we have to leave the `.binary.discrete.as.logical` parameter of `combine.operators` as `TRUE`. If we wanted to use the `mutCycle` operation on the `bin2` operator, we would have to tell `combine.operators()` to treat it as a discrete parameter:
 
 ```{r}
 combo2 <- combine.operators(ps,
@@ -257,7 +257,7 @@ Because of this, it is **usually a bad idea** to combine parameters of different
 
 ### Strategy Parameters
 
-A further extension offered by the `combine.operators` function is the ability to use "strategy parameters". These make it is possible to have the effect of an operator be dependent on the individuals involved. To do this, a `.strategy.<PARAMETER/GROUPNAME>` value must be given, which should be a function that gets the individuum as input, and returns a named list of function parameters as output. This named list is added to the configuration of the operator associated with `<PARAMETER>` or `<GROUPNAME>`.
+A further extension offered by the `combine.operators()` function is the ability to use "strategy parameters". These make it is possible to have the effect of an operator be dependent on the individuals involved. To do this, a `.strategy.<PARAMETER/GROUPNAME>` value must be given, which should be a function that gets the individuum as input, and returns a named list of function parameters as output. This named list is added to the configuration of the operator associated with `<PARAMETER>` or `<GROUPNAME>`.
   
 One could, for example, make the `summand` parameter of the `mutPlus` operation dependent on the `bin2` value: If it is `"yes"`, it adds a value, if it is `"no"` it subtracts a value.
 
@@ -289,7 +289,7 @@ Recombination operators can be combined in the same way that mutation operators 
 
 ### Mixed Operator Individuals
 
-When using the `ecr` package with its vanilla operators, individuals are usually vectors of numbers, for example 0-1-vectors for binary individuals, or `numeric` values for continuous valued individuals. When using mixed operators, the individuals have to be *named lists*, with names and types corresponding to the `ParamSet` given to `combine.operators`. The supported `Param` types, and the expected entries in the individual lists, are the following:
+When using the `ecr` package with its vanilla operators, individuals are usually vectors of numbers, for example 0-1-vectors for binary individuals, or `numeric` values for continuous valued individuals. When using mixed operators, the individuals have to be *named lists*, with names and types corresponding to the `ParamSet` given to `combine.operators()`. The supported `Param` types, and the expected entries in the individual lists, are the following:
 
 | Parameter Construction (`ParamHelpers`)       | `pSS()` sugar | Type Expected       |
 |---                                            |---            |---                  |
@@ -298,9 +298,9 @@ When using the `ecr` package with its vanilla operators, individuals are usually
 | `makeLogicalParam`/`makeLogicalVectorParam`   | `logical`     | `logical`           |
 | `makeDiscreteParam`/`makeDiscreteVectorParam` | `discrete[]`  | `character`         |
 
-The only possible surprise here is that individuals must have "`character`" entries for discrete parameters^[In particular, they must have entries corresponding to the **names** of the possible values of a discrete parameter. Consider the `ParamSet` `makeParamSet(makeDiscreteParam("fn", values = list(a = identity, b = exp)))`. An individuum corresponding to this `ParamSet` would have to be one of `list(fn = "a")` or `list(fn = "b")`.]. That means, no `factor` entries, and no lists of characters for `makeDiscreteVectorParam` types.
+The only possible surprise here is that individuals must have "`character`" entries for discrete parameters^[In particular, they must have entries corresponding to the **names** of the possible values of a discrete parameter. Consider the `ParamSet` `makeParamSet(makeDiscreteParam("fn", values = list(a = identity, b = exp)))`. An individuum corresponding to this `ParamSet` would have to be one of `list(fn = "a")` or `list(fn = "b")`.]. That means, no `factor` entries, and no lists of characters for `makeDiscreteVectorParam()` types.
 
-One can use the `sampleValue` function from the `ParamHelpers` package to generate valid, randomly sampled individuals to use with combined operators. The `discrete.names` option must be set to `TRUE` for that:
+One can use the `sampleValue()` function from the `ParamHelpers` package to generate valid, randomly sampled individuals to use with combined operators. The `discrete.names` option must be set to `TRUE` for that:
 
 ```{r}
 
@@ -355,9 +355,9 @@ The initial population to sample over can be generated using the `ParamHelpers` 
 initials.simple <- sampleValues(ps.simple, 32, discrete.names = TRUE)
 ```
 
-At last we need to define the objective function which we try to optimize. If we are doing feature selection, the `makeObjective` function does this for us; otherwise we would need to define a "`smoof`" function using `smoof::makeSingleObjectiveFunction` or `smoof::makeMultiObjectiveFunction`.
+At last we need to define the objective function which we try to optimize. If we are doing feature selection, the `makeObjective()` function does this for us; otherwise we would need to define a "`smoof`" function using `smoof::makeSingleObjectiveFunction()` or `smoof::makeMultiObjectiveFunction()`.
 
-The `makeObjective` function allows us to supply a holdout dataset on which each model will be evaluated. If a holdout is given, then the resampling is performed as given to the `resampling` parameter, and, *additionally*, the given `Learner` is trained on the whole training data and predicted on the holdout set.
+The `makeObjective()` function allows us to supply a holdout dataset on which each model will be evaluated. If a holdout is given, then the resampling is performed as given to the `resampling` parameter, and, *additionally*, the given `Learner` is trained on the whole training data and predicted on the holdout set.
 
 ```{r}
 fitness.fun.simple <- makeObjective(lrn, task, ps.simple, cv5,
@@ -425,7 +425,7 @@ colnames(collectResult(run.simple))
 
 ### Filter Values as Strategy Parameters
 
-It is possible to use "Feature Filter" values from `mlr` feature filters to heuristically guide mutation of the `selector.selection` bitvector. For this, the filter matrix can be generated using the `makeFilterMat` function, with a few features we choose. (The github-version of `mlr` needs to be installed for this: `devtools::install_github("mlr-org/mlr")`). For demonstration purposes, this contains the useless-in-this-case `"variance"` Filter that just measures each feature's variance. (To use the relatively good `"praznik_JMI"` filter it is necessary to install the github-version of `mlr`, e.g. by using `devtools::install_github("mlr-org/mlr")`). The `"DUMMY"` filter does not exist in `mlr`, it instructs `makeFilterMat` to create a constant heuristic. It gives the strategy parameter another degree of freedom with which it can de-emphasize the heuristic in case it performs badly.
+It is possible to use "Feature Filter" values from `mlr` feature filters to heuristically guide mutation of the `selector.selection` bitvector. For this, the filter matrix can be generated using the `makeFilterMat()` function, with a few features we choose. (The github-version of `mlr` needs to be installed for this: `devtools::install_github("mlr-org/mlr")`). For demonstration purposes, this contains the useless-in-this-case `"variance"` Filter that just measures each feature's variance. (To use the relatively good `"praznik_JMI"` filter it is necessary to install the github-version of `mlr`, e.g. by using `devtools::install_github("mlr-org/mlr")`). The `"DUMMY"` filter does not exist in `mlr`, it instructs `makeFilterMat()` to create a constant heuristic. It gives the strategy parameter another degree of freedom with which it can de-emphasize the heuristic in case it performs badly.
 
 ```{r}
 filters <- c("praznik_JMI", "auc", "anova.test", "variance", "DUMMY")
@@ -443,7 +443,7 @@ ps.strat <- pSS(
   filterweights: numeric[0.001, 0.999]^length(filters))
 ```
 
-The mutation operator must now include information on how to use the strategy parameter. Instead of writing out the function, we are using the helper `makeFilterStrategy` that is designed out for this usecase:
+The mutation operator must now include information on how to use the strategy parameter. Instead of writing out the function, we are using the helper `makeFilterStrategy()` that is designed out for this usecase:
 ```{r}
 mutator.strat <- combine.operators(ps.strat,
   numeric = ecr::setup(mutGauss, sdev = 0.1),
@@ -460,18 +460,13 @@ crossover.strat <- combine.operators(ps.strat,
   selector.selection = recPCrossover)
 ```
 
-The initial population we sample again using the `ParamHelpers` function `sampleValues()`. We are then sampling the `$selector.selection` part again from the equilibrium-distribution of `mutUniformMetaReset`:
+The initial population we sample again using the `ParamHelpers` function `sampleValues()`. We are then sampling the `$selector.selection` part again using `initSelector()`, which makes the number of 0s and 1s uniformly distributed, and applies the equilibrium-distribution of `mutUniformMetaResetSHW()`:
 
 ```{r}
-initials.strat <- sampleValues(ps.strat, 62, discrete.names = TRUE) %>%
-  lapply(function(x) {
-    x$selector.selection %<>% as.numeric %>%
-      mutUniformMetaReset(p = 1,
-        reset.dists = fima,
-        reset.dist.weights = x$filterweights) %>%
-      as.logical
-    x
-  })
+initials.strat <- sampleValues(ps.strat, 32, discrete.names = TRUE) %>%
+  initSelector(
+    soften.op = ecr::setup(mutUniformMetaResetSHW, p = 1),
+    soften.op.strategy = makeFilterStrategy(fima, "filterweights"))
 ```
 
 These are all preparations needed for a heuristic-backed NSGA2 fun for feature-selection:
@@ -495,7 +490,7 @@ plot_fronts(run.strat)
 
 ### Run Continuation
 
-The results returned by `slickEcr` contain all information to continue an optimization for more generations. To continue a run, use the `continueEcr` function. It is possible to change a few settings compared to the previous invocation of `slickEcr`. (It is in fact possible to just create a result object without any generations using `initEcr`, and then call `continueEcr` at a later point on it).
+The results returned by `slickEcr()` contain all information to continue an optimization for more generations. To continue a run, use the `continueEcr()` function. It is possible to change a few settings compared to the previous invocation of `slickEcr()`. (It is in fact possible to just create a result object without any generations using `initEcr()`, and then call `continueEcr()` at a later point on it).
 
 ```{r, include = FALSE}
 set.seed(2)
@@ -518,18 +513,19 @@ plot_fronts(run.strat.20)
 
 These operators are supplied by the `mosmafs` package:
 
-* **`mutGaussInt()`, `mutPolynomialInt`, `mutUniformInt`, `recIntSBX`**: mutation with rounding, for integer individuals. This is achieved through trivial application of `intifyMutator`.
-* **`mutDoubleGeom`**: geometric distribution mutation, for integer individuals.
-* **`mutRandomChoice`**: mutation for discrete individuals.
-* **`recPCrossover`**: crossover recombination operator for individuals of any type.
-* **`mutBitflipCHW`**: bitflip that approximately conserves hamming weight (sum of digits) of binary individuals in expectation. This is useful for the `selector.selection` vector because it does not bias mutation away from the extremes (very few features selected, or very many features selected) as strongly.
-* **`mutUniformReset`**: extension of the `mutBitflip` operator that draws new values from a distribution `reset.dist`.
-* **`mutUniformMetaReset`**: extension of the `mutBitflip` operator that draws new values from a set of distribution `reset.dists`, weighted by another parameter `reset.dist.weights`.
-* **`mutGaussScaled`, `mutGaussIntScaled`**: Gaussian mutation with standard deviation scaled to the range of possible values.
-* **`selTournamentMO`**: Multi-Objective k-tournament selection with individual rankging by nondominated sorting and secondarily either crowding distance or contribution to dominated hypervolume.
-* **`mutBitflipCHW`, `mutUniformResetSHW`, `mutUniformMetaResetSHW`**: Binary operators that emulate `mutBitflip`, `mutUniformReset`, and `mutUniformMetaReset` but keep the fraction of ones in the result more constant.
+* **`mutGaussInt()`, `mutPolynomialInt()`, `mutUniformInt()`, `recIntSBX()`**: mutation with rounding, for integer individuals. This is achieved through trivial application of `intifyMutator()`.
+* **`mutDoubleGeom()`**: geometric distribution mutation, for integer individuals.
+* **`mutRandomChoice()`**: mutation for discrete individuals.
+* **`recPCrossover()`**: crossover recombination operator for individuals of any type.
+* **`mutBitflipCHW()`**: bitflip that approximately conserves hamming weight (sum of digits) of binary individuals in expectation. This is useful for the `selector.selection` vector because it does not bias mutation away from the extremes (very few features selected, or very many features selected) as strongly.
+* **`mutUniformReset()`**: extension of the `mutBitflip()` operator that draws new values from a distribution `reset.dist`.
+* **`mutUniformMetaReset()`**: extension of the `mutBitflip()` operator that draws new values from a set of distribution `reset.dists`, weighted by another parameter `reset.dist.weights`.
+* **`mutGaussScaled()`, `mutGaussIntScaled()`**: Gaussian mutation with standard deviation scaled to the range of possible values.
+* **`selTournamentMO()`**: Multi-Objective k-tournament selection with individual rankging by nondominated sorting and secondarily either crowding distance or contribution to dominated hypervolume.
+* **`mutBitflipCHW()`, `mutUniformResetSHW()`, `mutUniformMetaResetSHW()`**: Binary operators that emulate `mutBitflip()`, `mutUniformReset()`, and `mutUniformMetaReset()` but keep the fraction of ones in the result more constant.
 
 ### Utility Functions
 
-* **`popAggregate`, `availableAttributes`**: Information aggregated as matrix or dataframe for each generation in a population.
-* **`collectResult`**: Information aggregated throughout the run, on runtime and computation cost measures.
+* **`popAggregate()`, `availableAttributes()`**: Information aggregated as matrix or dataframe for each generation in a population.
+* **`collectResult()`**: Information aggregated throughout the run, on runtime and computation cost measures.
+* **`initSelector()`** Resetting of individual's `selector.selection` slot.
