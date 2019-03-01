@@ -40,9 +40,10 @@ if (.Platform$OS.type == "windows") {
 
 print.list <- function(x) {
   if (all(vlapply(x, is.atomic))) {
+    x <- sapply(x, function(x) if (is.numeric(x)) round(x, 3) else x)
     catf("list(%s)",
       collapse(sprintf("%s = %s", names(x),
-        vcapply(x, deparse, width.cutoff = 500)), ", "))
+        vcapply(x, deparse, width.cutoff = 500, nlines = 1)), ", "))
   } else {
     NextMethod(x)
   }
