@@ -84,38 +84,7 @@ makeFilterStrategy <- function(filtermat, weight.param.name, output.name) {
   }
 }
 
-# mutation strategy according to MIES (R. Li et al. )
-makeMutationStrategyNumeric <- function(param.name, output.name, lr, lower, upper) {
-  function(ind) {
-    param <- ind[[param.name]]
-    # assertNumeric(param, lower = 0, upper = 1 - .Machine$double.eps, any.missing = FALSE)
-    res = param * exp(lr * rnorm(0, 1))
-    res = min(max(res, lower), upper)
-    namedList(output.name, res)
-  }
-}
 
-# Scaled Gaussian Mutator
-# the stepsize is determined as sdev (upper - low) 
-mutGaussScaled <- makeMutator(
-  mutator = function(ind, p = 1L, sdev = 0.1, lower, upper) {
-    assertNumber(p, lower = 0, finite = TRUE, na.ok = FALSE)
-    assertNumber(sdev, lower = 0, finite = TRUE, na.ok = FALSE)
-    assertNumeric(lower, any.missing = FALSE, all.missing = FALSE)
-    assertNumeric(lower, any.missing = FALSE, all.missing = FALSE)
-    if (length(lower) != length(upper)) {
-      stopf("Gauss mutator: length of lower and upper bounds need to be equal!")
-    }
-
-    n = length(ind)
-    mut.idx = runif(n) < p
-    mut.noise = rnorm(sum(mut.idx), mean = 0, sd = sdev * (upper - lower))
-    ind[mut.idx] = ind[mut.idx] + mut.noise
-    # correct bounds
-    ind = pmin(pmax(lower, ind), upper)
-    return(ind)
-  },
-  supported = "float")
 
 
 setStrategyParametersFixed <- function(inds, param.name, value) {

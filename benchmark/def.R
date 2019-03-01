@@ -60,3 +60,14 @@ ades = CJ(learner = c("SVM"),
 # ades = rbind(ades, baseline)
 
 REPLICATIONS = 5L
+
+# mutation strategy according to MIES (R. Li et al. )
+makeMutationStrategyNumeric <- function(param.name, output.name, lr, lower, upper) {
+  function(ind) {
+    param <- ind[[param.name]]
+    # assertNumeric(param, lower = 0, upper = 1 - .Machine$double.eps, any.missing = FALSE)
+    res = param * exp(lr * rnorm(0, 1))
+    res = min(max(res, lower), upper)
+    namedList(output.name, res)
+  }
+}

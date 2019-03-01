@@ -42,17 +42,24 @@ mosmafs = function(data, job, instance, learner, lambda, mu, maxeval, filter.met
 
   # --- parameter set ---
   ps = PAR.SETS[[learner]]
-  ps = c(ps, pSS(selector.selection: logical^getTaskNFeats(task)))
+  ps = c(ps, 
+    pSS(selector.selection: logical^getTaskNFeats(task),
+        .strategy.numeric: numeric[0, 1],
+        .strategy.logical: numeric[0, 1],
+        .strategy.integer: numeric[0, 1],
+        .strategy.discrete: numeric[0, 1],
+        .strategy.selector.selection: numeric[0, 1]))
 
   # --- EA operators ---
   mutator = combine.operators(ps,
-    numeric = mutGauss,
+    numeric = mutGaussScaled,
     logical = mutBitflip,
     integer = mutUniformInt,
     discrete = mutRandomChoice,
     selector.selection = mutBitflip,
-    .strategy.numeric = makeMutationStrategyNumeric(".strategy.numeric", "sdev", lr = 1 / sqrt(2 * lambda), lower = getLower(ps$pars$.strategy.numeric), upper = getUpper(ps$pars$.strategy.numeric)),
+    .strategy.numeric = makeMutationStrategyNumeric(".strategy.numeric", "sdev", lr = 1 / sqrt(2 * lambda), lower = 0, upper = 1),
     .strategy.logical = makeMutationStrategyNumeric(".strategy.logical", "p", lr = 1 / sqrt(2 * lambda), lower = 0, upper = 1),
+    .strategy.integer = makeMutationStrategyNumeric(".strategy.logical", "p", lr = 1 / sqrt(2 * lambda), lower = 0, upper = 1),    
     .strategy.discrete = makeMutationStrategyNumeric(".strategy.integer", "p", lr = 1 / sqrt(2 * lambda), lower = 0, upper = 1),  
     .strategy.selector.selection = makeMutationStrategyNumeric(".strategy.integer", "p", lr = 1 / sqrt(2 * lambda), lower = 0, upper = 1)
   )
@@ -62,7 +69,8 @@ mosmafs = function(data, job, instance, learner, lambda, mu, maxeval, filter.met
     integer = recPCrossover,
     discrete = recPCrossover,
     logical = recUnifCrossover,
-    selector.selection = recPCrossover)
+    selector.selection = recPCrossover 
+    )
 
   # --- initialization of population
   initials = sampleValues(ps, mu, discrete.names = TRUE)
@@ -89,7 +97,7 @@ mosmafs = function(data, job, instance, learner, lambda, mu, maxeval, filter.met
   }
 
   results = slickEcr(
-    fitness.fun = makeObjective(lrn, task.train, ps, cv10),
+    fitness.fun = makeObjective(learner = lrn, task = task.train, ps = ps, resampling = cv10, holdout.data = task.test),
     lambda = lambda,
     population = initials,
     mutator = mutator,
@@ -105,18 +113,6 @@ mosmafs = function(data, job, instance, learner, lambda, mu, maxeval, filter.met
   ranks = lapply(pops, function(x) doNondominatedSorting(x$fitness)) 
   paretofront = lapply(ranks, function(x) which(x$ranks == 1))
   domhypervol = lapply(seq_along(pops), function(x) computeHV(as.matrix(pops[[x]]$fitness[, paretofront[[x]]]), ref.point = c(1, 1)))
-
-  # evaluate the final candidates on the testset
-  eval.outer = function(args) {
-    propfeat = mean(args$selector)
-    args = args[intersect(names(args), getParamIds(getParamSet(lrn)))]
-    mod = train(setHyperPars(lrn, par.vals = args), task.train)
-    pred = predict(mod, task.test)
-    perf = performance(pred)
-    c(perf = perf, feat = propfeat)
-  }  
-
-  pareto.front.test = lapply(results$pareto.set, eval.outer)
 
   return(list(results = results, task.test = task.test, task.train = task.train, runtime = runtime, ps = ps, paretofront = paretofront, 
     pareto.front.test = pareto.front.test, domhypervol = domhypervol, filtermat = FILTERMAT))

@@ -14,7 +14,7 @@ plotpath = "results/plots"
 
 
 # create plots for hypervolume development
-type = "hypervol_parentsel"
+type = "hypervol_init"
 
 # create directory
 dir.create(file.path(plotpath, type))
@@ -27,6 +27,7 @@ hypervol = lapply(hypervol, function(x) cbind(x, data.frame(generation = 1:nrow(
 hypervol = do.call("rbind", hypervol)
 hypervol$mu = as.factor(hypervol$mu)
 hypervol$lambda = as.factor(hypervol$lambda)
+hypervol$initialization = as.factor(hypervol$initialization)
 
 for (prob in unique(hypervol$problem)) {
    savepath = paste(plotpath, "/", type, "/", prob, sep = "")
@@ -34,11 +35,11 @@ for (prob in unique(hypervol$problem)) {
    for (lrn in unique(hypervol$learner)) {
       df = hypervol[learner == lrn & problem == prob, ]
       # baseline = which(df$mu == df$maxeval & df$lambda == 1L)
-      df.sum = df[, hypervol := mean(hypervol), by = c("mu", "lambda", "evals")]
+      df.sum = df[, hypervol := mean(hypervol), by = c("mu", "lambda", "evals", "initialization")]
       p = ggplot(data = df.sum, aes(x = evals, y = hypervol, colour = mu, lty = lambda)) + geom_line()
       # p = p + geom_hline(data = df[baseline, ], aes(yintercept = hypervol), colour = "red")
       p = p + theme_bw()
-      # p = p + facet_grid(n ~ p)
+      p = p + facet_grid(~ initialization)
       p = p + ggtitle(paste(prob, " data, ", lrn, ", averaged over 5 replications", sep = ""))
       ggsave(filename = paste(savepath, "/", lrn, ".png", sep = ""), plot = p, width = 10, height = 6)
     } 
@@ -56,13 +57,13 @@ write.csv(dfr, file.path(plotpath, type, "ranks.csv"))
 
 
 # create plots for hypervolume development
-type = "paretotest_parentsel"
-type = "paretovalid_parentsel"
+type = "paretotest_init"
+type = "paretovalid_init"
 
 # create directory
 dir.create(file.path(plotpath, type))
 res = readRDS(paste(respath, "/", type, ".rds", sep = ""))
-res[, index := seq_len(.N), by = c("problem", "mu", "lambda", "maxeval", "learner")]
+res[, index := seq_len(.N), by = c("problem", "mu", "lambda", "maxeval", "learner", "initialization")]
 
 # plot development of hypervolume
 df = lapply(1:nrow(res), function(x) cbind(job.id = res[x, ]$job.id, res[x, ]$result[[1]]))
@@ -74,6 +75,7 @@ names(df)[2:3] = c("mmce", "nfeat")
 df$mu = as.factor(df$mu)
 df$lambda = as.factor(df$lambda)
 df$index = as.factor(df$index)
+df$initialization = as.factor(df$initialization)
 
 df = df[parent.sel == "selDomHV", ]
 
@@ -85,7 +87,7 @@ for (prob in unique(df$problem)) {
       # baseline = which(dfs$lambda == 1L)
       p = ggplot(data = dfs, aes(x = mmce, y = nfeat, colour = index)) + geom_point() + geom_line()
       p = p + theme_bw()
-      p = p + facet_grid(~mu) + xlim(c(0, 1)) + ylim(c(0, 1))
+      p = p + facet_grid(initialization~mu) + ylim(c(0, 0.1)) + xlim(c(0, 1))
       p = p + theme(legend.position = "none")
       p = p + ggtitle(paste(prob, " data, ", lrn, ", 5 replications", sep = ""))
       ggsave(filename = paste(savepath, "/", lrn, ".png", sep = ""), plot = p, width = 10, height = 6)
@@ -96,12 +98,12 @@ for (prob in unique(df$problem)) {
 
 # create boxplots for accuracies 
 
-type = "mmce_parentsel"
+type = "mmce_init"
 # create directory
 dir.create(file.path(plotpath, type))
 
 # data for 
-data = "pareto_all_parentsel"
+data = "pareto_all_init"
 res = readRDS(paste(respath, "/", data, ".rds", sep = ""))
 df = lapply(1:nrow(res), function(x) data.frame(job.id = res[x, ]$job.id, pareto = unlist(res[x, ]$result[[1]])))
 df = lapply(df, function(x) ijoin(x, res[, - c("result")], by = "job.id"))
@@ -109,6 +111,7 @@ df = do.call("rbind", df)
 names(df)[2:4] = c("generation", "mmce", "nfeat") 
 df$mu = as.factor(df$mu)
 df$lambda = as.factor(df$lambda)
+df$initialization = as.factor(df$initialization)
 
 # data = "paretotest"
 # res2 = readRDS(paste(respath, "/", data, ".rds", sep = ""))
@@ -124,13 +127,13 @@ for (prob in unique(df$problem)) {
    dir.create(savepath)
    for (lrn in unique(df$learner)) {
       dfs = df[learner == lrn & problem == prob, ]
-      dfs = dfs[, .(mmce = mean(mmce), min = min(mmce), max = max(mmce)), by = c("job.id", "generation", "mu", "lambda")]
-      dfs = dfs[, .(mean.mmce = mean(mmce), min.mmce = mean(min), max.mmce = mean(max)), by = c("generation", "mu", "lambda")]
+      dfs = dfs[, .(mmce = mean(mmce), min = min(mmce), max = max(mmce)), by = c("job.id", "generation", "mu", "lambda", "initialization")]
+      dfs = dfs[, .(mean.mmce = mean(mmce), min.mmce = mean(min), max.mmce = mean(max)), by = c("generation", "mu", "lambda", "initialization")]
       # dfs = dfs[- which(dfs$lambda == 1L), ]
-      dfs = melt(dfs, id.vars = names(dfs)[1:3])
+      dfs = melt(dfs, id.vars = names(dfs)[1:4])
       p = ggplot(data = dfs, aes(x = generation, y = value, colour = variable)) + geom_line()
       p = p + theme_bw()
-      p = p + facet_grid(lambda ~ mu)
+      p = p + facet_grid(initialization ~ mu)
       p = p + theme(legend.position = "none")
       p = p + ggtitle(paste(prob, " data, ", lrn, ", 5 replications", sep = ""))
       ggsave(filename = paste(savepath, "/", lrn, ".png", sep = ""), plot = p, width = 10, height = 6)
