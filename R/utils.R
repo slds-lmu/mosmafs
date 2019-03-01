@@ -88,3 +88,113 @@ availableAttributes <- function(log, check = FALSE) {
   }
   attrs
 }
+
+#' @title Collect Result Information
+#'
+#' @description
+#' Merge both `log` and `log.newinds` data for a complete `data.frame`
+#' with information about progress (both on training data and on
+#' holdout data) and ressource usage.
+#'
+#' @param ecr.object `[MosmafsResult]` `slickEcr()` result to analyse
+#' @param aggregate.perresult `[list]` list of functions
+#'   to apply to fitness and holdout fitness. Every entry must either be
+#'   a `character(1)` naming the function to use, or a function, in which
+#'   that entry must have a name. Each function must return exactly one
+#'   numeric value when fed a fitness matrix of one generation. This i
+#'   ignored for single-objective runs.
+#' @param aggregate.perobjective `[list]` list of functions
+#'   to apply to fitness and holdout fitness matrix rows, formatted like
+#'   `aggregate.perresult`. Each function must return exactly one numeric
+#'   value when fed a fitness vector.
+#' @param ref.point `[numeric]` reference point to use for HV computation
+#' @param cor.fun `[function]` function to use for calculation of
+#'   correlation between objective and holdout. Must take two `numeric`
+#'   arguments and return a `numeric(1)`.
+#' @return `data.frame`
+#' @export
+collectResult <- function(ecr.object, aggregate.perresult = list(domHV = function(x) computeHV(x, ref.point)), aggregate.perobjective = list("min", "mean", "max"), ref.point = smoof::getRefPoint(ecr.object$control$task$fitness.fun), cor.fun = cor) {
+  assertClass(ecr.object, "MosmafsResult")
+
+  normalize.funlist <- function(fl) {
+    assertList(fl, any.missing = FALSE, types = c("function", "character"))
+
+    charentries <- vlapply(fl, is.character)
+    names(fl)[charentries] <- ifelse(is.na(names2(fl)[charentries]),
+      unlist(fl[charentries], recursive = FALSE),
+      names2(fl)[charentries])
+    fl[charentries] <- lapply(fl[charentries], get,
+      envir = .GlobalEnv, mode = "function")
+    assertList(fl, any.missing = FALSE, types = "function", names = "unique")
+  }
+
+  aggregate.perresult <- normalize.funlist(aggregate.perresult)
+  aggregate.perobjective <- normalize.funlist(aggregate.perobjective)
+
+  assertNumeric(ref.point, any.missing = FALSE, finite = TRUE,
+    len = ecr.object$task$n.objectives)
+  assertFunction(cor.fun)
+
+  aggregate.fitness <- function(fitness) {
+    resmat <- sapply(fitness, function(fit) {
+      if (ecr.object$task$n.objectives == 1) {
+        vnapply(aggregate.perobjective, function(f) f(fit))
+      } else {
+        if (is.null(rownames(fit))) {
+          rownames(fit) <- paste0("obj.", seq_len(nrow(fit)))
+        }
+        c(
+          unlist(apply(fit, 1, function(frow) {
+            as.list(vnapply(aggregate.perobjective, function(f) f(frow)))
+          })),
+          vnapply(aggregate.perresult, function(f) f(fit))
+        )
+      }
+    })
+    as.data.frame(t(resmat))
+  }
+
+
+  fitnesses <- popAggregate(ecr.object$log, "fitness")
+
+  stats <- getStatistics(ecr.object$log)
+  stats.newinds <- getStatistics(ecr.object$log.newinds)
+
+  no.fid <- is.null(stats.newinds$fidelity)
+  if (no.fid) {
+    stats.newinds$fidelity.sum <- 0
+  } else {
+    reevals <- stats.newinds$gen[stats.newinds$population == "fidelity.reeval"]
+  }
+
+  resdf <- with(stats.newinds, data.frame(
+    gen,
+    runtime = cumsum(runtime.sum),
+    evals = cumsum(size),
+    cum.fid = cumsum(fidelity.sum)))
+  resdf <- resdf[!rev(duplicated(rev(resdf$gen))), ]
+  assertTRUE(all.equal(resdf$gen, seq_len(nrow(resdf)) - 1))
+  assertTRUE(all.equal(resdf$gen, stats$gen))
+  if (no.fid) {
+    resdf$cum.fid <- NULL
+  } else {
+    resdf$fid.reeval <- resdf$gen %in% reevals
+  }
+  resdf <- cbind(resdf,
+    eval = aggregate.fitness(fitnesses))
+
+  hofitnesses <- popAggregate(ecr.object$log, "fitness.holdout")
+
+  if (any(vlapply(hofitnesses, function(x) any(is.finite(x))))) {
+
+    corcols <- lapply(seq_len(ecr.object$task$n.objectives), function(idx) {
+      mapply(function(eval.fit, hout.fit) {
+        cor.fun(eval.fit[idx, ], hout.fit[idx, ])
+      }, fitnesses, hofitnesses)
+    })
+    names(corcols) <- rownames(fitnesses[[1]]) %??% paste0("obj.", seq_len(corcols))
+    resdf <- cbind(resdf, hout = aggregate.fitness(hofitnesses), cor = corcols)
+
+  }
+  resdf
+}
