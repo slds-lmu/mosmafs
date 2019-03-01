@@ -483,8 +483,8 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <a class="sourceLine" id="cb13-18" data-line-number="18"><span class="co">#&gt; 16  15    0.1430497    2.288795           36   16  offspring</span></a></code></pre></div>
 <p>Use the <code>popAggregate</code> function to get collected information about fidelity in individuals in a generation. The following shows the fidelities used in generation 2:</p>
 <div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1"><span class="kw">popAggregate</span>(run.dom.mufi<span class="op">$</span>log, <span class="st">&quot;fidelity&quot;</span>)[[<span class="dv">2</span>]]</a>
-<a class="sourceLine" id="cb14-2" data-line-number="2"><span class="co">#&gt;  [1] 11 11 11 11 11  1 11 11 11 11 11 11 11 11  1 11  1 11 11 11 11  1 11 11  1 11 11 11</span></a>
-<a class="sourceLine" id="cb14-3" data-line-number="3"><span class="co">#&gt; [29]  1 11 11 11</span></a></code></pre></div>
+<a class="sourceLine" id="cb14-2" data-line-number="2"><span class="co">#&gt;  [1] 11 11 11 11 11  1 11 11 11 11 11 11 11 11  1 11  1 11 11 11 11  1 11 11  1</span></a>
+<a class="sourceLine" id="cb14-3" data-line-number="3"><span class="co">#&gt; [26] 11 11 11  1 11 11 11</span></a></code></pre></div>
 <p>Individual evaluation fidelity can be retrieved, again, from a logged individual’s attributes. The following plots the pareto-front of generation 3, and the individuals sampled for generation 4. All individuals sampled with high fidelity lie close to the pareto-front, but some may, after high-fidelity evaluation, have turned out to actually be dominated by the old generation.</p>
 <div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" data-line-number="1">gen.i &lt;-<span class="st"> </span><span class="dv">3</span></a>
 <a class="sourceLine" id="cb15-2" data-line-number="2">logobj &lt;-<span class="st"> </span>run.dom.mufi<span class="op">$</span>log.newinds</a>
