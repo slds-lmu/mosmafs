@@ -156,10 +156,15 @@ mutReverse(c(1, 2, 3))
 
 The `mosmafs` package comes with a few functions that generate synthetic datasets that can be used for feature selection. The following creates three columns of randomly sampled points in the `[-1, 1]^3` cube and a target column indicating whether each point is a distance greater than 1 away from the origin. Then ten more copies of that task are added, but with permuted rows---effectively giving 30 noise columns. (The piping operator `%>%` from the `magrittr` package is used for parsimonity).
 
+To show the holdout prediction functionality, we will retain a part of the task as a "holdout" set.
+
 ```{r}
-task <- create.hypersphere.data(3, 500) %>%
+task.whole <- create.hypersphere.data(3, 2000) %>%
   create.classif.task(id = "sphere") %>%
   task.add.permuted.cols(10)
+rows.whole <- sample(2000)
+task <- subsetTask(task.whole, rows.whole[1:500])
+task.hout <- subsetTask(task.whole, rows.whole[501:2000])
 ```
 
 ## Mixed Operators
@@ -351,8 +356,12 @@ initials.simple <- sampleValues(ps.simple, 32, discrete.names = TRUE)
 ```
 
 At last we need to define the objective function which we try to optimize. If we are doing feature selection, the `makeObjective` function does this for us; otherwise we would need to define a "`smoof`" function using `smoof::makeSingleObjectiveFunction` or `smoof::makeMultiObjectiveFunction`.
+
+The `makeObjective` function allows us to supply a holdout dataset on which each model will be evaluated. If a holdout is given, then the resampling is performed as given to the `resampling` parameter, and, *additionally*, the given `Learner` is trained on the whole training data and predicted on the holdout set.
+
 ```{r}
-fitness.fun.simple <- makeObjective(lrn, task, ps.simple, cv5)
+fitness.fun.simple <- makeObjective(lrn, task, ps.simple, cv5,
+  holdout.data = task.hout)
 ```
 
 This is all that is necessary, and it can be used to call the `ecr()` function in the `ecr` package. The `mosmafs` package comes with a useful interface that sets some defaults: `slickEcr()`. The run time, 10 generations, would probably be to short for serious applications, but should be enough for demonstration purposes.
@@ -399,6 +408,19 @@ individual.2 <- pop.gen1$population[[2]]
 attr(individual.2, "runtime")
 
 getStatistics(run.simple$log.newinds)
+```
+
+Run statistics about the progress of performance can also be retrieved using the `collectResult()` function. It creates a large `data.frame` with many entries. The following plots the progressive average resampling performance, both of the training data and the holdout data.
+```{r, fig.width = 6, fig.height = 5}
+ggplot(collectResult(run.simple), aes(x = evals)) +
+  geom_line(aes(y = hout.perf.mean, color = "Holdout")) +
+  geom_line(aes(y = eval.perf.mean, color = "Training")) +
+  ylim(0, 1)
+```
+
+The totality of information provided by `collectResult()` can be seen from its column names.
+```{r}
+colnames(collectResult(run.simple))
 ```
 
 ### Filter Values as Strategy Parameters

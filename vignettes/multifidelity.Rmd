@@ -101,9 +101,12 @@ library("mlr")
 library("mlrCPO")
 ```
 ```{r}
-task <- create.hypersphere.data(3, 500) %>%
+task.whole <- create.hypersphere.data(3, 2000) %>%
   create.classif.task(id = "sphere") %>%
   task.add.permuted.cols(10)
+rows.whole <- sample(2000)
+task <- subsetTask(task.whole, rows.whole[1:500])
+task.hout <- subsetTask(task.whole, rows.whole[501:2000])
 
 lrn <- makeLearner("classif.rpart", maxsurrogate = 0)
 
@@ -148,7 +151,7 @@ nRes <- function(n) {
 
 We can use this function to create a multi-fidelity fitness function:
 ```{r}
-fitness.fun <- makeObjective(lrn, task, ps.simple, nRes)
+fitness.fun <- makeObjective(lrn, task, ps.simple, nRes, holdout.data = task.hout)
 
 formals(fitness.fun)
 ```
@@ -211,6 +214,18 @@ attr(ind1.gen15, "runtime")
 
 getStatistics(run.gen.mufi$log.newinds)
 ```
+
+The cumulative fidelity up to each generation can be computed using the `collectResult()` function. This makes it possible to analyse progress up to a certain point of computational expenditure.
+```{r, fig.width = 6, fig.height = 5}
+cres <- collectResult(run.gen.mufi)
+ggplot(cres, aes(x = cum.fid, y = eval.domHV, color = "Training")) +
+  geom_line() + geom_point(size = 1) +
+  geom_point(data = cres[cres$fid.reeval, ], shape = "x", size = 5) +
+  geom_line(aes(x = cum.fid, y = hout.domHV, color = "Holdout")) +
+  ylim(0, 1)
+```
+
+The "x" mark the points at which fidelity reevaluation occurred: There a jump downward in hypervolume is possible. Also, the plot shows a large jump in cumulative fidelity before each reevaluation, because the whole population is reevaluated at these points.
 
 ## Multi-Fidelity by Dominance
 
