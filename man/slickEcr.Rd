@@ -37,7 +37,11 @@ continueEcr(ecr.object, generations, lambda = NULL, mutator = NULL,
 
 \item{recombinator}{\code{[ecr_recombinator]} recombination operator}
 
-\item{generations}{\code{[integer(1)]} number of iterations to evaluate}
+\item{generations}{\code{[integer(1) | list of function]} number of iterations to
+evaluate if it is an integer, or \link[=mosmafsTermEvals]{terminator} function.
+If this is an integer, it counts the \emph{new} generations to evaluate;
+otherwise the terminator functions are applied to the whole combined trace
+of evaluation.}
 
 \item{parent.selector}{\code{[ecr_selector]} parent selection operator}
 

@@ -5,7 +5,7 @@
 \title{Create ecr Objective Function}
 \usage{
 makeObjective(learner, task, ps, resampling, measure = NULL,
-  holdout.data = NULL, worst.measure = NULL)
+  holdout.data = NULL, worst.measure = NULL, cpo = NULL)
 }
 \arguments{
 \item{learner}{\code{[Learner]} A \code{\link[mlr:makeLearner]{Learner}} object to optimize.}
@@ -31,6 +31,12 @@ configuration after training on \code{task}.}
 for dominated hypervolume calculation. Will be extracted from the
 given measure if not given, but will raise an error if the extracted
 (or given) value is infinite.}
+
+\item{cpo}{\code{[CPO]} CPO pipeline to apply before feature selection.
+(A CPO that should be applied \emph{after} feature selection should already be
+part of \code{learner} when given). Care should be taken that the
+\code{selector.selection} parameter in \code{ps} has the appropriate length of
+the data that \code{cpo} emits.}
 }
 \value{
 \code{function} an objective function for \code{\link[ecr:ecr]{ecr::ecr}}.
