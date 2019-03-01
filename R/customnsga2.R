@@ -215,7 +215,7 @@ continueEcr <- function(ecr.object, generations, lambda = NULL, mutator = NULL, 
   repeat {
     termmsgs <- lapply(generations, function(f) f(collectResult(ecr.object)))
     termmsgs <- Filter(Negate(is.null), termmsgs)
-    if (length(termmsgs) {
+    if (length(termmsgs)) {
       termmsgs <- list(message = collapse(termmsgs, "\n"))
       break
     }

@@ -21,9 +21,9 @@
 mosmafsTermEvals <- function(evals) {
   assertInt(fidelity)
   function(result) {
-    if (max(result$evals) >= evals) {
-      sprintf("Number of total evaluations %s reached limit %s",
-        max(result$evals), evals)
+    state <- max(c(result$evals, 0))
+    if (state >= evals) {
+      sprintf("Number of total evaluations %s reached limit %s", state, evals)
     }
   }
 }
@@ -31,9 +31,9 @@ mosmafsTermEvals <- function(evals) {
 mosmafsTermGenerations <- function(generations) {
   assertInt(generations)
   function(result) {
-    if (max(result$gen) >= generations) {
-      sprintf("Number of total generations %s reached limit %s",
-        max(result$generations), generations)
+    state <- max(c(result$gen, 0))
+    if (state >= generations) {
+      sprintf("Number of total generations %s reached limit %s", state, generations)
     }
   }
 }
@@ -43,9 +43,9 @@ mosmafsTermGenerations <- function(generations) {
 mosmafsTermTime <- function(time) {
   assertNumber(fidelity)
   function(result) {
-    if (max(result$runtime) >= time) {
-      sprintf("Total runtime %s reached limit %s",
-        max(result$runtime), evals)
+    state <- max(c(result$runtime, 0))
+    if (state >= time) {
+      sprintf("Total runtime %s reached limit %s", state, evals)
     }
   }
 }
@@ -55,9 +55,9 @@ mosmafsTermTime <- function(time) {
 mosmafsTermFidelity <- function(fidelity) {
   assertNumber(fidelity)
   function(result) {
-    if (max(result$cum.fid) >= fidelity) {
-      sprintf("Total fidelity %s reached limit %s",
-        max(result$cum.fid), evals)
+    state
+    if (state >= fidelity) {
+      sprintf("Total fidelity %s reached limit %s", state, evals)
     }
   }
 }
@@ -67,8 +67,9 @@ mosmafsTermFidelity <- function(fidelity) {
 mosmafsTermStagnationHV <- function(staggen) {
   assertInt(staggen)
   function(result) {
+    if (nrow(result) < 1) return(NULL)
     # drop everything up to the last fid.reeval
-    if ("fid.reeval" %in% colnames(result)) {
+    if ("fid.reeval" %in% colnames(result) && any(result$fid.reeval)) {
       drop <- seq_len(max(which(result$fid.reeval)))
       result <- result[-drop, ]
     }
@@ -85,8 +86,9 @@ mosmafsTermStagnationHV <- function(staggen) {
 mosmafsTermStagnationObjMean <- function(staggen) {
   assertInt(staggen)
   function(result) {
+    if (nrow(result) < 1) return(NULL)
     # drop everything up to the last fid.reeval
-    if ("fid.reeval" %in% colnames(result)) {
+    if ("fid.reeval" %in% colnames(result) && any(results$fid.reeval)) {
       drop <- seq_len(max(which(result$fid.reeval)))
       result <- result[-drop, ]
     }
