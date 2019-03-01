@@ -274,35 +274,51 @@ slickEvaluateFitness <- function(ctrl, population, fidelity = NULL, previous.poi
   fitness.fun = ctrl$task$fitness
   ps <- getParamSet(fitness.fun)
   n.obj <- smoof::getNumberOfObjectives(fitness.fun)
-  wrapped.fitness <- function(x, fidelity) {
+  wrapped.fitness <- function(x, fidelity, holdout) {
     assertTRUE(isFeasible(ps, x))
-    ret <- c(fitness.fun(x, fidelity = fidelity))
+    if (!missing(holdout)) {
+      if ("holdout" %nin% names(formals(fitness.fun))) {
+        return(rep_len(Inf, n.obj))
+      }
+      ret <- c(fitness.fun(x, fidelity = fidelity, holdout = holdout))
+    } else {
+      ret <- c(fitness.fun(x, fidelity = fidelity))
+    }
     assertNumeric(ret, any.missing = FALSE, len = n.obj)
     ret
   }
   if (is.null(fidelity)) {
     invocation <- function(x) {
-      list(time = system.time(res <- wrapped.fitness(x), gcFirst = FALSE)[3], res = res)
+      list(
+        time = system.time(res <- wrapped.fitness(x), gcFirst = FALSE)[3],
+        res = res,
+        holdout = wrapped.fitness(x, holdout = TRUE)
+      )
     }
   } else if (length(fidelity) == 1) {
     invocation <- function(x) {
-      list(time = system.time(res <- wrapped.fitness(x, fidelity = fidelity), gcFirst = FALSE)[3],
-        res = res, fidelity = fidelity)
+      list(
+        time = system.time(res <- wrapped.fitness(x, fidelity = fidelity), gcFirst = FALSE)[3],
+        res = res,
+        fidelity = fidelity,
+        holdout = wrapped.fitness(x, holdout = TRUE)
+      )
     }
   } else {
     invocation <- function(x) {
+      holdout <- wrapped.fitness(x, holdout = TRUE)
       time <- system.time(
         phyttniss <- wrapped.fitness(x, fidelity = fidelity[1]),
         gcFirst = FALSE)[3]
       is.dominated <- dominated(cbind(matrix(phyttniss, ncol = 1), previous.points))[1]
       if (is.dominated) {
-        return(list(time = time, res = phyttniss, fidelity = fidelity[1]))
+        return(list(time = time, res = phyttniss, fidelity = fidelity[1], holdout = holdout))
       }
       time <- time + system.time(
         phyttniss.addnl <- wrapped.fitness(x, fidelity = fidelity[2]),
         gcFirst = FALSE)[3]
       phyttniss <- (phyttniss * fidelity[1] + phyttniss.addnl * fidelity[2]) / sum(fidelity)
-      list(time = time, res = phyttniss, fidelity = sum(fidelity))
+      list(time = time, res = phyttniss, fidelity = sum(fidelity), holdout = holdout)
     }
   }
 
@@ -313,6 +329,7 @@ slickEvaluateFitness <- function(ctrl, population, fidelity = NULL, previous.poi
       attr(ind, "fitness") <- res$res
       attr(ind, "runtime") <- res$time
       attr(ind, "fidelity") <- res$fidelity
+      attr(ind, "fitness.holdout") <- res$holdout
       ind
     }, population, results, SIMPLIFY = FALSE),
     fitness = ecr:::makeFitnessMatrix(do.call(cbind, fitness), ctrl))

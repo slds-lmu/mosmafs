@@ -24,9 +24,11 @@
 #'   or repetitions.
 #' @param measure `[Measure | NULL]` The [`Measure`][mlr::makeMeasure] to optimize for.
 #'   The default is `NULL`, which uses the `task`'s default `Measure`.
+#' @param holdout.data `[Task]` Additional data on which to predict each
+#'   configuration after training on `task`.
 #' @return `function` an objective function for [`ecr::ecr`].
 #' @export
-makeObjective <- function(learner, task, ps, resampling, measure = NULL) {
+makeObjective <- function(learner, task, ps, resampling, measure = NULL, holdout.data = NULL) {
   if (is.null(measure)) {
     measure <- getDefaultMeasure(task)
   }
@@ -44,7 +46,10 @@ makeObjective <- function(learner, task, ps, resampling, measure = NULL) {
   argnames <- getParamIds(getParamSet(learner))
   smoof::makeMultiObjectiveFunction(sprintf("mosmafs_%s", learner$id),
     has.simple.signature = FALSE, par.set = ps, n.objectives = 2, noisy = TRUE,
-    fn = function(args, fidelity = NULL) {
+    fn = function(args, fidelity = NULL, holdout = FALSE) {
+      if (holdout && is.null(holdout.data)) {
+        return(c(perf = Inf, propfeat = Inf))
+      }
       args <- valuesFromNames(ps, args)
       args <- trafoValue(ps, args)
       args <- args[intersect(names(args), argnames)]  # filter out strategy parameters
@@ -54,8 +59,15 @@ makeObjective <- function(learner, task, ps, resampling, measure = NULL) {
       } else {
         res <- resampling
       }
-      val <- resample(setHyperPars(learner, par.vals = args), task, res,
-        list(measure), show.info = FALSE)$aggr
+      learner <- setHyperPars(learner, par.vals = args)
+      if (holdout) {
+        model <- train(learner, task)
+        prd <- predict(model, holdout.data)
+        val <- performance(prd, list(measure), task, model)[1]
+      } else {
+        val <- resample(learner, task, res,
+          list(measure), show.info = FALSE)$aggr
+      }
       propfeat <- mean(args$selector.selection)
       c(perf = unname(val * obj.factor), propfeat = propfeat)
   })
