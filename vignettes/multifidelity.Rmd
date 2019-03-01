@@ -191,7 +191,7 @@ plot_fronts <- function(run) {
 plot_fronts(run.gen.mufi)
 ```
 
-The fidelity that was used for each individuum can be extracted from its `"fidelity"` attribute. The runtime will scale approximately linearly (with an added constant overhead) in this case. The sum of all fidelity options used for each generation can also be inspected using the `log.newinds` logging object--it may represent a proxy for the computational ressources that were used. Note how the generations with changing fidelity are present twice: for re-evaluation with new fidelity, and for ordinary evaluation of new individuals.
+The fidelity that was used for each individuum can be extracted from its `"fidelity"` attribute. It can be accessed using the `attr()` method or the `popAggregate` utility function. The runtime will scale approximately linearly (with an added constant overhead) in this case. The sum of all fidelity options used for each generation can also be inspected using the `log.newinds` logging object--it may represent a proxy for the computational ressources that were used. Note how the generations with changing fidelity are present twice: for re-evaluation with new fidelity, and for ordinary evaluation of new individuals.
 
 ```{r}
 populations <- getPopulations(run.gen.mufi$log)
@@ -242,22 +242,22 @@ The `log.newinds` object will again provide information about the aggregated run
 getStatistics(run.dom.mufi$log.newinds)
 ```
 
+Use the `popAggregate` function to get collected information about fidelity in individuals in a generation. The following shows the fidelities used in generation 2:
+```{r}
+popAggregate(run.dom.mufi$log, "fidelity")[[2]]
+```
+
+
 Individual evaluation fidelity can be retrieved, again, from a logged individual's attributes. The following plots the pareto-front of generation 3, and the individuals sampled for generation 4. All individuals sampled with high fidelity lie close to the pareto-front, but some may, after high-fidelity evaluation, have turned out to actually be dominated by the old generation.
 
 ```{r, fig.width = 6, fig.height = 5}
 gen.i <- 3
-
-stat <- getStatistics(run.dom.mufi$log.newinds)
-pop <- getPopulations(run.dom.mufi$log.newinds)
+logobj <- run.dom.mufi$log.newinds
+stat <- getStatistics(logobj)
+pop <- popAggregate(logobj, c("fidelity", "fitness"), data.frame = TRUE)
+ngen.info <- pop[[which(stat$gen == gen.i + 1)]]
 front <- fitnesses(run.dom.mufi, function(x) paretoEdges(x, c(1, 1))) %>%
     subset(gen == gen.i)
-
-ngen.info <- pop[[which(stat$gen == gen.i + 1)]]$population %>%
-  sapply(function(x) {
-    c(fidelity = attr(x, "fidelity"), fitness = attr(x, "fitness"))
-  }) %>%
-  t %>%
-  as.data.frame
 
 ggplot() +
   geom_line(data = front, aes(x = perf, y = propfeat)) +

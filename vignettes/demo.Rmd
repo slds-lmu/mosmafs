@@ -384,7 +384,7 @@ plot_fronts <- function(run) {
 plot_fronts(run.simple)
 ```
 
-It is possible to inspect the runtimes of individuals, they are stored as attribute `"runtime"`. The aggregated runtime for each generation can also be retrieved from the `log.newinds` logging object. 
+It is possible to inspect the runtimes of individuals, they are stored as attribute `"runtime"`. The aggregated runtime for each generation can also be retrieved from the `log.newinds` logging object. The runtime of individuals within each generation can also be queried using `popAggregate`.
 
 ```{r}
 populations <- getPopulations(run.simple$log)
@@ -401,10 +401,10 @@ getStatistics(run.simple$log.newinds)
 
 ### Filter Values as Strategy Parameters
 
-It is possible to use "Feature Filter" values from `mlr` feature filters to heuristically guide mutation of the `selector.selection` bitvector. For this, the filter matrix can be generated using the `makeFilterMat` function, with a few features we choose. (The github-version of `mlr` needs to be installed for this: `devtools::install_github("mlr-org/mlr")`). For demonstration purposes, this contains the useless-in-this-case `"variance"` Filter that just measures each feature's variance. (To use the relatively good `"praznik_JMI"` filter it is necessary to install the github-version of `mlr`, e.g. by using `devtools::install_github("mlr-org/mlr")`).
+It is possible to use "Feature Filter" values from `mlr` feature filters to heuristically guide mutation of the `selector.selection` bitvector. For this, the filter matrix can be generated using the `makeFilterMat` function, with a few features we choose. (The github-version of `mlr` needs to be installed for this: `devtools::install_github("mlr-org/mlr")`). For demonstration purposes, this contains the useless-in-this-case `"variance"` Filter that just measures each feature's variance. (To use the relatively good `"praznik_JMI"` filter it is necessary to install the github-version of `mlr`, e.g. by using `devtools::install_github("mlr-org/mlr")`). The `"DUMMY"` filter does not exist in `mlr`, it instructs `makeFilterMat` to create a constant heuristic. It gives the strategy parameter another degree of freedom with which it can de-emphasize the heuristic in case it performs badly.
 
 ```{r}
-filters <- c("praznik_JMI", "auc", "anova.test", "variance")
+filters <- c("praznik_JMI", "auc", "anova.test", "variance", "DUMMY")
 fima <- makeFilterMat(task, filters = filters)
 ```
 
@@ -494,7 +494,7 @@ plot_fronts(run.strat.20)
 
 These operators are supplied by the `mosmafs` package:
 
-* **`mutGaussInt`, `mutPolynomialInt`, `mutUniformInt`, `recIntSBX`**: mutation with rounding, for integer individuals. This is achieved through trivial application of `intifyMutator`.
+* **`mutGaussInt()`, `mutPolynomialInt`, `mutUniformInt`, `recIntSBX`**: mutation with rounding, for integer individuals. This is achieved through trivial application of `intifyMutator`.
 * **`mutDoubleGeom`**: geometric distribution mutation, for integer individuals.
 * **`mutRandomChoice`**: mutation for discrete individuals.
 * **`recPCrossover`**: crossover recombination operator for individuals of any type.
@@ -505,3 +505,6 @@ These operators are supplied by the `mosmafs` package:
 * **`selTournamentMO`**: Multi-Objective k-tournament selection with individual rankging by nondominated sorting and secondarily either crowding distance or contribution to dominated hypervolume.
 * **`mutBitflipCHW`, `mutUniformResetSHW`, `mutUniformMetaResetSHW`**: Binary operators that emulate `mutBitflip`, `mutUniformReset`, and `mutUniformMetaReset` but keep the fraction of ones in the result more constant.
 
+### Utility Functions
+
+* **`popAggregate`, `availableAttributes`**: Information aggregated as matrix or dataframe for each generation in a population.
