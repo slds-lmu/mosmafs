@@ -26,9 +26,13 @@
 #'   The default is `NULL`, which uses the `task`'s default `Measure`.
 #' @param holdout.data `[Task]` Additional data on which to predict each
 #'   configuration after training on `task`.
+#' @param worst.measure `[numeric(1)]` worst value for measure to consider,
+#'   for dominated hypervolume calculation. Will be extracted from the
+#'   given measure if not given, but will raise an error if the extracted
+#'   (or given) value is infinite.
 #' @return `function` an objective function for [`ecr::ecr`].
 #' @export
-makeObjective <- function(learner, task, ps, resampling, measure = NULL, holdout.data = NULL) {
+makeObjective <- function(learner, task, ps, resampling, measure = NULL, holdout.data = NULL, worst.measure = NULL) {
   if (is.null(measure)) {
     measure <- getDefaultMeasure(task)
   }
@@ -41,11 +45,20 @@ makeObjective <- function(learner, task, ps, resampling, measure = NULL, holdout
       checkFunction(resampling, nargs = 1)
   )
   assertClass(measure, "Measure")
+  if (is.null(worst.measure)) {
+    worst.measure <- measure$worst
+  }
+  assertNumber(worst.measure, finite = TRUE)
+
   obj.factor <- if (measure$minimize) 1 else -1
+
+  worst.measure <- worst.measure * obj.factor
+
   learner <- cpoSelector() %>>% checkLearner(learner, type = getTaskType(task))
   argnames <- getParamIds(getParamSet(learner))
   smoof::makeMultiObjectiveFunction(sprintf("mosmafs_%s", learner$id),
     has.simple.signature = FALSE, par.set = ps, n.objectives = 2, noisy = TRUE,
+    ref.point = c(worst.measure, 1),
     fn = function(args, fidelity = NULL, holdout = FALSE) {
       if (holdout && is.null(holdout.data)) {
         return(c(perf = Inf, propfeat = Inf))

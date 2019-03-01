@@ -48,12 +48,13 @@
 #'   population is re-evaluated, so it is recommended to use only few different
 #'   fidelity jumps throughout all generations.
 #' @param unbiased.fidelity `[logical(1)]` Whether generations do not have to be re-evaluated when fidelity jumps downward.
-#' @param log.stats `[list]` information to log for each generation
+#' @param log.stats `[list]` information to log for each generation. Defaults to
+#'   min, mean, and max of each objective as well as dominated hypervolume.
 #' @param log.stats.newinds `[list]` information to log for each newly evaluated individuals
 #' @param ecr.object `[MosmafsResult]` an object retrieved from previous runs of
 #'   `initEcr`, `slickEcr`, or `continueEcr`
 #' @export
-slickEcr <- function(fitness.fun, lambda, population, mutator, recombinator, generations = 100, parent.selector = selSimple, survival.selector = selNondom, p.recomb = 0.7, p.mut = 0.3, survival.strategy = "plus", n.elite = 0, fidelity = NULL, unbiased.fidelity = TRUE, log.stats = list(fitness = list("min", "mean", "max")), log.stats.newinds = c(list(runtime = list("mean", "sum")), if (!is.null(fidelity)) list(fidelity = list("sum")))) {
+slickEcr <- function(fitness.fun, lambda, population, mutator, recombinator, generations = 100, parent.selector = selSimple, survival.selector = selNondom, p.recomb = 0.7, p.mut = 0.3, survival.strategy = "plus", n.elite = 0, fidelity = NULL, unbiased.fidelity = TRUE, log.stats = NULL, log.stats.newinds = c(list(runtime = list("mean", "sum")), if (!is.null(fidelity)) list(fidelity = list("sum")))) {
   if (!smoof::isSmoofFunction(fitness.fun)) {
     stop("fitness.fun must be a SMOOF function")
   }
@@ -68,16 +69,31 @@ slickEcr <- function(fitness.fun, lambda, population, mutator, recombinator, gen
 
 #' @rdname slickEcr
 #' @export
-initEcr <- function(fitness.fun, population, fidelity = NULL, log.stats = list(fitness = list("min", "mean", "max")), log.stats.newinds = c(list(runtime = list("mean", "sum")), if (!is.null(fidelity)) list(fidelity = list("sum"))), unbiased.fidelity = TRUE) {
+initEcr <- function(fitness.fun, population, fidelity = NULL, log.stats = NULL, log.stats.newinds = c(list(runtime = list("mean", "sum")), if (!is.null(fidelity)) list(fidelity = list("sum"))), unbiased.fidelity = TRUE) {
   if (!smoof::isSmoofFunction(fitness.fun)) {
     stop("fitness.fun must be a SMOOF function")
+  }
+  n.objectives <- smoof::getNumberOfObjectives(fitness.fun)
+  if (is.null(log.stats)) {
+    if (n.objectives == 1) {
+      log.stats <- list(fitness = list("min", "mean", "max"))
+    } else {
+      log.stats <- list(fitness = lapply(seq_len(n.objectives), function(idx) {
+        list(min = function(x) min(x[idx, ]))
+      }))
+      names(log.stats$fitness) <- sprintf("obj.%s", seq_len(n.objectives))
+      log.stats$fitness <- unlist(log.stats$fitness, recursive = FALSE)
+      log.stats$fitness <- c(log.stats$fitness,
+        list(domHV = function(x) computeHV(x,
+          ref.point = smoof::getRefPoint(fitness.fun))))
+    }
   }
   checkFidelity(fidelity)
   assertList(log.stats, names = "unique")
 
   assertList(log.stats.newinds, names = "unique")
 
-  n.objectives <- smoof::getNumberOfObjectives(fitness.fun)
+
 
   ctrl <- initECRControl(fitness.fun)
 
