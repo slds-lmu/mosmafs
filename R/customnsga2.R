@@ -209,8 +209,9 @@ continueEcr <- function(ecr.object, generations, lambda = NULL, mutator = NULL, 
     assertTRUE(log.newinds$env$n.gens + 1 == gen)
     assertTRUE(log$env$n.gens + 1 == gen)
 
-    offspring <- generateOffspring(ctrl, population,
-      fitness, lambda = lambda, p.recomb = p.recomb, p.mut = p.mut)
+    # TODO: capture.output can go when https://github.com/jakobbossek/ecr2/issues/112 is fixed
+    capture.output(offspring <- generateOffspring(ctrl, population,
+      fitness, lambda = lambda, p.recomb = p.recomb, p.mut = p.mut))
     ef <- slickEvaluateFitness(ctrl, offspring,
       fidelity = c(fidelity[[2]][fidelity.row], if (length(fidelity) > 2) fidelity[[3]][fidelity.row]),
       previous.points = fitness)
