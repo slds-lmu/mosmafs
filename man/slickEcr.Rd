@@ -10,12 +10,11 @@ slickEcr(fitness.fun, lambda, population, mutator, recombinator,
   generations = 100, parent.selector = selSimple,
   survival.selector = selNondom, p.recomb = 0.7, p.mut = 0.3,
   survival.strategy = "plus", n.elite = 0, fidelity = NULL,
-  unbiased.fidelity = TRUE, log.stats = list(fitness = list("min",
-  "mean", "max")), log.stats.newinds = c(list(runtime = list("mean",
-  "sum")), if (!is.null(fidelity)) list(fidelity = list("sum"))))
+  unbiased.fidelity = TRUE, log.stats = NULL,
+  log.stats.newinds = c(list(runtime = list("mean", "sum")), if
+  (!is.null(fidelity)) list(fidelity = list("sum"))))
 
-initEcr(fitness.fun, population, fidelity = NULL,
-  log.stats = list(fitness = list("min", "mean", "max")),
+initEcr(fitness.fun, population, fidelity = NULL, log.stats = NULL,
   log.stats.newinds = c(list(runtime = list("mean", "sum")), if
   (!is.null(fidelity)) list(fidelity = list("sum"))),
   unbiased.fidelity = TRUE)
@@ -67,7 +66,8 @@ fidelity jumps throughout all generations.}
 
 \item{unbiased.fidelity}{\code{[logical(1)]} Whether generations do not have to be re-evaluated when fidelity jumps downward.}
 
-\item{log.stats}{\code{[list]} information to log for each generation}
+\item{log.stats}{\code{[list]} information to log for each generation. Defaults to
+min, mean, and max of each objective as well as dominated hypervolume.}
 
 \item{log.stats.newinds}{\code{[list]} information to log for each newly evaluated individuals}
 
