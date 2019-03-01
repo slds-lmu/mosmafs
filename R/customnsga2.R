@@ -267,7 +267,7 @@ continueEcr <- function(ecr.object, generations, lambda = NULL, mutator = NULL, 
       extras = list(state = "generation"))
     gen <- gen + 1
   }
-  result <- ecr:::makeECRResult(ctrl, log, population,  fitness, "termmsgs")
+  result <- ecr:::makeECRResult(ctrl, log, population,  fitness, termmsgs)
   result$log.newinds <- log.newinds
   result$lambda <- lambda
   ctrl$p.recomb <- p.recomb
