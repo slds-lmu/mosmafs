@@ -208,8 +208,7 @@ continueEcr <- function(ecr.object, generations, lambda = NULL, mutator = NULL, 
     }
   }
   if (is.numeric(generations)) {
-    gen.limit <- gen + generations
-    generations <- list(mosmafsTermGenerations(gen.limit))
+    generations <- list(mosmafsTermGenerations(gen + generations - 1))
   }
 
   repeat {
