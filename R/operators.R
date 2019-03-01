@@ -169,7 +169,7 @@ mutUniformMetaReset <- makeMutator(function(ind, p = 0.1, reset.dists, reset.dis
 #' @description
 #' Creates a strategy function that uses the `weight.param.name` entry of
 #' individuals as a weighting vector `reset.dist.weights and `reset.dists`
-#' for [`mutUniformMetaReset`].
+#' for [`mutUniformMetaReset`] and [`mutUniformMetaResetSHW`].
 #'
 #' @param reset.dists `[matrix]` see `reset.dists` in [mutUniformMetaReset]
 #' @param weight.param.name `[character(1)]` name of parameter to use as
