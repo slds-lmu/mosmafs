@@ -198,3 +198,69 @@ collectResult <- function(ecr.object, aggregate.perresult = list(domHV = functio
   }
   resdf
 }
+
+#' @title Initialize Selector
+#'
+#' @description
+#' Sample the `selector.selection` variable such that the number of ones
+#' has a given distribution.
+#'
+#' @param individuals `[list of named lists]` the individuals to initialize
+#' @param distribution `[function]` function that returns a random integer
+#'   from 0 to the length of each individual's `$selector.selection` slot.
+#'   Defaults to the uniform distribution from 1 to `length()`.
+#' @param soften.op `[ecr_mutator]` an optional mutator to apply to the
+#'   `$selector.selection` variable.
+#' @param soften.op.strategy `function` an optional function that can set
+#'   the `soften.op`'s parameters. See [`combine.operators`] strategy parameters.
+#'   Ignored if `soften.op` is not given.
+#' @param soften.op.repeat `[integer(1)]` how often to repeat `soften.op`
+#'   application. Ignored if `soften.op` is not given.
+#' @param reject.zero `[logical(1)]` whether to reject (and sample anew)
+#'   vectors with all zeroes. Default `TRUE`.
+#' @return `list of named lists` The individuals with initialized
+#'   `$selector.selection.
+#' @export
+initSelector <- function(individuals, distribution = function() floor(runif(1, 0, length(individuals[[1]]$selector.selection) + 1)), soften.op = NULL, soften.op.strategy = NULL, soften.op.repeat = 1, reject.zero = TRUE) {
+
+  ilen <- length(individuals[[1]]$selector.selection)
+  assertList(individuals, types = "list", min.len = 1)
+  assertTRUE(all(viapply(individuals, function(x) {
+    length(x$selector.selection)
+  }) == ilen))
+
+  if (!is.null(soften.op)) {
+    assertClass(soften.op, "ecr_mutator")
+    assertTRUE("binary" %in%
+      ecr:::getSupportedRepresentations.ecr_operator(soften.op))
+    assertFunction(soften.op.strategy, null.ok = TRUE)
+    assertInt(soften.op.repeat, lower = 0)
+  }
+  assertFlag(reject.zero)
+
+  lapply(individuals, function(ind) {
+    repeat {  # repeat when rejecting 0s
+      ind.new <- ind
+      new.selection <- sample(ilen) <= distribution()
+      if (!is.null(soften.op)) {
+        new.selection <- as.numeric(new.selection)
+        for (rp in seq_len(soften.op.repeat)) {
+          opargs <- list(new.selection)
+          if (!is.null(soften.op.strategy)) {
+            strat.args <- soften.op.strategy(ind)
+            assertList(strat.args, names = "unique")
+            opargs <- c(opargs, strat.args)
+          }
+          new.selection <- do.call(soften.op, opargs)
+          assertIntegerish(new.selection, len = ilen, any.missing = FALSE)
+        }
+        new.selection <- new.selection < 0.5
+      }
+      if (any(new.selection) || !reject.zero) {
+        ind.new$selector.selection <- new.selection
+        break
+      }
+    }
+    ind.new
+  })
+}
