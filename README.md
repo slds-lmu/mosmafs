@@ -13,7 +13,7 @@ This project is work in progress, it will probably not be useful in its current 
 To install, use `devtools`:
 
 ```r
-devtools::install_github("compstat-lmu/mosmafs", 
+devtools::install_github("compstat-lmu/mosmafs", ref = "mosmafs-package")
 ```
 
 ## Documentation
