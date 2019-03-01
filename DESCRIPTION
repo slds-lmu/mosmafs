@@ -32,6 +32,6 @@ Suggests:
   parallel,
   praznik
 Remotes:
-  jakobbossek/ecr2@8625fa2a0572d7ed5aef82af8d8e988e91deaf93,
+  jakobbossek/ecr2,
   mlr-org/mlr
 RoxygenNote: 6.1.1
