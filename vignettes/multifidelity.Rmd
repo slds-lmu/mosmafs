@@ -57,10 +57,25 @@ getStatistics <- function(log) {
     } else {
       fid <- rep(5, nrow(stats))
     }
-    stats$runtime.mean <- rnorm(nrow(stats), 0.034, 0.002) * (fid + 0.2)
+    stats$runtime.mean <- rnorm(nrow(stats), 0.034, 0.002) * (fid + 2)
     stats$runtime.sum <- stats$runtime.mean * stats$size
   }
   stats
+}
+
+getPopulations <- function(log) {
+  pop <- ecr::getPopulations(log)
+  for (i in seq_along(pop)) {
+    pop[[i]]$population <- lapply(pop[[i]]$population, function(ind) {
+      fid <- attr(ind, "fidelity")
+      if (is.null(fid)) {
+        fid <- 5
+      }
+      attr(ind, "runtime")[1] <- rnorm(1, 0.034, 0.002) * (fid + 2)
+      ind
+    })
+  }
+  pop
 }
 
 
@@ -298,6 +313,9 @@ When continuing finished runs using the `continueEcr` functionality, it is possi
 fidelity.new <- data.frame(
     c(1, 10, 17, 19),
     c(11, 20, 23, 25))
+```
+```{r, include = FALSE}
+set.seed(2)
 ```
 ```{r}
 run.all.mufi.20 <- continueEcr(run.all.mufi, 5,

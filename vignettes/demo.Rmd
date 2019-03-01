@@ -57,10 +57,24 @@ getStatistics <- function(log) {
     } else {
       fid <- rep(5, nrow(stats))
     }
-    stats$runtime.mean <- rnorm(nrow(stats), 0.034, 0.002) * (fid + 0.2)
+    stats$runtime.mean <- rnorm(nrow(stats), 0.034, 0.002) * (fid + 2)
     stats$runtime.sum <- stats$runtime.mean * stats$size
   }
   stats
+}
+
+getPopulations <- function(log) {
+  pop <- getPopulations(log)
+  for (i in seq_len(pop)) {
+    pop[[i]]$population <- lapply(pop[[i]]$population, function(ind) {
+      fid <- attr(ind, "fidelity")
+      if (is.null(fid)) {
+        fid <- 5
+      }
+      attr(ind, "runtime")[1] <- rnorm(1, 0.034, 0.002) * (fid + 2)
+    })
+  }
+  pop
 }
 
 knitr::opts_chunk$set(
@@ -459,6 +473,9 @@ plot_fronts(run.strat)
 
 The results returned by `slickEcr` contain all information to continue an optimization for more generations. To continue a run, use the `continueEcr` function. It is possible to change a few settings compared to the previous invocation of `slickEcr`. (It is in fact possible to just create a result object without any generations using `initEcr`, and then call `continueEcr` at a later point on it).
 
+```{r, include = FALSE}
+set.seed(2)
+```
 ```{r}
 run.strat.20 <- continueEcr(run.strat, 10, lambda = 8)
 ```
