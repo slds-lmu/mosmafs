@@ -38,6 +38,7 @@ makeObjective <- function(learner, task, ps, resampling, measure = NULL, holdout
   }
   assertClass(learner, "Learner")
   assertClass(task, "Task")
+  assertClass(holdout.data, "Task", null.ok = TRUE)
   assertClass(ps, "ParamSet")
   assert(
       checkClass(resampling, "ResampleInstance"),
@@ -54,6 +55,8 @@ makeObjective <- function(learner, task, ps, resampling, measure = NULL, holdout
 
   worst.measure <- worst.measure * obj.factor
 
+
+
   learner <- cpoSelector() %>>% checkLearner(learner, type = getTaskType(task))
   argnames <- getParamIds(getParamSet(learner))
   smoof::makeMultiObjectiveFunction(sprintf("mosmafs_%s", learner$id),
@@ -66,18 +69,19 @@ makeObjective <- function(learner, task, ps, resampling, measure = NULL, holdout
       args <- valuesFromNames(ps, args)
       args <- trafoValue(ps, args)
       args <- args[intersect(names(args), argnames)]  # filter out strategy parameters
-      if (is.function(resampling)) {
-        assertNumber(fidelity)
-        res <- resampling(fidelity)
-      } else {
-        res <- resampling
-      }
       learner <- setHyperPars(learner, par.vals = args)
       if (holdout) {
         model <- train(learner, task)
         prd <- predict(model, holdout.data)
         val <- performance(prd, list(measure), task, model)[1]
       } else {
+        if (is.function(resampling)) {
+          assertNumber(fidelity)
+          res <- resampling(fidelity)
+        } else {
+          res <- resampling
+        }
+
         val <- resample(learner, task, res,
           list(measure), show.info = FALSE)$aggr
       }
