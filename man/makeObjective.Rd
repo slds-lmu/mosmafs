@@ -4,7 +4,8 @@
 \alias{makeObjective}
 \title{Create ecr Objective Function}
 \usage{
-makeObjective(learner, task, ps, resampling, measure = NULL)
+makeObjective(learner, task, ps, resampling, measure = NULL,
+  holdout.data = NULL)
 }
 \arguments{
 \item{learner}{\code{[Learner]} A \code{\link[mlr:makeLearner]{Learner}} object to optimize.}
@@ -22,6 +23,9 @@ or repetitions.}
 
 \item{measure}{\code{[Measure | NULL]} The \code{\link[mlr:makeMeasure]{Measure}} to optimize for.
 The default is \code{NULL}, which uses the \code{task}'s default \code{Measure}.}
+
+\item{holdout.data}{\code{[Task]} Additional data on which to predict each
+configuration after training on \code{task}.}
 }
 \value{
 \code{function} an objective function for \code{\link[ecr:ecr]{ecr::ecr}}.
