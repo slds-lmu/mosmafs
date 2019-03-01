@@ -274,9 +274,13 @@ pop <- popAggregate(logobj, c("fidelity", "fitness"), data.frame = TRUE)
 ngen.info <- pop[[which(stat$gen == gen.i + 1)]]
 front <- fitnesses(run.dom.mufi, function(x) paretoEdges(x, c(1, 1))) %>%
     subset(gen == gen.i)
+new.front <- fitnesses(run.dom.mufi, function(x) paretoEdges(x, c(1, 1))) %>%
+    subset(gen == gen.i + 1)
+
 
 ggplot() +
-  geom_line(data = front, aes(x = perf, y = propfeat)) +
+  geom_line(data = front, aes(x = perf, y = propfeat, linetype = "Gen3 Front")) +
+  geom_line(data = new.front, aes(x = perf, y = propfeat, linetype = "Gen4 Front")) +
   geom_point(data = ngen.info,
     aes(x = fitness.perf, y = fitness.propfeat,
       shape = as.factor(fidelity),
