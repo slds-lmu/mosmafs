@@ -69,10 +69,10 @@ fidelity jumps throughout all generations.}
 
 \item{log.stats}{\code{[list]} information to log for each generation}
 
+\item{log.stats.newinds}{\code{[list]} information to log for each newly evaluated individuals}
+
 \item{ecr.object}{\code{[MosmafsResult]} an object retrieved from previous runs of
 \code{initEcr}, \code{slickEcr}, or \code{continueEcr}}
-
-\item{log.log.stats.newinds}{\code{[list]} information to log for each newly evaluated individuals}
 }
 \description{
 Mostly \code{\link[ecr:ecr]{ecr::ecr}}, with some simplifications and extensions.
