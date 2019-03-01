@@ -5,7 +5,7 @@
 \title{Create ecr Objective Function}
 \usage{
 makeObjective(learner, task, ps, resampling, measure = NULL,
-  holdout.data = NULL)
+  holdout.data = NULL, worst.measure = NULL)
 }
 \arguments{
 \item{learner}{\code{[Learner]} A \code{\link[mlr:makeLearner]{Learner}} object to optimize.}
@@ -26,6 +26,11 @@ The default is \code{NULL}, which uses the \code{task}'s default \code{Measure}.
 
 \item{holdout.data}{\code{[Task]} Additional data on which to predict each
 configuration after training on \code{task}.}
+
+\item{worst.measure}{\code{[numeric(1)]} worst value for measure to consider,
+for dominated hypervolume calculation. Will be extracted from the
+given measure if not given, but will raise an error if the extracted
+(or given) value is infinite.}
 }
 \value{
 \code{function} an objective function for \code{\link[ecr:ecr]{ecr::ecr}}.

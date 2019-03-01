@@ -4,15 +4,19 @@
 \alias{makeFilterMat}
 \title{Create a Filter-Matrix}
 \usage{
-makeFilterMat(task, filters, expectfeats = getTaskNFeats(task)/2,
-  minprob = 0, maxprob = 1)
+makeFilterMat(task, filters, expectfeatfrac = 0.5,
+  expectfeats = getTaskNFeats(task) * expectfeatfrac, minprob = 0,
+  maxprob = 1)
 }
 \arguments{
 \item{task}{\code{[Task]} The task to generate filter information for}
 
-\item{filters}{\code{[character]} The filters to use}
+\item{filters}{\code{[character]} The filters to use. Special vilter \code{"DUMMY"}
+gives a constant column of \code{expectfeatfrac}.}
 
-\item{expectfeats}{\code{[integer(1)]} The expected number of features to have in equilibrium.}
+\item{expectfeatfrac}{\code{[numeric(1)]} The expected fraction of features to have in equilibrium. Ignored if \code{expectfeats} is given.}
+
+\item{expectfeats}{\code{[numeric(1)]} The expected number of features to have in equilibrium.}
 
 \item{minprob}{\code{[numeric(1)]} The minimum probability for each feature}
 
