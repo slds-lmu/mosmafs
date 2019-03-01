@@ -6,16 +6,23 @@
 #' heuristic-supported biased mutation.
 #'
 #' @param task `[Task]` The task to generate filter information for
-#' @param filters `[character]` The filters to use
-#' @param expectfeats `[integer(1)]` The expected number of features to have in equilibrium.
+#' @param filters `[character]` The filters to use. Special vilter `"DUMMY"`
+#'   gives a constant column of `expectfeatfrac`.
+#' @param expectfeatfrac `[numeric(1)]` The expected fraction of features to have in equilibrium. Ignored if `expectfeats` is given.
+#' @param expectfeats `[numeric(1)]` The expected number of features to have in equilibrium.
 #' @param minprob `[numeric(1)]` The minimum probability for each feature
 #' @param maxprob `[numeric(1)]` The maximum probability for each feature
 #' @return `matrix`
 #' @export
-makeFilterMat <- function(task, filters, expectfeats = getTaskNFeats(task) / 2, minprob = 0, maxprob = 1) {
+makeFilterMat <- function(task, filters, expectfeatfrac = 0.5, expectfeats = getTaskNFeats(task) * expectfeatfrac, minprob = 0, maxprob = 1) {
   assertNumber(expectfeats / getTaskNFeats(task), lower = minprob, upper = maxprob)
+  do.dummy <- "DUMMY" %in% filters
+  filters <- setdiff(filters, "DUMMY")
   filtervals <- generateFilterValuesData(task, method = filters)
   filtervals <- filtervals$data[-(1:2)]
+  if (do.dummy) {
+    filtervals$DUMMY <- 0.5
+  }
 
   apply(filtervals, 2, function(col) {
     col <- col - mean(col)
