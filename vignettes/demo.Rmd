@@ -532,3 +532,4 @@ These operators are supplied by the `mosmafs` package:
 ### Utility Functions
 
 * **`popAggregate`, `availableAttributes`**: Information aggregated as matrix or dataframe for each generation in a population.
+* **`collectResult`**: Information aggregated throughout the run, on runtime and computation cost measures.
