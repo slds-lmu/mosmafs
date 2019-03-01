@@ -25,7 +25,7 @@ library("ggplot2")
 
 set.seed(8008135)
 
-options(width = 100)
+options(width = 90)
 data.table::setDTthreads(1)
 
 cores <- parallel::detectCores()
