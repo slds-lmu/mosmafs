@@ -556,7 +556,387 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <a class="sourceLine" id="cb24-4" data-line-number="4">  <span class="dt">population =</span> initials.simple,</a>
 <a class="sourceLine" id="cb24-5" data-line-number="5">  <span class="dt">mutator =</span> mutator.simple,</a>
 <a class="sourceLine" id="cb24-6" data-line-number="6">  <span class="dt">recombinator =</span> crossover.simple,</a>
-<a class="sourceLine" id="cb24-7" data-line-number="7">  <span class="dt">generations =</span> <span class="dv">10</span>)</a></code></pre></div>
+<a class="sourceLine" id="cb24-7" data-line-number="7">  <span class="dt">generations =</span> <span class="dv">10</span>)</a>
+<a class="sourceLine" id="cb24-8" data-line-number="8"><span class="co">#&gt; $task</span></a>
+<a class="sourceLine" id="cb24-9" data-line-number="9"><span class="co">#&gt; [ecr OPTIMIZATION </span><span class="al">TASK</span><span class="co">]</span></a>
+<a class="sourceLine" id="cb24-10" data-line-number="10"><span class="co">#&gt; Objective type: Bi-objective</span></a>
+<a class="sourceLine" id="cb24-11" data-line-number="11"><span class="co">#&gt; (min: 2, max: 0)</span></a>
+<a class="sourceLine" id="cb24-12" data-line-number="12"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-13" data-line-number="13"><span class="co">#&gt; $mutate.pars</span></a>
+<a class="sourceLine" id="cb24-14" data-line-number="14"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb24-15" data-line-number="15"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-16" data-line-number="16"><span class="co">#&gt; $mutate</span></a>
+<a class="sourceLine" id="cb24-17" data-line-number="17"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb24-18" data-line-number="18"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb24-19" data-line-number="19"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-20" data-line-number="20"><span class="co">#&gt; $recombine.pars</span></a>
+<a class="sourceLine" id="cb24-21" data-line-number="21"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb24-22" data-line-number="22"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-23" data-line-number="23"><span class="co">#&gt; $recombine</span></a>
+<a class="sourceLine" id="cb24-24" data-line-number="24"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb24-25" data-line-number="25"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb24-26" data-line-number="26"><span class="co">#&gt; Number of returned children: 2</span></a>
+<a class="sourceLine" id="cb24-27" data-line-number="27"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-28" data-line-number="28"><span class="co">#&gt; $selectForMating.pars</span></a>
+<a class="sourceLine" id="cb24-29" data-line-number="29"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb24-30" data-line-number="30"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-31" data-line-number="31"><span class="co">#&gt; $selectForMating</span></a>
+<a class="sourceLine" id="cb24-32" data-line-number="32"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb24-33" data-line-number="33"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb24-34" data-line-number="34"><span class="co">#&gt; Supported #objectives: single-objectiveSupported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb24-35" data-line-number="35"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-36" data-line-number="36"><span class="co">#&gt; $selectForSurvival.pars</span></a>
+<a class="sourceLine" id="cb24-37" data-line-number="37"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb24-38" data-line-number="38"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-39" data-line-number="39"><span class="co">#&gt; $selectForSurvival</span></a>
+<a class="sourceLine" id="cb24-40" data-line-number="40"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb24-41" data-line-number="41"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb24-42" data-line-number="42"><span class="co">#&gt; Supported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb24-43" data-line-number="43"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-44" data-line-number="44"><span class="co">#&gt; attr(,&quot;class&quot;)</span></a>
+<a class="sourceLine" id="cb24-45" data-line-number="45"><span class="co">#&gt; [1] &quot;ecr_control&quot;</span></a>
+<a class="sourceLine" id="cb24-46" data-line-number="46"><span class="co">#&gt; $task</span></a>
+<a class="sourceLine" id="cb24-47" data-line-number="47"><span class="co">#&gt; [ecr OPTIMIZATION </span><span class="al">TASK</span><span class="co">]</span></a>
+<a class="sourceLine" id="cb24-48" data-line-number="48"><span class="co">#&gt; Objective type: Bi-objective</span></a>
+<a class="sourceLine" id="cb24-49" data-line-number="49"><span class="co">#&gt; (min: 2, max: 0)</span></a>
+<a class="sourceLine" id="cb24-50" data-line-number="50"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-51" data-line-number="51"><span class="co">#&gt; $mutate.pars</span></a>
+<a class="sourceLine" id="cb24-52" data-line-number="52"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb24-53" data-line-number="53"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-54" data-line-number="54"><span class="co">#&gt; $mutate</span></a>
+<a class="sourceLine" id="cb24-55" data-line-number="55"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb24-56" data-line-number="56"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb24-57" data-line-number="57"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-58" data-line-number="58"><span class="co">#&gt; $recombine.pars</span></a>
+<a class="sourceLine" id="cb24-59" data-line-number="59"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb24-60" data-line-number="60"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-61" data-line-number="61"><span class="co">#&gt; $recombine</span></a>
+<a class="sourceLine" id="cb24-62" data-line-number="62"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb24-63" data-line-number="63"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb24-64" data-line-number="64"><span class="co">#&gt; Number of returned children: 2</span></a>
+<a class="sourceLine" id="cb24-65" data-line-number="65"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-66" data-line-number="66"><span class="co">#&gt; $selectForMating.pars</span></a>
+<a class="sourceLine" id="cb24-67" data-line-number="67"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb24-68" data-line-number="68"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-69" data-line-number="69"><span class="co">#&gt; $selectForMating</span></a>
+<a class="sourceLine" id="cb24-70" data-line-number="70"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb24-71" data-line-number="71"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb24-72" data-line-number="72"><span class="co">#&gt; Supported #objectives: single-objectiveSupported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb24-73" data-line-number="73"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-74" data-line-number="74"><span class="co">#&gt; $selectForSurvival.pars</span></a>
+<a class="sourceLine" id="cb24-75" data-line-number="75"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb24-76" data-line-number="76"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-77" data-line-number="77"><span class="co">#&gt; $selectForSurvival</span></a>
+<a class="sourceLine" id="cb24-78" data-line-number="78"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb24-79" data-line-number="79"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb24-80" data-line-number="80"><span class="co">#&gt; Supported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb24-81" data-line-number="81"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-82" data-line-number="82"><span class="co">#&gt; attr(,&quot;class&quot;)</span></a>
+<a class="sourceLine" id="cb24-83" data-line-number="83"><span class="co">#&gt; [1] &quot;ecr_control&quot;</span></a>
+<a class="sourceLine" id="cb24-84" data-line-number="84"><span class="co">#&gt; $task</span></a>
+<a class="sourceLine" id="cb24-85" data-line-number="85"><span class="co">#&gt; [ecr OPTIMIZATION </span><span class="al">TASK</span><span class="co">]</span></a>
+<a class="sourceLine" id="cb24-86" data-line-number="86"><span class="co">#&gt; Objective type: Bi-objective</span></a>
+<a class="sourceLine" id="cb24-87" data-line-number="87"><span class="co">#&gt; (min: 2, max: 0)</span></a>
+<a class="sourceLine" id="cb24-88" data-line-number="88"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-89" data-line-number="89"><span class="co">#&gt; $mutate.pars</span></a>
+<a class="sourceLine" id="cb24-90" data-line-number="90"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb24-91" data-line-number="91"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-92" data-line-number="92"><span class="co">#&gt; $mutate</span></a>
+<a class="sourceLine" id="cb24-93" data-line-number="93"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb24-94" data-line-number="94"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb24-95" data-line-number="95"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-96" data-line-number="96"><span class="co">#&gt; $recombine.pars</span></a>
+<a class="sourceLine" id="cb24-97" data-line-number="97"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb24-98" data-line-number="98"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-99" data-line-number="99"><span class="co">#&gt; $recombine</span></a>
+<a class="sourceLine" id="cb24-100" data-line-number="100"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb24-101" data-line-number="101"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb24-102" data-line-number="102"><span class="co">#&gt; Number of returned children: 2</span></a>
+<a class="sourceLine" id="cb24-103" data-line-number="103"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-104" data-line-number="104"><span class="co">#&gt; $selectForMating.pars</span></a>
+<a class="sourceLine" id="cb24-105" data-line-number="105"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb24-106" data-line-number="106"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-107" data-line-number="107"><span class="co">#&gt; $selectForMating</span></a>
+<a class="sourceLine" id="cb24-108" data-line-number="108"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb24-109" data-line-number="109"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb24-110" data-line-number="110"><span class="co">#&gt; Supported #objectives: single-objectiveSupported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb24-111" data-line-number="111"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-112" data-line-number="112"><span class="co">#&gt; $selectForSurvival.pars</span></a>
+<a class="sourceLine" id="cb24-113" data-line-number="113"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb24-114" data-line-number="114"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-115" data-line-number="115"><span class="co">#&gt; $selectForSurvival</span></a>
+<a class="sourceLine" id="cb24-116" data-line-number="116"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb24-117" data-line-number="117"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb24-118" data-line-number="118"><span class="co">#&gt; Supported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb24-119" data-line-number="119"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-120" data-line-number="120"><span class="co">#&gt; attr(,&quot;class&quot;)</span></a>
+<a class="sourceLine" id="cb24-121" data-line-number="121"><span class="co">#&gt; [1] &quot;ecr_control&quot;</span></a>
+<a class="sourceLine" id="cb24-122" data-line-number="122"><span class="co">#&gt; $task</span></a>
+<a class="sourceLine" id="cb24-123" data-line-number="123"><span class="co">#&gt; [ecr OPTIMIZATION </span><span class="al">TASK</span><span class="co">]</span></a>
+<a class="sourceLine" id="cb24-124" data-line-number="124"><span class="co">#&gt; Objective type: Bi-objective</span></a>
+<a class="sourceLine" id="cb24-125" data-line-number="125"><span class="co">#&gt; (min: 2, max: 0)</span></a>
+<a class="sourceLine" id="cb24-126" data-line-number="126"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-127" data-line-number="127"><span class="co">#&gt; $mutate.pars</span></a>
+<a class="sourceLine" id="cb24-128" data-line-number="128"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb24-129" data-line-number="129"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-130" data-line-number="130"><span class="co">#&gt; $mutate</span></a>
+<a class="sourceLine" id="cb24-131" data-line-number="131"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb24-132" data-line-number="132"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb24-133" data-line-number="133"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-134" data-line-number="134"><span class="co">#&gt; $recombine.pars</span></a>
+<a class="sourceLine" id="cb24-135" data-line-number="135"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb24-136" data-line-number="136"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-137" data-line-number="137"><span class="co">#&gt; $recombine</span></a>
+<a class="sourceLine" id="cb24-138" data-line-number="138"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb24-139" data-line-number="139"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb24-140" data-line-number="140"><span class="co">#&gt; Number of returned children: 2</span></a>
+<a class="sourceLine" id="cb24-141" data-line-number="141"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-142" data-line-number="142"><span class="co">#&gt; $selectForMating.pars</span></a>
+<a class="sourceLine" id="cb24-143" data-line-number="143"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb24-144" data-line-number="144"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-145" data-line-number="145"><span class="co">#&gt; $selectForMating</span></a>
+<a class="sourceLine" id="cb24-146" data-line-number="146"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb24-147" data-line-number="147"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb24-148" data-line-number="148"><span class="co">#&gt; Supported #objectives: single-objectiveSupported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb24-149" data-line-number="149"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-150" data-line-number="150"><span class="co">#&gt; $selectForSurvival.pars</span></a>
+<a class="sourceLine" id="cb24-151" data-line-number="151"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb24-152" data-line-number="152"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-153" data-line-number="153"><span class="co">#&gt; $selectForSurvival</span></a>
+<a class="sourceLine" id="cb24-154" data-line-number="154"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb24-155" data-line-number="155"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb24-156" data-line-number="156"><span class="co">#&gt; Supported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb24-157" data-line-number="157"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-158" data-line-number="158"><span class="co">#&gt; attr(,&quot;class&quot;)</span></a>
+<a class="sourceLine" id="cb24-159" data-line-number="159"><span class="co">#&gt; [1] &quot;ecr_control&quot;</span></a>
+<a class="sourceLine" id="cb24-160" data-line-number="160"><span class="co">#&gt; $task</span></a>
+<a class="sourceLine" id="cb24-161" data-line-number="161"><span class="co">#&gt; [ecr OPTIMIZATION </span><span class="al">TASK</span><span class="co">]</span></a>
+<a class="sourceLine" id="cb24-162" data-line-number="162"><span class="co">#&gt; Objective type: Bi-objective</span></a>
+<a class="sourceLine" id="cb24-163" data-line-number="163"><span class="co">#&gt; (min: 2, max: 0)</span></a>
+<a class="sourceLine" id="cb24-164" data-line-number="164"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-165" data-line-number="165"><span class="co">#&gt; $mutate.pars</span></a>
+<a class="sourceLine" id="cb24-166" data-line-number="166"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb24-167" data-line-number="167"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-168" data-line-number="168"><span class="co">#&gt; $mutate</span></a>
+<a class="sourceLine" id="cb24-169" data-line-number="169"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb24-170" data-line-number="170"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb24-171" data-line-number="171"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-172" data-line-number="172"><span class="co">#&gt; $recombine.pars</span></a>
+<a class="sourceLine" id="cb24-173" data-line-number="173"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb24-174" data-line-number="174"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-175" data-line-number="175"><span class="co">#&gt; $recombine</span></a>
+<a class="sourceLine" id="cb24-176" data-line-number="176"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb24-177" data-line-number="177"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb24-178" data-line-number="178"><span class="co">#&gt; Number of returned children: 2</span></a>
+<a class="sourceLine" id="cb24-179" data-line-number="179"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-180" data-line-number="180"><span class="co">#&gt; $selectForMating.pars</span></a>
+<a class="sourceLine" id="cb24-181" data-line-number="181"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb24-182" data-line-number="182"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-183" data-line-number="183"><span class="co">#&gt; $selectForMating</span></a>
+<a class="sourceLine" id="cb24-184" data-line-number="184"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb24-185" data-line-number="185"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb24-186" data-line-number="186"><span class="co">#&gt; Supported #objectives: single-objectiveSupported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb24-187" data-line-number="187"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-188" data-line-number="188"><span class="co">#&gt; $selectForSurvival.pars</span></a>
+<a class="sourceLine" id="cb24-189" data-line-number="189"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb24-190" data-line-number="190"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-191" data-line-number="191"><span class="co">#&gt; $selectForSurvival</span></a>
+<a class="sourceLine" id="cb24-192" data-line-number="192"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb24-193" data-line-number="193"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb24-194" data-line-number="194"><span class="co">#&gt; Supported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb24-195" data-line-number="195"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-196" data-line-number="196"><span class="co">#&gt; attr(,&quot;class&quot;)</span></a>
+<a class="sourceLine" id="cb24-197" data-line-number="197"><span class="co">#&gt; [1] &quot;ecr_control&quot;</span></a>
+<a class="sourceLine" id="cb24-198" data-line-number="198"><span class="co">#&gt; $task</span></a>
+<a class="sourceLine" id="cb24-199" data-line-number="199"><span class="co">#&gt; [ecr OPTIMIZATION </span><span class="al">TASK</span><span class="co">]</span></a>
+<a class="sourceLine" id="cb24-200" data-line-number="200"><span class="co">#&gt; Objective type: Bi-objective</span></a>
+<a class="sourceLine" id="cb24-201" data-line-number="201"><span class="co">#&gt; (min: 2, max: 0)</span></a>
+<a class="sourceLine" id="cb24-202" data-line-number="202"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-203" data-line-number="203"><span class="co">#&gt; $mutate.pars</span></a>
+<a class="sourceLine" id="cb24-204" data-line-number="204"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb24-205" data-line-number="205"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-206" data-line-number="206"><span class="co">#&gt; $mutate</span></a>
+<a class="sourceLine" id="cb24-207" data-line-number="207"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb24-208" data-line-number="208"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb24-209" data-line-number="209"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-210" data-line-number="210"><span class="co">#&gt; $recombine.pars</span></a>
+<a class="sourceLine" id="cb24-211" data-line-number="211"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb24-212" data-line-number="212"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-213" data-line-number="213"><span class="co">#&gt; $recombine</span></a>
+<a class="sourceLine" id="cb24-214" data-line-number="214"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb24-215" data-line-number="215"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb24-216" data-line-number="216"><span class="co">#&gt; Number of returned children: 2</span></a>
+<a class="sourceLine" id="cb24-217" data-line-number="217"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-218" data-line-number="218"><span class="co">#&gt; $selectForMating.pars</span></a>
+<a class="sourceLine" id="cb24-219" data-line-number="219"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb24-220" data-line-number="220"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-221" data-line-number="221"><span class="co">#&gt; $selectForMating</span></a>
+<a class="sourceLine" id="cb24-222" data-line-number="222"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb24-223" data-line-number="223"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb24-224" data-line-number="224"><span class="co">#&gt; Supported #objectives: single-objectiveSupported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb24-225" data-line-number="225"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-226" data-line-number="226"><span class="co">#&gt; $selectForSurvival.pars</span></a>
+<a class="sourceLine" id="cb24-227" data-line-number="227"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb24-228" data-line-number="228"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-229" data-line-number="229"><span class="co">#&gt; $selectForSurvival</span></a>
+<a class="sourceLine" id="cb24-230" data-line-number="230"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb24-231" data-line-number="231"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb24-232" data-line-number="232"><span class="co">#&gt; Supported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb24-233" data-line-number="233"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-234" data-line-number="234"><span class="co">#&gt; attr(,&quot;class&quot;)</span></a>
+<a class="sourceLine" id="cb24-235" data-line-number="235"><span class="co">#&gt; [1] &quot;ecr_control&quot;</span></a>
+<a class="sourceLine" id="cb24-236" data-line-number="236"><span class="co">#&gt; $task</span></a>
+<a class="sourceLine" id="cb24-237" data-line-number="237"><span class="co">#&gt; [ecr OPTIMIZATION </span><span class="al">TASK</span><span class="co">]</span></a>
+<a class="sourceLine" id="cb24-238" data-line-number="238"><span class="co">#&gt; Objective type: Bi-objective</span></a>
+<a class="sourceLine" id="cb24-239" data-line-number="239"><span class="co">#&gt; (min: 2, max: 0)</span></a>
+<a class="sourceLine" id="cb24-240" data-line-number="240"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-241" data-line-number="241"><span class="co">#&gt; $mutate.pars</span></a>
+<a class="sourceLine" id="cb24-242" data-line-number="242"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb24-243" data-line-number="243"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-244" data-line-number="244"><span class="co">#&gt; $mutate</span></a>
+<a class="sourceLine" id="cb24-245" data-line-number="245"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb24-246" data-line-number="246"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb24-247" data-line-number="247"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-248" data-line-number="248"><span class="co">#&gt; $recombine.pars</span></a>
+<a class="sourceLine" id="cb24-249" data-line-number="249"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb24-250" data-line-number="250"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-251" data-line-number="251"><span class="co">#&gt; $recombine</span></a>
+<a class="sourceLine" id="cb24-252" data-line-number="252"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb24-253" data-line-number="253"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb24-254" data-line-number="254"><span class="co">#&gt; Number of returned children: 2</span></a>
+<a class="sourceLine" id="cb24-255" data-line-number="255"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-256" data-line-number="256"><span class="co">#&gt; $selectForMating.pars</span></a>
+<a class="sourceLine" id="cb24-257" data-line-number="257"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb24-258" data-line-number="258"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-259" data-line-number="259"><span class="co">#&gt; $selectForMating</span></a>
+<a class="sourceLine" id="cb24-260" data-line-number="260"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb24-261" data-line-number="261"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb24-262" data-line-number="262"><span class="co">#&gt; Supported #objectives: single-objectiveSupported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb24-263" data-line-number="263"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-264" data-line-number="264"><span class="co">#&gt; $selectForSurvival.pars</span></a>
+<a class="sourceLine" id="cb24-265" data-line-number="265"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb24-266" data-line-number="266"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-267" data-line-number="267"><span class="co">#&gt; $selectForSurvival</span></a>
+<a class="sourceLine" id="cb24-268" data-line-number="268"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb24-269" data-line-number="269"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb24-270" data-line-number="270"><span class="co">#&gt; Supported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb24-271" data-line-number="271"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-272" data-line-number="272"><span class="co">#&gt; attr(,&quot;class&quot;)</span></a>
+<a class="sourceLine" id="cb24-273" data-line-number="273"><span class="co">#&gt; [1] &quot;ecr_control&quot;</span></a>
+<a class="sourceLine" id="cb24-274" data-line-number="274"><span class="co">#&gt; $task</span></a>
+<a class="sourceLine" id="cb24-275" data-line-number="275"><span class="co">#&gt; [ecr OPTIMIZATION </span><span class="al">TASK</span><span class="co">]</span></a>
+<a class="sourceLine" id="cb24-276" data-line-number="276"><span class="co">#&gt; Objective type: Bi-objective</span></a>
+<a class="sourceLine" id="cb24-277" data-line-number="277"><span class="co">#&gt; (min: 2, max: 0)</span></a>
+<a class="sourceLine" id="cb24-278" data-line-number="278"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-279" data-line-number="279"><span class="co">#&gt; $mutate.pars</span></a>
+<a class="sourceLine" id="cb24-280" data-line-number="280"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb24-281" data-line-number="281"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-282" data-line-number="282"><span class="co">#&gt; $mutate</span></a>
+<a class="sourceLine" id="cb24-283" data-line-number="283"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb24-284" data-line-number="284"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb24-285" data-line-number="285"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-286" data-line-number="286"><span class="co">#&gt; $recombine.pars</span></a>
+<a class="sourceLine" id="cb24-287" data-line-number="287"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb24-288" data-line-number="288"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-289" data-line-number="289"><span class="co">#&gt; $recombine</span></a>
+<a class="sourceLine" id="cb24-290" data-line-number="290"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb24-291" data-line-number="291"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb24-292" data-line-number="292"><span class="co">#&gt; Number of returned children: 2</span></a>
+<a class="sourceLine" id="cb24-293" data-line-number="293"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-294" data-line-number="294"><span class="co">#&gt; $selectForMating.pars</span></a>
+<a class="sourceLine" id="cb24-295" data-line-number="295"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb24-296" data-line-number="296"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-297" data-line-number="297"><span class="co">#&gt; $selectForMating</span></a>
+<a class="sourceLine" id="cb24-298" data-line-number="298"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb24-299" data-line-number="299"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb24-300" data-line-number="300"><span class="co">#&gt; Supported #objectives: single-objectiveSupported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb24-301" data-line-number="301"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-302" data-line-number="302"><span class="co">#&gt; $selectForSurvival.pars</span></a>
+<a class="sourceLine" id="cb24-303" data-line-number="303"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb24-304" data-line-number="304"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-305" data-line-number="305"><span class="co">#&gt; $selectForSurvival</span></a>
+<a class="sourceLine" id="cb24-306" data-line-number="306"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb24-307" data-line-number="307"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb24-308" data-line-number="308"><span class="co">#&gt; Supported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb24-309" data-line-number="309"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-310" data-line-number="310"><span class="co">#&gt; attr(,&quot;class&quot;)</span></a>
+<a class="sourceLine" id="cb24-311" data-line-number="311"><span class="co">#&gt; [1] &quot;ecr_control&quot;</span></a>
+<a class="sourceLine" id="cb24-312" data-line-number="312"><span class="co">#&gt; $task</span></a>
+<a class="sourceLine" id="cb24-313" data-line-number="313"><span class="co">#&gt; [ecr OPTIMIZATION </span><span class="al">TASK</span><span class="co">]</span></a>
+<a class="sourceLine" id="cb24-314" data-line-number="314"><span class="co">#&gt; Objective type: Bi-objective</span></a>
+<a class="sourceLine" id="cb24-315" data-line-number="315"><span class="co">#&gt; (min: 2, max: 0)</span></a>
+<a class="sourceLine" id="cb24-316" data-line-number="316"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-317" data-line-number="317"><span class="co">#&gt; $mutate.pars</span></a>
+<a class="sourceLine" id="cb24-318" data-line-number="318"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb24-319" data-line-number="319"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-320" data-line-number="320"><span class="co">#&gt; $mutate</span></a>
+<a class="sourceLine" id="cb24-321" data-line-number="321"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb24-322" data-line-number="322"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb24-323" data-line-number="323"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-324" data-line-number="324"><span class="co">#&gt; $recombine.pars</span></a>
+<a class="sourceLine" id="cb24-325" data-line-number="325"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb24-326" data-line-number="326"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-327" data-line-number="327"><span class="co">#&gt; $recombine</span></a>
+<a class="sourceLine" id="cb24-328" data-line-number="328"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb24-329" data-line-number="329"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb24-330" data-line-number="330"><span class="co">#&gt; Number of returned children: 2</span></a>
+<a class="sourceLine" id="cb24-331" data-line-number="331"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-332" data-line-number="332"><span class="co">#&gt; $selectForMating.pars</span></a>
+<a class="sourceLine" id="cb24-333" data-line-number="333"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb24-334" data-line-number="334"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-335" data-line-number="335"><span class="co">#&gt; $selectForMating</span></a>
+<a class="sourceLine" id="cb24-336" data-line-number="336"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb24-337" data-line-number="337"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb24-338" data-line-number="338"><span class="co">#&gt; Supported #objectives: single-objectiveSupported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb24-339" data-line-number="339"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-340" data-line-number="340"><span class="co">#&gt; $selectForSurvival.pars</span></a>
+<a class="sourceLine" id="cb24-341" data-line-number="341"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb24-342" data-line-number="342"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-343" data-line-number="343"><span class="co">#&gt; $selectForSurvival</span></a>
+<a class="sourceLine" id="cb24-344" data-line-number="344"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb24-345" data-line-number="345"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb24-346" data-line-number="346"><span class="co">#&gt; Supported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb24-347" data-line-number="347"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-348" data-line-number="348"><span class="co">#&gt; attr(,&quot;class&quot;)</span></a>
+<a class="sourceLine" id="cb24-349" data-line-number="349"><span class="co">#&gt; [1] &quot;ecr_control&quot;</span></a>
+<a class="sourceLine" id="cb24-350" data-line-number="350"><span class="co">#&gt; $task</span></a>
+<a class="sourceLine" id="cb24-351" data-line-number="351"><span class="co">#&gt; [ecr OPTIMIZATION </span><span class="al">TASK</span><span class="co">]</span></a>
+<a class="sourceLine" id="cb24-352" data-line-number="352"><span class="co">#&gt; Objective type: Bi-objective</span></a>
+<a class="sourceLine" id="cb24-353" data-line-number="353"><span class="co">#&gt; (min: 2, max: 0)</span></a>
+<a class="sourceLine" id="cb24-354" data-line-number="354"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-355" data-line-number="355"><span class="co">#&gt; $mutate.pars</span></a>
+<a class="sourceLine" id="cb24-356" data-line-number="356"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb24-357" data-line-number="357"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-358" data-line-number="358"><span class="co">#&gt; $mutate</span></a>
+<a class="sourceLine" id="cb24-359" data-line-number="359"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb24-360" data-line-number="360"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb24-361" data-line-number="361"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-362" data-line-number="362"><span class="co">#&gt; $recombine.pars</span></a>
+<a class="sourceLine" id="cb24-363" data-line-number="363"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb24-364" data-line-number="364"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-365" data-line-number="365"><span class="co">#&gt; $recombine</span></a>
+<a class="sourceLine" id="cb24-366" data-line-number="366"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb24-367" data-line-number="367"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb24-368" data-line-number="368"><span class="co">#&gt; Number of returned children: 2</span></a>
+<a class="sourceLine" id="cb24-369" data-line-number="369"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-370" data-line-number="370"><span class="co">#&gt; $selectForMating.pars</span></a>
+<a class="sourceLine" id="cb24-371" data-line-number="371"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb24-372" data-line-number="372"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-373" data-line-number="373"><span class="co">#&gt; $selectForMating</span></a>
+<a class="sourceLine" id="cb24-374" data-line-number="374"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb24-375" data-line-number="375"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb24-376" data-line-number="376"><span class="co">#&gt; Supported #objectives: single-objectiveSupported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb24-377" data-line-number="377"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-378" data-line-number="378"><span class="co">#&gt; $selectForSurvival.pars</span></a>
+<a class="sourceLine" id="cb24-379" data-line-number="379"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb24-380" data-line-number="380"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-381" data-line-number="381"><span class="co">#&gt; $selectForSurvival</span></a>
+<a class="sourceLine" id="cb24-382" data-line-number="382"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb24-383" data-line-number="383"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb24-384" data-line-number="384"><span class="co">#&gt; Supported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb24-385" data-line-number="385"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb24-386" data-line-number="386"><span class="co">#&gt; attr(,&quot;class&quot;)</span></a>
+<a class="sourceLine" id="cb24-387" data-line-number="387"><span class="co">#&gt; [1] &quot;ecr_control&quot;</span></a></code></pre></div>
 <p>There is a multitude of methods for analysing and plotting the result. The following plots the succession of pareto fronts for each generation:</p>
 <div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb25-1" data-line-number="1">plot_fronts &lt;-<span class="st"> </span><span class="cf">function</span>(run) {</a>
 <a class="sourceLine" id="cb25-2" data-line-number="2">  fronts &lt;-<span class="st"> </span><span class="kw">fitnesses</span>(run, <span class="cf">function</span>(x) <span class="kw">paretoEdges</span>(x, <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">1</span>)))</a>
@@ -577,12 +957,12 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <a class="sourceLine" id="cb26-4" data-line-number="4">individual<span class="fl">.1</span> &lt;-<span class="st"> </span>pop.gen1<span class="op">$</span>population[[<span class="dv">1</span>]]</a>
 <a class="sourceLine" id="cb26-5" data-line-number="5"><span class="kw">attr</span>(individual<span class="fl">.1</span>, <span class="st">&quot;runtime&quot;</span>)</a>
 <a class="sourceLine" id="cb26-6" data-line-number="6"><span class="co">#&gt; elapsed </span></a>
-<a class="sourceLine" id="cb26-7" data-line-number="7"><span class="co">#&gt;   0.245</span></a>
+<a class="sourceLine" id="cb26-7" data-line-number="7"><span class="co">#&gt;   0.246</span></a>
 <a class="sourceLine" id="cb26-8" data-line-number="8"></a>
 <a class="sourceLine" id="cb26-9" data-line-number="9">individual<span class="fl">.2</span> &lt;-<span class="st"> </span>pop.gen1<span class="op">$</span>population[[<span class="dv">2</span>]]</a>
 <a class="sourceLine" id="cb26-10" data-line-number="10"><span class="kw">attr</span>(individual<span class="fl">.2</span>, <span class="st">&quot;runtime&quot;</span>)</a>
 <a class="sourceLine" id="cb26-11" data-line-number="11"><span class="co">#&gt; elapsed </span></a>
-<a class="sourceLine" id="cb26-12" data-line-number="12"><span class="co">#&gt;   0.246</span></a>
+<a class="sourceLine" id="cb26-12" data-line-number="12"><span class="co">#&gt;   0.247</span></a>
 <a class="sourceLine" id="cb26-13" data-line-number="13"></a>
 <a class="sourceLine" id="cb26-14" data-line-number="14"><span class="kw">getStatistics</span>(run.simple<span class="op">$</span>log.newinds)</a>
 <a class="sourceLine" id="cb26-15" data-line-number="15"><span class="co">#&gt;    gen runtime.mean runtime.sum size population</span></a>
@@ -639,7 +1019,387 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <a class="sourceLine" id="cb32-4" data-line-number="4">  <span class="dt">population =</span> initials.strat,</a>
 <a class="sourceLine" id="cb32-5" data-line-number="5">  <span class="dt">mutator =</span> mutator.strat,</a>
 <a class="sourceLine" id="cb32-6" data-line-number="6">  <span class="dt">recombinator =</span> crossover.strat,</a>
-<a class="sourceLine" id="cb32-7" data-line-number="7">  <span class="dt">generations =</span> <span class="dv">10</span>)</a></code></pre></div>
+<a class="sourceLine" id="cb32-7" data-line-number="7">  <span class="dt">generations =</span> <span class="dv">10</span>)</a>
+<a class="sourceLine" id="cb32-8" data-line-number="8"><span class="co">#&gt; $task</span></a>
+<a class="sourceLine" id="cb32-9" data-line-number="9"><span class="co">#&gt; [ecr OPTIMIZATION </span><span class="al">TASK</span><span class="co">]</span></a>
+<a class="sourceLine" id="cb32-10" data-line-number="10"><span class="co">#&gt; Objective type: Bi-objective</span></a>
+<a class="sourceLine" id="cb32-11" data-line-number="11"><span class="co">#&gt; (min: 2, max: 0)</span></a>
+<a class="sourceLine" id="cb32-12" data-line-number="12"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-13" data-line-number="13"><span class="co">#&gt; $mutate.pars</span></a>
+<a class="sourceLine" id="cb32-14" data-line-number="14"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb32-15" data-line-number="15"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-16" data-line-number="16"><span class="co">#&gt; $mutate</span></a>
+<a class="sourceLine" id="cb32-17" data-line-number="17"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb32-18" data-line-number="18"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb32-19" data-line-number="19"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-20" data-line-number="20"><span class="co">#&gt; $recombine.pars</span></a>
+<a class="sourceLine" id="cb32-21" data-line-number="21"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb32-22" data-line-number="22"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-23" data-line-number="23"><span class="co">#&gt; $recombine</span></a>
+<a class="sourceLine" id="cb32-24" data-line-number="24"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb32-25" data-line-number="25"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb32-26" data-line-number="26"><span class="co">#&gt; Number of returned children: 2</span></a>
+<a class="sourceLine" id="cb32-27" data-line-number="27"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-28" data-line-number="28"><span class="co">#&gt; $selectForMating.pars</span></a>
+<a class="sourceLine" id="cb32-29" data-line-number="29"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb32-30" data-line-number="30"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-31" data-line-number="31"><span class="co">#&gt; $selectForMating</span></a>
+<a class="sourceLine" id="cb32-32" data-line-number="32"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb32-33" data-line-number="33"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb32-34" data-line-number="34"><span class="co">#&gt; Supported #objectives: single-objectiveSupported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb32-35" data-line-number="35"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-36" data-line-number="36"><span class="co">#&gt; $selectForSurvival.pars</span></a>
+<a class="sourceLine" id="cb32-37" data-line-number="37"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb32-38" data-line-number="38"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-39" data-line-number="39"><span class="co">#&gt; $selectForSurvival</span></a>
+<a class="sourceLine" id="cb32-40" data-line-number="40"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb32-41" data-line-number="41"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb32-42" data-line-number="42"><span class="co">#&gt; Supported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb32-43" data-line-number="43"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-44" data-line-number="44"><span class="co">#&gt; attr(,&quot;class&quot;)</span></a>
+<a class="sourceLine" id="cb32-45" data-line-number="45"><span class="co">#&gt; [1] &quot;ecr_control&quot;</span></a>
+<a class="sourceLine" id="cb32-46" data-line-number="46"><span class="co">#&gt; $task</span></a>
+<a class="sourceLine" id="cb32-47" data-line-number="47"><span class="co">#&gt; [ecr OPTIMIZATION </span><span class="al">TASK</span><span class="co">]</span></a>
+<a class="sourceLine" id="cb32-48" data-line-number="48"><span class="co">#&gt; Objective type: Bi-objective</span></a>
+<a class="sourceLine" id="cb32-49" data-line-number="49"><span class="co">#&gt; (min: 2, max: 0)</span></a>
+<a class="sourceLine" id="cb32-50" data-line-number="50"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-51" data-line-number="51"><span class="co">#&gt; $mutate.pars</span></a>
+<a class="sourceLine" id="cb32-52" data-line-number="52"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb32-53" data-line-number="53"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-54" data-line-number="54"><span class="co">#&gt; $mutate</span></a>
+<a class="sourceLine" id="cb32-55" data-line-number="55"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb32-56" data-line-number="56"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb32-57" data-line-number="57"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-58" data-line-number="58"><span class="co">#&gt; $recombine.pars</span></a>
+<a class="sourceLine" id="cb32-59" data-line-number="59"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb32-60" data-line-number="60"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-61" data-line-number="61"><span class="co">#&gt; $recombine</span></a>
+<a class="sourceLine" id="cb32-62" data-line-number="62"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb32-63" data-line-number="63"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb32-64" data-line-number="64"><span class="co">#&gt; Number of returned children: 2</span></a>
+<a class="sourceLine" id="cb32-65" data-line-number="65"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-66" data-line-number="66"><span class="co">#&gt; $selectForMating.pars</span></a>
+<a class="sourceLine" id="cb32-67" data-line-number="67"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb32-68" data-line-number="68"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-69" data-line-number="69"><span class="co">#&gt; $selectForMating</span></a>
+<a class="sourceLine" id="cb32-70" data-line-number="70"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb32-71" data-line-number="71"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb32-72" data-line-number="72"><span class="co">#&gt; Supported #objectives: single-objectiveSupported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb32-73" data-line-number="73"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-74" data-line-number="74"><span class="co">#&gt; $selectForSurvival.pars</span></a>
+<a class="sourceLine" id="cb32-75" data-line-number="75"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb32-76" data-line-number="76"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-77" data-line-number="77"><span class="co">#&gt; $selectForSurvival</span></a>
+<a class="sourceLine" id="cb32-78" data-line-number="78"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb32-79" data-line-number="79"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb32-80" data-line-number="80"><span class="co">#&gt; Supported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb32-81" data-line-number="81"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-82" data-line-number="82"><span class="co">#&gt; attr(,&quot;class&quot;)</span></a>
+<a class="sourceLine" id="cb32-83" data-line-number="83"><span class="co">#&gt; [1] &quot;ecr_control&quot;</span></a>
+<a class="sourceLine" id="cb32-84" data-line-number="84"><span class="co">#&gt; $task</span></a>
+<a class="sourceLine" id="cb32-85" data-line-number="85"><span class="co">#&gt; [ecr OPTIMIZATION </span><span class="al">TASK</span><span class="co">]</span></a>
+<a class="sourceLine" id="cb32-86" data-line-number="86"><span class="co">#&gt; Objective type: Bi-objective</span></a>
+<a class="sourceLine" id="cb32-87" data-line-number="87"><span class="co">#&gt; (min: 2, max: 0)</span></a>
+<a class="sourceLine" id="cb32-88" data-line-number="88"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-89" data-line-number="89"><span class="co">#&gt; $mutate.pars</span></a>
+<a class="sourceLine" id="cb32-90" data-line-number="90"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb32-91" data-line-number="91"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-92" data-line-number="92"><span class="co">#&gt; $mutate</span></a>
+<a class="sourceLine" id="cb32-93" data-line-number="93"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb32-94" data-line-number="94"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb32-95" data-line-number="95"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-96" data-line-number="96"><span class="co">#&gt; $recombine.pars</span></a>
+<a class="sourceLine" id="cb32-97" data-line-number="97"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb32-98" data-line-number="98"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-99" data-line-number="99"><span class="co">#&gt; $recombine</span></a>
+<a class="sourceLine" id="cb32-100" data-line-number="100"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb32-101" data-line-number="101"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb32-102" data-line-number="102"><span class="co">#&gt; Number of returned children: 2</span></a>
+<a class="sourceLine" id="cb32-103" data-line-number="103"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-104" data-line-number="104"><span class="co">#&gt; $selectForMating.pars</span></a>
+<a class="sourceLine" id="cb32-105" data-line-number="105"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb32-106" data-line-number="106"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-107" data-line-number="107"><span class="co">#&gt; $selectForMating</span></a>
+<a class="sourceLine" id="cb32-108" data-line-number="108"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb32-109" data-line-number="109"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb32-110" data-line-number="110"><span class="co">#&gt; Supported #objectives: single-objectiveSupported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb32-111" data-line-number="111"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-112" data-line-number="112"><span class="co">#&gt; $selectForSurvival.pars</span></a>
+<a class="sourceLine" id="cb32-113" data-line-number="113"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb32-114" data-line-number="114"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-115" data-line-number="115"><span class="co">#&gt; $selectForSurvival</span></a>
+<a class="sourceLine" id="cb32-116" data-line-number="116"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb32-117" data-line-number="117"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb32-118" data-line-number="118"><span class="co">#&gt; Supported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb32-119" data-line-number="119"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-120" data-line-number="120"><span class="co">#&gt; attr(,&quot;class&quot;)</span></a>
+<a class="sourceLine" id="cb32-121" data-line-number="121"><span class="co">#&gt; [1] &quot;ecr_control&quot;</span></a>
+<a class="sourceLine" id="cb32-122" data-line-number="122"><span class="co">#&gt; $task</span></a>
+<a class="sourceLine" id="cb32-123" data-line-number="123"><span class="co">#&gt; [ecr OPTIMIZATION </span><span class="al">TASK</span><span class="co">]</span></a>
+<a class="sourceLine" id="cb32-124" data-line-number="124"><span class="co">#&gt; Objective type: Bi-objective</span></a>
+<a class="sourceLine" id="cb32-125" data-line-number="125"><span class="co">#&gt; (min: 2, max: 0)</span></a>
+<a class="sourceLine" id="cb32-126" data-line-number="126"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-127" data-line-number="127"><span class="co">#&gt; $mutate.pars</span></a>
+<a class="sourceLine" id="cb32-128" data-line-number="128"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb32-129" data-line-number="129"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-130" data-line-number="130"><span class="co">#&gt; $mutate</span></a>
+<a class="sourceLine" id="cb32-131" data-line-number="131"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb32-132" data-line-number="132"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb32-133" data-line-number="133"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-134" data-line-number="134"><span class="co">#&gt; $recombine.pars</span></a>
+<a class="sourceLine" id="cb32-135" data-line-number="135"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb32-136" data-line-number="136"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-137" data-line-number="137"><span class="co">#&gt; $recombine</span></a>
+<a class="sourceLine" id="cb32-138" data-line-number="138"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb32-139" data-line-number="139"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb32-140" data-line-number="140"><span class="co">#&gt; Number of returned children: 2</span></a>
+<a class="sourceLine" id="cb32-141" data-line-number="141"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-142" data-line-number="142"><span class="co">#&gt; $selectForMating.pars</span></a>
+<a class="sourceLine" id="cb32-143" data-line-number="143"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb32-144" data-line-number="144"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-145" data-line-number="145"><span class="co">#&gt; $selectForMating</span></a>
+<a class="sourceLine" id="cb32-146" data-line-number="146"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb32-147" data-line-number="147"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb32-148" data-line-number="148"><span class="co">#&gt; Supported #objectives: single-objectiveSupported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb32-149" data-line-number="149"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-150" data-line-number="150"><span class="co">#&gt; $selectForSurvival.pars</span></a>
+<a class="sourceLine" id="cb32-151" data-line-number="151"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb32-152" data-line-number="152"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-153" data-line-number="153"><span class="co">#&gt; $selectForSurvival</span></a>
+<a class="sourceLine" id="cb32-154" data-line-number="154"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb32-155" data-line-number="155"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb32-156" data-line-number="156"><span class="co">#&gt; Supported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb32-157" data-line-number="157"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-158" data-line-number="158"><span class="co">#&gt; attr(,&quot;class&quot;)</span></a>
+<a class="sourceLine" id="cb32-159" data-line-number="159"><span class="co">#&gt; [1] &quot;ecr_control&quot;</span></a>
+<a class="sourceLine" id="cb32-160" data-line-number="160"><span class="co">#&gt; $task</span></a>
+<a class="sourceLine" id="cb32-161" data-line-number="161"><span class="co">#&gt; [ecr OPTIMIZATION </span><span class="al">TASK</span><span class="co">]</span></a>
+<a class="sourceLine" id="cb32-162" data-line-number="162"><span class="co">#&gt; Objective type: Bi-objective</span></a>
+<a class="sourceLine" id="cb32-163" data-line-number="163"><span class="co">#&gt; (min: 2, max: 0)</span></a>
+<a class="sourceLine" id="cb32-164" data-line-number="164"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-165" data-line-number="165"><span class="co">#&gt; $mutate.pars</span></a>
+<a class="sourceLine" id="cb32-166" data-line-number="166"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb32-167" data-line-number="167"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-168" data-line-number="168"><span class="co">#&gt; $mutate</span></a>
+<a class="sourceLine" id="cb32-169" data-line-number="169"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb32-170" data-line-number="170"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb32-171" data-line-number="171"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-172" data-line-number="172"><span class="co">#&gt; $recombine.pars</span></a>
+<a class="sourceLine" id="cb32-173" data-line-number="173"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb32-174" data-line-number="174"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-175" data-line-number="175"><span class="co">#&gt; $recombine</span></a>
+<a class="sourceLine" id="cb32-176" data-line-number="176"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb32-177" data-line-number="177"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb32-178" data-line-number="178"><span class="co">#&gt; Number of returned children: 2</span></a>
+<a class="sourceLine" id="cb32-179" data-line-number="179"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-180" data-line-number="180"><span class="co">#&gt; $selectForMating.pars</span></a>
+<a class="sourceLine" id="cb32-181" data-line-number="181"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb32-182" data-line-number="182"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-183" data-line-number="183"><span class="co">#&gt; $selectForMating</span></a>
+<a class="sourceLine" id="cb32-184" data-line-number="184"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb32-185" data-line-number="185"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb32-186" data-line-number="186"><span class="co">#&gt; Supported #objectives: single-objectiveSupported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb32-187" data-line-number="187"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-188" data-line-number="188"><span class="co">#&gt; $selectForSurvival.pars</span></a>
+<a class="sourceLine" id="cb32-189" data-line-number="189"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb32-190" data-line-number="190"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-191" data-line-number="191"><span class="co">#&gt; $selectForSurvival</span></a>
+<a class="sourceLine" id="cb32-192" data-line-number="192"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb32-193" data-line-number="193"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb32-194" data-line-number="194"><span class="co">#&gt; Supported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb32-195" data-line-number="195"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-196" data-line-number="196"><span class="co">#&gt; attr(,&quot;class&quot;)</span></a>
+<a class="sourceLine" id="cb32-197" data-line-number="197"><span class="co">#&gt; [1] &quot;ecr_control&quot;</span></a>
+<a class="sourceLine" id="cb32-198" data-line-number="198"><span class="co">#&gt; $task</span></a>
+<a class="sourceLine" id="cb32-199" data-line-number="199"><span class="co">#&gt; [ecr OPTIMIZATION </span><span class="al">TASK</span><span class="co">]</span></a>
+<a class="sourceLine" id="cb32-200" data-line-number="200"><span class="co">#&gt; Objective type: Bi-objective</span></a>
+<a class="sourceLine" id="cb32-201" data-line-number="201"><span class="co">#&gt; (min: 2, max: 0)</span></a>
+<a class="sourceLine" id="cb32-202" data-line-number="202"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-203" data-line-number="203"><span class="co">#&gt; $mutate.pars</span></a>
+<a class="sourceLine" id="cb32-204" data-line-number="204"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb32-205" data-line-number="205"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-206" data-line-number="206"><span class="co">#&gt; $mutate</span></a>
+<a class="sourceLine" id="cb32-207" data-line-number="207"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb32-208" data-line-number="208"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb32-209" data-line-number="209"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-210" data-line-number="210"><span class="co">#&gt; $recombine.pars</span></a>
+<a class="sourceLine" id="cb32-211" data-line-number="211"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb32-212" data-line-number="212"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-213" data-line-number="213"><span class="co">#&gt; $recombine</span></a>
+<a class="sourceLine" id="cb32-214" data-line-number="214"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb32-215" data-line-number="215"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb32-216" data-line-number="216"><span class="co">#&gt; Number of returned children: 2</span></a>
+<a class="sourceLine" id="cb32-217" data-line-number="217"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-218" data-line-number="218"><span class="co">#&gt; $selectForMating.pars</span></a>
+<a class="sourceLine" id="cb32-219" data-line-number="219"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb32-220" data-line-number="220"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-221" data-line-number="221"><span class="co">#&gt; $selectForMating</span></a>
+<a class="sourceLine" id="cb32-222" data-line-number="222"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb32-223" data-line-number="223"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb32-224" data-line-number="224"><span class="co">#&gt; Supported #objectives: single-objectiveSupported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb32-225" data-line-number="225"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-226" data-line-number="226"><span class="co">#&gt; $selectForSurvival.pars</span></a>
+<a class="sourceLine" id="cb32-227" data-line-number="227"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb32-228" data-line-number="228"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-229" data-line-number="229"><span class="co">#&gt; $selectForSurvival</span></a>
+<a class="sourceLine" id="cb32-230" data-line-number="230"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb32-231" data-line-number="231"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb32-232" data-line-number="232"><span class="co">#&gt; Supported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb32-233" data-line-number="233"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-234" data-line-number="234"><span class="co">#&gt; attr(,&quot;class&quot;)</span></a>
+<a class="sourceLine" id="cb32-235" data-line-number="235"><span class="co">#&gt; [1] &quot;ecr_control&quot;</span></a>
+<a class="sourceLine" id="cb32-236" data-line-number="236"><span class="co">#&gt; $task</span></a>
+<a class="sourceLine" id="cb32-237" data-line-number="237"><span class="co">#&gt; [ecr OPTIMIZATION </span><span class="al">TASK</span><span class="co">]</span></a>
+<a class="sourceLine" id="cb32-238" data-line-number="238"><span class="co">#&gt; Objective type: Bi-objective</span></a>
+<a class="sourceLine" id="cb32-239" data-line-number="239"><span class="co">#&gt; (min: 2, max: 0)</span></a>
+<a class="sourceLine" id="cb32-240" data-line-number="240"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-241" data-line-number="241"><span class="co">#&gt; $mutate.pars</span></a>
+<a class="sourceLine" id="cb32-242" data-line-number="242"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb32-243" data-line-number="243"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-244" data-line-number="244"><span class="co">#&gt; $mutate</span></a>
+<a class="sourceLine" id="cb32-245" data-line-number="245"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb32-246" data-line-number="246"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb32-247" data-line-number="247"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-248" data-line-number="248"><span class="co">#&gt; $recombine.pars</span></a>
+<a class="sourceLine" id="cb32-249" data-line-number="249"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb32-250" data-line-number="250"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-251" data-line-number="251"><span class="co">#&gt; $recombine</span></a>
+<a class="sourceLine" id="cb32-252" data-line-number="252"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb32-253" data-line-number="253"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb32-254" data-line-number="254"><span class="co">#&gt; Number of returned children: 2</span></a>
+<a class="sourceLine" id="cb32-255" data-line-number="255"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-256" data-line-number="256"><span class="co">#&gt; $selectForMating.pars</span></a>
+<a class="sourceLine" id="cb32-257" data-line-number="257"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb32-258" data-line-number="258"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-259" data-line-number="259"><span class="co">#&gt; $selectForMating</span></a>
+<a class="sourceLine" id="cb32-260" data-line-number="260"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb32-261" data-line-number="261"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb32-262" data-line-number="262"><span class="co">#&gt; Supported #objectives: single-objectiveSupported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb32-263" data-line-number="263"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-264" data-line-number="264"><span class="co">#&gt; $selectForSurvival.pars</span></a>
+<a class="sourceLine" id="cb32-265" data-line-number="265"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb32-266" data-line-number="266"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-267" data-line-number="267"><span class="co">#&gt; $selectForSurvival</span></a>
+<a class="sourceLine" id="cb32-268" data-line-number="268"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb32-269" data-line-number="269"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb32-270" data-line-number="270"><span class="co">#&gt; Supported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb32-271" data-line-number="271"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-272" data-line-number="272"><span class="co">#&gt; attr(,&quot;class&quot;)</span></a>
+<a class="sourceLine" id="cb32-273" data-line-number="273"><span class="co">#&gt; [1] &quot;ecr_control&quot;</span></a>
+<a class="sourceLine" id="cb32-274" data-line-number="274"><span class="co">#&gt; $task</span></a>
+<a class="sourceLine" id="cb32-275" data-line-number="275"><span class="co">#&gt; [ecr OPTIMIZATION </span><span class="al">TASK</span><span class="co">]</span></a>
+<a class="sourceLine" id="cb32-276" data-line-number="276"><span class="co">#&gt; Objective type: Bi-objective</span></a>
+<a class="sourceLine" id="cb32-277" data-line-number="277"><span class="co">#&gt; (min: 2, max: 0)</span></a>
+<a class="sourceLine" id="cb32-278" data-line-number="278"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-279" data-line-number="279"><span class="co">#&gt; $mutate.pars</span></a>
+<a class="sourceLine" id="cb32-280" data-line-number="280"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb32-281" data-line-number="281"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-282" data-line-number="282"><span class="co">#&gt; $mutate</span></a>
+<a class="sourceLine" id="cb32-283" data-line-number="283"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb32-284" data-line-number="284"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb32-285" data-line-number="285"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-286" data-line-number="286"><span class="co">#&gt; $recombine.pars</span></a>
+<a class="sourceLine" id="cb32-287" data-line-number="287"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb32-288" data-line-number="288"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-289" data-line-number="289"><span class="co">#&gt; $recombine</span></a>
+<a class="sourceLine" id="cb32-290" data-line-number="290"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb32-291" data-line-number="291"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb32-292" data-line-number="292"><span class="co">#&gt; Number of returned children: 2</span></a>
+<a class="sourceLine" id="cb32-293" data-line-number="293"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-294" data-line-number="294"><span class="co">#&gt; $selectForMating.pars</span></a>
+<a class="sourceLine" id="cb32-295" data-line-number="295"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb32-296" data-line-number="296"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-297" data-line-number="297"><span class="co">#&gt; $selectForMating</span></a>
+<a class="sourceLine" id="cb32-298" data-line-number="298"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb32-299" data-line-number="299"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb32-300" data-line-number="300"><span class="co">#&gt; Supported #objectives: single-objectiveSupported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb32-301" data-line-number="301"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-302" data-line-number="302"><span class="co">#&gt; $selectForSurvival.pars</span></a>
+<a class="sourceLine" id="cb32-303" data-line-number="303"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb32-304" data-line-number="304"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-305" data-line-number="305"><span class="co">#&gt; $selectForSurvival</span></a>
+<a class="sourceLine" id="cb32-306" data-line-number="306"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb32-307" data-line-number="307"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb32-308" data-line-number="308"><span class="co">#&gt; Supported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb32-309" data-line-number="309"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-310" data-line-number="310"><span class="co">#&gt; attr(,&quot;class&quot;)</span></a>
+<a class="sourceLine" id="cb32-311" data-line-number="311"><span class="co">#&gt; [1] &quot;ecr_control&quot;</span></a>
+<a class="sourceLine" id="cb32-312" data-line-number="312"><span class="co">#&gt; $task</span></a>
+<a class="sourceLine" id="cb32-313" data-line-number="313"><span class="co">#&gt; [ecr OPTIMIZATION </span><span class="al">TASK</span><span class="co">]</span></a>
+<a class="sourceLine" id="cb32-314" data-line-number="314"><span class="co">#&gt; Objective type: Bi-objective</span></a>
+<a class="sourceLine" id="cb32-315" data-line-number="315"><span class="co">#&gt; (min: 2, max: 0)</span></a>
+<a class="sourceLine" id="cb32-316" data-line-number="316"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-317" data-line-number="317"><span class="co">#&gt; $mutate.pars</span></a>
+<a class="sourceLine" id="cb32-318" data-line-number="318"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb32-319" data-line-number="319"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-320" data-line-number="320"><span class="co">#&gt; $mutate</span></a>
+<a class="sourceLine" id="cb32-321" data-line-number="321"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb32-322" data-line-number="322"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb32-323" data-line-number="323"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-324" data-line-number="324"><span class="co">#&gt; $recombine.pars</span></a>
+<a class="sourceLine" id="cb32-325" data-line-number="325"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb32-326" data-line-number="326"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-327" data-line-number="327"><span class="co">#&gt; $recombine</span></a>
+<a class="sourceLine" id="cb32-328" data-line-number="328"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb32-329" data-line-number="329"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb32-330" data-line-number="330"><span class="co">#&gt; Number of returned children: 2</span></a>
+<a class="sourceLine" id="cb32-331" data-line-number="331"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-332" data-line-number="332"><span class="co">#&gt; $selectForMating.pars</span></a>
+<a class="sourceLine" id="cb32-333" data-line-number="333"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb32-334" data-line-number="334"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-335" data-line-number="335"><span class="co">#&gt; $selectForMating</span></a>
+<a class="sourceLine" id="cb32-336" data-line-number="336"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb32-337" data-line-number="337"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb32-338" data-line-number="338"><span class="co">#&gt; Supported #objectives: single-objectiveSupported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb32-339" data-line-number="339"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-340" data-line-number="340"><span class="co">#&gt; $selectForSurvival.pars</span></a>
+<a class="sourceLine" id="cb32-341" data-line-number="341"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb32-342" data-line-number="342"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-343" data-line-number="343"><span class="co">#&gt; $selectForSurvival</span></a>
+<a class="sourceLine" id="cb32-344" data-line-number="344"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb32-345" data-line-number="345"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb32-346" data-line-number="346"><span class="co">#&gt; Supported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb32-347" data-line-number="347"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-348" data-line-number="348"><span class="co">#&gt; attr(,&quot;class&quot;)</span></a>
+<a class="sourceLine" id="cb32-349" data-line-number="349"><span class="co">#&gt; [1] &quot;ecr_control&quot;</span></a>
+<a class="sourceLine" id="cb32-350" data-line-number="350"><span class="co">#&gt; $task</span></a>
+<a class="sourceLine" id="cb32-351" data-line-number="351"><span class="co">#&gt; [ecr OPTIMIZATION </span><span class="al">TASK</span><span class="co">]</span></a>
+<a class="sourceLine" id="cb32-352" data-line-number="352"><span class="co">#&gt; Objective type: Bi-objective</span></a>
+<a class="sourceLine" id="cb32-353" data-line-number="353"><span class="co">#&gt; (min: 2, max: 0)</span></a>
+<a class="sourceLine" id="cb32-354" data-line-number="354"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-355" data-line-number="355"><span class="co">#&gt; $mutate.pars</span></a>
+<a class="sourceLine" id="cb32-356" data-line-number="356"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb32-357" data-line-number="357"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-358" data-line-number="358"><span class="co">#&gt; $mutate</span></a>
+<a class="sourceLine" id="cb32-359" data-line-number="359"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb32-360" data-line-number="360"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb32-361" data-line-number="361"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-362" data-line-number="362"><span class="co">#&gt; $recombine.pars</span></a>
+<a class="sourceLine" id="cb32-363" data-line-number="363"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb32-364" data-line-number="364"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-365" data-line-number="365"><span class="co">#&gt; $recombine</span></a>
+<a class="sourceLine" id="cb32-366" data-line-number="366"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb32-367" data-line-number="367"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb32-368" data-line-number="368"><span class="co">#&gt; Number of returned children: 2</span></a>
+<a class="sourceLine" id="cb32-369" data-line-number="369"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-370" data-line-number="370"><span class="co">#&gt; $selectForMating.pars</span></a>
+<a class="sourceLine" id="cb32-371" data-line-number="371"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb32-372" data-line-number="372"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-373" data-line-number="373"><span class="co">#&gt; $selectForMating</span></a>
+<a class="sourceLine" id="cb32-374" data-line-number="374"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb32-375" data-line-number="375"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb32-376" data-line-number="376"><span class="co">#&gt; Supported #objectives: single-objectiveSupported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb32-377" data-line-number="377"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-378" data-line-number="378"><span class="co">#&gt; $selectForSurvival.pars</span></a>
+<a class="sourceLine" id="cb32-379" data-line-number="379"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb32-380" data-line-number="380"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-381" data-line-number="381"><span class="co">#&gt; $selectForSurvival</span></a>
+<a class="sourceLine" id="cb32-382" data-line-number="382"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb32-383" data-line-number="383"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb32-384" data-line-number="384"><span class="co">#&gt; Supported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb32-385" data-line-number="385"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb32-386" data-line-number="386"><span class="co">#&gt; attr(,&quot;class&quot;)</span></a>
+<a class="sourceLine" id="cb32-387" data-line-number="387"><span class="co">#&gt; [1] &quot;ecr_control&quot;</span></a></code></pre></div>
 <p>The pareto-fronts of this run look as follows:</p>
 <div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" data-line-number="1"><span class="kw">plot_fronts</span>(run.strat)</a></code></pre></div>
 <p><img src="data:image/png;base64,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" /><!-- --></p>
@@ -647,7 +1407,447 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <div id="run-continuation" class="section level3">
 <h3>Run Continuation</h3>
 <p>The results returned by <code>slickEcr</code> contain all information to continue an optimization for more generations. To continue a run, use the <code>continueEcr</code> function. It is possible to change a few settings compared to the previous invocation of <code>slickEcr</code>. (It is in fact possible to just create a result object without any generations using <code>initEcr</code>, and then call <code>continueEcr</code> at a later point on it).</p>
-<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb34-1" data-line-number="1">run.strat<span class="fl">.20</span> &lt;-<span class="st"> </span><span class="kw">continueEcr</span>(run.strat, <span class="dv">10</span>, <span class="dt">lambda =</span> <span class="dv">8</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb34-1" data-line-number="1">run.strat<span class="fl">.20</span> &lt;-<span class="st"> </span><span class="kw">continueEcr</span>(run.strat, <span class="dv">10</span>, <span class="dt">lambda =</span> <span class="dv">8</span>)</a>
+<a class="sourceLine" id="cb34-2" data-line-number="2"><span class="co">#&gt; $task</span></a>
+<a class="sourceLine" id="cb34-3" data-line-number="3"><span class="co">#&gt; [ecr OPTIMIZATION </span><span class="al">TASK</span><span class="co">]</span></a>
+<a class="sourceLine" id="cb34-4" data-line-number="4"><span class="co">#&gt; Objective type: Bi-objective</span></a>
+<a class="sourceLine" id="cb34-5" data-line-number="5"><span class="co">#&gt; (min: 2, max: 0)</span></a>
+<a class="sourceLine" id="cb34-6" data-line-number="6"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-7" data-line-number="7"><span class="co">#&gt; $mutate.pars</span></a>
+<a class="sourceLine" id="cb34-8" data-line-number="8"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb34-9" data-line-number="9"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-10" data-line-number="10"><span class="co">#&gt; $recombine.pars</span></a>
+<a class="sourceLine" id="cb34-11" data-line-number="11"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb34-12" data-line-number="12"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-13" data-line-number="13"><span class="co">#&gt; $selectForMating.pars</span></a>
+<a class="sourceLine" id="cb34-14" data-line-number="14"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb34-15" data-line-number="15"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-16" data-line-number="16"><span class="co">#&gt; $selectForSurvival.pars</span></a>
+<a class="sourceLine" id="cb34-17" data-line-number="17"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb34-18" data-line-number="18"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-19" data-line-number="19"><span class="co">#&gt; $p.recomb</span></a>
+<a class="sourceLine" id="cb34-20" data-line-number="20"><span class="co">#&gt; [1] 0.7</span></a>
+<a class="sourceLine" id="cb34-21" data-line-number="21"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-22" data-line-number="22"><span class="co">#&gt; $p.mut</span></a>
+<a class="sourceLine" id="cb34-23" data-line-number="23"><span class="co">#&gt; [1] 0.3</span></a>
+<a class="sourceLine" id="cb34-24" data-line-number="24"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-25" data-line-number="25"><span class="co">#&gt; $mutate</span></a>
+<a class="sourceLine" id="cb34-26" data-line-number="26"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb34-27" data-line-number="27"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb34-28" data-line-number="28"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-29" data-line-number="29"><span class="co">#&gt; $recombine</span></a>
+<a class="sourceLine" id="cb34-30" data-line-number="30"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb34-31" data-line-number="31"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb34-32" data-line-number="32"><span class="co">#&gt; Number of returned children: 2</span></a>
+<a class="sourceLine" id="cb34-33" data-line-number="33"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-34" data-line-number="34"><span class="co">#&gt; $selectForMating</span></a>
+<a class="sourceLine" id="cb34-35" data-line-number="35"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb34-36" data-line-number="36"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb34-37" data-line-number="37"><span class="co">#&gt; Supported #objectives: single-objectiveSupported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb34-38" data-line-number="38"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-39" data-line-number="39"><span class="co">#&gt; $selectForSurvival</span></a>
+<a class="sourceLine" id="cb34-40" data-line-number="40"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb34-41" data-line-number="41"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb34-42" data-line-number="42"><span class="co">#&gt; Supported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb34-43" data-line-number="43"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-44" data-line-number="44"><span class="co">#&gt; attr(,&quot;class&quot;)</span></a>
+<a class="sourceLine" id="cb34-45" data-line-number="45"><span class="co">#&gt; [1] &quot;ecr_control&quot;</span></a>
+<a class="sourceLine" id="cb34-46" data-line-number="46"><span class="co">#&gt; $task</span></a>
+<a class="sourceLine" id="cb34-47" data-line-number="47"><span class="co">#&gt; [ecr OPTIMIZATION </span><span class="al">TASK</span><span class="co">]</span></a>
+<a class="sourceLine" id="cb34-48" data-line-number="48"><span class="co">#&gt; Objective type: Bi-objective</span></a>
+<a class="sourceLine" id="cb34-49" data-line-number="49"><span class="co">#&gt; (min: 2, max: 0)</span></a>
+<a class="sourceLine" id="cb34-50" data-line-number="50"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-51" data-line-number="51"><span class="co">#&gt; $mutate.pars</span></a>
+<a class="sourceLine" id="cb34-52" data-line-number="52"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb34-53" data-line-number="53"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-54" data-line-number="54"><span class="co">#&gt; $recombine.pars</span></a>
+<a class="sourceLine" id="cb34-55" data-line-number="55"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb34-56" data-line-number="56"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-57" data-line-number="57"><span class="co">#&gt; $selectForMating.pars</span></a>
+<a class="sourceLine" id="cb34-58" data-line-number="58"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb34-59" data-line-number="59"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-60" data-line-number="60"><span class="co">#&gt; $selectForSurvival.pars</span></a>
+<a class="sourceLine" id="cb34-61" data-line-number="61"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb34-62" data-line-number="62"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-63" data-line-number="63"><span class="co">#&gt; $p.recomb</span></a>
+<a class="sourceLine" id="cb34-64" data-line-number="64"><span class="co">#&gt; [1] 0.7</span></a>
+<a class="sourceLine" id="cb34-65" data-line-number="65"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-66" data-line-number="66"><span class="co">#&gt; $p.mut</span></a>
+<a class="sourceLine" id="cb34-67" data-line-number="67"><span class="co">#&gt; [1] 0.3</span></a>
+<a class="sourceLine" id="cb34-68" data-line-number="68"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-69" data-line-number="69"><span class="co">#&gt; $mutate</span></a>
+<a class="sourceLine" id="cb34-70" data-line-number="70"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb34-71" data-line-number="71"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb34-72" data-line-number="72"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-73" data-line-number="73"><span class="co">#&gt; $recombine</span></a>
+<a class="sourceLine" id="cb34-74" data-line-number="74"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb34-75" data-line-number="75"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb34-76" data-line-number="76"><span class="co">#&gt; Number of returned children: 2</span></a>
+<a class="sourceLine" id="cb34-77" data-line-number="77"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-78" data-line-number="78"><span class="co">#&gt; $selectForMating</span></a>
+<a class="sourceLine" id="cb34-79" data-line-number="79"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb34-80" data-line-number="80"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb34-81" data-line-number="81"><span class="co">#&gt; Supported #objectives: single-objectiveSupported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb34-82" data-line-number="82"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-83" data-line-number="83"><span class="co">#&gt; $selectForSurvival</span></a>
+<a class="sourceLine" id="cb34-84" data-line-number="84"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb34-85" data-line-number="85"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb34-86" data-line-number="86"><span class="co">#&gt; Supported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb34-87" data-line-number="87"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-88" data-line-number="88"><span class="co">#&gt; attr(,&quot;class&quot;)</span></a>
+<a class="sourceLine" id="cb34-89" data-line-number="89"><span class="co">#&gt; [1] &quot;ecr_control&quot;</span></a>
+<a class="sourceLine" id="cb34-90" data-line-number="90"><span class="co">#&gt; $task</span></a>
+<a class="sourceLine" id="cb34-91" data-line-number="91"><span class="co">#&gt; [ecr OPTIMIZATION </span><span class="al">TASK</span><span class="co">]</span></a>
+<a class="sourceLine" id="cb34-92" data-line-number="92"><span class="co">#&gt; Objective type: Bi-objective</span></a>
+<a class="sourceLine" id="cb34-93" data-line-number="93"><span class="co">#&gt; (min: 2, max: 0)</span></a>
+<a class="sourceLine" id="cb34-94" data-line-number="94"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-95" data-line-number="95"><span class="co">#&gt; $mutate.pars</span></a>
+<a class="sourceLine" id="cb34-96" data-line-number="96"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb34-97" data-line-number="97"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-98" data-line-number="98"><span class="co">#&gt; $recombine.pars</span></a>
+<a class="sourceLine" id="cb34-99" data-line-number="99"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb34-100" data-line-number="100"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-101" data-line-number="101"><span class="co">#&gt; $selectForMating.pars</span></a>
+<a class="sourceLine" id="cb34-102" data-line-number="102"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb34-103" data-line-number="103"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-104" data-line-number="104"><span class="co">#&gt; $selectForSurvival.pars</span></a>
+<a class="sourceLine" id="cb34-105" data-line-number="105"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb34-106" data-line-number="106"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-107" data-line-number="107"><span class="co">#&gt; $p.recomb</span></a>
+<a class="sourceLine" id="cb34-108" data-line-number="108"><span class="co">#&gt; [1] 0.7</span></a>
+<a class="sourceLine" id="cb34-109" data-line-number="109"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-110" data-line-number="110"><span class="co">#&gt; $p.mut</span></a>
+<a class="sourceLine" id="cb34-111" data-line-number="111"><span class="co">#&gt; [1] 0.3</span></a>
+<a class="sourceLine" id="cb34-112" data-line-number="112"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-113" data-line-number="113"><span class="co">#&gt; $mutate</span></a>
+<a class="sourceLine" id="cb34-114" data-line-number="114"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb34-115" data-line-number="115"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb34-116" data-line-number="116"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-117" data-line-number="117"><span class="co">#&gt; $recombine</span></a>
+<a class="sourceLine" id="cb34-118" data-line-number="118"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb34-119" data-line-number="119"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb34-120" data-line-number="120"><span class="co">#&gt; Number of returned children: 2</span></a>
+<a class="sourceLine" id="cb34-121" data-line-number="121"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-122" data-line-number="122"><span class="co">#&gt; $selectForMating</span></a>
+<a class="sourceLine" id="cb34-123" data-line-number="123"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb34-124" data-line-number="124"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb34-125" data-line-number="125"><span class="co">#&gt; Supported #objectives: single-objectiveSupported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb34-126" data-line-number="126"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-127" data-line-number="127"><span class="co">#&gt; $selectForSurvival</span></a>
+<a class="sourceLine" id="cb34-128" data-line-number="128"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb34-129" data-line-number="129"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb34-130" data-line-number="130"><span class="co">#&gt; Supported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb34-131" data-line-number="131"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-132" data-line-number="132"><span class="co">#&gt; attr(,&quot;class&quot;)</span></a>
+<a class="sourceLine" id="cb34-133" data-line-number="133"><span class="co">#&gt; [1] &quot;ecr_control&quot;</span></a>
+<a class="sourceLine" id="cb34-134" data-line-number="134"><span class="co">#&gt; $task</span></a>
+<a class="sourceLine" id="cb34-135" data-line-number="135"><span class="co">#&gt; [ecr OPTIMIZATION </span><span class="al">TASK</span><span class="co">]</span></a>
+<a class="sourceLine" id="cb34-136" data-line-number="136"><span class="co">#&gt; Objective type: Bi-objective</span></a>
+<a class="sourceLine" id="cb34-137" data-line-number="137"><span class="co">#&gt; (min: 2, max: 0)</span></a>
+<a class="sourceLine" id="cb34-138" data-line-number="138"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-139" data-line-number="139"><span class="co">#&gt; $mutate.pars</span></a>
+<a class="sourceLine" id="cb34-140" data-line-number="140"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb34-141" data-line-number="141"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-142" data-line-number="142"><span class="co">#&gt; $recombine.pars</span></a>
+<a class="sourceLine" id="cb34-143" data-line-number="143"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb34-144" data-line-number="144"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-145" data-line-number="145"><span class="co">#&gt; $selectForMating.pars</span></a>
+<a class="sourceLine" id="cb34-146" data-line-number="146"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb34-147" data-line-number="147"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-148" data-line-number="148"><span class="co">#&gt; $selectForSurvival.pars</span></a>
+<a class="sourceLine" id="cb34-149" data-line-number="149"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb34-150" data-line-number="150"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-151" data-line-number="151"><span class="co">#&gt; $p.recomb</span></a>
+<a class="sourceLine" id="cb34-152" data-line-number="152"><span class="co">#&gt; [1] 0.7</span></a>
+<a class="sourceLine" id="cb34-153" data-line-number="153"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-154" data-line-number="154"><span class="co">#&gt; $p.mut</span></a>
+<a class="sourceLine" id="cb34-155" data-line-number="155"><span class="co">#&gt; [1] 0.3</span></a>
+<a class="sourceLine" id="cb34-156" data-line-number="156"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-157" data-line-number="157"><span class="co">#&gt; $mutate</span></a>
+<a class="sourceLine" id="cb34-158" data-line-number="158"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb34-159" data-line-number="159"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb34-160" data-line-number="160"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-161" data-line-number="161"><span class="co">#&gt; $recombine</span></a>
+<a class="sourceLine" id="cb34-162" data-line-number="162"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb34-163" data-line-number="163"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb34-164" data-line-number="164"><span class="co">#&gt; Number of returned children: 2</span></a>
+<a class="sourceLine" id="cb34-165" data-line-number="165"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-166" data-line-number="166"><span class="co">#&gt; $selectForMating</span></a>
+<a class="sourceLine" id="cb34-167" data-line-number="167"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb34-168" data-line-number="168"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb34-169" data-line-number="169"><span class="co">#&gt; Supported #objectives: single-objectiveSupported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb34-170" data-line-number="170"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-171" data-line-number="171"><span class="co">#&gt; $selectForSurvival</span></a>
+<a class="sourceLine" id="cb34-172" data-line-number="172"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb34-173" data-line-number="173"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb34-174" data-line-number="174"><span class="co">#&gt; Supported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb34-175" data-line-number="175"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-176" data-line-number="176"><span class="co">#&gt; attr(,&quot;class&quot;)</span></a>
+<a class="sourceLine" id="cb34-177" data-line-number="177"><span class="co">#&gt; [1] &quot;ecr_control&quot;</span></a>
+<a class="sourceLine" id="cb34-178" data-line-number="178"><span class="co">#&gt; $task</span></a>
+<a class="sourceLine" id="cb34-179" data-line-number="179"><span class="co">#&gt; [ecr OPTIMIZATION </span><span class="al">TASK</span><span class="co">]</span></a>
+<a class="sourceLine" id="cb34-180" data-line-number="180"><span class="co">#&gt; Objective type: Bi-objective</span></a>
+<a class="sourceLine" id="cb34-181" data-line-number="181"><span class="co">#&gt; (min: 2, max: 0)</span></a>
+<a class="sourceLine" id="cb34-182" data-line-number="182"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-183" data-line-number="183"><span class="co">#&gt; $mutate.pars</span></a>
+<a class="sourceLine" id="cb34-184" data-line-number="184"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb34-185" data-line-number="185"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-186" data-line-number="186"><span class="co">#&gt; $recombine.pars</span></a>
+<a class="sourceLine" id="cb34-187" data-line-number="187"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb34-188" data-line-number="188"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-189" data-line-number="189"><span class="co">#&gt; $selectForMating.pars</span></a>
+<a class="sourceLine" id="cb34-190" data-line-number="190"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb34-191" data-line-number="191"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-192" data-line-number="192"><span class="co">#&gt; $selectForSurvival.pars</span></a>
+<a class="sourceLine" id="cb34-193" data-line-number="193"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb34-194" data-line-number="194"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-195" data-line-number="195"><span class="co">#&gt; $p.recomb</span></a>
+<a class="sourceLine" id="cb34-196" data-line-number="196"><span class="co">#&gt; [1] 0.7</span></a>
+<a class="sourceLine" id="cb34-197" data-line-number="197"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-198" data-line-number="198"><span class="co">#&gt; $p.mut</span></a>
+<a class="sourceLine" id="cb34-199" data-line-number="199"><span class="co">#&gt; [1] 0.3</span></a>
+<a class="sourceLine" id="cb34-200" data-line-number="200"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-201" data-line-number="201"><span class="co">#&gt; $mutate</span></a>
+<a class="sourceLine" id="cb34-202" data-line-number="202"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb34-203" data-line-number="203"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb34-204" data-line-number="204"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-205" data-line-number="205"><span class="co">#&gt; $recombine</span></a>
+<a class="sourceLine" id="cb34-206" data-line-number="206"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb34-207" data-line-number="207"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb34-208" data-line-number="208"><span class="co">#&gt; Number of returned children: 2</span></a>
+<a class="sourceLine" id="cb34-209" data-line-number="209"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-210" data-line-number="210"><span class="co">#&gt; $selectForMating</span></a>
+<a class="sourceLine" id="cb34-211" data-line-number="211"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb34-212" data-line-number="212"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb34-213" data-line-number="213"><span class="co">#&gt; Supported #objectives: single-objectiveSupported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb34-214" data-line-number="214"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-215" data-line-number="215"><span class="co">#&gt; $selectForSurvival</span></a>
+<a class="sourceLine" id="cb34-216" data-line-number="216"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb34-217" data-line-number="217"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb34-218" data-line-number="218"><span class="co">#&gt; Supported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb34-219" data-line-number="219"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-220" data-line-number="220"><span class="co">#&gt; attr(,&quot;class&quot;)</span></a>
+<a class="sourceLine" id="cb34-221" data-line-number="221"><span class="co">#&gt; [1] &quot;ecr_control&quot;</span></a>
+<a class="sourceLine" id="cb34-222" data-line-number="222"><span class="co">#&gt; $task</span></a>
+<a class="sourceLine" id="cb34-223" data-line-number="223"><span class="co">#&gt; [ecr OPTIMIZATION </span><span class="al">TASK</span><span class="co">]</span></a>
+<a class="sourceLine" id="cb34-224" data-line-number="224"><span class="co">#&gt; Objective type: Bi-objective</span></a>
+<a class="sourceLine" id="cb34-225" data-line-number="225"><span class="co">#&gt; (min: 2, max: 0)</span></a>
+<a class="sourceLine" id="cb34-226" data-line-number="226"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-227" data-line-number="227"><span class="co">#&gt; $mutate.pars</span></a>
+<a class="sourceLine" id="cb34-228" data-line-number="228"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb34-229" data-line-number="229"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-230" data-line-number="230"><span class="co">#&gt; $recombine.pars</span></a>
+<a class="sourceLine" id="cb34-231" data-line-number="231"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb34-232" data-line-number="232"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-233" data-line-number="233"><span class="co">#&gt; $selectForMating.pars</span></a>
+<a class="sourceLine" id="cb34-234" data-line-number="234"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb34-235" data-line-number="235"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-236" data-line-number="236"><span class="co">#&gt; $selectForSurvival.pars</span></a>
+<a class="sourceLine" id="cb34-237" data-line-number="237"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb34-238" data-line-number="238"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-239" data-line-number="239"><span class="co">#&gt; $p.recomb</span></a>
+<a class="sourceLine" id="cb34-240" data-line-number="240"><span class="co">#&gt; [1] 0.7</span></a>
+<a class="sourceLine" id="cb34-241" data-line-number="241"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-242" data-line-number="242"><span class="co">#&gt; $p.mut</span></a>
+<a class="sourceLine" id="cb34-243" data-line-number="243"><span class="co">#&gt; [1] 0.3</span></a>
+<a class="sourceLine" id="cb34-244" data-line-number="244"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-245" data-line-number="245"><span class="co">#&gt; $mutate</span></a>
+<a class="sourceLine" id="cb34-246" data-line-number="246"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb34-247" data-line-number="247"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb34-248" data-line-number="248"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-249" data-line-number="249"><span class="co">#&gt; $recombine</span></a>
+<a class="sourceLine" id="cb34-250" data-line-number="250"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb34-251" data-line-number="251"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb34-252" data-line-number="252"><span class="co">#&gt; Number of returned children: 2</span></a>
+<a class="sourceLine" id="cb34-253" data-line-number="253"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-254" data-line-number="254"><span class="co">#&gt; $selectForMating</span></a>
+<a class="sourceLine" id="cb34-255" data-line-number="255"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb34-256" data-line-number="256"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb34-257" data-line-number="257"><span class="co">#&gt; Supported #objectives: single-objectiveSupported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb34-258" data-line-number="258"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-259" data-line-number="259"><span class="co">#&gt; $selectForSurvival</span></a>
+<a class="sourceLine" id="cb34-260" data-line-number="260"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb34-261" data-line-number="261"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb34-262" data-line-number="262"><span class="co">#&gt; Supported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb34-263" data-line-number="263"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-264" data-line-number="264"><span class="co">#&gt; attr(,&quot;class&quot;)</span></a>
+<a class="sourceLine" id="cb34-265" data-line-number="265"><span class="co">#&gt; [1] &quot;ecr_control&quot;</span></a>
+<a class="sourceLine" id="cb34-266" data-line-number="266"><span class="co">#&gt; $task</span></a>
+<a class="sourceLine" id="cb34-267" data-line-number="267"><span class="co">#&gt; [ecr OPTIMIZATION </span><span class="al">TASK</span><span class="co">]</span></a>
+<a class="sourceLine" id="cb34-268" data-line-number="268"><span class="co">#&gt; Objective type: Bi-objective</span></a>
+<a class="sourceLine" id="cb34-269" data-line-number="269"><span class="co">#&gt; (min: 2, max: 0)</span></a>
+<a class="sourceLine" id="cb34-270" data-line-number="270"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-271" data-line-number="271"><span class="co">#&gt; $mutate.pars</span></a>
+<a class="sourceLine" id="cb34-272" data-line-number="272"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb34-273" data-line-number="273"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-274" data-line-number="274"><span class="co">#&gt; $recombine.pars</span></a>
+<a class="sourceLine" id="cb34-275" data-line-number="275"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb34-276" data-line-number="276"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-277" data-line-number="277"><span class="co">#&gt; $selectForMating.pars</span></a>
+<a class="sourceLine" id="cb34-278" data-line-number="278"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb34-279" data-line-number="279"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-280" data-line-number="280"><span class="co">#&gt; $selectForSurvival.pars</span></a>
+<a class="sourceLine" id="cb34-281" data-line-number="281"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb34-282" data-line-number="282"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-283" data-line-number="283"><span class="co">#&gt; $p.recomb</span></a>
+<a class="sourceLine" id="cb34-284" data-line-number="284"><span class="co">#&gt; [1] 0.7</span></a>
+<a class="sourceLine" id="cb34-285" data-line-number="285"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-286" data-line-number="286"><span class="co">#&gt; $p.mut</span></a>
+<a class="sourceLine" id="cb34-287" data-line-number="287"><span class="co">#&gt; [1] 0.3</span></a>
+<a class="sourceLine" id="cb34-288" data-line-number="288"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-289" data-line-number="289"><span class="co">#&gt; $mutate</span></a>
+<a class="sourceLine" id="cb34-290" data-line-number="290"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb34-291" data-line-number="291"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb34-292" data-line-number="292"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-293" data-line-number="293"><span class="co">#&gt; $recombine</span></a>
+<a class="sourceLine" id="cb34-294" data-line-number="294"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb34-295" data-line-number="295"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb34-296" data-line-number="296"><span class="co">#&gt; Number of returned children: 2</span></a>
+<a class="sourceLine" id="cb34-297" data-line-number="297"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-298" data-line-number="298"><span class="co">#&gt; $selectForMating</span></a>
+<a class="sourceLine" id="cb34-299" data-line-number="299"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb34-300" data-line-number="300"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb34-301" data-line-number="301"><span class="co">#&gt; Supported #objectives: single-objectiveSupported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb34-302" data-line-number="302"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-303" data-line-number="303"><span class="co">#&gt; $selectForSurvival</span></a>
+<a class="sourceLine" id="cb34-304" data-line-number="304"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb34-305" data-line-number="305"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb34-306" data-line-number="306"><span class="co">#&gt; Supported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb34-307" data-line-number="307"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-308" data-line-number="308"><span class="co">#&gt; attr(,&quot;class&quot;)</span></a>
+<a class="sourceLine" id="cb34-309" data-line-number="309"><span class="co">#&gt; [1] &quot;ecr_control&quot;</span></a>
+<a class="sourceLine" id="cb34-310" data-line-number="310"><span class="co">#&gt; $task</span></a>
+<a class="sourceLine" id="cb34-311" data-line-number="311"><span class="co">#&gt; [ecr OPTIMIZATION </span><span class="al">TASK</span><span class="co">]</span></a>
+<a class="sourceLine" id="cb34-312" data-line-number="312"><span class="co">#&gt; Objective type: Bi-objective</span></a>
+<a class="sourceLine" id="cb34-313" data-line-number="313"><span class="co">#&gt; (min: 2, max: 0)</span></a>
+<a class="sourceLine" id="cb34-314" data-line-number="314"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-315" data-line-number="315"><span class="co">#&gt; $mutate.pars</span></a>
+<a class="sourceLine" id="cb34-316" data-line-number="316"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb34-317" data-line-number="317"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-318" data-line-number="318"><span class="co">#&gt; $recombine.pars</span></a>
+<a class="sourceLine" id="cb34-319" data-line-number="319"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb34-320" data-line-number="320"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-321" data-line-number="321"><span class="co">#&gt; $selectForMating.pars</span></a>
+<a class="sourceLine" id="cb34-322" data-line-number="322"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb34-323" data-line-number="323"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-324" data-line-number="324"><span class="co">#&gt; $selectForSurvival.pars</span></a>
+<a class="sourceLine" id="cb34-325" data-line-number="325"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb34-326" data-line-number="326"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-327" data-line-number="327"><span class="co">#&gt; $p.recomb</span></a>
+<a class="sourceLine" id="cb34-328" data-line-number="328"><span class="co">#&gt; [1] 0.7</span></a>
+<a class="sourceLine" id="cb34-329" data-line-number="329"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-330" data-line-number="330"><span class="co">#&gt; $p.mut</span></a>
+<a class="sourceLine" id="cb34-331" data-line-number="331"><span class="co">#&gt; [1] 0.3</span></a>
+<a class="sourceLine" id="cb34-332" data-line-number="332"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-333" data-line-number="333"><span class="co">#&gt; $mutate</span></a>
+<a class="sourceLine" id="cb34-334" data-line-number="334"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb34-335" data-line-number="335"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb34-336" data-line-number="336"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-337" data-line-number="337"><span class="co">#&gt; $recombine</span></a>
+<a class="sourceLine" id="cb34-338" data-line-number="338"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb34-339" data-line-number="339"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb34-340" data-line-number="340"><span class="co">#&gt; Number of returned children: 2</span></a>
+<a class="sourceLine" id="cb34-341" data-line-number="341"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-342" data-line-number="342"><span class="co">#&gt; $selectForMating</span></a>
+<a class="sourceLine" id="cb34-343" data-line-number="343"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb34-344" data-line-number="344"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb34-345" data-line-number="345"><span class="co">#&gt; Supported #objectives: single-objectiveSupported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb34-346" data-line-number="346"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-347" data-line-number="347"><span class="co">#&gt; $selectForSurvival</span></a>
+<a class="sourceLine" id="cb34-348" data-line-number="348"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb34-349" data-line-number="349"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb34-350" data-line-number="350"><span class="co">#&gt; Supported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb34-351" data-line-number="351"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-352" data-line-number="352"><span class="co">#&gt; attr(,&quot;class&quot;)</span></a>
+<a class="sourceLine" id="cb34-353" data-line-number="353"><span class="co">#&gt; [1] &quot;ecr_control&quot;</span></a>
+<a class="sourceLine" id="cb34-354" data-line-number="354"><span class="co">#&gt; $task</span></a>
+<a class="sourceLine" id="cb34-355" data-line-number="355"><span class="co">#&gt; [ecr OPTIMIZATION </span><span class="al">TASK</span><span class="co">]</span></a>
+<a class="sourceLine" id="cb34-356" data-line-number="356"><span class="co">#&gt; Objective type: Bi-objective</span></a>
+<a class="sourceLine" id="cb34-357" data-line-number="357"><span class="co">#&gt; (min: 2, max: 0)</span></a>
+<a class="sourceLine" id="cb34-358" data-line-number="358"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-359" data-line-number="359"><span class="co">#&gt; $mutate.pars</span></a>
+<a class="sourceLine" id="cb34-360" data-line-number="360"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb34-361" data-line-number="361"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-362" data-line-number="362"><span class="co">#&gt; $recombine.pars</span></a>
+<a class="sourceLine" id="cb34-363" data-line-number="363"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb34-364" data-line-number="364"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-365" data-line-number="365"><span class="co">#&gt; $selectForMating.pars</span></a>
+<a class="sourceLine" id="cb34-366" data-line-number="366"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb34-367" data-line-number="367"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-368" data-line-number="368"><span class="co">#&gt; $selectForSurvival.pars</span></a>
+<a class="sourceLine" id="cb34-369" data-line-number="369"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb34-370" data-line-number="370"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-371" data-line-number="371"><span class="co">#&gt; $p.recomb</span></a>
+<a class="sourceLine" id="cb34-372" data-line-number="372"><span class="co">#&gt; [1] 0.7</span></a>
+<a class="sourceLine" id="cb34-373" data-line-number="373"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-374" data-line-number="374"><span class="co">#&gt; $p.mut</span></a>
+<a class="sourceLine" id="cb34-375" data-line-number="375"><span class="co">#&gt; [1] 0.3</span></a>
+<a class="sourceLine" id="cb34-376" data-line-number="376"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-377" data-line-number="377"><span class="co">#&gt; $mutate</span></a>
+<a class="sourceLine" id="cb34-378" data-line-number="378"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb34-379" data-line-number="379"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb34-380" data-line-number="380"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-381" data-line-number="381"><span class="co">#&gt; $recombine</span></a>
+<a class="sourceLine" id="cb34-382" data-line-number="382"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb34-383" data-line-number="383"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb34-384" data-line-number="384"><span class="co">#&gt; Number of returned children: 2</span></a>
+<a class="sourceLine" id="cb34-385" data-line-number="385"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-386" data-line-number="386"><span class="co">#&gt; $selectForMating</span></a>
+<a class="sourceLine" id="cb34-387" data-line-number="387"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb34-388" data-line-number="388"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb34-389" data-line-number="389"><span class="co">#&gt; Supported #objectives: single-objectiveSupported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb34-390" data-line-number="390"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-391" data-line-number="391"><span class="co">#&gt; $selectForSurvival</span></a>
+<a class="sourceLine" id="cb34-392" data-line-number="392"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb34-393" data-line-number="393"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb34-394" data-line-number="394"><span class="co">#&gt; Supported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb34-395" data-line-number="395"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-396" data-line-number="396"><span class="co">#&gt; attr(,&quot;class&quot;)</span></a>
+<a class="sourceLine" id="cb34-397" data-line-number="397"><span class="co">#&gt; [1] &quot;ecr_control&quot;</span></a>
+<a class="sourceLine" id="cb34-398" data-line-number="398"><span class="co">#&gt; $task</span></a>
+<a class="sourceLine" id="cb34-399" data-line-number="399"><span class="co">#&gt; [ecr OPTIMIZATION </span><span class="al">TASK</span><span class="co">]</span></a>
+<a class="sourceLine" id="cb34-400" data-line-number="400"><span class="co">#&gt; Objective type: Bi-objective</span></a>
+<a class="sourceLine" id="cb34-401" data-line-number="401"><span class="co">#&gt; (min: 2, max: 0)</span></a>
+<a class="sourceLine" id="cb34-402" data-line-number="402"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-403" data-line-number="403"><span class="co">#&gt; $mutate.pars</span></a>
+<a class="sourceLine" id="cb34-404" data-line-number="404"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb34-405" data-line-number="405"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-406" data-line-number="406"><span class="co">#&gt; $recombine.pars</span></a>
+<a class="sourceLine" id="cb34-407" data-line-number="407"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb34-408" data-line-number="408"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-409" data-line-number="409"><span class="co">#&gt; $selectForMating.pars</span></a>
+<a class="sourceLine" id="cb34-410" data-line-number="410"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb34-411" data-line-number="411"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-412" data-line-number="412"><span class="co">#&gt; $selectForSurvival.pars</span></a>
+<a class="sourceLine" id="cb34-413" data-line-number="413"><span class="co">#&gt; list()</span></a>
+<a class="sourceLine" id="cb34-414" data-line-number="414"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-415" data-line-number="415"><span class="co">#&gt; $p.recomb</span></a>
+<a class="sourceLine" id="cb34-416" data-line-number="416"><span class="co">#&gt; [1] 0.7</span></a>
+<a class="sourceLine" id="cb34-417" data-line-number="417"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-418" data-line-number="418"><span class="co">#&gt; $p.mut</span></a>
+<a class="sourceLine" id="cb34-419" data-line-number="419"><span class="co">#&gt; [1] 0.3</span></a>
+<a class="sourceLine" id="cb34-420" data-line-number="420"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-421" data-line-number="421"><span class="co">#&gt; $mutate</span></a>
+<a class="sourceLine" id="cb34-422" data-line-number="422"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb34-423" data-line-number="423"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb34-424" data-line-number="424"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-425" data-line-number="425"><span class="co">#&gt; $recombine</span></a>
+<a class="sourceLine" id="cb34-426" data-line-number="426"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb34-427" data-line-number="427"><span class="co">#&gt; Supported representations: custom</span></a>
+<a class="sourceLine" id="cb34-428" data-line-number="428"><span class="co">#&gt; Number of returned children: 2</span></a>
+<a class="sourceLine" id="cb34-429" data-line-number="429"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-430" data-line-number="430"><span class="co">#&gt; $selectForMating</span></a>
+<a class="sourceLine" id="cb34-431" data-line-number="431"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb34-432" data-line-number="432"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb34-433" data-line-number="433"><span class="co">#&gt; Supported #objectives: single-objectiveSupported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb34-434" data-line-number="434"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-435" data-line-number="435"><span class="co">#&gt; $selectForSurvival</span></a>
+<a class="sourceLine" id="cb34-436" data-line-number="436"><span class="co">#&gt; ECR2 OPERATOR:</span></a>
+<a class="sourceLine" id="cb34-437" data-line-number="437"><span class="co">#&gt; Supported representations: permutation,binary,float,custom</span></a>
+<a class="sourceLine" id="cb34-438" data-line-number="438"><span class="co">#&gt; Supported #objectives: multi-objective</span></a>
+<a class="sourceLine" id="cb34-439" data-line-number="439"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb34-440" data-line-number="440"><span class="co">#&gt; attr(,&quot;class&quot;)</span></a>
+<a class="sourceLine" id="cb34-441" data-line-number="441"><span class="co">#&gt; [1] &quot;ecr_control&quot;</span></a></code></pre></div>
 <div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb35-1" data-line-number="1"><span class="kw">getStatistics</span>(run.strat<span class="fl">.20</span><span class="op">$</span>log.newinds)</a>
 <a class="sourceLine" id="cb35-2" data-line-number="2"><span class="co">#&gt;    gen runtime.mean runtime.sum size population</span></a>
 <a class="sourceLine" id="cb35-3" data-line-number="3"><span class="co">#&gt; 1    0    0.1635341   10.139115   62       init</span></a>
