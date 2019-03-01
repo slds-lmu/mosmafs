@@ -48,6 +48,21 @@ print.list <- function(x) {
   }
 }
 
+# mock runtime output
+getStatistics <- function(log) {
+  stats <- ecr::getStatistics(log)
+  if ("runtime.mean" %in% colnames(stats)) {
+    if ("fidelity.sum" %in% colnames(stats)) {
+      fid <- stats$fidelity.sum / stats$size
+    } else {
+      fid <- rep(5, nrow(stats))
+    }
+    stats$runtime.mean <- rnorm(nrow(stats), 0.034, 0.002) * (fid + 0.2)
+    stats$runtime.sum <- stats$runtime.mean * stats$size
+  }
+  stats
+}
+
 knitr::opts_chunk$set(
   cache = FALSE,
   collapse = TRUE,
@@ -313,10 +328,10 @@ crossover.simple <- combine.operators(ps.simple,
   selector.selection = recPCrossover)
 ```
 
-The initial population to sample over can be generated using the `ParamHelpers` function `sampleValues()`. Note that by generating an initial population of a certain size (64 here), we implicitly determine the ECR hyperparameter `mu` of individuals in a generation.
+The initial population to sample over can be generated using the `ParamHelpers` function `sampleValues()`. Note that by generating an initial population of a certain size (32 here), we implicitly determine the ECR hyperparameter `mu` of individuals in a generation.
 
 ```{r}
-initials.simple <- sampleValues(ps.simple, 64, discrete.names = TRUE)
+initials.simple <- sampleValues(ps.simple, 32, discrete.names = TRUE)
 ```
 
 At last we need to define the objective function which we try to optimize. If we are doing feature selection, the `makeObjective` function does this for us; otherwise we would need to define a "`smoof`" function using `smoof::makeSingleObjectiveFunction` or `smoof::makeMultiObjectiveFunction`.
@@ -332,7 +347,7 @@ set.seed(1)
 ```{r}
 run.simple <- slickEcr(
   fitness.fun = fitness.fun.simple,
-  lambda = 32,
+  lambda = 16,
   population = initials.simple,
   mutator = mutator.simple,
   recombinator = crossover.simple,
@@ -428,7 +443,7 @@ set.seed(2)
 ```{r}
 run.strat <- slickEcr(
   fitness.fun = makeObjective(lrn, task, ps.strat, cv5),
-  lambda = 32,
+  lambda = 16,
   population = initials.strat,
   mutator = mutator.strat,
   recombinator = crossover.strat,
@@ -445,7 +460,7 @@ plot_fronts(run.strat)
 The results returned by `slickEcr` contain all information to continue an optimization for more generations. To continue a run, use the `continueEcr` function. It is possible to change a few settings compared to the previous invocation of `slickEcr`. (It is in fact possible to just create a result object without any generations using `initEcr`, and then call `continueEcr` at a later point on it).
 
 ```{r}
-run.strat.20 <- continueEcr(run.strat, 10, lambda = 16)
+run.strat.20 <- continueEcr(run.strat, 10, lambda = 8)
 ```
 ```{r}
 getStatistics(run.strat.20$log.newinds)

@@ -48,6 +48,22 @@ print.list <- function(x) {
   }
 }
 
+# mock runtime output
+getStatistics <- function(log) {
+  stats <- ecr::getStatistics(log)
+  if ("runtime.mean" %in% colnames(stats)) {
+    if ("fidelity.sum" %in% colnames(stats)) {
+      fid <- stats$fidelity.sum / stats$size
+    } else {
+      fid <- rep(5, nrow(stats))
+    }
+    stats$runtime.mean <- rnorm(nrow(stats), 0.034, 0.002) * (fid + 0.2)
+    stats$runtime.sum <- stats$runtime.mean * stats$size
+  }
+  stats
+}
+
+
 knitr::opts_chunk$set(
   cache = FALSE,
   collapse = TRUE,
@@ -91,7 +107,7 @@ crossover.simple <- combine.operators(ps.simple,
   integer = recPCrossover,
   selector.selection = recPCrossover)
 
-initials <- sampleValues(ps.simple, 64, discrete.names = TRUE)
+initials <- sampleValues(ps.simple, 32, discrete.names = TRUE)
 ```
 
 ## Multi-Fidelity
@@ -137,7 +153,7 @@ set.seed(3)
 ```{r}
 run.gen.mufi <- slickEcr(
     fitness.fun = fitness.fun,
-    lambda = 32,
+    lambda = 16,
     population = initials,
     mutator = mutator.simple,
     recombinator = crossover.simple,
@@ -193,7 +209,7 @@ set.seed(36)
 ```{r}
 run.dom.mufi <- slickEcr(
     fitness.fun = fitness.fun,
-    lambda = 32,
+    lambda = 16,
     population = initials,
     mutator = mutator.simple,
     recombinator = crossover.simple,
@@ -260,7 +276,7 @@ set.seed(5)
 ```{r}
 run.all.mufi <- slickEcr(
     fitness.fun = fitness.fun,
-    lambda = 32,
+    lambda = 16,
     population = initials,
     mutator = mutator.simple,
     recombinator = crossover.simple,
@@ -285,7 +301,7 @@ fidelity.new <- data.frame(
 ```
 ```{r}
 run.all.mufi.20 <- continueEcr(run.all.mufi, 5,
-  lambda = 16, fidelity = fidelity.new)
+  lambda = 8, fidelity = fidelity.new)
 ```
 ```{r}
 getStatistics(run.all.mufi.20$log.newinds)
