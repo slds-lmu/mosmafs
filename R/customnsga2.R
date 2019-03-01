@@ -28,7 +28,11 @@
 #' @param population `[list]` list of individuals to start off from.
 #' @param mutator `[ecr_mutator]` mutation operator
 #' @param recombinator `[ecr_recombinator]` recombination operator
-#' @param generations `[integer(1)]` number of iterations to evaluate
+#' @param generations `[integer(1) | list of function]` number of iterations to
+#'   evaluate if it is an integer, or [terminator][mosmafsTermEvals] function.
+#'   If this is an integer, it counts the *new* generations to evaluate;
+#'   otherwise the terminator functions are applied to the whole combined trace
+#'   of evaluation.
 #' @param parent.selector `[ecr_selector]` parent selection operator
 #' @param survival.selector `[ecr_selector]` survival selection operator
 #' @param p.recomb `[numeric(1)]` probability to apply a recombination operator
@@ -188,6 +192,10 @@ continueEcr <- function(ecr.object, generations, lambda = NULL, mutator = NULL, 
   log <- clonelog(ecr.object$log)
   log.newinds <- clonelog(ecr.object$log.newinds)
 
+  # the following is necessary so we can call collectResult
+  ecr.object$log <- log
+  ecr.object$log.newinds <- log.newinds
+
   gen <- log$env$n.gens + 1
 
   fidelity.row <- max(c(which(fidelity[[1]] <= gen) - 1, 1))
@@ -199,8 +207,18 @@ continueEcr <- function(ecr.object, generations, lambda = NULL, mutator = NULL, 
       fidelity.sum <- fidelity[[2]] + fidelity[[3]]
     }
   }
+  if (is.numeric(generations)) {
+    gen.limit <- gen + generations
+    generations <- list(mosmafsTermGenerations(gen.limit))
+  }
 
-  for (gen in seq(gen, gen + generations - 1)) {
+  repeat {
+    termmsgs <- lapply(generations, function(f) f(collectResult(ecr.object)))
+    termmsgs <- Filter(Negate(is.null), termmsgs)
+    if (length(termmsgs) {
+      termmsgs <- list(message = collapse(termmsgs, "\n"))
+      break
+    }
     if (length(fidelity[[1]]) > fidelity.row && fidelity[[1]][fidelity.row + 1] <= gen) {
       fidelity.row <- fidelity.row + 1
       new.front.fidelity <- fidelity.sum[fidelity.row]
@@ -247,8 +265,9 @@ continueEcr <- function(ecr.object, generations, lambda = NULL, mutator = NULL, 
 
     updateLogger(log, population, fitness, n.evals = length(offspring),
       extras = list(state = "generation"))
+    gen <- gen + 1
   }
-  result <- ecr:::makeECRResult(ctrl, log, population,  fitness, list(message = "out of generations"))
+  result <- ecr:::makeECRResult(ctrl, log, population,  fitness, "termmsgs")
   result$log.newinds <- log.newinds
   result$lambda <- lambda
   ctrl$p.recomb <- p.recomb
@@ -374,7 +393,10 @@ checkEcrArgs <- function(lambda, population, mutator, recombinator, generations,
   assertList(population)
   assertClass(mutator, "ecr_mutator")
   assertClass(recombinator, "ecr_recombinator")
-  assertInt(generations, lower = 0)
+  assert(
+      checkInt(generations, lower = 0),
+      checkList(generations, types = "function")
+  )
   assertClass(parent.selector, "ecr_selector")
   assertClass(survival.selector, "ecr_selector")
   assertNumber(p.recomb, lower = 0, upper = 1)
