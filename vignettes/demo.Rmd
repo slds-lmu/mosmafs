@@ -64,14 +64,15 @@ getStatistics <- function(log) {
 }
 
 getPopulations <- function(log) {
-  pop <- getPopulations(log)
-  for (i in seq_len(pop)) {
+  pop <- ecr::getPopulations(log)
+  for (i in seq_along(pop)) {
     pop[[i]]$population <- lapply(pop[[i]]$population, function(ind) {
       fid <- attr(ind, "fidelity")
       if (is.null(fid)) {
         fid <- 5
       }
       attr(ind, "runtime")[1] <- rnorm(1, 0.034, 0.002) * (fid + 2)
+      ind
     })
   }
   pop
