@@ -14,9 +14,9 @@ mosmafsTermTime(time)
 
 mosmafsTermFidelity(fidelity)
 
-mosmafsTermStagnationHV(staggen)
+mosmafsTermStagnationHV(stag, stag.index = "generations")
 
-mosmafsTermStagnationObjMean(staggen)
+mosmafsTermStagnationObjMean(stag, stag.index = "generations")
 }
 \arguments{
 \item{evals}{\code{[integer(1)]} limit evals}
@@ -26,11 +26,15 @@ holdout fitting time}
 
 \item{fidelity}{\code{[numeric(1)]} total fidelity evaluation to limit}
 
+\item{stag}{\code{[integer(1)]} number of generations (or other measures)
+without progress in hypervolume or mean objective value}
+
+\item{stag.index}{\code{[character(1)]} one of \code{"generations"} (default),
+\code{"evals"}, \code{"time"}, \code{"fidelity"}: What index to count \code{stag} against when
+aborting after stagnation.}
+
 \item{generations}{\code{[integer(1)]} limit generations. Initial population does
 not count.}
-
-\item{staggens}{\code{[integer(1)]} number of generations without progress in
-hypervolume or mean objective value}
 }
 \value{
 \code{function} a terminator function
