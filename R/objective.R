@@ -94,6 +94,9 @@ makeObjective <- function(learner, task, ps, resampling, measure = NULL, holdout
         val <- resample(learner, task, res,
           list(measure), show.info = FALSE)$aggr
       }
+      if (is.na(val)) {
+        val <- worst.measure
+      }
       propfeat <- mean(args$selector.selection)
       c(perf = unname(val * obj.factor), propfeat = propfeat)
   })
