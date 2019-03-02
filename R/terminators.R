@@ -14,12 +14,15 @@
 #' @param time  `[numeric(1)]` limit evaluation time (which does not count
 #'   holdout fitting time
 #' @param fidelity `[numeric(1)]` total fidelity evaluation to limit
-#' @param staggens `[integer(1)]` number of generations without progress in
-#'   hypervolume or mean objective value
+#' @param stag `[integer(1)]` number of generations (or other measures)
+#'   without progress in hypervolume or mean objective value
+#' @param stag.index `[character(1)]` one of `"generations"` (default),
+#'   `"evals"`, `"time"`, `"fidelity"`: What index to count `stag` against when
+#'   aborting after stagnation.
 #' @return `function` a terminator function
 #' @export
 mosmafsTermEvals <- function(evals) {
-  assertInt(fidelity)
+  assertInt(evals)
   function(result) {
     state <- max(c(result$evals, 0))
     if (state >= evals) {
@@ -41,7 +44,7 @@ mosmafsTermGenerations <- function(generations) {
 #' @export
 #' @rdname mosmafsTermEvals
 mosmafsTermTime <- function(time) {
-  assertNumber(fidelity)
+  assertNumber(time)
   function(result) {
     state <- max(c(result$runtime, 0))
     if (state >= time) {
@@ -55,7 +58,7 @@ mosmafsTermTime <- function(time) {
 mosmafsTermFidelity <- function(fidelity) {
   assertNumber(fidelity)
   function(result) {
-    state
+    state <- max(c(result$cum.fid, 0))
     if (state >= fidelity) {
       sprintf("Total fidelity %s reached limit %s", state, evals)
     }
@@ -64,8 +67,19 @@ mosmafsTermFidelity <- function(fidelity) {
 
 #' @export
 #' @rdname mosmafsTermEvals
-mosmafsTermStagnationHV <- function(staggen) {
-  assertInt(staggen)
+mosmafsTermStagnationHV <- function(stag, stag.index = "generations") {
+  assertInt(stag)
+  assertChoice(stag.index, c("generations", "evals", "time", "fidelity"))
+  stag.access <- switch(stag.index,
+    generations = "gen",
+    evals = "evals",
+    time = "runtime",
+    fidelity = "cum.fid")
+  stag.name <- switch(stag.index,
+    generations = "generations",
+    evals = "evaluations",
+    time = "seconds",
+    fidelity = "evaluated fidelity steps")
   function(result) {
     if (nrow(result) < 1) return(NULL)
     # drop everything up to the last fid.reeval
@@ -73,18 +87,30 @@ mosmafsTermStagnationHV <- function(staggen) {
       drop <- seq_len(max(which(result$fid.reeval)))
       result <- result[-drop, ]
     }
-    stagnation <- nrow(result) - which.max(result$eval.domH)
-    if (stagnation >= staggen) {
-      sprintf("HV performance did not increase for %s generations (limit %s)",
-        stagnation, staggen)
+    stagnation <- max(result[[stag.access]]) -
+      result[[stag.access]][which.max(result$eval.domH)]
+    if (stagnation >= stag) {
+      sprintf("HV performance did not increase for %s %s (limit %s)",
+        stagnation, stag.name, stag)
     }
   }
 }
 
 #' @export
 #' @rdname mosmafsTermEvals
-mosmafsTermStagnationObjMean <- function(staggen) {
-  assertInt(staggen)
+mosmafsTermStagnationObjMean <- function(stag, stag.index = "generations") {
+  assertInt(stag)
+  assertChoice(stag.index, c("generations", "evals", "time", "fidelity"))
+  stag.access <- switch(stag.index,
+    generations = "gen",
+    evals = "evals",
+    time = "runtime",
+    fidelity = "cum.fid")
+  stag.name <- switch(stag.index,
+    generations = "generations",
+    evals = "evaluations",
+    time = "seconds",
+    fidelity = "evaluated fidelity steps")
   function(result) {
     if (nrow(result) < 1) return(NULL)
     # drop everything up to the last fid.reeval
@@ -95,12 +121,13 @@ mosmafsTermStagnationObjMean <- function(staggen) {
 
     obj.colnames <- grep("^eval\\..*\\.mean$", colnames(result), value = TRUE)
     stags <- lapply(result[obj.colnames], function(col) {
-      nrow(result) - which.min(col)
+      stagnation <- max(result[[stag.access]]) -
+        result[[stag.access]][which.min(col)]
     })
     stagnation <- min(stags)
-    if (stagnation >= staggen) {
-      sprintf("Mean objective performance did not increase for %s generations (limit %s)",
-        stagnation, staggen)
+    if (stagnation >= stag) {
+      sprintf("Mean objective performance did not increase for %s %s (limit %s)",
+        stagnation, stag.name, stag)
     }
   }
 }
