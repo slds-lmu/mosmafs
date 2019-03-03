@@ -134,7 +134,7 @@ valuesFromNames <- function(paramset, value) {
 #' @description
 #' "Baseline" performance measure: We just do normal parameter optimization
 #' with additional parameters: mosmafs.nselect (how many features to select),
-#' mosmafs.iselect (vector discrete parameter that selects explicit features out
+#' mosmafs.iselect (vector integer parameter that selects explicit features out
 #' of order) and mosmafs.select.weights (numeric parameter vector that does
 #' weighting between filter values to use.
 #' @param learner `[Learner}` the base learner to use
@@ -186,44 +186,57 @@ makeBaselineObjective <- function(learner, task, filters, ps, resampling, measur
   argnames <- getParamIds(getParamSet(learner))
 
   assertSubset(getParamIds(ps), argnames)
-  ps <- c(ps, pSS(mosmafsnselect: integer[0, numfeats]),
-    if (num.explicit.featsel > 0) {
-      pSS(mosmafsiselect: discrete[
-          sapply(seq_len(numfeats), identity, simplify = FALSE)
-        ]^num.explicit.featsel)
-    },
+  ps <- c(ps, pSS(mosmafs.nselect: integer[0, numfeats]),
+    makeParamSet(params = lapply(seq_len(num.explicit.featsel), function(idx) {
+      # not using vector parameters here because mlrMBO probably
+      # sucks at handling them.
+      makeIntegerParam(sprintf("mosmafs.iselect.%s", idx),
+        lower = 1, upper = numfeats)
+    })),
     if (length(filters) > 1) {
-      pSS(mosmafsselect.weights: numeric[0, ~1]^length(filters))
+      makeParamSet(params = lapply(seq_along(filters), function(idx) {
+        # not using vector parameters here because mlrMBO probably
+        # sucks at handling them.
+        makeIntegerParam(sprintf("mosmafs.select.weights.%s", idx),
+          lower = 1, upper = numfeats)
+      }))
     }
   )
 
   fmat <- makeFilterMat(task %>>% cpo, filters)
   assertMatrix(fmat, nrows = numfeats)
 
-  smoof::makeMultiObjectiveFunction(sprintf("mosmafs_baseline_%s_%s",
-    sprintf("mosmafs_%s_%s", learner$id, task$task.desc$id),
+  smoof::makeMultiObjectiveFunction(
+    sprintf("mosmafs_baseline_%s_%s", learner$id, task$task.desc$id),
     has.simple.signature = FALSE, par.set = ps, n.objectives = 2, noisy = TRUE,
     ref.point = c(worst.measure, 1),
-    fn = function(args) {
+    fn = function(x) {
+      # mlrMBO is the platonic ideal of awful design.
+      # The function parameter actually must be named 'x'.
+      args <- x
+
       # trafo not necessary in mlrMBO
 
       # set up `selector.selection` from nselect, iselect, select.weights and fmat
       nselect <- args$mosmafs.nselect
-      select.weights <- args$mosmsafs.select.weights
-      iselect <- args$mosmafs.iselect
-      if (is.null(select.weights)) {
-        fvals <- c(fmat)
-      } else {
+      iselect <- args[sprintf("mosmafs.iselect.%s", seq_len(num.explicit.featsel))]
+      if (length(filters) > 1) {
+        select.weights <- unlist(args[sprintf("mosmafs.select.weights.%s",
+          seq_along(filters))])
         fvals <- c(fmat %*% select.weights)
+      } else {
+        fvals <- c(fmat)
       }
       selections <- order(fvals, decreasing = TRUE)
-      selections <- c(iselect, selections)
+      selections <- selections[unique(c(unlist(iselect), seq_along(selections)))]
       args$selector.selection <- rep(FALSE, numfeats)
       args$selector.selection[selections[seq_len(nselect)]] <- TRUE
 
       # filter out mosmafs.* parameters we don't need any more
       args <- args[intersect(names(args), argnames)]
       learner <- setHyperPars(learner, par.vals = args)
+
+      propfeat <- mean(args$selector.selection)
 
       net.time <- system.time(
         val <- resample(learner, task, resampling,
@@ -241,13 +254,10 @@ makeBaselineObjective <- function(learner, task, filters, ps, resampling, measur
         if (is.na(val.holdout)) {
           val.holdout <- worst.measure
         }
-        userextra <- c(userextra, list(fitness.holdout = c(
-          perf = unname(val.holdout * obj.factor),
-          propfeat = propfeat)))
-
+        userextra <- c(userextra, list(
+          fitness.holdout.perf = unname(val.holdout * obj.factor),
+          fitness.holdout.propfeat = propfeat))
       }
-
-      propfeat <- mean(args$selector.selection)
 
       result <- c(perf = unname(val * obj.factor), propfeat = propfeat)
       attr(result, "extras") <- userextra
