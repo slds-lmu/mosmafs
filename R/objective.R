@@ -37,12 +37,12 @@
 #'   the data that `cpo` emits.
 #' @return `function` an objective function for [`ecr::ecr`].
 #' @export
-makeObjective <- function(learner, task, ps, resampling, measure = NULL, holdout.data = NULL, worst.measure = NULL, cpo = NULL) {
+makeObjective <- function(learner, task, ps, resampling, measure = NULL, holdout.data = NULL, worst.measure = NULL, cpo = NULLCPO) {
   if (is.null(measure)) {
     measure <- getDefaultMeasure(task)
   }
   assertClass(learner, "Learner")
-  assertClass(cpo, "CPO", null.ok = TRUE)
+  assertClass(cpo, "CPO")
   assertClass(task, "Task")
   assertClass(holdout.data, "Task", null.ok = TRUE)
   assertClass(ps, "ParamSet")
@@ -64,11 +64,11 @@ makeObjective <- function(learner, task, ps, resampling, measure = NULL, holdout
 
 
   learner <- cpoSelector() %>>% checkLearner(learner, type = getTaskType(task))
-  if (!is.null(cpo)) {
-    learner %<<<% cpo
-  }
+  learner %<<<% cpo
+
   argnames <- getParamIds(getParamSet(learner))
-  smoof::makeMultiObjectiveFunction(sprintf("mosmafs_%s", learner$id),
+  smoof::makeMultiObjectiveFunction(
+    sprintf("mosmafs_%s_%s", learner$id, task$task.desc$id),
     has.simple.signature = FALSE, par.set = ps, n.objectives = 2, noisy = TRUE,
     ref.point = c(worst.measure, 1),
     fn = function(args, fidelity = NULL, holdout = FALSE) {
@@ -77,7 +77,8 @@ makeObjective <- function(learner, task, ps, resampling, measure = NULL, holdout
       }
       args <- valuesFromNames(ps, args)
       args <- trafoValue(ps, args)
-      args <- args[intersect(names(args), argnames)]  # filter out strategy parameters
+      # filter out strategy parameters
+      args <- args[intersect(names(args), argnames)]
       learner <- setHyperPars(learner, par.vals = args)
       if (holdout) {
         model <- train(learner, task)
