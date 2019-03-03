@@ -5,7 +5,7 @@
 \title{Create ecr Objective Function}
 \usage{
 makeObjective(learner, task, ps, resampling, measure = NULL,
-  holdout.data = NULL, worst.measure = NULL, cpo = NULL)
+  holdout.data = NULL, worst.measure = NULL, cpo = NULLCPO)
 }
 \arguments{
 \item{learner}{\code{[Learner]} A \code{\link[mlr:makeLearner]{Learner}} object to optimize.}
