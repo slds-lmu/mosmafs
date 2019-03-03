@@ -193,8 +193,14 @@ collectResult <- function(ecr.object, aggregate.perresult = list(domHV = functio
       }, fitnesses, hofitnesses)
     })
     names(corcols) <- rownames(fitnesses[[1]]) %??% paste0("obj.", seq_len(corcols))
-    resdf <- cbind(resdf, hout = aggregate.fitness(hofitnesses), cor = corcols)
 
+
+    true.hout.domHV <- mapply(function(eval.fit, hout.fit) {
+      computeHV(hout.fit[, nondominated(eval.fit)], ref.point)
+    }, fitnesses, hofitnesses)
+
+    resdf <- cbind(resdf, hout = aggregate.fitness(hofitnesses), true.hout.domHV,
+      cor = corcols)
   }
   resdf
 }

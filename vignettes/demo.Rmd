@@ -418,6 +418,14 @@ ggplot(collectResult(run.simple), aes(x = evals)) +
   ylim(0, 1)
 ```
 
+Notice the `"true.hout.domHV"` column which measures the dominated hypervolume on the holdout sample of those points that make up the paretofront on the training sample. It is a more realistic measure of generalization performance than the `"hout.domHV"` column, which measures dominated hypervolume on the holdout sample of all points in a generation.
+```{r, fig.width = 6, fig.height = 5}
+ggplot(collectResult(run.simple), aes(x = evals)) +
+  geom_line(aes(y = true.hout.domHV, color = "Holdout")) +
+  geom_line(aes(y = eval.domHV, color = "Training")) +
+  ylim(0, 1)
+```
+
 The totality of information provided by `collectResult()` can be seen from its column names.
 ```{r}
 colnames(collectResult(run.simple))

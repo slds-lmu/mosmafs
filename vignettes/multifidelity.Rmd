@@ -221,7 +221,7 @@ cres <- collectResult(run.gen.mufi)
 ggplot(cres, aes(x = cum.fid, y = eval.domHV, color = "Training")) +
   geom_line() + geom_point(size = 1) +
   geom_point(data = cres[cres$fid.reeval, ], shape = "x", size = 5) +
-  geom_line(aes(x = cum.fid, y = hout.domHV, color = "Holdout")) +
+  geom_line(aes(x = cum.fid, y = true.hout.domHV, color = "Holdout")) +
   ylim(0, 1)
 ```
 
