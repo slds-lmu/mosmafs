@@ -1,26 +1,28 @@
-
-# "Baseline" performance measure: We just do normal parameter optimization
-# with additional parameters: mosmafs.nselect (how many features to select),
-# mosmafs.iselect (vector discrete parameter that selects explicit features out
-# of order) and mosmafs.select.weights (numeric parameter vector that does
-# weighting between filter values to use.
-# @param learner `[Learner}` the base learner to use
-# @param task `[Task]` the task to optimize
-# @param filters `[character]` filter values to evaluate and use
-# @param ps `[ParamSet]` the ParamSet of the learner to evaluate. Should
-#   not include `selector.selection` etc., only parameters of the actual
-#   learner.
-# @param resampling `[ResampleDesc | ResampleInstance]` the resampling to use
-# @param measure `[Measure]` the measure to evaluate
-# @param num.explicit.featsel `[integer(1)]` additional number of parameters
-#   to add for explicit feature selection.
-# @param holdout.data `[Task | NULL]` the holdout data to consider
-# @param worst.measure `[numeric(1)]` worst value to impute for failed evals
-# @param cpo `[CPO]` CPO pipeline to apply before feature selection
-# @param numfeats `[integer(1)]` number of features to consider. Is extracted
-#   from the `task` but should be given if `cpo` changes the number of features.
-# @return `function` that can be used for mlrMBO; irace possibly needs some
-#   adjustmens
+#' @title Create mlrMBO Objective Function
+#'
+#' @description
+#' "Baseline" performance measure: We just do normal parameter optimization
+#' with additional parameters: mosmafs.nselect (how many features to select),
+#' mosmafs.iselect (vector discrete parameter that selects explicit features out
+#' of order) and mosmafs.select.weights (numeric parameter vector that does
+#' weighting between filter values to use.
+#' @param learner `[Learner}` the base learner to use
+#' @param task `[Task]` the task to optimize
+#' @param filters `[character]` filter values to evaluate and use
+#' @param ps `[ParamSet]` the ParamSet of the learner to evaluate. Should
+#'   not include `selector.selection` etc., only parameters of the actual
+#'   learner.
+#' @param resampling `[ResampleDesc | ResampleInstance]` the resampling to use
+#' @param measure `[Measure]` the measure to evaluate
+#' @param num.explicit.featsel `[integer(1)]` additional number of parameters
+#'   to add for explicit feature selection.
+#' @param holdout.data `[Task | NULL]` the holdout data to consider
+#' @param worst.measure `[numeric(1)]` worst value to impute for failed evals
+#' @param cpo `[CPO]` CPO pipeline to apply before feature selection
+#' @param numfeats `[integer(1)]` number of features to consider. Is extracted
+#'   from the `task` but should be given if `cpo` changes the number of features.
+#' @return `function` that can be used for mlrMBO; irace possibly needs some
+#'   adjustmens
 makeBaselineObjective <- function(learner, task, filters, ps, resampling, measure = NULL, num.explicit.featsel = 0, holdout.data = NULL, worst.measure = NULL, cpo = NULLCPO, numfeats = getTaskNFeats(task)) {
   if (is.null(measure)) {
     measure <- getDefaultMeasure(task)
