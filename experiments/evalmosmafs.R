@@ -27,13 +27,14 @@ constructEvalSetting <- function(task, learner, ps, cpo) {
 
     ops.mut.int: discrete[list(
       mutGaussIntScaled = function(p, sdev) ecr::setup(mutGaussIntScaled, p = p, sdev = sdev),
-      mutDoubleGeom = function(p, sdev) ecr::setup(mutDoubleGeom, p = p, geomp = (sqrt(2 * sdev^2 + 1) - 1) / sdev^2))],  # TODO: use scaled parameter
-      # TODO: use polynomial
+      mutDoubleGeomScaled = function(p, sdev) ecr::setup(mutDoubleGeom, p = p, sdev = sdev],
+      mutPolynomial = function(p, sdev) ecr::setup(mutPolynomial, p = p, eta = max(1, (sqrt(8 + sdev^2) / sdev - 5) / 2)),
       # TODO: uniform
     ops.mut.mumeric: discrete[list(
       mutGaussScaled = function(p, sdev) ecr::setup(mutGaussScaled, p = p, sdev = sdev))]
+      mutPolynomialInt = function(p, sdev) ecr::setup(mutPolynomial, p = p, eta = max(1, (sqrt(8 + sdev^2) / sdev - 5) / 2)),
       # TODO: polynomial, uniform
-    ops.mut.sdev: numeric[0.01, 2],
+    ops.mut.sdev: numeric[log(0.005), 0] [[trafo: function(x) exp(x)]],
     ops.mut.p: numeric[0, 1],
     # crossover: intermediate, sbx(eta, p), unifcrossover(p)
 

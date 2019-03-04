@@ -88,9 +88,15 @@ mutRandomChoice <- makeMutator(function(ind, values, p = 0.1) {
 #' @description
 #' "Double Geometric" mutation operator for integer parameters: with prob. `p` both
 #' adds a random geometrically distributed value, and subtracts (a different) one.
+#'
+#' `mutDoubleGeomScaled` scales `sdev` with each component's range and then uses
+#' `geomp = (sqrt(2 * sdev^2 + 1) - 1) / sdev^2`.
+#'
+#'
 #' @param ind `[integer]` individuum to mutate
 #' @param p `[numeric(1)]` probability with which to mutate
-#' @param geomp `[numeric(1)]` geometric distribution parameter
+#' @param geomp `[numeric]` geometric distribution parameter
+#' @param sdev `[numeric]` standard deviation, relative to `upper - lower`
 #' @param lower `[integer]` lower bounds on `ind` values. May have same length as
 #'   `ind` or may be shorter, in which case it is recycled.
 #' @param upper `[integer]` upper bounds on `ind` values. May have same length as
@@ -99,11 +105,70 @@ mutRandomChoice <- makeMutator(function(ind, values, p = 0.1) {
 #' @family operators
 #' @export
 mutDoubleGeom <- makeMutator(function(ind, p = 1, geomp = 0.9, lower, upper) {
+  assertNumeric(p, lower = 0, upper = 1, any.missing = FALSE)
+  assertNumeric(geomp, lower = 0, upper = 1, any.missing = FALSE)
+  assertNumeric(lower, any.missing = FALSE)
+  assertNumeric(upper, any.missing = FALSE)
+
   affect <- runif(length(ind)) < p
   naffect <- sum(affect)
   ind[affect] <- ind[affect] + rgeom(naffect, prob = geomp) - rgeom(naffect, prob = geomp)
   pmin(pmax(lower, ind), upper)
 }, supported = "custom")
+
+#' @rdname mutDoubleGeom
+#' @export
+mutDoubleGeomScaled <- makeMutator(function(ind, p = 1, sdev = 0.05, lower, upper) {
+  assertNumeric(lower, any.missing = FALSE, finite = TRUE)
+  assertNumeric(upper, any.missing = FALSE, finite = TRUE)
+  assertNumeric(sdev, lower = 0, any.missing = FALSE, finite = TRUE)
+  sdev <- sdev * (upper - lower)
+  mutDoubleGeom(ind, p = p, geomp = (sqrt(2 * sdev^2 + 1) - 1) / sdev^2), lower = lower, upper = upper)
+}, supported = "custom")
+
+#' @title Parametric Uniform  Mutation
+#'
+#' @description
+#' Adds a variable `delta` to each component `ind[i]`
+#' with probability `p`, where `delta` is uniformly
+#' distributed between `pmax(lower - ind[x], -lx/2)` and
+#' `pmin(upper - ind[i], lx/2)`.
+#' @param ind `[numeric | integer]` individuum
+#' @param p `[numeric]` probability to affect each individual component
+#' @param `lx` `[numeric]` uniform distribution bandwidth
+#' @param `sdev` `[numeric]` standard deviation, will be scaled to `upper - lower`
+#' @param lower `[numeric]` lower bound
+#' @param upper `[numeric]` upper bound
+#' @export
+mutUniformParametric <- makeMutator(function(ind, p, lx, lower, upper) {
+  assertNumeric(lower, any.missing = FALSE)
+  assertNumeric(upper, any.missing = FALSE)
+  assertNumeric(lx, any.missing = FALSE, finite = TRUE)
+  assertNumeric(p, lower = 0, upper = 1, any.missing = FALSE)
+  affect <- runif(length(ind)) < p
+  naffect <- sum(affect)
+  ind[affect] <- runif(naffect,
+    pmax(lower, ind[affect] - lx/2),
+    pmin(upper, ind[affect] + lx/2))
+  ind
+}, supported = "float")
+
+#' @rdname mutUniformParametric
+#' @export
+mutUniformParametricScaled <- makeMutator(function(ind, p, sdev, lower, upper) {
+  assertNumeric(lower, any.missing = FALSE, finite = TRUE)
+  assertNumeric(upper, any.missing = FALSE, finite = TRUE)
+  assertNumeric(sdev, any.missing = FALSE, finite = TRUE)
+  mutUniformParametric(ind, p = p, lx = sqrt(12) * sdev, lower = lower, upper = upper)
+}, supported = "float")
+
+#' @rdname mutUniformParametric
+#' @export
+mutUniformParametricInt <- intifyMutator(mutUniformParametric)
+
+#' @rdname mutUniformParametric
+#' @export
+mutUniformParametricIntScaled <- intifyMutator(mutUniformParametricScaled)
 
 #' @title General Uniform Crossover
 #'
