@@ -26,17 +26,25 @@ constructEvalSetting <- function(task, learner, ps, cpo) {
     ops.parentsel.param.sorting: discrete[crowding, domHV],
 
     ops.mut.int: discrete[list(
-      mutGaussIntScaled = function(p, sdev) ecr::setup(mutGaussIntScaled, p = p, sdev = sdev),
-      mutDoubleGeomScaled = function(p, sdev) ecr::setup(mutDoubleGeom, p = p, sdev = sdev],
-      mutPolynomial = function(p, sdev) ecr::setup(mutPolynomial, p = p, eta = max(1, (sqrt(8 + sdev^2) / sdev - 5) / 2)),
-      # TODO: uniform
+      mutGaussIntScaled = mutGaussIntScaled,
+      mutDoubleGeomScaled = mutDoubleGeom,
+      mutPolynomialInt = makeMutator(function(ind, p, sdev, lower, upper) {
+        mutPolynomialInt(ind, p = p, eta = max(1, (sqrt(8 + sdev^2) / sdev - 5) / 2), lower = lower, upper = upper)
+      }, supported = "custom")
+      mutUniformParametricIntScaled = mutUniformParametricIntScaled)],
     ops.mut.mumeric: discrete[list(
-      mutGaussScaled = function(p, sdev) ecr::setup(mutGaussScaled, p = p, sdev = sdev))]
-      mutPolynomialInt = function(p, sdev) ecr::setup(mutPolynomial, p = p, eta = max(1, (sqrt(8 + sdev^2) / sdev - 5) / 2)),
-      # TODO: polynomial, uniform
-    ops.mut.sdev: numeric[log(0.005), 0] [[trafo: function(x) exp(x)]],
-    ops.mut.p: numeric[0, 1],
+      mutGaussScaled = mutGaussScaled,
+      mutPolynomialInt = makeMutator(function(ind, p, sdev, lower, upper) {
+        mutPolynomial(ind, p = p, eta = max(1, (sqrt(8 + sdev^2) / sdev - 5) / 2), lower = lower, upper = upper)
+      }, supported = "float"),
+      mutUniformParametricScaled = mutUniformParametricIntScaled)],
+    ops.mut.strategy: logical,
+    ops.mut.sdev: numeric[log(0.005), 0] [[trafo: function(x) exp(x), requires = quote(!ops.mut.strategy)]],
+    ops.mut.p: numeric[0, 1] [[requires = quote(!ops.mut.strategy)]],
     # crossover: intermediate, sbx(eta, p), unifcrossover(p)
+    ops.rec.nums: discrete[list(
+      recSBX = list(numeric = recSBX, integer = recIntSBX),
+      recIntermediate = list(numeric = recIntermediate, integer = recIntIntermediate)
 
 
 

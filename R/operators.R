@@ -60,6 +60,32 @@ mutUniformInt <- intifyMutator(mutUniform)
 #' @export
 recIntSBX <- intifyRecombinator(recSBX)
 
+
+#' @title Integer Intermediate Recombinator
+#'
+#' @description
+#' See [ecr::recIntermediate]
+#' @family operators
+#' @export
+recIntIntermediate <- intifyRecombinator(recIntermediate)
+
+#' @title Gaussian Intermediate Recombinator
+#'
+#' @description
+#' See [ecr::recIntermediate]
+#' @family operators
+#' @export
+recGaussian <- makeRecombinator(function(inds) {
+  assertList(inds, len = 2, any.missing = FALSE)
+  wrapChildren(
+    rnorm(length(inds), (inds[[1]] + inds[[2]]) / 2, abs(inds[[2]] - inds[[1]]) / 2),
+    rnorm(length(inds), (inds[[1]] + inds[[2]]) / 2, abs(inds[[2]] - inds[[1]]) / 2)
+  )
+}, supported = "float", n.parents = 2, n.children = 2)
+recIntGaussian <- intifyRecombinator(recGaussian)
+
+
+
 #' @title Random Choice Mutator
 #'
 #' @description
