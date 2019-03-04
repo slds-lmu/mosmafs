@@ -1,0 +1,43 @@
+
+
+constructEvalSetting <- function(task, learner, ps, cpo) {
+
+  nfeat <- getTaskNFeats(task)
+
+  mosmafs.params <- pSSLrn(
+    init.distribution.constructor: discrete [list(
+      binomial = function(param) function() rbinom(1, nfeat, param),
+      geometric = function(param) function() min(rgeom(1, 1 / (nfeat * param)), nfeat),
+      uniform = function(param) function() floor(runif(1, 0, length(nfeat) + 1)))],
+    init.distribution.param: numeric[0.001, 0.999] [[requires =
+      quote(init.distribution.constructor %in% c("binomial", "geometric"))]]
+    init.soften.iters: integer[0, 2],
+    use.SHW: logical,
+    filters: discrete [list(
+      none = character(0),
+      filters = c("auc", "praznik_JMI",
+        "FSelectorRcpp_information.gain",
+        "chi.squared", "DUMMY"))],
+    ops.parentsel: discrete[list(
+      selSimple = selSimple,
+      selTrounament = selTrounamentMO)],
+    ops.parentsel.param.k: numeric[1, 5] [[trafo = function(x) round(2^x),
+      requires = quote(ops.parentsel == "selTournament")]],
+    ops.parentsel.param.sorting: discrete[crowding, domHV],
+
+    ops.mut.int: discrete[list(
+      mutGaussIntScaled = function(p, sdev) ecr::setup(mutGaussIntScaled, p = p, sdev = sdev),
+      mutDoubleGeom = function(p, sdev) ecr::setup(mutDoubleGeom, p = p, geomp = (sqrt(2 * sdev^2 + 1) - 1) / sdev^2))],  # TODO: use scaled parameter
+      # TODO: use polynomial
+      # TODO: uniform
+    ops.mut.mumeric: discrete[list(
+      mutGaussScaled = function(p, sdev) ecr::setup(mutGaussScaled, p = p, sdev = sdev))]
+      # TODO: polynomial, uniform
+    ops.mut.sdev: numeric[0.01, 2],
+    ops.mut.p: numeric[0, 1],
+    # crossover: intermediate, sbx(eta, p), unifcrossover(p)
+
+
+
+
+
