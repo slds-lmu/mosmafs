@@ -14,6 +14,7 @@ Other operators: \code{\link{mutDoubleGeom}},
   \code{\link{mutGaussIntScaled}},
   \code{\link{mutGaussInt}}, \code{\link{mutGaussScaled}},
   \code{\link{mutPolynomialInt}},
-  \code{\link{mutRandomChoice}}, \code{\link{recIntSBX}}
+  \code{\link{mutRandomChoice}}, \code{\link{recGaussian}},
+  \code{\link{recIntIntermediate}}, \code{\link{recIntSBX}}
 }
 \concept{operators}

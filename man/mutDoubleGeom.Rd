@@ -2,22 +2,27 @@
 % Please edit documentation in R/operators.R
 \name{mutDoubleGeom}
 \alias{mutDoubleGeom}
+\alias{mutDoubleGeomScaled}
 \title{Double Geometric Distribution Mutator}
 \usage{
 mutDoubleGeom(ind, p = 1, geomp = 0.9, lower, upper)
+
+mutDoubleGeomScaled(ind, p = 1, sdev = 0.05, lower, upper)
 }
 \arguments{
 \item{ind}{\code{[integer]} individuum to mutate}
 
 \item{p}{\code{[numeric(1)]} probability with which to mutate}
 
-\item{geomp}{\code{[numeric(1)]} geometric distribution parameter}
+\item{geomp}{\code{[numeric]} geometric distribution parameter}
 
 \item{lower}{\code{[integer]} lower bounds on \code{ind} values. May have same length as
 \code{ind} or may be shorter, in which case it is recycled.}
 
 \item{upper}{\code{[integer]} upper bounds on \code{ind} values. May have same length as
 \code{ind} or may be shorter, in which case it is recycled.}
+
+\item{sdev}{\code{[numeric]} standard deviation, relative to \code{upper - lower}}
 }
 \value{
 \code{\link{integer}}
@@ -25,12 +30,16 @@ mutDoubleGeom(ind, p = 1, geomp = 0.9, lower, upper)
 \description{
 "Double Geometric" mutation operator for integer parameters: with prob. \code{p} both
 adds a random geometrically distributed value, and subtracts (a different) one.
+
+\code{mutDoubleGeomScaled} scales \code{sdev} with each component's range and then uses
+\code{geomp = (sqrt(2 * sdev^2 + 1) - 1) / sdev^2}.
 }
 \seealso{
 Other operators: \code{\link{mutGaussIntScaled}},
   \code{\link{mutGaussInt}}, \code{\link{mutGaussScaled}},
   \code{\link{mutPolynomialInt}},
   \code{\link{mutRandomChoice}},
-  \code{\link{mutUniformInt}}, \code{\link{recIntSBX}}
+  \code{\link{mutUniformInt}}, \code{\link{recGaussian}},
+  \code{\link{recIntIntermediate}}, \code{\link{recIntSBX}}
 }
 \concept{operators}

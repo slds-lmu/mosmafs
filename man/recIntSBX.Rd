@@ -15,6 +15,7 @@ Other operators: \code{\link{mutDoubleGeom}},
   \code{\link{mutGaussInt}}, \code{\link{mutGaussScaled}},
   \code{\link{mutPolynomialInt}},
   \code{\link{mutRandomChoice}},
-  \code{\link{mutUniformInt}}
+  \code{\link{mutUniformInt}}, \code{\link{recGaussian}},
+  \code{\link{recIntIntermediate}}
 }
 \concept{operators}
