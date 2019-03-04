@@ -149,7 +149,7 @@ mutDoubleGeomScaled <- makeMutator(function(ind, p = 1, sdev = 0.05, lower, uppe
   assertNumeric(upper, any.missing = FALSE, finite = TRUE)
   assertNumeric(sdev, lower = 0, any.missing = FALSE, finite = TRUE)
   sdev <- sdev * (upper - lower)
-  mutDoubleGeom(ind, p = p, geomp = (sqrt(2 * sdev^2 + 1) - 1) / sdev^2), lower = lower, upper = upper)
+  mutDoubleGeom(ind, p = p, geomp = (sqrt(2 * sdev^2 + 1) - 1) / sdev^2, lower = lower, upper = upper)
 }, supported = "custom")
 
 #' @title Parametric Uniform  Mutation
