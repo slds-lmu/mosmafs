@@ -75,7 +75,8 @@ constructEvalSetting <- function(task, learner, ps, measure = getDefaultMeasure(
       selSimple = selSimpleUnique,
       selNondom = selNondom,
       selTournamentMO = selTournamentMO)],
-    ops.tournament.k: numeric[1, 5] [[trafo = function(x) round(2^x), requires = quote(ops.parentsel == "selTournamentMO" || ops.survsel == "selTournamentMO")]],
+    ops.tournament.k: numeric[1, 5] [[trafo = function(x) round(2^x),
+      requires = quote(ops.parentsel == "selTournamentMO" || ops.survsel == "selTournamentMO")]],
     ops.tournament.sorting: discrete[crowding, domHV]
       [[requires = quote(ops.parentsel == "selTournamentMO")]],
 
@@ -83,17 +84,20 @@ constructEvalSetting <- function(task, learner, ps, measure = getDefaultMeasure(
       mutGaussIntScaled = mutGaussIntScaled,
       mutDoubleGeomScaled = mutDoubleGeom,
       mutPolynomialInt = makeMutator(function(ind, p, sdev, lower, upper) {
-        mutPolynomialInt(ind, p = p, eta = max(1, (sqrt(8 + sdev^2) / sdev - 5) / 2), lower = lower, upper = upper)
+        mutPolynomialInt(ind, p = p, eta = max(1, (sqrt(8 + sdev^2) / sdev - 5) / 2),
+          lower = lower, upper = upper)
       }, supported = "custom"),
       mutUniformParametricIntScaled = mutUniformParametricIntScaled)],
     ops.mut.numeric: discrete[list(
       mutGaussScaled = mutGaussScaled,
       mutPolynomialInt = makeMutator(function(ind, p, sdev, lower, upper) {
-        mutPolynomial(ind, p = p, eta = max(1, (sqrt(8 + sdev^2) / sdev - 5) / 2), lower = lower, upper = upper)
+        mutPolynomial(ind, p = p, eta = max(1, (sqrt(8 + sdev^2) / sdev - 5) / 2),
+          lower = lower, upper = upper)
       }, supported = "float"),
       mutUniformParametricScaled = mutUniformParametricIntScaled)],
     ops.mut.strategy: logical,
-    ops.mut.sdev: numeric[log(0.005), 0] [[trafo = function(x) exp(x), requires = quote(!ops.mut.strategy)]],
+    ops.mut.sdev: numeric[log(0.005), 0]
+      [[trafo = function(x) exp(x), requires = quote(!ops.mut.strategy)]],
     ops.mut.p: numeric[0, 1] [[requires = quote(!ops.mut.strategy)]],
 
     ops.rec.nums: discrete[list(
@@ -101,8 +105,10 @@ constructEvalSetting <- function(task, learner, ps, measure = getDefaultMeasure(
       recGaussian = recGaussian,
       recPCrossover = recPCrossover)],
     ops.rec.strategy: logical,
-    ops.rec.crossover.p: numeric[0, 1] [[requires = quote(!ops.rec.strategy)]],
-    ops.rec.sbx.eta: numeric[1, 10] [[requires = quote(!ops.rec.strategy && ops.rec.nums == "recSBX")]],
+    ops.rec.crossover.p: numeric[0, 1]
+      [[requires = quote(!ops.rec.strategy)]],
+    ops.rec.sbx.eta: numeric[1, 10]
+      [[requires = quote(!ops.rec.strategy && ops.rec.nums == "recSBX")]],
 
     mu: numeric[3, 8] [[trafo = function(x) round(2^x)]],
     lambda: numeric[3, 8] [[trafo = function(x) round(2^x)]],
@@ -126,7 +132,10 @@ constructEvalSetting <- function(task, learner, ps, measure = getDefaultMeasure(
     subsetTask(task, outer.res.inst$test.inds[[i]])
   }
 
-  res.insts <- lapply(seq_len(outer.res.inst$desc$iters), function(iter) replicate(1000, makeResampleInstance(makeResampleDesc("CV", iters = 10, stratify = TRUE), getTrainTask(iter))))
+  stratcv10 <- makeResampleDesc("CV", iters = 10, stratify = TRUE)
+  res.insts <- lapply(seq_len(outer.res.inst$desc$iters), function(iter) {
+    replicate(1000, makeResampleInstance(stratcv10, getTrainTask(iter)))
+  })
 
   reduceResult <- function(x) {  # remove task from result when saving
     if (is.list(x)) {
@@ -168,13 +177,17 @@ constructEvalSetting <- function(task, learner, ps, measure = getDefaultMeasure(
         selector.mutator <- assign.op(use.SHW)
         selector.mutator.init <- assign.op(use.SHW.init)
         if (filter.strategy) {
-          filterstrat <- makeFilterStrategy(reset.dists = fima, weight.param.name = "filterweights")
+          filterstrat <- makeFilterStrategy(reset.dists = fima,
+            weight.param.name = "filterweights")
           eval.ps <- c(eval.ps, pSS(filterweights: numeric[0, ~1]^length(filters)))
-          init.strategy = makeFilterStrategy(reset.dists = fima, weight.param.name = "filterweights")
+          init.strategy <- makeFilterStrategy(reset.dists = fima,
+            weight.param.name = "filterweights")
         } else {
-          selector.mutator <- ecr::setup(selector.mutator, reset.dists = fima, reset.dist.weights = rep(0.5, length(filters)))
-          selector.mutator.init <- ecr::setup(selector.mutator.init, reset.dists = fima, reset.dist.weights = rep(0.5, length(filters)))
-          init.strategy = function(ind) list()
+          selector.mutator <- ecr::setup(selector.mutator,
+            reset.dists = fima, reset.dist.weights = rep(0.5, length(filters)))
+          selector.mutator.init <- ecr::setup(selector.mutator.init,
+            reset.dists = fima, reset.dist.weights = rep(0.5, length(filters)))
+          init.strategy <- function(ind) list()
         }
       } else {
         assign.op <- function(shw) {
@@ -195,7 +208,9 @@ constructEvalSetting <- function(task, learner, ps, measure = getDefaultMeasure(
         destrategize.disc.mut <- identity
         strategy.num.mut <- function(ind) list(p = ind$strategy.p, sdev = ind$strategy.sdev)
         strategy.disc.mut <- function(ind) list(p = ind$strategy.p)
-        eval.ps <- c(eval.ps, pSS(strategy.p: numeric[0, 1], strategy.sdev: numeric[log(0.005), 0] [[trafo = function(x) exp(x)]]))
+        eval.ps <- c(eval.ps, pSS(
+          strategy.p: numeric[0, 1],
+          strategy.sdev: numeric[log(0.005), 0] [[trafo = function(x) exp(x)]]))
       } else {
         destrategize.num.mut <- function(x) ecr::setup(x, p = ops.mut.p, sdev = ops.mut.sdev)
         destrategize.disc.mut <- function(x) ecr::setup(x, p = ops.mut.p)
@@ -213,7 +228,9 @@ constructEvalSetting <- function(task, learner, ps, measure = getDefaultMeasure(
           else if (num.needs.eta) list(eta = ind$strategy.rec.eta)
           else list()
         strategy.disc.rec <- function(ind) c(list(p = ind$strategy.rec.p))
-        eval.ps <- c(eval.ps, pSS(strategy.rec.p: numeric[0, 1], strategy.rec.eta: numeric[1, 10]))
+        eval.ps <- c(eval.ps, pSS(
+          strategy.rec.p: numeric[0, 1],
+          strategy.rec.eta: numeric[1, 10]))
       } else {
         destrategize.num.rec <- function(x)
           if (num.needs.p) ecr::setup(x, p = ops.rec.crossover.p)
@@ -225,7 +242,8 @@ constructEvalSetting <- function(task, learner, ps, measure = getDefaultMeasure(
       }
 
 
-      # needs to go after eval.ps is fully constructed, so after first part of recombinator construction
+      # needs to go after eval.ps is fully constructed, so
+      # after first part of recombinator construction
       mutator <- combine.operators(eval.ps,
         integer = destrategize.num.mut(ops.mut.int),
         .strategy.integer = strategy.num.mut,
@@ -243,6 +261,7 @@ constructEvalSetting <- function(task, learner, ps, measure = getDefaultMeasure(
             list()
           }
         })
+
       recombinator <- combine.operators(eval.ps,
         integer = destrategize.num.rec(intifyRecombinator(ops.rec.nums)),
         .strategy.integer = strategy.num.rec,
@@ -254,11 +273,17 @@ constructEvalSetting <- function(task, learner, ps, measure = getDefaultMeasure(
         .strategy.logical = strategy.disc.rec)
 
       if (identical(ops.parentsel, selTournamentMO)) {
-        ops.parentsel <- ecr::setup(ops.parentsel, k = min(ops.tournament.k, lambda), sorting = ops.tournament.sorting, ref.point = ref.point)
+        ops.parentsel <- ecr::setup(ops.parentsel,
+          k = min(ops.tournament.k, lambda),
+          sorting = ops.tournament.sorting,
+          ref.point = ref.point)
       }
 
       if (identical(ops.survsel, selTournamentMO)) {
-        ops.survsel <- ecr::setup(ops.survsel, k = min(ops.tournament.k, lambda), sorting = ops.tournament.sorting, ref.point = ref.point, return.unique = TRUE)
+        ops.survsel <- ecr::setup(ops.survsel,
+          k = min(ops.tournament.k, lambda),
+          sorting = ops.tournament.sorting,
+          ref.point = ref.point, return.unique = TRUE)
       }
 
       initials <- sampleValues(eval.ps, mu, discrete.names = TRUE)
@@ -286,19 +311,20 @@ constructEvalSetting <- function(task, learner, ps, measure = getDefaultMeasure(
 
       if (is.null(x$INSTANCE)) {
         x$INSTANCE <- sample(length(res.insts), size = 1)
-        filesuffix <- paste0("_", gsub(":", "-", gsub(" ", "_", as.character(Sys.time()))), "")
+        filesuffix <- paste0("_", gsub(":", "-", gsub(" ", "_", as.character(Sys.time()))))
       } else {
         filesuffix <- ""
       }
       assertInt(x$INSTANCE, lower = 1, upper = length(res.insts))
 
-      iterresults <- parallelMap::parallelSapply(seq_len(outer.res.inst$desc$iters), function(houtiter) {
+      hiters <- seq_len(outer.res.inst$desc$iters)
+      iterresults <- parallelMap::parallelSapply(hiters, function(houtiter) {
         set.seed(houtiter)
         nRes <- function(n) {
           if (fixed.ri) {
             inst <- res.insts[[houtiter]][[x$INSTANCE]]
           } else {
-            inst <- makeResampleInstance(makeResampleDesc("CV", iters = 10, stratify = TRUE), task)
+            inst <- makeResampleInstance(stratcv10, task)
           }
           if (n == 1) {
             inst$desc$iters <- 1
@@ -338,7 +364,11 @@ constructEvalSetting <- function(task, learner, ps, measure = getDefaultMeasure(
 
         if (!is.null(savedir)) {
           saveRDS(list(params = x, run = reduceResult(run)),
-            file = file.path(savedir, paste0("MOSMAFS_RUN_", digest::digest(x), filesuffix, sprintf("_%s.rds", houtiter))))
+            file = file.path(savedir,
+              paste0("MOSMAFS_RUN_",
+                digest::digest(x),
+                filesuffix,
+                sprintf("_%s.rds", houtiter))))
         }
         res <- collectResult(run)
         res$cum.fid <- pmin(res$cum.fid, evals)
