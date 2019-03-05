@@ -10,6 +10,8 @@ makeBaselineObjective(learner, task, filters, ps, resampling,
   numfeats = getTaskNFeats(task))
 }
 \arguments{
+\item{learner}{\code{[Learner]} the base learner to use}
+
 \item{task}{\code{[Task]} the task to optimize}
 
 \item{filters}{\code{[character]} filter values to evaluate and use}

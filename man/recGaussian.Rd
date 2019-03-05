@@ -4,7 +4,7 @@
 \alias{recGaussian}
 \title{Gaussian Intermediate Recombinator}
 \usage{
-recGaussian(inds)
+recGaussian(inds, lower, upper, ...)
 }
 \description{
 See \link[ecr:recIntermediate]{ecr::recIntermediate}
