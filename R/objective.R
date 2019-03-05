@@ -75,7 +75,7 @@ makeObjective <- function(learner, task, ps, resampling, measure = NULL, holdout
       if (holdout && is.null(holdout.data)) {
         return(c(perf = Inf, propfeat = Inf))
       }
-      if (identical(fidelity, 0)) {
+      if (!missing(fidelity) && identical(fidelity, 0)) {
         return(c(0, 0))
       }
       args <- valuesFromNames(ps, args)
