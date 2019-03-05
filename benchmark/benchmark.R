@@ -2,6 +2,7 @@ library("batchtools")
 library("ecr")
 library("magrittr")
 library("ParamHelpers")
+library("parallelMap")
 library("mlr")
 library("mlrCPO")
 library("mosmafs")
@@ -17,7 +18,7 @@ if (file.exists("registry")) {
     reg = loadRegistry("registry", writeable = TRUE)
   }
 } else {
-  reg = makeExperimentRegistry(seed = 123L,
+  reg = makeExperimentRegistry(file.dir = "registry", seed = 123L,
     packages = packages, source = "def.R")
 }
 
@@ -26,7 +27,9 @@ for (ds in datasets) {
   addProblem(name = ds, data = paste(datafolder, ds, "task.rds", sep = "/"), reg = reg)
 }
 
-mosmafs = function(data, job, instance, learner, lambda, mu, maxeval, filter.method, initialization, parent.sel) {
+mosmafs = function(data, job, instance, learner, 
+  lambda, mu, maxeval, filter.method, initialization, 
+  parent.sel, feature.mut) {
 
   # --- task and learner ---
   task = readRDS(instance)
@@ -56,7 +59,7 @@ mosmafs = function(data, job, instance, learner, lambda, mu, maxeval, filter.met
     logical = mutBitflip,
     integer = mutUniformInt,
     discrete = mutRandomChoice,
-    selector.selection = mutBitflip,
+    selector.selection = FEATURE_MUT[[feature.mut]],
     .strategy.numeric = makeMutationStrategyNumeric(".strategy.numeric", "sdev", lr = 1 / sqrt(2 * lambda), lower = 0, upper = 1),
     .strategy.logical = makeMutationStrategyNumeric(".strategy.logical", "p", lr = 1 / sqrt(2 * lambda), lower = 0, upper = 1),
     .strategy.integer = makeMutationStrategyNumeric(".strategy.logical", "p", lr = 1 / sqrt(2 * lambda), lower = 0, upper = 1),    
@@ -96,6 +99,8 @@ mosmafs = function(data, job, instance, learner, lambda, mu, maxeval, filter.met
     initials = resamplePopulationFeatures(inds = initials, ps = ps, sampler = sampler, args = args, probs = probs) 
   }
 
+  parallelMap::parallelStartMulticore(cpus = lambda, level =  "ecr2.evaluateFitness")
+  
   results = slickEcr(
     fitness.fun = makeObjective(learner = lrn, task = task.train, ps = ps, resampling = cv10, holdout.data = task.test),
     lambda = lambda,
@@ -106,6 +111,8 @@ mosmafs = function(data, job, instance, learner, lambda, mu, maxeval, filter.met
     parent.selector = PARENTSEL[[parent.sel]]
   )
 
+  parallelMap::parallelStop()
+
   runtime = proc.time() - time
 
   # do nondom sorting for every step
@@ -115,7 +122,7 @@ mosmafs = function(data, job, instance, learner, lambda, mu, maxeval, filter.met
   domhypervol = lapply(seq_along(pops), function(x) computeHV(as.matrix(pops[[x]]$fitness[, paretofront[[x]]]), ref.point = c(1, 1)))
 
   return(list(results = results, task.test = task.test, task.train = task.train, runtime = runtime, ps = ps, paretofront = paretofront, 
-    pareto.front.test = pareto.front.test, domhypervol = domhypervol, filtermat = FILTERMAT))
+    domhypervol = domhypervol, filtermat = FILTERMAT))
 }
 
 addAlgorithm(name = "mosmafs", reg = reg, fun = mosmafs)
