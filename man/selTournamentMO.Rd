@@ -35,4 +35,7 @@ or crowding distance, depending on \code{sorting}.
 Ties are broken randomly by adding random noise of relative magnitude
 \code{.Machine$double.eps * 2^10} to points.
 }
+\seealso{
+Other Selectors: \code{\link{selSimpleUnique}}
+}
 \concept{Selectors}
