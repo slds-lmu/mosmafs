@@ -28,7 +28,7 @@ lrn.ps <- pSS(
   minsplit: integer[2, 30],
   cp: numeric[0.001, 0.999])
 efun <- constructEvalSetting(
-    spheretask, lrn, lrn.ps, measure = mlr::mmce, evals = 1e4,
+    spheretask, lrn, lrn.ps, measure = mlr::mmce, evals = 6e3,
     savedir = "/projects/user/mosmafstraces")
 
 input <- sampleValue(getParamSet(efun), discrete.names = TRUE, trafo = TRUE)
