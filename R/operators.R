@@ -79,7 +79,7 @@ recIntIntermediate <- intifyRecombinator(recIntermediate)
 #' See [ecr::recIntermediate]
 #' @family operators
 #' @export
-recGaussian <- makeRecombinator(function(inds, ...) {
+recGaussian <- makeRecombinator(function(inds, lower, upper, ...) {
   assertList(inds, len = 2, any.missing = FALSE)
   do.call(wrapChildren, replicate(2, simplify = FALSE, {
     ind <- rnorm(length(inds[[1]]),
