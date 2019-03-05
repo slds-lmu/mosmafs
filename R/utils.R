@@ -189,7 +189,7 @@ collectResult <- function(ecr.object, aggregate.perresult = list(domHV = functio
 
     corcols <- lapply(seq_len(ecr.object$task$n.objectives), function(idx) {
       mapply(function(eval.fit, hout.fit) {
-        cor.fun(eval.fit[idx, ], hout.fit[idx, ])
+        suppressWarnings(cor.fun(eval.fit[idx, ], hout.fit[idx, ]))
       }, fitnesses, hofitnesses)
     })
     names(corcols) <- rownames(fitnesses[[1]]) %??% paste0("obj.", seq_len(corcols))
