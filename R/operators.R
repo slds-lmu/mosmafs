@@ -348,6 +348,16 @@ selTournamentMO <- makeSelector(function(fitness, n.select, sorting = "crowding"
   })
 }, supported.objectives = "multi-objective")
 
+#' @title Simple Selector without Replacement
+#'
+#' @param fitness `[matrix]` fitness matrix, one column per individuum
+#' @param n.select `[integer(1)]` number of individuums to select
+#' @family Selectors
+#' @export
+selSimpleUnique <- makeSelector(function(fitness, n.select) {
+  sample(ncol(fitness), size = n.select, replace = FALSE)
+}, supported.objectives = c("single-objective", "multi-objective"))
+
 #' @title Rank by Nondominated Front and Crowding Distance or Hypervolume Contribution
 #'
 #' @description
