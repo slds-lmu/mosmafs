@@ -48,7 +48,7 @@ mosmafsTermTime <- function(time) {
   function(result) {
     state <- max(c(result$runtime, 0))
     if (state >= time) {
-      sprintf("Total runtime %s reached limit %s", state, evals)
+      sprintf("Total runtime %s reached limit %s", state, time)
     }
   }
 }
@@ -60,7 +60,7 @@ mosmafsTermFidelity <- function(fidelity) {
   function(result) {
     state <- max(c(result$cum.fid, 0))
     if (state >= fidelity) {
-      sprintf("Total fidelity %s reached limit %s", state, evals)
+      sprintf("Total fidelity %s reached limit %s", state, fidelity)
     }
   }
 }

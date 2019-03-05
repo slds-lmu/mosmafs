@@ -75,6 +75,9 @@ makeObjective <- function(learner, task, ps, resampling, measure = NULL, holdout
       if (holdout && is.null(holdout.data)) {
         return(c(perf = Inf, propfeat = Inf))
       }
+      if (identical(fidelity, 0)) {
+        return(c(0, 0))
+      }
       args <- valuesFromNames(ps, args)
       args <- trafoValue(ps, args)
       # filter out strategy parameters
@@ -137,7 +140,7 @@ valuesFromNames <- function(paramset, value) {
 #' mosmafs.iselect (vector integer parameter that selects explicit features out
 #' of order) and mosmafs.select.weights (numeric parameter vector that does
 #' weighting between filter values to use.
-#' @param learner `[Learner}` the base learner to use
+#' @param learner `[Learner]` the base learner to use
 #' @param task `[Task]` the task to optimize
 #' @param filters `[character]` filter values to evaluate and use
 #' @param ps `[ParamSet]` the ParamSet of the learner to evaluate. Should

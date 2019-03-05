@@ -23,6 +23,7 @@
 #' @param savedir `[character(1) | NULL]` the directory to save every trace to.
 #'   If this is `NULL` (the default) evaluations are not saved.
 #' @return `function` a smoof function.
+#' @export
 constructEvalSetting <- function(task, learner, ps, measure = getDefaultMeasure(task), worst.measure = NULL, cpo = NULLCPO, nfeat = getTaskNFeats(task %>>% cpo), evals = 1e5, outer.resampling = makeResampleDesc("CV", iters = 10, stratify = TRUE), savedir = NULL) {
 
   assertClass(task, "Task")
@@ -63,13 +64,23 @@ constructEvalSetting <- function(task, learner, ps, measure = getDefaultMeasure(
       none = character(0),
       many.filters = c("auc", "praznik_JMI",
         "FSelectorRcpp_information.gain",
-        "chi.squared", "DUMMY"),
+        "randomForestSRC_importance", "DUMMY"),
       few.filters = c("praznik_JMI", "FSelectorRcpp_information.gain"))],
     filter.strategy: logical [[requires = quote(filters != "none")]],
+    selector.strategy.p: logical,
+    selector.p: numeric[0, 1] [[requires = quote(!selector.strategy.p)]],
 
     ops.parentsel: discrete[list(
       selSimple = selSimple,
-      selNondom = selNondom,
+      selNondom = makeSelector(function(fitness, n.select) {
+        res <- integer(0)
+        while (n.select >= ncol(fitness)) {
+          res <- c(res, seq_len(ncol(fitness)))
+          n.select <- n.select - ncol(fitness)
+        }
+        if (n.select == 0) return(res)
+        c(res, selNondom(fitness = fitness, n.select = n.select))
+      }, supported.objectives = "multi-objective"),
       selTournamentMO = selTournamentMO)],
     ops.survsel: discrete[list(
       selSimple = selSimpleUnique,
@@ -77,12 +88,12 @@ constructEvalSetting <- function(task, learner, ps, measure = getDefaultMeasure(
       selTournamentMO = selTournamentMO)],
     ops.tournament.k: numeric[1, 5] [[trafo = function(x) round(2^x),
       requires = quote(ops.parentsel == "selTournamentMO" || ops.survsel == "selTournamentMO")]],
-    ops.tournament.sorting: discrete[crowding, domHV]
-      [[requires = quote(ops.parentsel == "selTournamentMO")]],
+    ops.tournament.sorting: discrete[crowding, domhv]
+      [[requires = quote(ops.parentsel == "selTournamentMO" || ops.survsel == "selTournamentMO")]],
 
     ops.mut.int: discrete[list(
       mutGaussIntScaled = mutGaussIntScaled,
-      mutDoubleGeomScaled = mutDoubleGeom,
+      mutDoubleGeomScaled = mutDoubleGeomScaled,
       mutPolynomialInt = makeMutator(function(ind, p, sdev, lower, upper) {
         mutPolynomialInt(ind, p = p, eta = max(1, (sqrt(8 + sdev^2) / sdev - 5) / 2),
           lower = lower, upper = upper)
@@ -134,7 +145,7 @@ constructEvalSetting <- function(task, learner, ps, measure = getDefaultMeasure(
 
   stratcv10 <- makeResampleDesc("CV", iters = 10, stratify = TRUE)
   res.insts <- lapply(seq_len(outer.res.inst$desc$iters), function(iter) {
-    replicate(1000, makeResampleInstance(stratcv10, getTrainTask(iter)))
+    replicate(10, makeResampleInstance(stratcv10, getTrainTask(iter)), simplify = FALSE)
   })
 
   reduceResult <- function(x) {  # remove task from result when saving
@@ -164,6 +175,7 @@ constructEvalSetting <- function(task, learner, ps, measure = getDefaultMeasure(
   smoof::makeSingleObjectiveFunction("mosmafs",
     has.simple.signature = FALSE, noisy = TRUE, par.set = mosmafs.params,
     minimize = FALSE, fn = function(x) {
+      xdigest <- digest::digest(x)
       for (n in names(x)) {
         assign(n, x[[n]])
       }
@@ -201,16 +213,19 @@ constructEvalSetting <- function(task, learner, ps, measure = getDefaultMeasure(
         selector.mutator.init <- assign.op(use.SHW.init)
         init.strategy = function(ind) list()
       }
+      if (selector.strategy.p) {
+        eval.ps <- c(eval.ps, pSS(selector.p: numeric[0, 1]))
+      }
 
       # Construct mutator I
       if (ops.mut.strategy) {
         destrategize.num.mut <- identity
         destrategize.disc.mut <- identity
-        strategy.num.mut <- function(ind) list(p = ind$strategy.p, sdev = ind$strategy.sdev)
+        strategy.num.mut <- function(ind) list(p = ind$strategy.p, sdev = exp(ind$strategy.sdev))
         strategy.disc.mut <- function(ind) list(p = ind$strategy.p)
         eval.ps <- c(eval.ps, pSS(
           strategy.p: numeric[0, 1],
-          strategy.sdev: numeric[log(0.005), 0] [[trafo = function(x) exp(x)]]))
+          strategy.sdev: numeric[log(0.005), 0]))
       } else {
         destrategize.num.mut <- function(x) ecr::setup(x, p = ops.mut.p, sdev = ops.mut.sdev)
         destrategize.disc.mut <- function(x) ecr::setup(x, p = ops.mut.p)
@@ -225,9 +240,9 @@ constructEvalSetting <- function(task, learner, ps, measure = getDefaultMeasure(
         destrategize.disc.rec <- identity
         strategy.num.rec <- function(ind)
           if (num.needs.p) list(p = ind$strategy.rec.p)
-          else if (num.needs.eta) list(eta = ind$strategy.rec.eta)
+          else if (num.needs.eta) list(eta = mean(c(ind[[1]]$strategy.rec.eta, ind[[2]]$strategy.rec.eta)))
           else list()
-        strategy.disc.rec <- function(ind) c(list(p = ind$strategy.rec.p))
+        strategy.disc.rec <- function(ind) c(list(p = mean(c(ind[[1]]$strategy.rec.p, ind[[2]]$strategy.rec.p))))
         eval.ps <- c(eval.ps, pSS(
           strategy.rec.p: numeric[0, 1],
           strategy.rec.eta: numeric[1, 10]))
@@ -244,7 +259,7 @@ constructEvalSetting <- function(task, learner, ps, measure = getDefaultMeasure(
 
       # needs to go after eval.ps is fully constructed, so
       # after first part of recombinator construction
-      mutator <- combine.operators(eval.ps,
+      suppressWarnings(mutator <- combine.operators(eval.ps,
         integer = destrategize.num.mut(ops.mut.int),
         .strategy.integer = strategy.num.mut,
         numeric = destrategize.num.mut(ops.mut.numeric),
@@ -256,21 +271,27 @@ constructEvalSetting <- function(task, learner, ps, measure = getDefaultMeasure(
         selector.selection = selector.mutator,
         .strategy.selector.selection = function(ind) {
           if (length(filters) && filter.strategy) {
-            filterstrat(ind)
+            res <- filterstrat(ind)
           } else {
-            list()
+            res <- list()
           }
-        })
+          if (selector.strategy.p) {
+            res$p <- ind$selector.p
+          } else {
+            res$p <- selector.p
+          }
+          res
+        }))
 
-      recombinator <- combine.operators(eval.ps,
+      suppressWarnings(recombinator <- combine.operators(eval.ps,
         integer = destrategize.num.rec(intifyRecombinator(ops.rec.nums)),
         .strategy.integer = strategy.num.rec,
         numeric = destrategize.num.rec(ops.rec.nums),
         .strategy.numeric = strategy.num.rec,
         discrete = destrategize.disc.rec(recPCrossover),
-        .strategy.discrete = strategy.disc.rec
+        .strategy.discrete = strategy.disc.rec,
         logical = destrategize.disc.rec(recUnifCrossover),
-        .strategy.logical = strategy.disc.rec)
+        .strategy.logical = strategy.disc.rec))
 
       if (identical(ops.parentsel, selTournamentMO)) {
         ops.parentsel <- ecr::setup(ops.parentsel,
@@ -303,7 +324,7 @@ constructEvalSetting <- function(task, learner, ps, measure = getDefaultMeasure(
         jumpgen <- round((evals - mu) / lambda * generation.fid.point)
         jumpgen <- max(jumpgen, 2)
         if (dominance.fid) {
-          fidelity <- data.frame(c(1, jumpgen), c(1, 1), c(1, 9))
+          fidelity <- data.frame(c(1, jumpgen), c(0, 1), c(1, 9))
         } else {
           fidelity <- data.frame(c(1, jumpgen), c(1, 10))
         }
@@ -319,12 +340,13 @@ constructEvalSetting <- function(task, learner, ps, measure = getDefaultMeasure(
 
       hiters <- seq_len(outer.res.inst$desc$iters)
       iterresults <- parallelMap::parallelSapply(hiters, function(houtiter) {
+        catf("Starting iter %s", houtiter)
         set.seed(houtiter)
         nRes <- function(n) {
           if (fixed.ri) {
             inst <- res.insts[[houtiter]][[x$INSTANCE]]
           } else {
-            inst <- makeResampleInstance(stratcv10, task)
+            inst <- makeResampleInstance(stratcv10, getTrainTask(houtiter))
           }
           if (n == 1) {
             inst$desc$iters <- 1
@@ -355,7 +377,7 @@ constructEvalSetting <- function(task, learner, ps, measure = getDefaultMeasure(
           population = initials,
           mutator = mutator,
           recombinator = recombinator,
-          generations = list(mosmafsTermFidelity(evals)),
+          generations = list(function(x) { catf("gen %i", nrow(x)) ; mosmafsTermFidelity(evals)(x)}),
           parent.selector = ops.parentsel,
           survival.selector = ops.survsel,
           p.recomb = p.recomb,
@@ -366,7 +388,7 @@ constructEvalSetting <- function(task, learner, ps, measure = getDefaultMeasure(
           saveRDS(list(params = x, run = reduceResult(run)),
             file = file.path(savedir,
               paste0("MOSMAFS_RUN_",
-                digest::digest(x),
+                xdigest,
                 filesuffix,
                 sprintf("_%s.rds", houtiter))))
         }

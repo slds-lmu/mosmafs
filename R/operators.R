@@ -1,4 +1,6 @@
 
+.tol <- sqrt(.Machine$double.eps) * 4
+
 #' @title Turn Continuous-Space Operators into Integer-Space Operators
 #'
 #' @description
@@ -11,16 +13,18 @@
 #' @return [`ecr_operator`][ecr::makeOperator] operator that operates on integers.
 #' @export
 intifyMutator <- function(operator) makeMutator(function(ind, ..., lower, upper) {
-  ind <- operator(ind, ..., lower = lower - 0.5, upper = upper + 0.5)
+  ind <- operator(as.numeric(ind), ..., lower = lower - 0.5, upper = upper + 0.5)
   as.integer(pmin(pmax(lower, round(ind)), upper))
 }, supported = "custom")
 
 #' @rdname intifyMutator
 #' @export
 intifyRecombinator <- function(operator) makeRecombinator(function(inds, ..., lower, upper) {
-  children <- operator(list(inds[[1]], inds[[2]]), ..., lower = lower - 0.5, upper = upper + 0.5)
+  children <- operator(list(as.numeric(inds[[1]]), as.numeric(inds[[2]])),
+    ..., lower = lower - 0.5, upper = upper + 0.5)
   if (attr(children, "multiple")) {
-    return(do.call(wrapChildren, lapply(children, function(x) as.integer(pmin(pmax(lower, round(x)), upper)))))
+    return(do.call(wrapChildren, lapply(children, function(x)
+      as.integer(pmin(pmax(lower, round(x)), upper)))))
   }
   wrapChildren(as.integer(pmin(pmax(lower, round(children)), upper)))
 },
@@ -75,12 +79,15 @@ recIntIntermediate <- intifyRecombinator(recIntermediate)
 #' See [ecr::recIntermediate]
 #' @family operators
 #' @export
-recGaussian <- makeRecombinator(function(inds) {
+recGaussian <- makeRecombinator(function(inds, ...) {
   assertList(inds, len = 2, any.missing = FALSE)
-  wrapChildren(
-    rnorm(length(inds), (inds[[1]] + inds[[2]]) / 2, abs(inds[[2]] - inds[[1]]) / 2),
-    rnorm(length(inds), (inds[[1]] + inds[[2]]) / 2, abs(inds[[2]] - inds[[1]]) / 2)
-  )
+  do.call(wrapChildren, replicate(2, simplify = FALSE, {
+    ind <- rnorm(length(inds[[1]]),
+      (inds[[1]] + inds[[2]]) / 2,
+      abs(inds[[2]] - inds[[1]]) / 2)
+    pmin(pmax(lower, ind), upper)
+  }))
+
 }, supported = "float", n.parents = 2, n.children = 2)
 recIntGaussian <- intifyRecombinator(recGaussian)
 
@@ -131,8 +138,8 @@ mutRandomChoice <- makeMutator(function(ind, values, p = 0.1) {
 #' @family operators
 #' @export
 mutDoubleGeom <- makeMutator(function(ind, p = 1, geomp = 0.9, lower, upper) {
-  assertNumeric(p, lower = 0, upper = 1, any.missing = FALSE)
-  assertNumeric(geomp, lower = 0, upper = 1, any.missing = FALSE)
+  assertNumeric(p, lower = 0 - .tol, upper = 1 + .tol, any.missing = FALSE)
+  assertNumeric(geomp, lower = 0 - .tol, upper = 1 + .tol, any.missing = FALSE)
   assertNumeric(lower, any.missing = FALSE)
   assertNumeric(upper, any.missing = FALSE)
 
@@ -147,7 +154,7 @@ mutDoubleGeom <- makeMutator(function(ind, p = 1, geomp = 0.9, lower, upper) {
 mutDoubleGeomScaled <- makeMutator(function(ind, p = 1, sdev = 0.05, lower, upper) {
   assertNumeric(lower, any.missing = FALSE, finite = TRUE)
   assertNumeric(upper, any.missing = FALSE, finite = TRUE)
-  assertNumeric(sdev, lower = 0, any.missing = FALSE, finite = TRUE)
+  assertNumeric(sdev, lower = 0 - .tol, any.missing = FALSE, finite = TRUE)
   sdev <- sdev * (upper - lower)
   mutDoubleGeom(ind, p = p, geomp = (sqrt(2 * sdev^2 + 1) - 1) / sdev^2, lower = lower, upper = upper)
 }, supported = "custom")
@@ -170,12 +177,15 @@ mutUniformParametric <- makeMutator(function(ind, p, lx, lower, upper) {
   assertNumeric(lower, any.missing = FALSE)
   assertNumeric(upper, any.missing = FALSE)
   assertNumeric(lx, any.missing = FALSE, finite = TRUE)
-  assertNumeric(p, lower = 0, upper = 1, any.missing = FALSE)
+  if (length(lx) == 1) {
+    lx <- rep_len(lx, length(ind))
+  }
+  assertNumeric(p, lower = 0 - .tol, upper = 1 + .tol, any.missing = FALSE)
   affect <- runif(length(ind)) < p
   naffect <- sum(affect)
   ind[affect] <- runif(naffect,
-    pmax(lower, ind[affect] - lx/2),
-    pmin(upper, ind[affect] + lx/2))
+    pmax(lower[affect], ind[affect] - lx[affect]/2),
+    pmin(upper[affect], ind[affect] + lx[affect]/2))
   ind
 }, supported = "float")
 
@@ -228,8 +238,8 @@ mutUniformReset <- makeMutator(function(ind, p = 0.1, reset.dist) {
   if (length(reset.dist) == 1) {
     reset.dist = rep(reset.dist, length(ind))
   }
-  assertNumeric(reset.dist, lower = 0, upper = 1, len = length(ind), any.missing = FALSE)
-  assertNumeric(p, lower = 0, upper = 1)
+  assertNumeric(reset.dist, lower = 0 - .tol, upper = 1 + .tol, len = length(ind), any.missing = FALSE)
+  assertNumeric(p, lower = 0 - .tol, upper = 1 + .tol)
   affect <- runif(length(ind)) < p
   naffect <- sum(affect)
   ind[affect] <- as.numeric(runif(naffect) < reset.dist[affect])
@@ -248,7 +258,8 @@ mutUniformReset <- makeMutator(function(ind, p = 0.1, reset.dist) {
 #' @return `[integer]` the mutated individuum.
 #' @export
 mutUniformMetaReset <- makeMutator(function(ind, p = 0.1, reset.dists, reset.dist.weights) {
-  assertNumeric(reset.dist.weights, lower = 0, upper = 1 - .Machine$double.eps, any.missing = FALSE)
+  assertNumeric(reset.dist.weights, lower = 0 - .tol, upper = 1 + .tol, any.missing = FALSE)
+  reset.dist.weights <- pmin(reset.dist.weights, 1 - .Machine$double.eps)
   assertMatrix(reset.dists, nrows = length(ind), ncols = length(reset.dist.weights))
   reset.dist.weights <- -log(1 - reset.dist.weights)
   reset.dist.weights <- reset.dist.weights / sum(reset.dist.weights)
@@ -282,8 +293,8 @@ makeFilterStrategy <- function(reset.dists, weight.param.name) {
 #' @family operators
 #' @export
 mutGaussScaled <- makeMutator(function(ind, p = 1, sdev = 0.05, lower, upper) {
-  assertNumber(p, lower = 0, upper = 1, na.ok = FALSE)
-  assertNumeric(sdev, lower = 0, any.missing = FALSE, finite = TRUE)
+  assertNumber(p, lower = 0 - .tol, upper = 1 + .tol, na.ok = FALSE)
+  assertNumeric(sdev, lower = 0 - .tol, any.missing = FALSE, finite = TRUE)
   assertNumeric(lower, any.missing = FALSE, finite = TRUE)
   assertNumeric(upper, any.missing = FALSE, finite = TRUE)
   sdev.scaled <- sdev * (upper - lower)
@@ -419,7 +430,7 @@ overallRankMO <- function(fitness, sorting = "crowding", ref.point) {
 #'   and 0.5.
 #' @export
 mutBitflipCHW <- makeMutator(function(ind, p = 0.1) {
-  assertNumeric(p, lower = 0, upper = 0.5)
+  assertNumeric(p, lower = 0 - .tol, upper = 0.5)
   m <- sum(ind)
   bern.p <- (m + 1) / (length(ind) + 2)
 
@@ -456,8 +467,8 @@ mutUniformResetSHW <- makeMutator(function(ind, p = 0.1, reset.dist) {
   if (length(reset.dist) == 1) {
     reset.dist <- rep(reset.dist, length(ind))
   }
-  assertNumeric(reset.dist, lower = 0, upper = 1, len = length(ind), any.missing = FALSE)
-  assertNumeric(p, lower = 0, upper = 1)
+  assertNumeric(reset.dist, lower = 0 - .tol, upper = 1 + .tol, len = length(ind), any.missing = FALSE)
+  assertNumeric(p, lower = 0 - .tol, upper = 1 + .tol)
   affect <- runif(length(ind)) < p
 
   m <- sum(ind)
@@ -470,7 +481,8 @@ mutUniformResetSHW <- makeMutator(function(ind, p = 0.1, reset.dist) {
 #' @rdname mutUniformResetSHW
 #' @export
 mutUniformMetaResetSHW <- makeMutator(function(ind, p = 0.1, reset.dists, reset.dist.weights) {
-  assertNumeric(reset.dist.weights, lower = 0, upper = 1 - .Machine$double.eps, any.missing = FALSE)
+  assertNumeric(reset.dist.weights, lower = 0 - .tol, upper = 1 + .tol, any.missing = FALSE)
+  reset.dist.weights <- pmin(reset.dist.weights, 1 - .Machine$double.eps)
   assertMatrix(reset.dists, nrows = length(ind), ncols = length(reset.dist.weights))
   reset.dist.weights <- -log(1 - reset.dist.weights)
   reset.dist.weights <- reset.dist.weights / sum(reset.dist.weights)

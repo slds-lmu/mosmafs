@@ -196,7 +196,7 @@ collectResult <- function(ecr.object, aggregate.perresult = list(domHV = functio
 
 
     true.hout.domHV <- mapply(function(eval.fit, hout.fit) {
-      computeHV(hout.fit[, nondominated(eval.fit)], ref.point)
+      computeHV(hout.fit[, nondominated(eval.fit), drop = FALSE], ref.point)
     }, fitnesses, hofitnesses)
 
     resdf <- cbind(resdf, hout = aggregate.fitness(hofitnesses), true.hout.domHV,
