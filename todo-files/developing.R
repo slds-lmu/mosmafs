@@ -18,7 +18,7 @@ tools::buildVignettes(dir = "..")
 library("mlr")
 library("ggplot2")
 library("ecr")
-
+library("mlrCPO")
 
 parallelStop()
 

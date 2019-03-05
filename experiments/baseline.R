@@ -69,8 +69,21 @@ plot(as.data.frame(mbores.nolrn$opt.path)[c("y_1", "y_2")],
 plot(as.data.frame(mbores$opt.path)[c("y_1", "y_2")],
   xlim = c(0, 1), ylim = c(0, 1))
 
+plot(as.data.frame(mbores$opt.path)[c("fitness.holdout.perf", "fitness.holdout.propfeat")],
+  xlim = c(0, 1), ylim = c(0, 1))
 
-as.data.frame(mbores$opt.path
+plot(as.data.frame(mbores.nolrn$opt.path)[c("fitness.holdout.perf", "fitness.holdout.propfeat")],
+  xlim = c(0, 1), ylim = c(0, 1))
+
+
+head(as.data.frame(mbores$opt.path))
 
 str(mbores$opt.path$env$extra)
+
+samples <- sampleValues(getParamSet(obj2), 3000, trafo = TRUE)
+
+sres <- parallelMap::parallelMap(obj2, samples)
+
+mat <- sapply(sres, identity)
+plot(t(mat), xlim = c(0, 1), ylim = c(0, 1))
 
