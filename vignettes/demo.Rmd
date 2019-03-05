@@ -96,10 +96,11 @@ knitr::opts_chunk$set(
 devtools::install_github("jakobbossek/ecr2")
 library("ecr")
 library("magrittr")
-library("ggplot")
+library("ggplot2")
 library("ParamHelpers")
 library("mlr")
 library("mlrCPO")
+library("mosmafs")
 ```
 
 ## Demo Setup

@@ -95,10 +95,11 @@ This vignette starts where the previous vignette leaves off and expects the foll
 devtools::install_github("jakobbossek/ecr2")
 library("ecr")
 library("magrittr")
-library("ggplot")
+library("ggplot2")
 library("ParamHelpers")
 library("mlr")
 library("mlrCPO")
+library("mosmafs")
 ```
 ```{r}
 task.whole <- create.hypersphere.data(3, 2000) %>%
