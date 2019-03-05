@@ -262,7 +262,7 @@ mutUniformMetaReset <- makeMutator(function(ind, p = 0.1, reset.dists, reset.dis
   reset.dist.weights <- pmin(reset.dist.weights, 1 - .Machine$double.eps)
   assertMatrix(reset.dists, nrows = length(ind), ncols = length(reset.dist.weights))
   reset.dist.weights <- -log(1 - reset.dist.weights)
-  reset.dist.weights <- reset.dist.weights / sum(reset.dist.weights)
+  reset.dist.weights <- reset.dist.weights / max(sum(reset.dist.weights), .001)
   mutUniformReset(ind, p = p, reset.dist = reset.dists %*% reset.dist.weights)
 }, supported = "binary")
 
@@ -485,6 +485,6 @@ mutUniformMetaResetSHW <- makeMutator(function(ind, p = 0.1, reset.dists, reset.
   reset.dist.weights <- pmin(reset.dist.weights, 1 - .Machine$double.eps)
   assertMatrix(reset.dists, nrows = length(ind), ncols = length(reset.dist.weights))
   reset.dist.weights <- -log(1 - reset.dist.weights)
-  reset.dist.weights <- reset.dist.weights / sum(reset.dist.weights)
+  reset.dist.weights <- reset.dist.weights / max(sum(reset.dist.weights), .001)
   mutUniformResetSHW(ind, p = p, reset.dist = reset.dists %*% reset.dist.weights)
 }, supported = "binary")
