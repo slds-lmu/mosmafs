@@ -43,7 +43,7 @@ saveOpenMLTask = function(id, path) {
 
 fromDataToTask = function(path, id, target) {
   f = list.files(file.path(path, id), full.names = TRUE)
-  data = do.call("rbind", lapply(f, readARFF))
+  data = do.call("rbind", lapply(f,  RWeka::read.arff))
   task = makeClassifTask(id = id, data = data, target = target)
   saveRDS(task, paste(path, id, "task.rds", sep = "/"))
 }

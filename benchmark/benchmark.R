@@ -9,16 +9,16 @@ library("mosmafs")
 
 source("def.R")
 
-if (file.exists("registry")) {
+if (file.exists("registry2")) {
   if (OVERWRITE) {
-    unlink("registry", recursive = TRUE)
-    reg = makeExperimentRegistry(seed = 123L,
+    unlink("registry2", recursive = TRUE)
+    reg = makeExperimentRegistry(file.dir = "registry2", seed = 123L,
       packages = packages, source = "def.R")
   } else {
-    reg = loadRegistry("registry", writeable = TRUE)
+    reg = loadRegistry("registry2", writeable = TRUE)
   }
 } else {
-  reg = makeExperimentRegistry(file.dir = "registry", seed = 123L,
+  reg = makeExperimentRegistry(file.dir = "registry2", seed = 123L,
     packages = packages, source = "def.R")
 }
 
@@ -73,7 +73,7 @@ mosmafs = function(data, job, instance, learner,
     discrete = recPCrossover,
     logical = recUnifCrossover,
     selector.selection = recPCrossover 
-    )
+  )
 
   # --- initialization of population
   initials = sampleValues(ps, mu, discrete.names = TRUE)
@@ -99,7 +99,7 @@ mosmafs = function(data, job, instance, learner,
     initials = resamplePopulationFeatures(inds = initials, ps = ps, sampler = sampler, args = args, probs = probs) 
   }
 
-  parallelMap::parallelStartMulticore(cpus = lambda, level =  "ecr2.evaluateFitness")
+  # parallelMap::parallelStartMulticore(cpus = lambda, level =  "ecr2.evaluateFitness")
   
   results = slickEcr(
     fitness.fun = makeObjective(learner = lrn, task = task.train, ps = ps, resampling = cv10, holdout.data = task.test),
@@ -111,7 +111,7 @@ mosmafs = function(data, job, instance, learner,
     parent.selector = PARENTSEL[[parent.sel]]
   )
 
-  parallelMap::parallelStop()
+  # parallelMap::parallelStop()
 
   runtime = proc.time() - time
 
