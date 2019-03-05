@@ -101,11 +101,11 @@ constructEvalSetting <- function(task, learner, ps, measure = getDefaultMeasure(
       mutUniformParametricIntScaled = mutUniformParametricIntScaled)],
     ops.mut.numeric: discrete[list(
       mutGaussScaled = mutGaussScaled,
-      mutPolynomialInt = makeMutator(function(ind, p, sdev, lower, upper) {
+      mutPolynomial = makeMutator(function(ind, p, sdev, lower, upper) {
         mutPolynomial(ind, p = p, eta = max(1, (sqrt(8 + sdev^2) / sdev - 5) / 2),
           lower = lower, upper = upper)
       }, supported = "float"),
-      mutUniformParametricScaled = mutUniformParametricIntScaled)],
+      mutUniformParametricScaled = mutUniformParametricScaled)],
     ops.mut.strategy: logical,
     ops.mut.sdev: numeric[log(0.005), 0]
       [[trafo = function(x) exp(x), requires = quote(!ops.mut.strategy)]],
