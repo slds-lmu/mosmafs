@@ -154,6 +154,7 @@ valuesFromNames <- function(paramset, value) {
 #'   from the `task` but should be given if `cpo` changes the number of features.
 #' @return `function` that can be used for mlrMBO; irace possibly needs some
 #'   adjustmens
+#' @export
 makeBaselineObjective <- function(learner, task, filters, ps, resampling, measure = NULL, num.explicit.featsel = 0, holdout.data = NULL, worst.measure = NULL, cpo = NULLCPO, numfeats = getTaskNFeats(task)) {
   if (is.null(measure)) {
     measure <- getDefaultMeasure(task)
