@@ -473,7 +473,7 @@ mutUniformResetSHW <- makeMutator(function(ind, p = 0.1, reset.dist) {
 
   m <- sum(ind)
   bern.p <- ((m + 1) * reset.dist) / (m * reset.dist + (length(ind) - m) * (1 - reset.dist) + 1)
-
+  bern.p <- pmin(pmax(0, bern.p), 1)
   ind[affect] <- rbinom(sum(affect), 1, bern.p[affect])
   ind
 }, supported = "binary")
