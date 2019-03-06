@@ -60,7 +60,7 @@ ades = CJ(learner = c("SVM", "kknn"),
 	maxeval = MAXEVAL, 
 	filter.method = c("none"),
 	initialization = c("none", "unif"), 
-	parent.sel = c("selNonDom", "selBinaryTournament"),
+	parent.sel = c("selNondom", "selBinaryTournament"),
 	feature.mut = c("mutBitflipCHW", "mutBitflip"),
 	sorted = FALSE)
 
