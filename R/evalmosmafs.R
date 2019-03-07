@@ -135,6 +135,16 @@ constructEvalSetting <- function(task, learner, ps, measure = getDefaultMeasure(
     p.mut: numeric[0, 1]
   )
 
+  simple.params <- mosmafs.params
+  simple.params$pars <- lapply(simple.params$pars, function(p) {
+    if (isDiscrete(p, include.logical = FALSE)) {
+      pnames <- names(p$values)
+      p$values <- as.list(pnames)
+      names(p$values) <- pnames
+    }
+    p
+  })
+
   outer.res.inst <- makeResampleInstance(outer.resampling, task)
   getTrainTask <- function(i) {
     subsetTask(task, outer.res.inst$train.inds[[i]])
@@ -173,9 +183,11 @@ constructEvalSetting <- function(task, learner, ps, measure = getDefaultMeasure(
   }
 
   smoof::makeSingleObjectiveFunction("mosmafs",
-    has.simple.signature = FALSE, noisy = TRUE, par.set = mosmafs.params,
+    has.simple.signature = FALSE, noisy = TRUE, par.set = simple.params,
     minimize = FALSE, fn = function(x) {
       xdigest <- digest::digest(x)
+      simplepv <- x
+      x <- valuesFromNames(mosmafs.params, x)
       for (n in names(x)) {
         assign(n, x[[n]])
       }
@@ -387,7 +399,7 @@ constructEvalSetting <- function(task, learner, ps, measure = getDefaultMeasure(
           fidelity = fidelity)
 
         if (!is.null(savedir)) {
-          saveRDS(list(params = x, run = reduceResult(run)),
+          saveRDS(list(params = simplepv, run = reduceResult(run)),
             file = file.path(savedir,
               paste0("MOSMAFS_RUN_",
                 xdigest,
