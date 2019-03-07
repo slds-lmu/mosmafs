@@ -2,7 +2,7 @@
 
 # --- problem design ---
 datafolder = "../data"
-datasets = c("sonar", "ionosphere", "madelon")#, "arcene", "dexter")
+datasets = c("sonar", "ionosphere", "madelon", "convex", "dexter", "hypersphere.200.50", "hypersphere.200.200")
 
 # --- specify learners ---
 # Machine learning algorithms to be benchmarked
