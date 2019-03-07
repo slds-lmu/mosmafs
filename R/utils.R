@@ -196,7 +196,7 @@ collectResult <- function(ecr.object, aggregate.perresult = list(domHV = functio
 
 
     true.hout.domHV <- mapply(function(eval.fit, hout.fit) {
-      computeHV(hout.fit[, nondominated(eval.fit), drop = FALSE], ref.point)
+      unbiasedHoldoutDomHV(eval.fit, hout.fit, ref.point)
     }, fitnesses, hofitnesses)
 
     resdf <- cbind(resdf, hout = aggregate.fitness(hofitnesses), true.hout.domHV,
@@ -269,4 +269,39 @@ initSelector <- function(individuals, distribution = function() floor(runif(1, 0
     }
     ind.new
   })
+}
+
+#' @title Unbiased Dominated Hypervolume on Holdout Data
+#'
+#' @description
+#' Calculate dominated hypervolume on holdout data. The result is
+#' unbiased with respect to (uncorrelated w/r/t objectives) noise in holdout data
+#' performance.
+#'
+#' Only works on 2-objective performance matrices
+#' @param fitness `[matrix]` fitness matrix on training data
+#' @param holdout `[matrix]` fitness matrix on holdout data
+#' @param refpoint `numeric` reference point
+#' @return `numeric`
+#' @export
+unbiasedHoldoutDomHV <- function(fitness, holdout, refpoint) {
+  assertMatrix(fitness, nrow = 2)
+  assertMatrix(holdout, nrow = 2, ncol = ncol(fitness))
+  assertNumeric(refpoint, finite = TRUE, len = 2, any.missing = FALSE)
+  ordering <- order(fitness[2, ], decreasing = TRUE)
+  ordering <- intersect(ordering, which.nondominated(fitness))
+  fitness <- fitness[, ordering, drop = FALSE]
+  holdout <- holdout[, ordering, drop = FALSE]
+
+  # only first objective of last point is interesting
+  holdout <- cbind(holdout, c(refpoint[1], 0))
+
+  last.point <- c(-Inf, refpoint[2])
+  area <- 0
+  for (idx in seq_len(ncol(holdout))) {
+    this.point <- holdout[, idx]
+    area <- area + (last.point[2] - this.point[2]) * (refpoint[1] - this.point[1])
+    last.point <- this.point
+  }
+  area
 }
