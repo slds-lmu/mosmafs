@@ -43,6 +43,12 @@ mosmafs = function(data, job, instance, learner,
   task.train = subsetTask(task, subset = id.train)
   task.test = subsetTask(task, subset = id.test)  
 
+
+  if (type == "mlrMBO") {
+    # do mlr MBO baseline
+  }
+
+
   # --- parameter set ---
   ps = PAR.SETS[[learner]]
   ps = c(ps, 
@@ -62,7 +68,7 @@ mosmafs = function(data, job, instance, learner,
     selector.selection = FEATURE_MUT[[feature.mut]],
     .strategy.numeric = makeMutationStrategyNumeric(".strategy.numeric", "sdev", lr = 1 / sqrt(2 * lambda), lower = 0, upper = 1),
     .strategy.logical = makeMutationStrategyNumeric(".strategy.logical", "p", lr = 1 / sqrt(2 * lambda), lower = 0, upper = 1),
-    .strategy.integer = makeMutationStrategyNumeric(".strategy.logical", "p", lr = 1 / sqrt(2 * lambda), lower = 0, upper = 1),    
+    # .strategy.integer = makeMutationStrategyNumeric(".strategy.logical", "p", lr = 1 / sqrt(2 * lambda), lower = 0, upper = 1),    
     .strategy.discrete = makeMutationStrategyNumeric(".strategy.integer", "p", lr = 1 / sqrt(2 * lambda), lower = 0, upper = 1),  
     .strategy.selector.selection = makeMutationStrategyNumeric(".strategy.integer", "p", lr = 1 / sqrt(2 * lambda), lower = 0, upper = 1)
   )
