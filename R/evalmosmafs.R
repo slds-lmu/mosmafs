@@ -338,10 +338,12 @@ constructEvalSetting <- function(task, learner, ps, measure = getDefaultMeasure(
       }
       assertInt(x$INSTANCE, lower = 1, upper = length(res.insts))
 
+      iter.seeds <- as.integer(runif(hiters, 0, 2^32))
+
       hiters <- seq_len(outer.res.inst$desc$iters)
       iterresults <- parallelMap::parallelSapply(hiters, function(houtiter) {
         catf("Starting iter %s", houtiter)
-        set.seed(houtiter)
+        set.seed(iter.seeds[houtiter])
         nRes <- function(n) {
           if (fixed.ri) {
             inst <- res.insts[[houtiter]][[x$INSTANCE]]
