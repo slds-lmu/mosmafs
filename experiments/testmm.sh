@@ -10,7 +10,7 @@ library("magrittr")
 library("mosmafs")
 })
 set.seed(as.numeric(Sys.getenv("RNG")))
-spheretask <- create.hypersphere.data(3, 200, radius = 1) %>%
+spheretask <- create.hypersphere.data(9,400,radius =1.725)%>%
   create.classif.task(id = "sphere") %>%
   task.add.permuted.cols(5)
 
@@ -22,13 +22,13 @@ lrn.ps <- pSS(
 )
 
 
-lrn <- makeLearner("classif.rpart", maxsurrogate = 0)
-lrn.ps <- pSS(
-  maxdepth: integer[1, 30],
-  minsplit: integer[2, 30],
-  cp: numeric[0.001, 0.999])
+configureMlr(on.learner.error = "warn") #           )
+#rn.ps <- pSS(
+# maxdepth: integer[1, 30],
+# minsplit: integer[2, 30],
+# cp: numeric[0.001, 0.999])
 efun <- constructEvalSetting(
-    spheretask, lrn, lrn.ps, measure = mlr::mmce, evals = 6e3,
+    spheretask, lrn, lrn.ps, measure = mlr::mmce, evals = 6e4,
     savedir = "/projects/user/mosmafstraces")
 
 input <- sampleValue(getParamSet(efun), discrete.names = TRUE, trafo = TRUE)

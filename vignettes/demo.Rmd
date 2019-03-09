@@ -373,11 +373,11 @@ set.seed(1)
 ```{r}
 run.simple <- slickEcr(
   fitness.fun = fitness.fun.simple,
-  lambda = 16,
+  lambda = 1,
   population = initials.simple,
   mutator = mutator.simple,
   recombinator = crossover.simple,
-  generations = 10)
+  generations = list(function(x) {cat(sprintf("hi %s\n", nrow(x))) ; NULL} ))
 ```
 
 There is a multitude of methods for analysing and plotting the result. The following plots the succession of pareto fronts for each generation:

@@ -305,3 +305,22 @@ unbiasedHoldoutDomHV <- function(fitness, holdout, refpoint) {
   }
   area
 }
+
+
+#' @title Replace ecr::getStatistics because original is buggy
+#'
+#' @export
+getStatistics <- function(log) {
+  assertClass(log, "ecr_logger")
+  log$env$stats[seq_len(log$env$cur.line - 1), , drop = FALSE]
+}
+
+#' @title Replace ecr::getPopulation because original is buggy
+#'
+#' @export
+getPopulations <- function(log) {
+  assertClass(log, "ecr_logger")
+  log$env$pop[seq_len(log$env$cur.line - 1)]
+}
+
+
