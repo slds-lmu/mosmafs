@@ -52,7 +52,7 @@ constructEvalSetting <- function(task, learner, ps, measure = getDefaultMeasure(
         res <- 1 + rgeom(1000, 1 / max(1, (nfeat * param)))
         c(res[res <= nfeat], nfeat)[1]
       },
-      uniform = function(param) function() floor(runif(1, 0, length(nfeat) + 1)))],
+      uniform = function(param) function() floor(runif(1, 0, nfeat + 1)))],
     init.distribution.param: numeric[0.001, 0.999] [[requires =
       quote(init.distribution.constructor %in% c("binomial", "geometric"))]],
 
