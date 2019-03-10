@@ -25,6 +25,9 @@ makeFilterMat <- function(task, filters, expectfeatfrac = 0.5, expectfeats = get
   }
 
   apply(filtervals, 2, function(col) {
+    nas <- is.na(col)
+    col[!nas] <- rank(col[!nas], ties.method = "average")
+    col[nas] <- mean(col[!nas])
     col <- col - mean(col)
     meanprob <- expectfeats / getTaskNFeats(task)
     if (0 %in% range(col)) {
