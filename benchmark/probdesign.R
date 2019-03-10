@@ -1,14 +1,15 @@
 # problem design
 
-# --- problem design ---
 datafolder = "../data"
+
+# --- problem design ---
 datasets = c("sonar", "ionosphere", "madelon", "convex", "dexter", "hypersphere.200.50", "hypersphere.200.200")
 
 # --- specify learners ---
 # Machine learning algorithms to be benchmarked
 LEARNERS = list("SVM" = makeLearner("classif.ksvm", kernel = "rbfdot"),
 	"kknn" = makeLearner("classif.kknn"),
-	"xgboost" = makeLearner("classif.xgboost")
+	"xgboost" = makeLearner("classif.xgboost", id = "classif.xgboost", eval_metric = "error", objective = "binary:logistic")
 	)
 
 # Tuning parameter sets to be benchmarked
@@ -19,8 +20,8 @@ PAR.SETS = list(
 	),
 	kknn = pSS(
 		k: integer[1, 50],
-		distance: numeric[1, 100]),
-		#kernel: discrete[rectangular, optimal, triangular, triweight, biweight, cos, inv, gaussian])
+		distance: numeric[1, 100],
+		kernel: discrete[rectangular, optimal, triangular, biweight]),
 	xgboost = makeParamSet(
 	  makeNumericParam("eta", lower = 0.01, upper = 0.2),
 	  makeNumericParam("gamma", lower = -7, upper = 6, trafo = function(x) 2^x),

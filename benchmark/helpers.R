@@ -48,11 +48,14 @@ fromDataToTask = function(path, id, target) {
   saveRDS(task, paste(path, id, "task.rds", sep = "/"))
 }
 
-saveHypersphereTask = function(path, p.inf = 10, p.noise, n = 200, r = 1.8) {
-  id = paste("hypersphere", n, p.inf + p.noise, sep = ".")
+saveHypersphereTask = function(path = "data", p.inf = 10, p.noise, n.train = 200, n.test = 10000, r = 1.8) {
+  id = paste("hypersphere", n.train, p.inf + p.noise, sep = ".")
   dir.create(file.path(path, id))
-  task = create.hypersphere.data(p.inf, n, radius = r) %>% create.classif.task(id = id) %>% task.add.random.cols(num = p.noise)   
-  saveRDS(task, paste(path, id, "task.rds", sep = "/"))
+  task = create.hypersphere.data(p.inf, n.train + n.test, radius = r) %>% create.classif.task(id = id) %>% task.add.random.cols(num = p.noise)   
+  data = getTaskData(task)
+  names(data)[length(data)] = "class"
+  write.arff(data[1:200, ], file = file.path(path, id, "train.arff"))
+  write.arff(data[201:nrow(data), ], file = file.path(path, id, "test.arff"))
 }
 
 calculateRanks = function(dfr, nevals) {
