@@ -6,16 +6,17 @@ library("mlrCPO")
 library("magrittr")
 devtools::load_all("..")
 
+
+
 spheretask <- create.hypersphere.data(3, 200, radius = 1) %>%
   create.classif.task(id = "sphere") %>%
   task.add.permuted.cols(5)
 
-## lrn <- makeLearner("classif.ksvm", predict.type = "prob")
-##
-## lrn.ps <- pSS(
-##   C: numeric[10^(-3), 10^3], # according to Fröhlich et al.
-##   sigma: numeric[10^(-3), 10^3]
-## )
+lrn <- makeLearner("classif.ksvm", predict.type = "prob")
+lrn.ps <- pSS(
+  C: numeric[10^(-3), 10^3], # according to Fröhlich et al.
+  sigma: numeric[10^(-3), 10^3]
+)
 
 lrn <- makeLearner("classif.rpart", maxsurrogate = 0)
 lrn.ps <- pSS(
@@ -27,7 +28,11 @@ efun <- constructEvalSetting(
     spheretask, lrn, lrn.ps, measure = mlr::mmce, evals = 1e4,
     savedir = ".")
 
+
+
 input <- sampleValue(getParamSet(efun), discrete.names = TRUE, trafo = TRUE)
+
+
 
 # rl <- readLines("/projects/user/mosmafstraces/run_22.out")
 # input <- eval(parse(text = rl[1]))
@@ -46,6 +51,8 @@ savedir <- "/projects/user/mosmafstraces/"
 done <- dir(savedir, pattern = "*10.rds")
 
 patterns <- gsub("10.rds", "%s.rds", done)
+
+patterns <- grep("d8078fd9073d1c0dc464dd7286f0641b", patterns, value = TRUE)
 
 traces <- lapply(patterns, function(p) {
   lapply(1:10, function(i) {
@@ -68,6 +75,14 @@ averageresults <- function(tracecollection) {
 }
 
 results <- lapply(traces, averageresults)
+
+plot(t(getPopulations(traces[[1]][[1]][[2]]$log)[[1]]$fitness), xlim = c(0, 1), ylim = c(0, 1))
+
+colnames(results[[1]])
+
+ggplot(data = results[[1]], aes(x = cum.fid)) +
+  geom_line(aes(y = true.hout.domHV, color = "hout")) +
+  geom_line(aes(y = eval.domHV, color = "eval"))
 
 rescol <- do.call(rbind, lapply(seq_along(results), function(idx) {
   r <- results[[idx]]

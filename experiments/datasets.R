@@ -78,10 +78,12 @@ sort(sapply(filterresults, function(f) {
   }
 }))
 
-# saveRDS(filterresults, "filterresults_small.rds")
 
-scaled <- function(scaling) {
-  lapply(filterresults, function(f) {
+# saveRDS(filterresults, "filterresults_small.rds")
+# saveRDS(filterresults2, "filterresults_small_2.rds")
+
+scaled <- function(scaling, fs = filterresults) {
+  lapply(fs, function(f) {
     if (!is.null(f) && class(f) != "try-error") {
       switch(scaling,
         mosmafs = {
@@ -122,9 +124,10 @@ broken.all <- usedfilters(brokennames)
 broken.nodexter <- usedfilters(Filter(function(x) x[2] != "dexter", brokennames))
 datasets <- unique(sapply(snames, function(x) x[2]))
 
-construct.matrix <- function(method, withdexter = TRUE, outds = datasets, getdataorder = FALSE) {
-  transformed <- scaled(method)
+construct.matrix <- function(method, withdexter = TRUE, outds = datasets, getdataorder = FALSE, which = filterresults) {
+  transformed <- scaled(method, fs = which)
   dataorder <- list()
+  snames <- strsplit(names(transformed), ",")
   for (i in seq_along(transformed)) {
     identity <- snames[[i]]
     method <- identity[1]
@@ -185,9 +188,18 @@ heatmap(construct.matrix("mosmafs", TRUE, outds = "dexter"), Rowv = NA, distfun 
 heatmap(construct.matrix("scale", TRUE, outds = "dexter"), Rowv = NA, distfun = function(x) dist(x, method = "manhattan"))
 heatmap(construct.matrix("rank", TRUE, outds = "dexter"), Rowv = NA, distfun = function(x) dist(x, method = "manhattan"))
 
-meandist <- function(scaling, corfun = meanabsdiff, outds = datasets) {
+meandist <- function(scaling, corfun = meanabsdiff, outds = datasets, both = FALSE) {
   meanmat <- Reduce(`+`, lapply(outds, function(ds) {
-      corfun(construct.matrix(method = scaling, withdexter = "dexter" %in% outds, outds = ds))
+    if (both) {
+      m1 <- construct.matrix(method = scaling, withdexter = "dexter" %in% outds, outds = ds, which = filterresults)
+      m2 <- construct.matrix(method = scaling, withdexter = "dexter" %in% outds, outds = ds, which = filterresults2)
+      colnames(m1) <- paste0(colnames(m1), ".1")
+      colnames(m2) <- paste0(colnames(m2), ".2")
+      m <- cbind(m1, m2)
+      corfun(m)
+    } else {
+      corfun(construct.matrix(method = scaling, withdexter = "dexter" %in% outds, outds = ds, which = filterresults))
+    }
   })) / length(outds)
   as.dist(meanmat)
 }
@@ -205,7 +217,15 @@ plot(hclust(meandist("scale", corfun = cordiff)))
 plot(hclust(meandist("scale", outds = setdiff(datasets, "dexter"))))
 plot(hclust(meandist("scale", corfun = cordiff, outds = setdiff(datasets, "dexter"))))
 
+
+plot(hclust(meandist("rank", both = TRUE)))
+
+
 plot(hclust(meandist("rank")))
+
+
+
+
 
 testmat <- meandist("rank")
 scl <- cmdscale(testmat)
