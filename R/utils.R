@@ -199,6 +199,10 @@ collectResult <- function(ecr.object, aggregate.perresult = list(domHV = functio
       unbiasedHoldoutDomHV(eval.fit, hout.fit, ref.point)
     }, fitnesses, hofitnesses)
 
+    naive.hout.domHV <- mapply(function(eval.fit, hout.fit) {
+      naiveHoldoutDomHV(eval.fit, hout.fit, ref.point)
+    }, fitnesses, hofitnesses)
+
     resdf <- cbind(resdf, hout = aggregate.fitness(hofitnesses), true.hout.domHV,
       cor = corcols)
   }
@@ -276,7 +280,7 @@ initSelector <- function(individuals, distribution = function() floor(runif(1, 0
 #' @description
 #' Calculate dominated hypervolume on holdout data. The result is
 #' unbiased with respect to (uncorrelated w/r/t objectives) noise in holdout data
-#' performance.
+#' performance, but it is *not* an estimate of real "dominated hypervolume".
 #'
 #' Only works on 2-objective performance matrices
 #' @param fitness `[matrix]` fitness matrix on training data
@@ -304,6 +308,23 @@ unbiasedHoldoutDomHV <- function(fitness, holdout, refpoint) {
     last.point <- this.point
   }
   area
+}
+
+#' @title Naive Hypervolume on Holdout Data
+#'
+#' @description
+#' Calculate dominated hypervolume on holdout data. The result is
+#' biased depending on noise in holdout data performance.
+#'
+#' @param fitness `[matrix]` fitness matrix on training data
+#' @param holdout `[matrix]` fitness matrix on holdout data
+#' @param refpoint `numeric` reference point
+#' @return `numeric`
+#' @export
+naiveHoldoutDomHV <- function(fitness, holdout, refpoint) {
+  assertMatrix(holdout, nrow = nrow(fitness), ncol = ncol(fitness))
+  assertNumeric(refpoint, finite = TRUE, len = nrow(fitness), any.missing = FALSE)
+  computeHV(holdout[, nondominated(fitness)], ref.point = refpoint)
 }
 
 
