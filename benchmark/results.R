@@ -5,7 +5,7 @@ library(batchtools)
 library(reshape2)
 
 source("helpers.R")
-# source("reduce.R")
+# source("reduce.sR")
 # dir.create("results/plots/performance-front")
 # dir.create("results/plots/performance-population")
 # dir.create("results/plots/runtime")

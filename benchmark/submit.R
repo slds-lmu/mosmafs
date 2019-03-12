@@ -2,7 +2,7 @@ library(batchtools)
 library(stringi)
 stri_detect_fixed = stringi::stri_detect_fixed
 
-reg = loadRegistry("registry2", writeable = TRUE)
+reg = loadRegistry("registry", writeable = TRUE)
 tab = summarizeExperiments(by = c("job.id", "algorithm", "problem", "initialization", "mu", "lambda", "maxeval", "filter.method", "learner", "parent.sel"))
 
 tosubmit = ijoin(tab, findNotDone(), by = "job.id")

@@ -9,7 +9,7 @@ library("mosmafs")
 
 source("def.R")
 
-if (file.exists("registry2")) {
+if (file.exists("registry")) {
   if (OVERWRITE) {
     unlink("registry2", recursive = TRUE)
     reg = makeExperimentRegistry(file.dir = "registry2", seed = 123L,
