@@ -52,15 +52,20 @@ done <- dir(savedir, pattern = "*10.rds")
 
 patterns <- gsub("10.rds", "%s.rds", done)
 
-patterns <- grep("d8078fd9073d1c0dc464dd7286f0641b", patterns, value = TRUE)
+patterns <- grep("d8078fd9073d1c0dc464dd7286f0641b", patterns, value = TRUE, invert = TRUE)
+
+patterns <- grep("ec2ba7cc85154a938ea0d78e03f51266", patterns, value = TRUE, invert = FALSE)
 
 traces <- lapply(patterns, function(p) {
+  BBmisc::catf("Loading %s", p)
   lapply(1:10, function(i) {
+    cat(".")
+    if (i == 10) cat("\n")
     readRDS(file.path(savedir, sprintf(p, i)))
   })
 })
 
-fidmax <- 6000
+fidmax <- 60000
 averageresults <- function(tracecollection) {
   results <- lapply(tracecollection, function(t) collectResult(t$run))
   as.data.frame(sapply(simplify = FALSE, colnames(results[[1]]), function(x) {

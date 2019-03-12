@@ -42,6 +42,19 @@ processArff <- function(root.data) {
   }
 }
 
+splitArff <- function(root.data) {
+  datadirs <- list.dirs(root.data, recursive = FALSE, full.names = FALSE)
+  for (tname in datadirs) {
+    fulld <- file.path(root.data, tname)
+    train <- RWeka::read.arff(file.path(fulld, "train.arff"))
+    test <- RWeka::read.arff(file.path(fulld, "test.arff"))
+    traintask <- makeClassifTask(paste0(tname, ".train"), data = train, target = "class")
+    houttask <- makeClassifTask(paste0(tname, ".hout"), data = test, target = "class")
+    saveRDS(list(task = traintask, hout = houttask), file.path(root.data, sprintf("SPLIT_%s.rds", tname)))
+  }
+}
+
+
 # processArff("../data")
 
 library("mlr")
