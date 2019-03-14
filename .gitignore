@@ -9,6 +9,15 @@
 .project
 .ipynb_checkpoints
 registry
+vignettes/*.html
+/inst/doc/*
+!/inst/doc/*.html
+/doc/
+/docs/
+/data/
+/man/
+*.rds
+registry/
 data/
 archive/
-
+*xgboost.model

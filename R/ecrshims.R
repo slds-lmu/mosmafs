@@ -1,36 +1,44 @@
 
 
-
-library("ecr")
-library("checkmate")
-
-# combine operators to be applied to individuals that conform to parameter set param.set.
-# Parameters are the param.set, and the names / types of params with the operator to use.
-# Parameter groups that use a single operator can be defined using `.params.<groupname>` = [character]`.
-#
-# say param.set has three logical params 'l1', 'l2', 'l3' and two numeric params 'n1', 'n2'.
-# We want to use operatorA for 'l1' and 'l2', operatorB for 'l3', and operatorC for all numeric
-# params. Call as
-# combineOperator(param.set, .params.group1 = c("l1", "l2"), group1 = operatorA, l3 = operatorB, numeric = operatorC)
-#
-# Use arguments by types, names of parameters, or group name. Valid types are 'numeric', 'logical', 'integer', 'discrete'.
-# Operators given for groups or individual parameters supercede operators given for types.
-#
-# Strategy parameters can be created by using `.strategy.<groupname|parametername|type>`. They must be a *function*
-# taking a named list of parameter values (i.e. an individuum) as input and return a named list of parameter values
-# to be given to the respective group's / parameter's or type's operator. If, in the example above, `operatorA` has
-# a parameter `sigma` that should also be treated as a parameter under evolution (and in fact be equal to `l3`), then
-# the above call would become
-# combineOperator(param.set, .params.group1 = c("l1", "l2"), group1 = operatorA, .strategy.group1 = function(x) list(sigma = x$l3),
-#   l3 = operatorB, numeric = operatorC)
-#
-# If .binary.discrete.as.logical is TRUE, then binary discrete params are handled as logical params.
-#
-# operators for logical parameters must have only one argument. operators for discreten parameters
-# must have an additional argument 'values', operators for continuous or integer parameters must have
-# an additional argument 'lower', 'upper'.
-#
-# use the ecr::setup function to set parameters for operators ("currying")
+#' @title Combine ECR-Operators
+#'
+#' @description
+#' TODO: This seriously needs better documentation.
+#'
+#' combine operators to be applied to individuals that conform to parameter set param.set.
+#' Parameters are the param.set, and the names / types of params with the operator to use.
+#' Parameter groups that use a single operator can be defined using `.params.<groupname>` = [character]`.
+#'
+#' say param.set has three logical params 'l1', 'l2', 'l3' and two numeric params 'n1', 'n2'.
+#' We want to use operatorA for 'l1' and 'l2', operatorB for 'l3', and operatorC for all numeric
+#' params. Call as
+#' combineOperator(param.set, .params.group1 = c("l1", "l2"), group1 = operatorA, l3 = operatorB, numeric = operatorC)
+#'
+#' Use arguments by types, names of parameters, or group name. Valid types are 'numeric', 'logical', 'integer', 'discrete'.
+#' Operators given for groups or individual parameters supercede operators given for types.
+#'
+#' Strategy parameters can be created by using `.strategy.<groupname|parametername|type>`. They must be a *function*
+#' taking a named list of parameter values (i.e. an individuum) as input and return a named list of parameter values
+#' to be given to the respective group's / parameter's or type's operator. If, in the example above, `operatorA` has
+#' a parameter `sigma` that should also be treated as a parameter under evolution (and in fact be equal to `l3`), then
+#' the above call would become
+#' combineOperator(param.set, .params.group1 = c("l1", "l2"), group1 = operatorA, .strategy.group1 = function(x) list(sigma = x$l3),
+#'   l3 = operatorB, numeric = operatorC)
+#'
+#' If .binary.discrete.as.logical is TRUE, then binary discrete params are handled as logical params.
+#'
+#' operators for logical parameters must have only one argument. operators for discreten parameters
+#' must have an additional argument 'values', operators for continuous or integer parameters must have
+#' an additional argument 'lower', 'upper'.
+#'
+#' use the ecr::setup function to set parameters for operators ("currying")
+#'
+#' @param param.set `[ParamSet]` [`ParamSet`][ParamHelpers::makeParamSet] that defines the search space
+#' @param ... see description
+#' @param .binary.discrete.as.logical `[logical(1)]` whether to treat binary discrete parameters as `logical` parameters and
+#'   use bitwise operators.
+#' @return [`ecr_operator`][ecr::makeOperator] ECR operator
+#' @export
 combine.operators <- function(param.set, ..., .binary.discrete.as.logical = TRUE) {
 
   args <- list(...)
@@ -276,7 +284,7 @@ unify.operators <- function(orig.param.set, operators, paramsets, paramtypes, op
             names(curval) <- par$cnames
             curval
           })
-        do.call(base::c, curvals)
+        unlist(curvals, recursive = FALSE)
       })
   }
 
