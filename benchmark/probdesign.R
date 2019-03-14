@@ -1,6 +1,6 @@
 # problem design
 
-datafolder = "../data"
+datafolder = "data"
 
 # --- problem design ---
 datasets = c("sonar", "ionosphere", "madelon", "convex", "dexter", "hypersphere.200.50", "hypersphere.200.200")

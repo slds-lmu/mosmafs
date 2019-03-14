@@ -1,90 +1,67 @@
-packages = c("batchtools", "ecr", "magrittr", "mosmafs", "ParamHelpers", "mlr", "mlrCPO", "parallelMap")
+packages = c("batchtools", "ecr", "magrittr", "mosmafs", "ParamHelpers", "mlr", "mlrCPO", "parallelMap", "RWeka", "mlrMBO")
 
-source("../initialization.R")
+# source the prob design
+source("probdesign.R")
+
+datafolder = "../data"
 
 # do not overwrite registry
 OVERWRITE = FALSE
 
-# --- problem design ---
-datafolder = "data"
-datasets = c("sonar", "ionosphere", "madelon")#, "arcene", "dexter")
-#datasets = datasets[- which(datasets == "gisette")]
-
-# --- Specify algorithm design ---
-
-# Machine learning algorithms to be benchmarked
-LEARNERS = list("SVM" = makeLearner("classif.ksvm", kernel = "rbfdot"),
-	"kknn" = makeLearner("classif.kknn"),
-	"xgboost" = makeLearner("classif.xgboost")
-	)
-
-# Tuning parameter sets to be benchmarked
-PAR.SETS = list(
-	SVM = pSS(	  
-		C: numeric[10^(-3), 10^3], # according to Fröhlich et al. 
-		sigma: numeric[10^(-3), 10^3]
-	),
-	kknn = pSS(
-		k: integer[1, 50],
-		distance: numeric[1, 100]),
-		#kernel: discrete[rectangular, optimal, triangular, triweight, biweight, cos, inv, gaussian])
-	xgboost = pSS(
-		eta: numeric[0.01, 0.2],
-		gamma: numeric[2^(-7), 2^6],
-		max_depth: integer[3, 20],
-		colsample_bytree: numeric[0.5, 1],
-		colsample_bylevel: numeric[0.5, 1]
-		lambda: numeric[2^(-10), 2^(10)],
-		alpha: numeric[2^(-10), 2^(10)],
-		subsample: numeric[0.5, 1]
-	)
-)
-
 # Maximum number of evaluations allowed
-MAXEVAL = 100L
+MAXEVAL = 20L
 
-# feature initialization of initial population
-INITIALIZATION = list("none" = NULL, "unif" = list(dist = runif), "rgeom0.3" = list(dist = rgeom, prob = 0.3))
+# Parent SelectionS
+PARENTSEL = list("selSimple" = ecr::setup(selSimple), "selNondom" = ecr::setup(selNondom), "selBinaryTournament" = ecr::setup(selTournamentMO, ref.point = c(1, 1)))
+
+
+FEATURE_MUT = list("mutBitflipCHW" = ecr::setup(mutBitflipCHW), "mutBitflip" = mutBitflip, "mutUniformMetaResetSHW" = mutUniformMetaResetSHW)
 
 # Filtering and Initialization hyperparameters
 # According to Guyon we take a information theoretic, a single classifier based and a correlation based filter value
-FILTER_METHOD = list("none" = "none", "JMI_auc_var" = c("praznik_JMI", "auc", "variance"))
+FILTER = list("none" = NULL,
+	"custom" = c("FSelectorRcpp_information.gain", "randomForestSRC_var.select", "praznik_JMI", "auc", "praznik_CMIM", "DUMMY"))
 
-PARENTSEL = list("selSimple" = setup(selSimple), "selDomHV" = setup(selDomHV, ref.point = c(1, 1)), "selNondom" = setup(selNondom), "selBinaryTournament" = setup(selTournamentMO))
+SURROGATE = list(randomForest = cpoImputeConstant("__MISSING__") %>>% makeLearner("regr.randomForest", se.method = "jackknife", keep.inbag = TRUE, predict.type = "se"),
+	              km.nugget = cpoDummyEncode() %>>% makeLearner("regr.km", predict.type = "se", par.vals = list(nugget.estim = TRUE, nugget.stability = 10e-8))
+)
 
-FEATURE_MUT = list("mutBitflipCHW" = setup(mutBitflipCHW), "mutBitflip" = mutBitflip)
+INFILL = list("cb" = makeMBOInfillCritCB())
 
-ades = CJ(learner = c("SVM", "kknn"), 
-	mu = c(80L), 
-	lambda = c(15L),
-	maxeval = MAXEVAL, 
-	filter.method = c("none"),
-	initialization = c("none", "unif"), 
-	parent.sel = c("selNondom", "selBinaryTournament"),
-	feature.mut = c("mutBitflipCHW", "mutBitflip"),
-	sorted = FALSE)
+ades.random = CJ(learner = c("SVM", "kknn", "xgboost"), 
+			maxeval = MAXEVAL, 
+			filter = c("none", "custom"),
+			initialization = c("none", "unif"), 
+			sorted = FALSE)
 
-# add baseline with random sampling
-baseline = CJ(learner = unique(ades$learner), 
-	mu = MAXEVAL, lambda = 1L,
-	maxeval = 1L, filter.method = "none", 
-	initialization = c("unif"), 
-	parent.sel = c("selSimple"),
-	feature.mut = c("mutBitflipCHW"),
-	sorted = FALSE)
+ades.mbo = CJ(learner = c("SVM", "kknn", "xgboost"), 
+			maxeval = 3000L, 
+			filter = c("custom"),
+			infill = c("cb"),
+			surrogate = c("randomForest"),
+			MBMOmethod = c("parego"),
+			propose.points = c(20L),
+			sorted = FALSE)
 
-# add baseline
-ades = rbind(ades, baseline)
+ades.mosmafs = CJ(learner = c("SVM", "kknn", "xgboost"), 
+			maxeval = MAXEVAL, 
+			filter = c("none", "custom"),
+			initialization = c("none", "unif"), 
+			lambda = 4L,
+			mu = 10,
+			parent.sel = c("selTournamentMO"),
+			chw.bitflip = c(FALSE, TRUE),
+			adaptive.filter.weights = c(FALSE, TRUE),
+			filter.during.run = c(FALSE, TRUE),
+			sorted = FALSE)
 
 REPLICATIONS = 1L
 
-# mutation strategy according to MIES (R. Li et al. )
-makeMutationStrategyNumeric <- function(param.name, output.name, lr, lower, upper) {
-  function(ind) {
-    param <- ind[[param.name]]
-    # assertNumeric(param, lower = 0, upper = 1 - .Machine$double.eps, any.missing = FALSE)
-    res = param * exp(lr * rnorm(0, 1))
-    res = min(max(res, lower), upper)
-    namedList(output.name, res)
-  }
-}
+
+
+
+ades.random = CJ(learner = c("SVM"), 
+			maxeval = 5L, 
+			filter = c("none", "custom"),
+			initialization = c("none", "unif"), 
+			sorted = FALSE)
