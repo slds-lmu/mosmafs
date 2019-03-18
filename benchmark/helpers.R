@@ -68,23 +68,27 @@ calculateRanks = function(dfr, nevals) {
 }
 
 
-# datapath = "../data"
-# dirs = list.dirs(datapath)
-# for (i in 1:length(dirs)) {
-#   file = dirs[i]
-#   if (file.exists(file.path(file, "task.rds"))) {
-#       task = readRDS(file.path(file, "task.rds"))
-#       data = getTaskData(task)
-#       outer.res.inst = makeResampleInstance(makeResampleDesc("Holdout", stratify = TRUE, split = 0.7), task)
-#       train.data = data[outer.res.inst$train.inds[[1]], ]
-#       names(train.data)[length(names(train.data))] = "class"
-#       test.data = data[outer.res.inst$test.inds[[1]], ]
-#       names(test.data)[length(names(test.data))] = "class"
-#       write.arff(train.data, file = file.path(file, "train.arff"))
-#       write.arff(test.data, file = file.path(file, "test.arff"))
-#   }
-#   if (file.exists(file.path(file, "train.arff"))) {
-#       bla = read.arff(file.path(file, "train.arff"))
-#       names(bla)
-#   }
-# }
+datapath = "data"
+dirs = list.dirs(datapath)
+for (i in 1:length(dirs)) {
+  file = dirs[i]
+  if (file.exists(file.path(file, "task.rds"))) {
+      task = readRDS(file.path(file, "task.rds"))
+      data = getTaskData(task)
+      outer.res.inst = makeResampleInstance(makeResampleDesc("Holdout", stratify = TRUE, split = 0.7), task)
+      train.data = data[outer.res.inst$train.inds[[1]], ]
+      names(train.data)[length(names(train.data))] = "class"
+      test.data = data[outer.res.inst$test.inds[[1]], ]
+      names(test.data)[length(names(test.data))] = "class"
+      saveRDS(train.data, file = file.path(file, "train.arff.rds"))
+      saveRDS(test.data, file = file.path(file, "test.arff.rds"))
+  }
+  if (file.exists(file.path(file, "train.arff"))) {
+      train.data = read.arff(file.path(file, "train.arff"))
+      names(train.data)[length(names(train.data))] = "class"
+      test.data = read.arff(file.path(file, "test.arff"))
+      names(test.data)[length(names(test.data))] = "class"
+      saveRDS(train.data, file = file.path(file, "train.arff.rds"))
+      saveRDS(test.data, file = file.path(file, "test.arff.rds"))
+  }
+}

@@ -3,7 +3,11 @@
 datafolder = "data"
 
 # --- problem design ---
-datasets = c("sonar", "ionosphere", "madelon", "convex", "dexter", "hypersphere.200.50", "hypersphere.200.200")
+datasets = c("sonar", "ionosphere", "madelon", 
+	"madeline", "hill-valley", "gina_agnostic",
+	"AP_Lung_Uterus", "wdbc", "philippine", 
+	"tecator", 
+	"hypersphere.200.50", "hypersphere.200.200")
 
 # --- specify learners ---
 # Machine learning algorithms to be benchmarked
@@ -19,7 +23,7 @@ PAR.SETS = list(
 		sigma: numeric[10^(-3), 10^3]
 	),
 	kknn = pSS(
-		k: integer[1, 50],
+		k: integer[1L, 50L],
 		distance: numeric[1, 100],
 		kernel: discrete[rectangular, optimal, triangular, biweight]),
 	xgboost = makeParamSet(

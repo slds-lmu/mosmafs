@@ -12,18 +12,27 @@ library("mlrMBO")
 
 source("def.R")
 
-if (file.exists("registry_temp")) {
-  if (OVERWRITE) {
+TEST = FALSE
+
+if (TEST) {
     unlink("registry_temp", recursive = TRUE)
     reg = makeExperimentRegistry(file.dir = "registry_temp", seed = 123L,
       packages = packages, source = "def.R")
-  } else {
-    reg = loadRegistry("registry_temp", writeable = TRUE)
-  }
 } else {
-  reg = makeExperimentRegistry(file.dir = "registry_temp", seed = 123L,
-    packages = packages, source = "def.R")
+  if (file.exists("registry")) {
+    if (OVERWRITE) {
+      unlink("registry", recursive = TRUE)
+      reg = makeExperimentRegistry(file.dir = "registry", seed = 123L,
+        packages = packages, source = "def.R")
+    } else {
+      reg = loadRegistry("registry", writeable = TRUE)
+    }
+  } else {
+      reg = makeExperimentRegistry(file.dir = "registry", seed = 123L,
+        packages = packages, source = "def.R")
+    }
 }
+
 
 # return the filepath for each 
 for (ds in datasets) {  
@@ -33,12 +42,12 @@ for (ds in datasets) {
 
 randomsearch = function(data, job, instance, learner, maxeval, filter, initialization) {
 
-  id = strsplit(data, "/")[[1]][3]
+  id = strsplit(data, "/")[[1]][2]
 
   # --- task and learner ---
-  train.data = read.arff(file.path(data, "train.arff"))
+  train.data = readRDS(file.path(data, "train.arff.rds"))
   task.train = makeClassifTask(id = id, data = train.data, target = "class")
-  test.data = read.arff(file.path(data, "test.arff"))  
+  test.data = readRDS(file.path(data, "test.arff.rds"))  
   task.test = makeClassifTask(id = id, data = test.data, target = "class")
   
   lrn = LEARNERS[[learner]]
@@ -76,6 +85,8 @@ randomsearch = function(data, job, instance, learner, maxeval, filter, initializ
 
   time = proc.time()
 
+  # result = mbo(obj, control = ctrl, learner = SURROGATE[[surrogate]])
+
   # --- fitness function --- 
   result = initEcr(
     fitness.fun = fitness.fun,
@@ -90,12 +101,12 @@ randomsearch = function(data, job, instance, learner, maxeval, filter, initializ
 
 MBObaseline = function(data, job, instance, learner, maxeval, filter, MBMOmethod, infill, surrogate, propose.points) {
 
-  id = strsplit(data, "/")[[1]][3]
+  id = strsplit(data, "/")[[1]][2]
 
   # --- task and learner ---
-  train.data = read.arff(file.path(data, "train.arff"))
+  train.data = readRDS(file.path(data, "train.arff.rds"))
   task.train = makeClassifTask(id = id, data = train.data, target = "class")
-  test.data = read.arff(file.path(data, "test.arff"))  
+  test.data = readRDS(file.path(data, "test.arff.rds"))  
   task.test = makeClassifTask(id = id, data = test.data, target = "class")
   
   lrn = LEARNERS[[learner]]
@@ -107,9 +118,8 @@ MBObaseline = function(data, job, instance, learner, maxeval, filter, MBMOmethod
   stratcv10 = makeResampleDesc("CV", iters = 10, stratify = TRUE)
 
   # --- create baseline objective
-  # --- no explicit number of features --> fix
   obj = makeBaselineObjective(lrn, task.train,
-    filters = FILTER[[filter]],
+    filters = FILTER[[filter]][1:5],
     ps = ps, resampling = stratcv10,
     holdout.data = task.test)
   attr(obj, "noisy") = FALSE
@@ -121,7 +131,11 @@ MBObaseline = function(data, job, instance, learner, maxeval, filter, MBMOmethod
 
   time = proc.time()
 
+  # parallelStartMulticore(cpus = 15L)
+
   result = mbo(obj, control = ctrl, learner = SURROGATE[[surrogate]])
+
+  # parallelStop()
 
   runtime = proc.time() - time
 
@@ -132,7 +146,7 @@ MBObaseline = function(data, job, instance, learner, maxeval, filter, MBMOmethod
 mosmafs = function(data, job, instance, learner, maxeval, filter, initialization,
   lambda, mu, parent.sel, chw.bitflip, adaptive.filter.weights, filter.during.run) {
 
-  id = strsplit(data, "/")[[1]][3]
+  id = strsplit(data, "/")[[1]][2]
 
   # --- task and learner ---
   train.data = readRDS(file.path(data, "train.arff.rds"))
@@ -269,6 +283,8 @@ mosmafs = function(data, job, instance, learner, maxeval, filter, initialization
   # --- fitness function --- 
   fitness.fun = makeObjective(learner = lrn, task = task.train, ps = ps, resampling = stratcv10, holdout.data = task.test)
 
+  # parallelStartMulticore(cpus = 15L)
+
   result = slickEcr(
     fitness.fun = fitness.fun,
     lambda = lambda,
@@ -277,6 +293,8 @@ mosmafs = function(data, job, instance, learner, maxeval, filter, initialization
     recombinator = crossover,
     generations = ceiling((maxeval - mu) / lambda)
   )
+
+  # parallelStop()
 
   runtime = proc.time() - time
 
@@ -293,15 +311,12 @@ addExperiments(reg = reg,
                       mosmafs = ades.mosmafs),
   repls = REPLICATIONS)
 
-addExperiments(reg = reg, 
-  algo.designs = list(mosmafs = ades.mosmafs),
-  repls = 1L)
 
-tab = summarizeExperiments(by = c("job.id", "algorithm", "problem", "initialization", "maxeval", 
-  "filter", "learner", "chw.bitflip", "adaptive.filter.weights", "filter.during.run" ))
-tab = tab[algorithm == "mosmafs" & problem == "sonar" & learner == "SVM", ]
 
-for (dirs in dir()) for (item in c("train.arff", "test.arff")) {
-  dat <- read.arff(file.path(dirs, item))
-  saveRDS(dat, file.path(dirs, paste0(item, ".rds")))
-}
+
+
+
+# for (dirs in dir()) for (item in c("train.arff", "test.arff")) {
+#   dat <- read.arff(file.path(dirs, item))
+#   saveRDS(dat, file.path(dirs, paste0(item, ".rds")))
+# }

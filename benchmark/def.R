@@ -1,15 +1,18 @@
-packages = c("batchtools", "ecr", "magrittr", "mosmafs", "ParamHelpers", "mlr", "mlrCPO", "parallelMap", "RWeka", "mlrMBO")
+packages = c("batchtools", "ecr", "magrittr", "mosmafs", "ParamHelpers", "mlr", "mlrCPO", "parallelMap", "RWeka", "mlrMBO", "doParallel")
 
 # source the prob design
 source("probdesign.R")
+source("../R/objective.R")
 
-datafolder = "../data"
+OVERWRITE = FALSE
+
+datafolder = "data"
 
 # do not overwrite registry
 OVERWRITE = FALSE
 
 # Maximum number of evaluations allowed
-MAXEVAL = 20L
+MAXEVAL = 4000L
 
 # Parent SelectionS
 PARENTSEL = list("selSimple" = ecr::setup(selSimple), "selNondom" = ecr::setup(selNondom), "selBinaryTournament" = ecr::setup(selTournamentMO, ref.point = c(1, 1)))
@@ -30,38 +33,29 @@ INFILL = list("cb" = makeMBOInfillCritCB())
 
 ades.random = CJ(learner = c("SVM", "kknn", "xgboost"), 
 			maxeval = MAXEVAL, 
-			filter = c("none", "custom"),
+			filter = c("none"), # , "custom"),
 			initialization = c("none", "unif"), 
 			sorted = FALSE)
 
 ades.mbo = CJ(learner = c("SVM", "kknn", "xgboost"), 
-			maxeval = 3000L, 
+			maxeval = 2000L, 
 			filter = c("custom"),
 			infill = c("cb"),
 			surrogate = c("randomForest"),
 			MBMOmethod = c("parego"),
-			propose.points = c(20L),
+			propose.points = c(10L),
 			sorted = FALSE)
 
 ades.mosmafs = CJ(learner = c("SVM", "kknn", "xgboost"), 
 			maxeval = MAXEVAL, 
-			filter = c("none", "custom"),
+			filter = c("none"), # "custom"),
 			initialization = c("none", "unif"), 
-			lambda = 4L,
-			mu = 10,
+			lambda = 15L,
+			mu = 80,
 			parent.sel = c("selTournamentMO"),
 			chw.bitflip = c(FALSE, TRUE),
-			adaptive.filter.weights = c(FALSE, TRUE),
-			filter.during.run = c(FALSE, TRUE),
+			adaptive.filter.weights = c(FALSE), # TRUE),
+			filter.during.run = c(FALSE),# TRUE),
 			sorted = FALSE)
 
-REPLICATIONS = 1L
-
-
-
-
-ades.random = CJ(learner = c("SVM"), 
-			maxeval = 5L, 
-			filter = c("none", "custom"),
-			initialization = c("none", "unif"), 
-			sorted = FALSE)
+REPLICATIONS = 10L

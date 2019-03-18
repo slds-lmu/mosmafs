@@ -3,25 +3,30 @@ library(dplyr)
 
 # load registry
 reg = loadRegistry("registry")
-tab = summarizeExperiments(by = c("job.id", "algorithm", "problem", "initialization", "maxeval", "parent.sel", "feature.mut", 
-	"filter", "learner", "surrogate", "lambda", "mu", "propose.points"))
+tab = summarizeExperiments(by = c("job.id", "algorithm", 
+	"problem", "learner", "maxeval", "filter", "initialization", 
+	"lambda", "mu", "parent.sel", "chw.bitflip", "adaptive.filter.weights",
+	"filter.during.run", "surrogate", "MBMOmethod", "propose.points"))
 
 path = "results_raw"
-algo = "mosmafs"
+algo = "MBObaseline"
 
 savepath = paste(path, algo, sep = "/")
 dir.create(savepath)
 
-collectBenchmarkResults(savepath, algo)
+collectBenchmarkResults(savepath, algo, maxevals = 2000L)
 
 toextract = c("eval.domHV", "evals")
 
-experiments = list(O = list(algo = "mosmafs", initialization = "none", filter = "none", feature.mut = "mutBitflip"),
-	OI = list(algo = "mosmafs", initialization = "unif", filter = "none", feature.mut = "mutBitflip"),
-	OIF = list(algo = "mosmafs", initialization = "unif", filter = "custom", feature.mut = "mutBitflip"),
-	MBObaseline = list(algo = "MBObaseline", initialization = NA, filter = "custom", feature.mut = NA))
+experiments = list(# O = list(algo = "randomsearch"),
+	O = list(algo = "mosmafs", initialization = "none", filter = "none", chw.bitflip = FALSE),
+	OI = list(algo = "mosmafs", initialization = "unif", filter = "none", chw.bitflip = FALSE),
+	OIH = list(algo = "mosmafs", initialization = "unif", filter = "none", chw.bitflip = TRUE))# ,
+	# OIFH = list(algo = "mosmafs", initialization = "unif", filter = "custom", chw.bitflip = TRUE))	
 
-createReport(path, experiments, toextract = toextract, plot.by.colour = "initialization", plot.by.lty = "filter")
+	# ´´MBObaseline = list(algo = "MBObaseline", initialization = NA, filter = "custom", feature.mut = NA))
+
+createReport(path, experiments, toextract = toextract, plot.by.colour = "initialization", plot.by.lty = "chw.bitflip")
 
 experiments = list(OIF = list(algo = "mosmafs", initialization = "unif", filter = "custom", feature.mut = "mutBitflip"),
 	OIFH = list(algo = "mosmafs", initialization = "unif", filter = "custom", feature.mut = "mutBitflipCHW"))
@@ -35,8 +40,10 @@ createReport(path, experiments, toextract = toextract, plot.by.colour = "feature
 collectBenchmarkResults = function(savepath, algo, maxevals = 4000L) {
 	
 	# analyze status
-	tab = summarizeExperiments(by = c("job.id", "algorithm", "problem", "initialization", "maxeval", "parent.sel", "feature.mut", 
-		"filter", "learner", "surrogate", "lambda", "mu", "propose.points"))
+	tab = summarizeExperiments(by = c("job.id", "algorithm", 
+		"problem", "learner", "maxeval", "filter", "initialization", 
+		"lambda", "mu", "parent.sel", "chw.bitflip", "adaptive.filter.weights",
+		"filter.during.run", "surrogate", "MBMOmethod", "propose.points"))
 	toreduce = ijoin(tab, findDone())[algorithm == algo & filter %in% c("none", "custom") & maxeval == maxevals, ]
 	status = toreduce %>% group_by(learner, problem, filter, initialization) %>% summarize(length(algorithm))
 
@@ -59,10 +66,10 @@ collectResultMBO = function(x) {
   fitnesses = as.data.frame(mbo.object$opt.path)
   fitnesses$gen = fitnesses$dob
   fitnesses = setDT(fitnesses)
-  fitnesses$y_2 = fitnesses$mosmafs.nselect
+  fitnesses$y_2 = fitnesses$fitness.holdout.propfeat
   fitnesses$runtime = cumsum(fitnesses$exec.time)
   fitnesses$evals = 1:nrow(fitnesses)
-  fitnesses$eval.domHV = unlist(x$domhypervol)
+  fitnesses$eval.domHV = sapply(1:nrow(fitnesses), function(i) computeHV(t(as.matrix(fitnesses[1:i, c( "y_1", "y_2")])), ref.point = c(1, 1)))
   fitnesses$hout.domHV = sapply(1:nrow(fitnesses), function(i) computeHV(t(as.matrix(fitnesses[1:i, c( "fitness.holdout.perf", "fitness.holdout.propfeat")])), ref.point = c(1, 1)))
 
   stats = fitnesses[, .(runtime = max(runtime), evals = max(evals), eval.perf.min = min(y_1), eval.perf.mean = mean(y_1), eval.perf.max = max(y_1),
@@ -81,24 +88,66 @@ collectResultMBO = function(x) {
 createReport = function(path, experiments, toextract, plot.by.colour, plot.by.lty = NULL) {
 	dir.create(paste("results_plots/", toextract[1], sep = ""))
 
-	dflist = lapply(experiments, function(x) readRDS(file.path(path, x$algo, "result.rds"))[initialization == x$initialization & filter == x$filter & feature.mut == x$feature.mut, ])
+	dflist = lapply(experiments, function(x) readRDS(file.path(path, x$algo, "result.rds"))[initialization == x$initialization & filter == x$filter & chw.bitflip == x$chw.bitflip, ])
 	if ("MBObaseline" %in% names(dflist)) {
 		dflist$MBObaseline = readRDS(file.path(path, "MBObaseline", "result.rds"))
 	}
 
 	dflist = lapply(dflist, function(x) extractFromSummary(x, toextract))
 	df = do.call("rbind", dflist)
+	df = df[- which(problem %in% c("hypersphere.200.50", "hypersphere.200.200")), ]
 
 	# vizualise hypervolume per evaluation	
-	df = df[, .(mean.domHV = mean(domHV)), by = c("algorithm", "evals", "problem", "initialization", "filter", "learner", "parent.sel", "feature.mut")]
+	dfp = dfp[, .(mean.domHV = mean(eval.domHV)), by = c("algorithm", "evals", "problem", "initialization", "filter", "learner", "parent.sel", "chw.bitflip")]
+	p = ggplot()
+	p = p + geom_line(data = dfp[algorithm == "mosmafs", ], aes_string(x = "evals", y = "mean.domHV", colour = plot.by.colour, lty = plot.by.lty))
+	p = p + geom_line(data = dfp[algorithm == "MBObaseline", ], aes_string(x = "evals", y = "mean.domHV"), colour = "black")
+	p = p + facet_grid(learner ~ problem) + theme_bw()
+	ggsave(paste("results_plots/", toextract[1], "/", paste(names(experiments), collapse = "_"), ".png", sep = ""), p, width = 15)
 
-	p = ggplot(data = df, aes_string(x = "evals", y = "mean.domHV", colour = plot.by.colour, lty = plot.by.lty))
-	p = p + geom_line()
-	p = p + facet_grid(learner ~ problem)
-	ggsave(paste("results_plots/", toextract[1], "/", paste(names(experiments), collapse = "_"), ".png", sep = ""), p, width = 10)
+	for (lrn in unique(df$learner)) {
+		for (prob in unique(df$problem)[c(1:6, 8:10)]) {
+				dir.create(paste("results_plots/", toextract[1], "/", learner, "_", prob, sep = ""))
+				dfp = df[problem == prob & learner == lrn, ]
+				dfp = dfp[- which(initialization == "none"), ]
+				dfp = dfp[- which(!chw.bitflip), ]
+				dfp$job.id = as.factor(dfp$job.id)
+
+				p = ggplot()
+				p = p + geom_line(data = dfp, aes_string(x = "evals", y = "eval.domHV", colour = "job.id"))
+				p = p + facet_grid( ~ algorithm) + theme_bw()
+				ggsave(paste("results_plots/", toextract[1], "/", learner, "_", prob, "/", "plot.png", sep = ""), p, width = 15)
+
+		}
+	}
+
+	dflist = lapply(experiments, function(x) readRDS(file.path(path, x$algo, "result.rds"))[initialization == x$initialization & filter == x$filter & chw.bitflip == x$chw.bitflip, ])
+	if ("MBObaseline" %in% names(dflist)) {
+		dflist$MBObaseline = readRDS(file.path(path, "MBObaseline", "result.rds"))
+	}
+
+	dflist = lapply(dflist, function(x) extractFromSummary(x, c("evals", "eval.perf.min", "eval.perf.mean", "eval.perf.max")))
+	df = do.call("rbind", dflist)
+	df = df[- which(problem %in% c("hypersphere.200.50", "hypersphere.200.200")), ]
+
 
 	# viz final pareto front on training
+	for (lrn in unique(df$learner)) {
+		for (prob in unique(df$problem)[c(1:6, 8:10)]) {
+				dir.create(paste("results_plots/", "front", "/", learner, "_", prob, sep = ""))
+				dfp = df[problem == prob & learner == lrn, ]
+				dfp = dfp[- which(initialization == "none"), ]
+				dfp = dfp[- which(!chw.bitflip), ]
+				dfp$job.id = as.factor(dfp$job.id)
+				dfp = dfp[, .(eval.perf.min = mean(eval.perf.min), eval.perf.mean = mean(eval.perf.mean), eval.perf.max = mean(eval.perf.max)), by = c("algorithm", "evals", "problem", "initialization", "filter", "learner", "parent.sel", "chw.bitflip")]
 
+				p = ggplot()
+				p = p + geom_line(data = dfp, aes_string(x = "evals", y = "eval.domHV", colour = "job.id"))
+				p = p + facet_grid( ~ algorithm) + theme_bw()
+				ggsave(paste("results_plots/", toextract[1], "/", learner, "_", prob, "/", "plot.png", sep = ""), p, width = 15)
+
+		}
+	}	
 
 	# viz final pareto front on test set
 
@@ -117,7 +166,7 @@ extractFromSummary = function(res, toextract) {
 	cols = ncol(res)
 	hypervol = lapply(1:nrow(res), function(i) cbind(res[i, ]$job.id, setDT(res[i, ]$summary[[1]])[, ..toextract]))
 	hypervol = as.data.table(do.call("rbind", hypervol))
-	names(hypervol) = c("job.id", "domHV", "evals")
+	names(hypervol) = c("job.id", toextract)
 	df = ijoin(res[, 1:(cols - 1)], hypervol, by = "job.id")
 	return(df)
 }

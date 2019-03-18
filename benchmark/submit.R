@@ -7,76 +7,58 @@ resources.serial = list(
 	clusters = "serial" # get name from lrz homepage)
 )
 
+resources.mpp3 = list(ncpus = 15L,
+	walltime = 3600L * 72L, memory = 1024L * 20L,
+	clusters = "ivymuc") # get name from lrz homepage))
+
 reg = loadRegistry("registry", writeable = TRUE)
-tab = summarizeExperiments(by = c("job.id", "algorithm", "problem", "initialization", "maxeval", "parent.sel", "feature.mut", 
-	"filter", "learner", "surrogate", "lambda", "mu", "propose.points"))
+tab = summarizeExperiments(by = c("job.id", "algorithm", 
+	"problem", "learner", "maxeval", "filter", "initialization", 
+	"lambda", "mu", "parent.sel", "chw.bitflip", "adaptive.filter.weights",
+	"filter.during.run", "surrogate", "MBMOmethod", "propose.points"))
 tab = tab[- which(problem %in% c("convex", "dexter")), ]
-tab = tab[filter %in% c("none", "custom"), ]
+tab = tab[maxeval %in% c(2000, 4000), ]
 
-# check random search
-tosubmit = tab[algorithm == "randomsearch" & maxeval == 4000L, ]
-done = ijoin(tosubmit, findDone(), by = "job.id")
-status = done %>% group_by(learner, problem, filter, initialization, maxeval) %>% summarize(n := length(algorithm))
-status %>% filter(problem == "madelon")
+source("probdesign.R")
 
-notdone = ijoin(tosubmit, findNotDone(), by = "job.id")
-notdone = notdone[- which(job.id %in% findOnSystem()$job.id), ]
-submitJobs(notdone, resources = resources.serial)
-
-# check MBO baseline / MBO with 2000 evals only
-tosubmit = tab[algorithm == "MBObaseline" & propose.points == 10L & maxeval == 2000L, ]
-done = ijoin(tosubmit, findDone(), by = "job.id")
-status = done %>% group_by(learner, problem, filter, initialization, maxeval) %>% summarize(length(algorithm))
-
-notdone = ijoin(tosubmit, findNotDone(), by = "job.id")
-notdone = notdone[- which(job.id %in% findOnSystem()$job.id), ]
-submitJobs(notdone, resources = resources.serial)
+chunk.size = 10L
 
 
-# check mosmafs
-tosubmit = tab[algorithm == "mosmafs" & maxeval == 4000L & is.na(surrogate), ]
-done = ijoin(tosubmit, findDone(), by = "job.id")
-status = done %>% group_by(learner, problem, filter, initialization, maxeval, feature.mut) %>% summarize(length(algorithm))
-status %>% filter(problem == "madelon")
-
+# submit mosmafs / mbo without filter
+# probs x lrns x initilization x chw.bitflip 
+# 5 x 3 x 2 x 2 x 10 = 600
+i = 1
+datasets[i]
+tosubmit = tab[algorithm %in% c("randomsearch"), ]
+# tosubmit = tosubmit[problem %in% datasets[i], ]
+tosubmit = tosubmit[mu == 80, ]
 notdone = ijoin(tosubmit, findNotDone(), by = "job.id")
 notdone = notdone[- which(job.id %in% findOnSystem()$job.id), ]
 submitJobs(notdone, resources = resources.serial)
 
 
-# MISSING: MOSMAFS W/ FILTER MUTATION
+# submit MBObaseline
+# 12 x 3 x 10 = 360
+tosubmit = tab[algorithm %in% "MBObaseline", ]
+tosubmit = tosubmit[problem %in% c("wdbc", "ionosphere", "sonar", "hill-valley", "tecator", "madeline"), ]
 
+notdone = ijoin(tosubmit, findNotDone(), by = "job.id")
+notdone = notdone[maxeval == 2000, ]
+nchunks = floor(nrow(notdone) / chunk.size
+notdone$chunk = rep(1:nchunks, each = chunk.size)
+notdone = notdone[- which(job.id %in% findOnSystem()$job.id), ]
+# submitJobs(notdone, resources = resources.mpp3)
 
+# submit randomsearch without filter
+# probs x lrns x initilization x chw.bitflip 
+# 5 x 3 x 2 x 10 = 300
+# tosubmit = tab[algorithm == "randomsearch", ]
+# notdone = ijoin(tosubmit, findNotDone(), by = "job.id")
+# # notdone = notdone[- which(job.id %in% findOnSystem()$job.id), ]
+# submitJobs(notdone, resources = resources.serial)
 
+# random search on serial
 
-
-# random search
-# we do mosmafs and random search with 4000
-# but mbo with 1000 only (will take to long otherwise)
-# tosubmit = tosubmit[which(maxeval == 1000), ]
-tosubmit = tosubmit[algorithm == "mosmafs", ]
-tosubmit = tosubmit[is.na(surrogate), ]
-tosubmit = tosubmit[maxeval == 4000, ]
-# tosubmit = tosubmit[filter == "none", ]
-# tosubmit = tosubmit[propose.points == 10, ]
-tosubmit = ijoin(tosubmit, findNotDone(), by = "job.id")
-tosubmit = tosubmit[- which(job.id %in% findOnSystem()$job.id), ]
-
-
-
-
-ijoin(tosubmit, findDone())
-
-
-# TODO: Remove Jobs that are not needed anymore
-
-idx = tosubmit[(tosubmit$filter == "JMI_auc_var"), ]$job.id
-removeJobs(idx)
-
-
-# chunk.size = 5L
-# nchunks = nrow(tosubmit) / chunk.size
-# tosubmit$chunk = rep(1:nchunks, each = chunk.size)
 
 
 
