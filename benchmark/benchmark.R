@@ -87,11 +87,17 @@ randomsearch = function(data, job, instance, learner, maxeval, filter, initializ
 
   # result = mbo(obj, control = ctrl, learner = SURROGATE[[surrogate]])
 
+   parallelStartMulticore(cpus = 15L)
+
+
   # --- fitness function --- 
   result = initEcr(
     fitness.fun = fitness.fun,
     population = initials
   )
+
+  parallelStop()
+
 
   runtime = proc.time() - time
 
@@ -131,11 +137,11 @@ MBObaseline = function(data, job, instance, learner, maxeval, filter, MBMOmethod
 
   time = proc.time()
 
-  # parallelStartMulticore(cpus = 15L)
+  parallelStartMulticore(cpus = 15L)
 
   result = mbo(obj, control = ctrl, learner = SURROGATE[[surrogate]])
 
-  # parallelStop()
+  parallelStop()
 
   runtime = proc.time() - time
 
@@ -283,7 +289,7 @@ mosmafs = function(data, job, instance, learner, maxeval, filter, initialization
   # --- fitness function --- 
   fitness.fun = makeObjective(learner = lrn, task = task.train, ps = ps, resampling = stratcv10, holdout.data = task.test)
 
-  # parallelStartMulticore(cpus = 15L)
+  parallelStartMulticore(cpus = 15L)
 
   result = slickEcr(
     fitness.fun = fitness.fun,
@@ -294,7 +300,7 @@ mosmafs = function(data, job, instance, learner, maxeval, filter, initialization
     generations = ceiling((maxeval - mu) / lambda)
   )
 
-  # parallelStop()
+  parallelStop()
 
   runtime = proc.time() - time
 

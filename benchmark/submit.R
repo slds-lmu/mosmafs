@@ -8,15 +8,14 @@ resources.serial = list(
 )
 
 resources.mpp3 = list(ncpus = 15L,
-	walltime = 3600L * 72L, memory = 1024L * 20L,
-	clusters = "ivymuc") # get name from lrz homepage))
+	walltime = 3600L * 48L, memory = 1024L * 20L,
+	clusters = "mpp3") # get name from lrz homepage))
 
 reg = loadRegistry("registry", writeable = TRUE)
 tab = summarizeExperiments(by = c("job.id", "algorithm", 
 	"problem", "learner", "maxeval", "filter", "initialization", 
 	"lambda", "mu", "parent.sel", "chw.bitflip", "adaptive.filter.weights",
 	"filter.during.run", "surrogate", "MBMOmethod", "propose.points"))
-tab = tab[- which(problem %in% c("convex", "dexter")), ]
 tab = tab[maxeval %in% c(2000, 4000), ]
 
 source("probdesign.R")
@@ -39,15 +38,12 @@ submitJobs(notdone, resources = resources.serial)
 
 # submit MBObaseline
 # 12 x 3 x 10 = 360
-tosubmit = tab[algorithm %in% "MBObaseline", ]
-tosubmit = tosubmit[problem %in% c("wdbc", "ionosphere", "sonar", "hill-valley", "tecator", "madeline"), ]
-
-notdone = ijoin(tosubmit, findNotDone(), by = "job.id")
-notdone = notdone[maxeval == 2000, ]
-nchunks = floor(nrow(notdone) / chunk.size
+tosubmit = tab[problem %in% c("Bioresponse", "gisette", "dexter", "AP_Lung_Uterus"), ]
+notdone = tosubmit[lambda != 4L, ]
+nchunks = floor(nrow(notdone) / chunk.size)
 notdone$chunk = rep(1:nchunks, each = chunk.size)
 notdone = notdone[- which(job.id %in% findOnSystem()$job.id), ]
-# submitJobs(notdone, resources = resources.mpp3)
+submitJobs(notdone[31:338, ], resources = resources.mpp3)
 
 # submit randomsearch without filter
 # probs x lrns x initilization x chw.bitflip 

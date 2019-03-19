@@ -6,8 +6,8 @@ datafolder = "data"
 datasets = c("sonar", "ionosphere", "madelon", 
 	"madeline", "hill-valley", "gina_agnostic",
 	"AP_Lung_Uterus", "wdbc", "philippine", 
-	"tecator", 
-	"hypersphere.200.50", "hypersphere.200.200")
+	"tecator", "Bioresponse",
+	"dexter", "gisette")
 
 # --- specify learners ---
 # Machine learning algorithms to be benchmarked
