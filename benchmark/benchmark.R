@@ -10,26 +10,35 @@ library("RWeka")
 library("mosmafs")
 library("mlrMBO")
 
-source("def.R")
 
 TEST = FALSE
 
 if (TEST) {
-    unlink("registry_temp", recursive = TRUE)
-    reg = makeExperimentRegistry(file.dir = "registry_temp", seed = 123L,
-      packages = packages, source = "def.R")
+  deffile = "def_test.R"
+  registry_name = "registry_temp"
 } else {
-  if (file.exists("registry")) {
+  deffile = "def.R"
+  registry_name = "registry"
+}
+
+source(def)
+
+if (TEST) {
+    unlink(registry_name, recursive = TRUE)
+    reg = makeExperimentRegistry(file.dir = registry_name, seed = 123L,
+      packages = packages, source = deffile)
+} else {
+  if (file.exists(registry_name)) {
     if (OVERWRITE) {
-      unlink("registry", recursive = TRUE)
-      reg = makeExperimentRegistry(file.dir = "registry", seed = 123L,
-        packages = packages, source = "def.R")
+      unlink(registry_name, recursive = TRUE)
+      reg = makeExperimentRegistry(file.dir = registry_name, seed = 123L,
+        packages = packages, source = deffile)
     } else {
-      reg = loadRegistry("registry", writeable = TRUE)
+      reg = loadRegistry(registry_name, writeable = TRUE)
     }
   } else {
-      reg = makeExperimentRegistry(file.dir = "registry", seed = 123L,
-        packages = packages, source = "def.R")
+      reg = makeExperimentRegistry(file.dir = registry_name, seed = 123L,
+        packages = packages, source = deffile)
     }
 }
 
