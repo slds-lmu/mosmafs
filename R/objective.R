@@ -119,6 +119,7 @@ makeObjective <- function(learner, task, ps, resampling, measure = NULL, holdout
 #' @export
 valuesFromNames <- function(paramset, value) {
   adapt <- getParamIds(paramset)[getParamTypes(paramset) %in% c("discrete", "discretevector")]
+  adapt <- intersect(adapt, names(value))
   for (pname in adapt) {
     param <- paramset$pars[[pname]]
     if (isVector(param)) {

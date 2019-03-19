@@ -324,7 +324,7 @@ unbiasedHoldoutDomHV <- function(fitness, holdout, refpoint) {
 naiveHoldoutDomHV <- function(fitness, holdout, refpoint) {
   assertMatrix(holdout, nrow = nrow(fitness), ncol = ncol(fitness))
   assertNumeric(refpoint, finite = TRUE, len = nrow(fitness), any.missing = FALSE)
-  computeHV(holdout[, nondominated(fitness)], ref.point = refpoint)
+  computeHV(holdout[, nondominated(fitness), drop = FALSE], ref.point = refpoint)
 }
 
 
