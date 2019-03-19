@@ -264,7 +264,7 @@ initSelector <- function(individuals, distribution = function() floor(runif(1, 0
           new.selection <- do.call(soften.op, opargs)
           assertIntegerish(new.selection, len = ilen, any.missing = FALSE)
         }
-        new.selection <- new.selection < 0.5
+        new.selection <- new.selection > 0.5
       }
       if (any(new.selection) || !reject.zero) {
         ind.new$selector.selection <- new.selection
