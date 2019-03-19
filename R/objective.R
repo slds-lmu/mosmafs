@@ -196,14 +196,14 @@ makeBaselineObjective <- function(learner, task, filters, ps, resampling, measur
       # not using vector parameters here because mlrMBO probably
       # sucks at handling them.
       makeIntegerParam(sprintf("mosmafs.iselect.%s", idx),
-        lower = 1, upper = numfeats)
+        lower = 1L, upper = numfeats)
     })),
     if (length(filters) > 1) {
       makeParamSet(params = lapply(seq_along(filters), function(idx) {
         # not using vector parameters here because mlrMBO probably
         # sucks at handling them.
         makeIntegerParam(sprintf("mosmafs.select.weights.%s", idx),
-          lower = 1, upper = numfeats)
+          lower = 1L, upper = numfeats)
       }))
     }
   )
