@@ -15,47 +15,43 @@ reg = loadRegistry("registry", writeable = TRUE)
 tab = summarizeExperiments(by = c("job.id", "algorithm", 
 	"problem", "learner", "maxeval", "filter", "initialization", 
 	"lambda", "mu", "parent.sel", "chw.bitflip", "adaptive.filter.weights",
-	"filter.during.run", "surrogate", "MBMOmethod", "propose.points"))
+	"filter.during.run"))
 tab = tab[maxeval %in% c(2000, 4000), ]
+tab = rbind(tab[lambda != 4L, ], tab[is.na(lambda), ])
 
 source("probdesign.R")
 
 chunk.size = 10L
 
+problems.serial = c("sonar", "ionosphere", "hill-valley", "wdbc", "tecator", "madeline")
 
-# submit mosmafs / mbo without filter
-# probs x lrns x initilization x chw.bitflip 
-# 5 x 3 x 2 x 2 x 10 = 600
-i = 1
-datasets[i]
-tosubmit = tab[algorithm %in% c("randomsearch"), ]
-# tosubmit = tosubmit[problem %in% datasets[i], ]
-tosubmit = tosubmit[mu == 80, ]
-notdone = ijoin(tosubmit, findNotDone(), by = "job.id")
-notdone = notdone[- which(job.id %in% findOnSystem()$job.id), ]
-submitJobs(notdone, resources = resources.serial)
+problems.dortmund =  setdiff(datasets, problems.serial)
 
+experiments = list(
+	O = data.table(algorithm = "mosmafs", filter = "none", initialization = "none", chw.bitflip = FALSE, adaptive.filter.weights = FALSE, filter.during.run = FALSE),
+	OI = data.table(algorithm = "mosmafs", filter = "none", initialization = "unif", chw.bitflip = FALSE, adaptive.filter.weights = FALSE, filter.during.run = FALSE),
+	OIFi = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = FALSE, adaptive.filter.weights = FALSE, filter.during.run = FALSE),
+	OIFiFm = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = FALSE, adaptive.filter.weights = FALSE, filter.during.run = TRUE),
+	OIFiFmS = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = FALSE, adaptive.filter.weights = TRUE, filter.during.run = TRUE),
+	OIH = data.table(algorithm = "mosmafs", filter = "none", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = FALSE, filter.during.run = FALSE),
+	OIHFiFmS = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE),
+	RS = data.table(algorithm = "randomsearch", initialization = "none", filter = "none"),
+	RSI = data.table(algorithm = "randomsearch", initialization = "unif", filter = "none"),
+	RSIF = data.table(algorithm = "randomsearch", initialization = "unif", filter = "custom")
+	)
 
-# submit MBObaseline
-# 12 x 3 x 10 = 360
-tosubmit = tab[problem %in% c("Bioresponse", "gisette", "dexter", "AP_Lung_Uterus"), ]
-notdone = tosubmit[lambda != 4L, ]
-nchunks = floor(nrow(notdone) / chunk.size)
-notdone$chunk = rep(1:nchunks, each = chunk.size)
-notdone = notdone[- which(job.id %in% findOnSystem()$job.id), ]
-submitJobs(notdone[31:338, ], resources = resources.mpp3)
-
-# submit randomsearch without filter
-# probs x lrns x initilization x chw.bitflip 
-# 5 x 3 x 2 x 10 = 300
-# tosubmit = tab[algorithm == "randomsearch", ]
-# notdone = ijoin(tosubmit, findNotDone(), by = "job.id")
-# # notdone = notdone[- which(job.id %in% findOnSystem()$job.id), ]
-# submitJobs(notdone, resources = resources.serial)
-
-# random search on serial
-
-
-
-
-
+# O done
+# OI done
+# OIFi submitted
+# OIFiFm submitted
+# OIFiFmS submitted
+# OIH done
+# RS done
+# RSI done
+# RSIF submitted
+experiment = "OIFiFm"
+tosubmit = ijoin(tab, experiments[[experiment]], by = names(experiments[[experiment]]))
+tosubmit = tosubmit[problem %in% problems.serial, ]
+tosubmit = ijoin(tosubmit, findNotDone(), by = "job.id")
+tosubmit = tosubmit[- which(job.id %in% findOnSystem()$job.id), ]
+submitJobs(tosubmit, resources = resources.serial)

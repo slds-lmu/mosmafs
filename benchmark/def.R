@@ -33,7 +33,7 @@ INFILL = list("cb" = makeMBOInfillCritCB())
 
 ades.random = CJ(learner = c("SVM", "kknn", "xgboost"), 
 			maxeval = MAXEVAL, 
-			filter = c("none"), # , "custom"),
+			filter = c("none", "custom"),
 			initialization = c("none", "unif"), 
 			sorted = FALSE)
 
@@ -48,14 +48,14 @@ ades.mbo = CJ(learner = c("SVM", "kknn", "xgboost"),
 
 ades.mosmafs = CJ(learner = c("SVM", "kknn", "xgboost"), 
 			maxeval = MAXEVAL, 
-			filter = c("none"), # "custom"),
+			filter = c("none", "custom"),
 			initialization = c("none", "unif"), 
 			lambda = 15L,
 			mu = 80,
 			parent.sel = c("selTournamentMO"),
 			chw.bitflip = c(FALSE, TRUE),
-			adaptive.filter.weights = c(FALSE), # TRUE),
-			filter.during.run = c(FALSE),# TRUE),
+			adaptive.filter.weights = c(FALSE, TRUE),
+			filter.during.run = c(FALSE, TRUE),
 			sorted = FALSE)
 
 REPLICATIONS = 10L

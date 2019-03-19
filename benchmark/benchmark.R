@@ -11,7 +11,7 @@ library("mosmafs")
 library("mlrMBO")
 
 
-TEST = FALSE
+TEST = TRUE
 
 if (TEST) {
   deffile = "def_test.R"
@@ -96,7 +96,7 @@ randomsearch = function(data, job, instance, learner, maxeval, filter, initializ
 
   # result = mbo(obj, control = ctrl, learner = SURROGATE[[surrogate]])
 
-   parallelStartMulticore(cpus = 15L)
+  # parallelStartMulticore(cpus = 15L)
 
 
   # --- fitness function --- 
@@ -105,7 +105,7 @@ randomsearch = function(data, job, instance, learner, maxeval, filter, initializ
     population = initials
   )
 
-  parallelStop()
+  # parallelStop()
 
 
   runtime = proc.time() - time
@@ -146,11 +146,11 @@ MBObaseline = function(data, job, instance, learner, maxeval, filter, MBMOmethod
 
   time = proc.time()
 
-  parallelStartMulticore(cpus = 15L)
+  # parallelStartMulticore(cpus = 15L)
 
   result = mbo(obj, control = ctrl, learner = SURROGATE[[surrogate]])
 
-  parallelStop()
+  # parallelStop()
 
   runtime = proc.time() - time
 
@@ -298,7 +298,7 @@ mosmafs = function(data, job, instance, learner, maxeval, filter, initialization
   # --- fitness function --- 
   fitness.fun = makeObjective(learner = lrn, task = task.train, ps = ps, resampling = stratcv10, holdout.data = task.test)
 
-  parallelStartMulticore(cpus = 15L)
+  # parallelStartMulticore(cpus = 15L)
 
   result = slickEcr(
     fitness.fun = fitness.fun,
@@ -309,7 +309,7 @@ mosmafs = function(data, job, instance, learner, maxeval, filter, initialization
     generations = ceiling((maxeval - mu) / lambda)
   )
 
-  parallelStop()
+  # parallelStop()
 
   runtime = proc.time() - time
 
@@ -317,12 +317,12 @@ mosmafs = function(data, job, instance, learner, maxeval, filter, initialization
 } 
 
 addAlgorithm(name = "randomsearch", reg = reg, fun = randomsearch)
-addAlgorithm(name = "MBObaseline", reg = reg, fun = MBObaseline)
+# addAlgorithm(name = "MBObaseline", reg = reg, fun = MBObaseline)
 addAlgorithm(name = "mosmafs", reg = reg, fun = mosmafs)
 
 addExperiments(reg = reg, 
   algo.designs = list(randomsearch = ades.random, 
-                      MBObaseline = ades.mbo,
+                      # MBObaseline = ades.mbo,
                       mosmafs = ades.mosmafs),
   repls = REPLICATIONS)
 
