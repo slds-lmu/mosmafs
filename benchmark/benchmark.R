@@ -21,7 +21,7 @@ if (TEST) {
   registry_name = "registry"
 }
 
-source(def)
+source(deffile)
 
 if (TEST) {
     unlink(registry_name, recursive = TRUE)
