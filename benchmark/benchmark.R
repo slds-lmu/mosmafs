@@ -11,7 +11,7 @@ library("mosmafs")
 library("mlrMBO")
 
 
-TEST = TRUE
+TEST = FALSE
 
 if (TEST) {
   deffile = "def_test.R"
@@ -326,6 +326,7 @@ addExperiments(reg = reg,
                       mosmafs = ades.mosmafs),
   repls = REPLICATIONS)
 
+# bla = tab[problem == "sonar", ]
 
 
 

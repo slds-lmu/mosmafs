@@ -36,9 +36,12 @@ experiments = list(
 	OIH = data.table(algorithm = "mosmafs", filter = "none", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = FALSE, filter.during.run = FALSE),
 	OIHFiFmS = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE),
 	RS = data.table(algorithm = "randomsearch", initialization = "none", filter = "none"),
-	RSI = data.table(algorithm = "randomsearch", initialization = "unif", filter = "none"),
+	RSI = data.table(algorithm = "randomsearch", iitialization = "unif", filter = "none"),
 	RSIF = data.table(algorithm = "randomsearch", initialization = "unif", filter = "custom")
 	)
+
+
+# --- LRZ ---  
 
 # O done
 # OI done
@@ -55,3 +58,24 @@ tosubmit = tosubmit[problem %in% problems.serial, ]
 tosubmit = ijoin(tosubmit, findNotDone(), by = "job.id")
 tosubmit = tosubmit[- which(job.id %in% findOnSystem()$job.id), ]
 submitJobs(tosubmit, resources = resources.serial)
+
+
+# --- LIDO ---  
+
+resources.lido = list(ncpus = 15L,
+	walltime = 3600L * 8L, memory = 1024L * 5L)
+# O done
+# OI done
+# OIFi submitted
+# OIFiFm submitted
+# OIFiFmS submitted
+# OIH done
+# RS done
+# RSI done
+# RSIF submitted
+experiment = "O"
+tosubmit = ijoin(tab, experiments[[experiment]], by = names(experiments[[experiment]]))
+tosubmit = tosubmit[problem %in% problems.dortmund, ]
+tosubmit = ijoin(tosubmit, findNotDone(), by = "job.id")
+tosubmit = tosubmit[- which(job.id %in% findOnSystem()$job.id), ]
+submitJobs(tosubmit, resources = resources.lido)
