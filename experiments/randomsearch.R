@@ -19,7 +19,7 @@ lrn.ps <- pSS(
   sigma: numeric[10^(-3), 10^3]
 )
 
-# tasks <- dir("/home/user/development/R/mosmafs/data", "*.rds", full.names = TRUE)
+# tasks <- dir("/home/user/development/R/mosmafs/data", "\\.rds$", full.names = TRUE)
 
 # chosen <- grep("SPLIT_ionosphere", tasks, value = TRUE)
 

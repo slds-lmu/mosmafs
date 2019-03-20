@@ -61,7 +61,7 @@ library("mlr")
 library("data.table")
 library("parallel")
 
-tasks <- sapply(dir("../data", "*.rds", full.names = TRUE), readRDS, simplify = FALSE)
+tasks <- sapply(dir("../data", "\\.rds$", full.names = TRUE), readRDS, simplify = FALSE)
 names(tasks) <- gsub(".*/TASK_(.*)\\.rds", "\\1", names(tasks))
 
 filters <- listFilterMethods(desc = FALSE, tasks = TRUE)

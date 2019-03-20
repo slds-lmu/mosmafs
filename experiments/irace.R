@@ -48,7 +48,7 @@ returned <- efun(input)
 
 savedir <- "/projects/user/mosmafstraces/"
 
-done <- dir(savedir, pattern = "*10.rds")
+done <- dir(savedir, pattern = "10\\.rds$")
 
 patterns <- gsub("10.rds", "%s.rds", done)
 
