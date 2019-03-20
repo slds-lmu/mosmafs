@@ -9,6 +9,25 @@ tab = summarizeExperiments(by = c("job.id", "algorithm",
 	"filter.during.run", "surrogate", "MBMOmethod", "propose.points"))
 
 path = "results_raw"
+
+experiments = list(
+	O = data.table(algorithm = "mosmafs", filter = "none", initialization = "none", chw.bitflip = FALSE, adaptive.filter.weights = FALSE, filter.during.run = FALSE),
+	OI = data.table(algorithm = "mosmafs", filter = "none", initialization = "unif", chw.bitflip = FALSE, adaptive.filter.weights = FALSE, filter.during.run = FALSE),
+	OIFi = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = FALSE, adaptive.filter.weights = FALSE, filter.during.run = FALSE),
+	OIFiFm = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = FALSE, adaptive.filter.weights = FALSE, filter.during.run = TRUE),
+	OIFiFmS = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = FALSE, adaptive.filter.weights = TRUE, filter.during.run = TRUE),
+	OIH = data.table(algorithm = "mosmafs", filter = "none", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = FALSE, filter.during.run = FALSE),
+	OIHFiFmS = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE),
+	RS = data.table(algorithm = "randomsearch", initialization = "none", filter = "none"),
+	RSI = data.table(algorithm = "randomsearch", initialization = "unif", filter = "none"),
+	RSIF = data.table(algorithm = "randomsearch", initialization = "unif", filter = "custom")
+	)
+
+
+
+
+
+
 algo = "MBObaseline"
 
 savepath = paste(path, algo, sep = "/")
@@ -35,30 +54,6 @@ createReport(path, experiments, toextract = toextract, plot.by.colour = "feature
 
 
 
-
-# CollectResults
-collectBenchmarkResults = function(savepath, algo, maxevals = 4000L) {
-	
-	# analyze status
-	tab = summarizeExperiments(by = c("job.id", "algorithm", 
-		"problem", "learner", "maxeval", "filter", "initialization", 
-		"lambda", "mu", "parent.sel", "chw.bitflip", "adaptive.filter.weights",
-		"filter.during.run", "surrogate", "MBMOmethod", "propose.points"))
-	toreduce = ijoin(tab, findDone())[algorithm == algo & filter %in% c("none", "custom") & maxeval == maxevals, ]
-	status = toreduce %>% group_by(learner, problem, filter, initialization) %>% summarize(length(algorithm))
-
-	if (algo == "MBObaseline")
-		summary = reduceResultsDataTable(toreduce, function(x) collectResultMBO(x))
-	else 
-		summary = reduceResultsDataTable(toreduce, function(x) collectResult(x$result))
-	
-	names(summary)[2] = "summary"
-	res = ijoin(tab, summary, by = "job.id")
-	
-	saveRDS(res, file.path(savepath, "result.rds"))
-	write.csv(status, file.path(savepath, "status.csv"))
-	return(status)
-}
 
 
 collectResultMBO = function(x) {
@@ -162,11 +157,3 @@ createReport = function(path, experiments, toextract, plot.by.colour, plot.by.lt
 
 }
 
-extractFromSummary = function(res, toextract) {
-	cols = ncol(res)
-	hypervol = lapply(1:nrow(res), function(i) cbind(res[i, ]$job.id, setDT(res[i, ]$summary[[1]])[, ..toextract]))
-	hypervol = as.data.table(do.call("rbind", hypervol))
-	names(hypervol) = c("job.id", toextract)
-	df = ijoin(res[, 1:(cols - 1)], hypervol, by = "job.id")
-	return(df)
-}

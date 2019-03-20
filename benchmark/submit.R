@@ -23,7 +23,7 @@ source("probdesign.R")
 
 chunk.size = 10L
 
-problems.serial = c("sonar", "ionosphere", "hill-valley", "wdbc", "tecator", "madeline")
+problems.serial = c("sonar", "ionosphere", "hill-valley", "wdbc", "tecator", "madeline", "gina_agnostic", "madelon")
 
 problems.dortmund =  setdiff(datasets, problems.serial)
 
@@ -36,7 +36,7 @@ experiments = list(
 	OIH = data.table(algorithm = "mosmafs", filter = "none", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = FALSE, filter.during.run = FALSE),
 	OIHFiFmS = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE),
 	RS = data.table(algorithm = "randomsearch", initialization = "none", filter = "none"),
-	RSI = data.table(algorithm = "randomsearch", iitialization = "unif", filter = "none"),
+	RSI = data.table(algorithm = "randomsearch", initialization = "unif", filter = "none"),
 	RSIF = data.table(algorithm = "randomsearch", initialization = "unif", filter = "custom")
 	)
 
@@ -52,7 +52,7 @@ experiments = list(
 # RS done
 # RSI done
 # RSIF submitted
-experiment = "OIFiFm"
+experiment = "OIHFiFmS"
 tosubmit = ijoin(tab, experiments[[experiment]], by = names(experiments[[experiment]]))
 tosubmit = tosubmit[problem %in% problems.serial, ]
 tosubmit = ijoin(tosubmit, findNotDone(), by = "job.id")
