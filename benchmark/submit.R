@@ -7,9 +7,19 @@ resources.serial = list(
 	clusters = "serial" # get name from lrz homepage)
 )
 
-resources.mpp3 = list(ncpus = 15L,
+resources.ivymuc = list(ncpus = 28L,
+	walltime = 3600L * 48L, memory = 1024L * 4L,
+	clusters = "ivymuc") # get name from lrz homepage))
+
+resources.teramem = list(ncpus = 15L,
 	walltime = 3600L * 48L, memory = 1024L * 20L,
+	clusters = "inter",
+	partition = "teramem_inter") # get name from lrz homepage))
+
+resources.mpp3 = list(ncpus = 28L,
+	walltime = 3600L * 48L, memory = 1024L * 4L,
 	clusters = "mpp3") # get name from lrz homepage))
+
 
 reg = loadRegistry("registry", writeable = TRUE)
 tab = summarizeExperiments(by = c("job.id", "algorithm", 
@@ -25,7 +35,9 @@ chunk.size = 10L
 
 problems.serial = c("sonar", "ionosphere", "hill-valley", "wdbc", "tecator", "madeline", "gina_agnostic", "madelon")
 
-problems.dortmund =  setdiff(datasets, problems.serial)
+problems.hugemem = c("gisette", "Bioresponse")
+
+problems.dortmund =  setdiff(setdiff(datasets, problems.serial), problems.hugemem)
 
 experiments = list(
 	O = data.table(algorithm = "mosmafs", filter = "none", initialization = "none", chw.bitflip = FALSE, adaptive.filter.weights = FALSE, filter.during.run = FALSE),
@@ -52,18 +64,17 @@ experiments = list(
 # RS done
 # RSI done
 # RSIF submitted
-experiment = "OIHFiFmS"
+experiment = "O"
 tosubmit = ijoin(tab, experiments[[experiment]], by = names(experiments[[experiment]]))
-tosubmit = tosubmit[problem %in% problems.serial, ]
-tosubmit = ijoin(tosubmit, findNotDone(), by = "job.id")
+tosubmit = tosubmit[problem %in% problems.dortmund, ]
+tosubmit = tosubmit[, chunk := chunk(job.id, chunk.size = 10)
+nchunks = nrow(tosubmit) / chunk.size
+# tosubmit$chunk = rep(1:nchunks, each = chunk.size)
 tosubmit = tosubmit[- which(job.id %in% findOnSystem()$job.id), ]
-submitJobs(tosubmit, resources = resources.serial)
+submitJobs(tosubmit, resources = resources.ivymuc)
 
+# --- LRZ teramem ---  
 
-# --- LIDO ---  
-
-resources.lido = list(ncpus = 15L,
-	walltime = 3600L * 8L, memory = 1024L * 5L)
 # O done
 # OI done
 # OIFi submitted
@@ -74,6 +85,27 @@ resources.lido = list(ncpus = 15L,
 # RSI done
 # RSIF submitted
 experiment = "O"
+tosubmit = ijoin(tab, experiments[[experiment]], by = names(experiments[[experiment]]))
+tosubmit = tosubmit[problem %in% problems.hugemem, ]
+nchunks = nrow(tosubmit) / chunk.size
+# tosubmit$chunk = rep(1:nchunks, each = chunk.size)
+tosubmit = tosubmit[- which(job.id %in% findOnSystem()$job.id), ]
+submitJobs(tosubmit, resources = resources.ter)
+
+
+# --- LIDO ---  
+# memory is per node here! 
+resources.lido = list(walltime = 3600L * 48L, memory = 1024L * 16L)
+# O submitted
+# OI 
+# OIFi 
+# OIFiFm .
+# OIFiFmS 
+# OIH 
+# RS 
+# RSI 
+# RSIF 
+experiment = "OI"
 tosubmit = ijoin(tab, experiments[[experiment]], by = names(experiments[[experiment]]))
 tosubmit = tosubmit[problem %in% problems.dortmund, ]
 tosubmit = ijoin(tosubmit, findNotDone(), by = "job.id")

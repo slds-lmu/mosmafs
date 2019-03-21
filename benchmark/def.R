@@ -1,4 +1,4 @@
-packages = c("batchtools", "ecr", "magrittr", "mosmafs", "ParamHelpers", "mlr", "mlrCPO", "parallelMap", "RWeka", "mlrMBO", "doParallel")
+packages = c("batchtools", "ecr", "magrittr", "mosmafs", "ParamHelpers", "mlr", "mlrCPO", "parallelMap", "RWeka", "mlrMBO", "doParallel", "FSelectorRcpp")
 
 # source the prob design
 source("probdesign.R")

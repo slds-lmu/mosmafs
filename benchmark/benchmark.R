@@ -12,6 +12,7 @@ library("mlrMBO")
 
 
 TEST = FALSE
+PARALLELIZE = TRUE
 
 if (TEST) {
   deffile = "def_test.R"
@@ -50,6 +51,8 @@ for (ds in datasets) {
 
 
 randomsearch = function(data, job, instance, learner, maxeval, filter, initialization) {
+
+  PARALLELIZE = FALSE
 
   id = strsplit(data, "/")[[1]][2]
 
@@ -96,7 +99,8 @@ randomsearch = function(data, job, instance, learner, maxeval, filter, initializ
 
   # result = mbo(obj, control = ctrl, learner = SURROGATE[[surrogate]])
 
-  # parallelStartMulticore(cpus = 15L)
+  if (PARALLELIZE)
+    parallelStartMulticore(cpus = 2L)
 
 
   # --- fitness function --- 
@@ -105,8 +109,8 @@ randomsearch = function(data, job, instance, learner, maxeval, filter, initializ
     population = initials
   )
 
-  # parallelStop()
-
+  if (PARALLELIZE)
+    parallelStop()
 
   runtime = proc.time() - time
 
@@ -160,6 +164,8 @@ MBObaseline = function(data, job, instance, learner, maxeval, filter, MBMOmethod
 
 mosmafs = function(data, job, instance, learner, maxeval, filter, initialization,
   lambda, mu, parent.sel, chw.bitflip, adaptive.filter.weights, filter.during.run) {
+
+  PARALLELIZE = FALSE
 
   id = strsplit(data, "/")[[1]][2]
 
@@ -298,7 +304,8 @@ mosmafs = function(data, job, instance, learner, maxeval, filter, initialization
   # --- fitness function --- 
   fitness.fun = makeObjective(learner = lrn, task = task.train, ps = ps, resampling = stratcv10, holdout.data = task.test)
 
-  # parallelStartMulticore(cpus = 15L)
+  if (PARALLELIZE)
+    parallelStartMulticore(cpus = 2L)
 
   result = slickEcr(
     fitness.fun = fitness.fun,
@@ -309,7 +316,7 @@ mosmafs = function(data, job, instance, learner, maxeval, filter, initialization
     generations = ceiling((maxeval - mu) / lambda)
   )
 
-  # parallelStop()
+  parallelStop()
 
   runtime = proc.time() - time
 
