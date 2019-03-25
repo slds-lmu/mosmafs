@@ -23,61 +23,35 @@ experiments = list(
 	RSIF = data.table(algorithm = "randomsearch", initialization = "unif", filter = "custom")
 	)
 
+collectBenchmarkResults(path, experiments)
 
 
 
 
 
-algo = "MBObaseline"
 
-savepath = paste(path, algo, sep = "/")
-dir.create(savepath)
+# collectResultMBO = function(x) {
+#   mbo.object = x$result
+#   fitnesses = as.data.frame(mbo.object$opt.path)
+#   fitnesses$gen = fitnesses$dob
+#   fitnesses = setDT(fitnesses)
+#   fitnesses$y_2 = fitnesses$fitness.holdout.propfeat
+#   fitnesses$runtime = cumsum(fitnesses$exec.time)
+#   fitnesses$evals = 1:nrow(fitnesses)
+#   fitnesses$eval.domHV = sapply(1:nrow(fitnesses), function(i) computeHV(t(as.matrix(fitnesses[1:i, c( "y_1", "y_2")])), ref.point = c(1, 1)))
+#   fitnesses$hout.domHV = sapply(1:nrow(fitnesses), function(i) computeHV(t(as.matrix(fitnesses[1:i, c( "fitness.holdout.perf", "fitness.holdout.propfeat")])), ref.point = c(1, 1)))
 
-collectBenchmarkResults(savepath, algo, maxevals = 2000L)
+#   stats = fitnesses[, .(runtime = max(runtime), evals = max(evals), eval.perf.min = min(y_1), eval.perf.mean = mean(y_1), eval.perf.max = max(y_1),
+#   	eval.propfeat.min = min(y_2), eval.propfeat.mean = mean(y_2), eval.propfeat.max = max(y_2),
+#   	hout.perf.min = min(fitness.holdout.perf), hout.perf.mean = mean(fitness.holdout.perf), hout.perf.max = max(fitness.holdout.perf),
+#   	hout.propfeat.min = min(fitness.holdout.propfeat), hout.propfeat.mean = mean(fitness.holdout.propfeat), hout.propfeat.max = max(fitness.holdout.propfeat),
+#   	eval.domHV = max(eval.domHV), hout.domHV = max(hout.domHV)), by = .(gen)]
 
-toextract = c("eval.domHV", "evals")
+#   stats$runtime.min = stats$runtime / 60
 
-experiments = list(# O = list(algo = "randomsearch"),
-	O = list(algo = "mosmafs", initialization = "none", filter = "none", chw.bitflip = FALSE),
-	OI = list(algo = "mosmafs", initialization = "unif", filter = "none", chw.bitflip = FALSE),
-	OIH = list(algo = "mosmafs", initialization = "unif", filter = "none", chw.bitflip = TRUE))# ,
-	# OIFH = list(algo = "mosmafs", initialization = "unif", filter = "custom", chw.bitflip = TRUE))	
-
-	# ´´MBObaseline = list(algo = "MBObaseline", initialization = NA, filter = "custom", feature.mut = NA))
-
-createReport(path, experiments, toextract = toextract, plot.by.colour = "initialization", plot.by.lty = "chw.bitflip")
-
-experiments = list(OIF = list(algo = "mosmafs", initialization = "unif", filter = "custom", feature.mut = "mutBitflip"),
-	OIFH = list(algo = "mosmafs", initialization = "unif", filter = "custom", feature.mut = "mutBitflipCHW"))
-
-createReport(path, experiments, toextract = toextract, plot.by.colour = "feature.mut")
-
-
-
-
-
-collectResultMBO = function(x) {
-  mbo.object = x$result
-  fitnesses = as.data.frame(mbo.object$opt.path)
-  fitnesses$gen = fitnesses$dob
-  fitnesses = setDT(fitnesses)
-  fitnesses$y_2 = fitnesses$fitness.holdout.propfeat
-  fitnesses$runtime = cumsum(fitnesses$exec.time)
-  fitnesses$evals = 1:nrow(fitnesses)
-  fitnesses$eval.domHV = sapply(1:nrow(fitnesses), function(i) computeHV(t(as.matrix(fitnesses[1:i, c( "y_1", "y_2")])), ref.point = c(1, 1)))
-  fitnesses$hout.domHV = sapply(1:nrow(fitnesses), function(i) computeHV(t(as.matrix(fitnesses[1:i, c( "fitness.holdout.perf", "fitness.holdout.propfeat")])), ref.point = c(1, 1)))
-
-  stats = fitnesses[, .(runtime = max(runtime), evals = max(evals), eval.perf.min = min(y_1), eval.perf.mean = mean(y_1), eval.perf.max = max(y_1),
-  	eval.propfeat.min = min(y_2), eval.propfeat.mean = mean(y_2), eval.propfeat.max = max(y_2),
-  	hout.perf.min = min(fitness.holdout.perf), hout.perf.mean = mean(fitness.holdout.perf), hout.perf.max = max(fitness.holdout.perf),
-  	hout.propfeat.min = min(fitness.holdout.propfeat), hout.propfeat.mean = mean(fitness.holdout.propfeat), hout.propfeat.max = max(fitness.holdout.propfeat),
-  	eval.domHV = max(eval.domHV), hout.domHV = max(hout.domHV)), by = .(gen)]
-
-  stats$runtime.min = stats$runtime / 60
-
-  return(stats)
+#   return(stats)
   
-}
+# }
 
 
 createReport = function(path, experiments, toextract, plot.by.colour, plot.by.lty = NULL) {

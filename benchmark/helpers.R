@@ -75,6 +75,9 @@ calculateRanks = function(dfr, nevals) {
 #   if (file.exists(file.path(file, "task.rds"))) {
 #       task = readRDS(file.path(file, "task.rds"))
 #       data = getTaskData(task)
+#       data = data[data$class %in% c("Apple", "Banana"), ]
+#       data$class = as.factor(as.character(data$class))
+#       task = makeClassifTask(data = data, target = "class")
 #       outer.res.inst = makeResampleInstance(makeResampleDesc("Holdout", stratify = TRUE, split = 0.7), task)
 #       train.data = data[outer.res.inst$train.inds[[1]], ]
 #       names(train.data)[length(names(train.data))] = "class"
@@ -111,13 +114,19 @@ collectBenchmarkResults = function(path, experiments) {
     dir = data.frame(job.id = dir)
     toreduce = ijoin(toreduce, dir)
 
-    res = reduceResultsDataTable(toreduce, function(x) collectResult(x$result))
-    res = ijoin(tab, res, by = "job.id")
-    res$variant = experiment
+    # res = reduceResultsDataTable(toreduce, function(x) collectResult(x$result))
+    # res = ijoin(tab, res, by = "job.id")
+    # res$variant = experiment
+
+    pops = reduceResultsDataTable(toreduce, function(x) lapply(getPopulations(x$result$log), function(x) x$fitness))
+    pops = ijoin(tab, pops, by = "job.id")
+    pops$variant = experiment
 
     dir.create(file.path(path, experiment))
 
-    saveRDS(res, file.path(path, experiment, "result.rds"))
+    # saveRDS(res, file.path(path, experiment, "result.rds"))
+    saveRDS(pops, file.path(path, experiment, "population.rds"))
+
   }
 }
 
@@ -153,7 +162,7 @@ theme_Publication <- function(base_size=14, base_family="helvetica") {
                legend.key = element_rect(colour = NA),
                legend.position = "bottom",
                legend.direction = "horizontal",
-               legend.key.size= unit(0.2, "cm"),
+               legend.key.size= unit(0.5, "cm"),
                legend.margin = unit(0, "cm"),
                legend.title = element_text(face="italic"),
                plot.margin=unit(c(10,5,5,5),"mm"),
@@ -175,24 +184,30 @@ scale_colour_Publication <- function(...){
 
 }
 
-plotOptPathFacetGrid = function(res, plotspath) {
+plotOptPathHypervol = function(res, plotspath) {
   df = extractFromSummary(res, c("evals", "eval.domHV"))
   df = df[- which(problem %in% c("hypersphere.200.50", "hypersphere.200.200")), ] 
+  df = df[, replication := 1:length(job.id), by = c("learner", "variant", "problem", "evals")]
+ 
+  status_finished = df %>% group_by(variant, problem, learner) %>% summarize(num.repls = max(replication)) %>% filter(num.repls == 10)
+  df = ijoin(df, status_finished, by = c("problem", "learner", "variant")) 
+
   dfp = df[, .(mean.domHV = mean(eval.domHV)), by = c("algorithm", "evals", "problem", "learner", "variant")]
   dfp = dfp[evals != 8000, ]
-    p = ggplot()
-    p = p + geom_line(data = dfp[algorithm == "mosmafs", ], aes(x = evals, y = mean.domHV, colour = variant))
-  p = p + geom_hline(data = dfp[algorithm == "randomsearch", ], aes(yintercept = mean.domHV, colour = variant))
+
+  p = ggplot()
+  p = p + geom_line(data = dfp[algorithm == "mosmafs", ], aes(x = evals, y = mean.domHV, colour = variant))
+  p = p + geom_hline(data = dfp[algorithm == "randomsearch", ], aes(yintercept = mean.domHV, lty = variant))
   p = p + facet_grid(learner ~ problem) + theme_bw()
   p = p + scale_colour_Publication() + theme_Publication()
 
-  ggsave(file.path(plotspath, "eval.domHV", "all.png"))
+  ggsave(file.path(plotspath, "eval.domHV", "all.png"), width = 10, height = 10)
 
   for (prob in unique(dfp$problem)) {
     for (lrn in unique(dfp$learner)) {
       p = ggplot()
-        p = p + geom_line(data = dfp[algorithm == "mosmafs" & learner == lrn & problem == prob, ], aes(x = evals, y = mean.domHV, colour = variant))
-      p = p + geom_hline(data = dfp[algorithm == "randomsearch" & learner == lrn & problem == prob, ], aes(yintercept = mean.domHV, colour = variant))
+      p = p + geom_line(data = dfp[algorithm == "mosmafs" & learner == lrn & problem == prob, ], aes(x = evals, y = mean.domHV, colour = variant))
+      p = p + geom_hline(data = dfp[algorithm == "randomsearch" & learner == lrn & problem == prob, ], aes(yintercept = mean.domHV, lty = variant))
       p = p + theme_Publication()
       p = p + scale_colour_Publication()
       ggsave(file.path(plotspath, "eval.domHV", paste(lrn, prob, "png", sep = ".")))
@@ -200,3 +215,173 @@ plotOptPathFacetGrid = function(res, plotspath) {
   }
 
 }
+
+
+plotPerformanceEval = function(res, plotspath) {
+  df = extractFromSummary(res, c("evals", "eval.perf.min", "eval.perf.mean", "eval.perf.max"))
+  df = df[- which(problem %in% c("hypersphere.200.50", "hypersphere.200.200")), ] 
+  df = df[, replication := 1:length(job.id), by = c("learner", "variant", "problem", "evals")]
+ 
+  status_finished = df %>% group_by(variant, problem, learner) %>% summarize(num.repls = max(replication)) %>% filter(num.repls == 10)
+  df = ijoin(df, status_finished, by = c("problem", "learner", "variant")) 
+
+  dfp = df[, .(min.perf = mean(eval.perf.min), mean.perf = mean(eval.perf.mean), max.perf = mean(eval.perf.max)), by = c("algorithm", "evals", "problem", "learner", "variant")]
+  dfp = dfp[evals != 8000, ]
+
+  p = ggplot()
+  p = p + geom_line(data = dfp[algorithm == "mosmafs", ], aes(x = evals, y = mean.domHV, colour = variant))
+  p = p + geom_hline(data = dfp[algorithm == "randomsearch", ], aes(yintercept = mean.domHV, colour = variant))
+  p = p + facet_grid(learner ~ problem) + theme_bw()
+  p = p + scale_colour_Publication() + theme_Publication()
+
+  ggsave(file.path(plotspath, "eval.domHV", "all.png"), width = 10, height = 10)
+
+  for (prob in unique(dfp$problem)) {
+    for (lrn in unique(dfp$learner)) {
+      p = ggplot()
+      p = p + geom_line(data = dfp[algorithm == "mosmafs" & learner == lrn & problem == prob, ], aes(x = evals, y = min.perf, colour = variant))
+      p = p + geom_hline(data = dfp[algorithm == "randomsearch" & learner == lrn & problem == prob, ], aes(yintercept = min.perf, colour = variant))
+      p = p + theme_Publication()
+      p = p + scale_colour_Publication()
+      ggsave(file.path(plotspath, "performance", paste(lrn, prob, "png", sep = ".")), width = 5, height = 5)
+    }
+  }
+
+}
+
+
+plotPerformanceHout = function(res, plotspath) {
+  df = extractFromSummary(res, c("evals", "hout.perf.min", "hout.perf.mean", "hout.perf.max"))
+  df = df[- which(problem %in% c("hypersphere.200.50", "hypersphere.200.200")), ] 
+  dfp = df[, .(min.perf = mean(hout.perf.min), mean.perf = mean(hout.perf.mean), max.perf = mean(max)), by = c("algorithm", "evals", "problem", "learner", "variant")]
+  dfp = dfp[evals != 8000, ]
+
+  for (prob in unique(dfp$problem)) {
+    for (lrn in unique(dfp$learner)) {
+      p = ggplot()
+      p = p + geom_line(data = dfp[algorithm == "mosmafs" & learner == lrn & problem == prob, ], aes(x = evals, y = min.perf, colour = variant))
+      p = p + geom_hline(data = dfp[algorithm == "randomsearch" & learner == lrn & problem == prob, ], aes(yintercept = min.perf, colour = variant))
+      p = p + theme_Publication()
+      p = p + scale_colour_Publication()
+      ggsave(file.path(plotspath, "performance_hout", paste(lrn, prob, "png", sep = ".")), width = 5, height = 5)
+    }
+  }
+
+}
+
+
+plotRanks = function(res, plotspath, steps) {
+  df = extractFromSummary(res, c("evals", "eval.domHV"))
+    df = df[- which(problem %in% c("hypersphere.200.50", "hypersphere.200.200")), ] 
+    df = df[evals != 8000, ]
+    df$gen = (df$evals - df$mu) / df$lambda
+    df = df[, replication := 1:length(job.id), by = c("learner", "variant", "problem", "gen")]
+    df = df[- which(algorithm == "randomsearch"), ]
+
+    # remove the ones where we have not enough replications
+    status_finished = df %>% group_by(variant, problem, learner) %>% summarize(num.repls = max(replication)) %>% filter(num.repls == 10)
+    status_finished = status_finished %>% group_by(problem, learner) %>% summarize(nvariant = length(variant)) %>% filter(nvariant == 7)
+    dfs = ijoin(df, status_finished, by = c("problem", "learner")) 
+
+
+    # --- calculate ranks within learner, problem and replication ---
+    dfr = dfs[, rank_variant := rank(- eval.domHV), by = c("learner", "problem", "gen", "replication")]
+    dfr = dfr[, mean(rank_variant), by = c("learner", "problem", "gen", "variant")]
+
+    ranks_overall = dfr[, mean(V1), by = c("gen", "variant")]
+    names(ranks_overall) = c("Generation", "Variant", "MeanRank")
+
+    p = ggplot()
+    p = p + geom_line(data = ranks_overall, aes(x = Generation, y = MeanRank, colour = Variant))
+  p = p + theme_bw()
+  p = p + scale_colour_Publication() + theme_Publication()
+  ggsave(file.path(plotspath, "ranks.domHV", "ranks.png"), p)
+
+  for (lrn in unique(dfr$learner)) {
+    dfr_lrn = dfr[learner == lrn, ]
+    ranks_overall = dfr_lrn[, mean(V1), by = c("gen", "variant")]
+      names(ranks_overall) = c("Generation", "Variant", "MeanRank")
+
+      p = ggplot()
+      p = p + geom_line(data = ranks_overall, aes(x = Generation, y = MeanRank, colour = Variant))
+    p = p + theme_bw()
+    p = p + scale_colour_Publication() + theme_Publication()
+    ggsave(file.path(plotspath, "ranks.domHV", "perLearner", paste(lrn, "ranks.png", sep = ".")), p)
+    }
+
+
+    for (prob in unique(dfr$problem)) {
+    dfr_prob = dfr[problem == prob, ]
+    ranks_overall = dfr_prob[, mean(V1), by = c("gen", "variant")]
+      names(ranks_overall) = c("Generation", "Variant", "MeanRank")
+
+      p = ggplot()
+      p = p + geom_line(data = ranks_overall, aes(x = Generation, y = MeanRank, colour = Variant))
+    p = p + theme_bw()
+    p = p + scale_colour_Publication() + theme_Publication()
+    ggsave(file.path(plotspath, "ranks.domHV", "perProblem", paste(prob, "ranks.png", sep = ".")), p)
+    }
+
+  for (lrn in unique(dfr$learner)) {
+      for (prob in unique(dfr$problem)) {
+      dfr_prob = dfr[problem == prob & learner == lrn, ]
+      ranks_overall = dfr_prob[, mean(V1), by = c("gen", "variant")]
+        names(ranks_overall) = c("Generation", "Variant", "MeanRank")
+
+        p = ggplot()
+        p = p + geom_line(data = ranks_overall, aes(x = Generation, y = MeanRank, colour = Variant))
+      p = p + theme_bw()
+      p = p + scale_colour_Publication() + theme_Publication()
+      ggsave(file.path(plotspath, "ranks.domHV", "perLearnerperProblem", paste(lrn, prob, "ranks.png", sep = ".")), p)
+      }
+  }
+}
+
+
+plotFeatures = function(res, plotspath) {
+
+}
+
+
+plotHeatmap = function(populations, plotspath) {
+
+  for (prob in unique(populations$problem)) {
+
+    for (lrn in unique(populations$learner)) {
+
+    plist = list()
+
+      for (vari in unique(populations$variant)) {
+          pops = populations[problem == prob & learner == lrn & variant == vari, ]
+          popls = list()
+
+          for (i in 1:nrow(pops)) {
+            popres = pops[i, ]$result[[1]]
+            popres = lapply(1:length(popres), function(i) popres[[i]][, which(doNondominatedSorting(popres[[i]])$ranks == 1)])
+            popres = lapply(1:length(popres), function(x) cbind(gen = x, as.data.frame(t(popres[[x]]))))
+            popres = do.call("rbind", popres)
+            popres = cbind(pops[i, ], popres)
+            names(popres)[19:20] = c("mmce", "nfeat")
+            popls[[i]] = popres
+          }
+
+          popls = do.call("rbind", popls)
+          popls = popls[popls$gen %% 50 == 1, ]
+          
+          p = ggplot()
+
+          for (job in unique(popls$job.id)) {
+            p = p + geom_point(data = popls[job.id == job, ], aes(x = mmce, y = nfeat, colour = gen), alpha = 0.4, size = 1)
+            p = p + theme_bw()
+            p = p + theme_Publication()
+            p = p + theme(legend.position = "none")
+          }
+          p = p + ggtitle(vari)
+          plist[[vari]] = p
+        } 
+        g = do.call("grid.arrange", plist)
+        savepath = file.path(plotspath, "front", lrn)
+        dir.create(savepath)
+        ggsave(file.path(savepath, paste(prob, "front.png", sep = ".")), g, width = 15, height = 10)
+    }
+  }

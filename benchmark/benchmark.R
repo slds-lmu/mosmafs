@@ -100,7 +100,7 @@ randomsearch = function(data, job, instance, learner, maxeval, filter, initializ
   # result = mbo(obj, control = ctrl, learner = SURROGATE[[surrogate]])
 
   if (PARALLELIZE)
-    parallelStartMulticore(cpus = 2L)
+    parallelStartMulticore(cpus = 4L)
 
 
   # --- fitness function --- 
@@ -305,7 +305,7 @@ mosmafs = function(data, job, instance, learner, maxeval, filter, initialization
   fitness.fun = makeObjective(learner = lrn, task = task.train, ps = ps, resampling = stratcv10, holdout.data = task.test)
 
   if (PARALLELIZE)
-    parallelStartMulticore(cpus = 2L)
+    parallelStartMulticore(cpus = 4L)
 
   result = slickEcr(
     fitness.fun = fitness.fun,
