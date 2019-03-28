@@ -203,7 +203,8 @@ collectResult <- function(ecr.object, aggregate.perresult = list(domHV = functio
       naiveHoldoutDomHV(eval.fit, hout.fit, ref.point)
     }, fitnesses, hofitnesses)
 
-    resdf <- cbind(resdf, hout = aggregate.fitness(hofitnesses), true.hout.domHV,
+    resdf <- cbind(resdf, hout = aggregate.fitness(hofitnesses),
+      true.hout.domHV, naive.hout.domHV,
       cor = corcols)
   }
   resdf
