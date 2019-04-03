@@ -8,7 +8,7 @@ datasets = c("sonar", "ionosphere", "madelon",
 	"AP_Lung_Uterus", "wdbc", "philippine", 
 	"tecator", "Bioresponse",
 	"gisette", "dilbert", "eating", "lsvt", "semeion",
-	"isolet")
+	"isolet", "cnae-9", "clean1", "arrhythmia", "USPS")
 
 # --- specify learners ---
 # Machine learning algorithms to be benchmarked

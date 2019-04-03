@@ -1,12 +1,17 @@
 library(batchtools)
 library(dplyr)
 
+source("helpers.R")
+source("probdesign.R")
+
 # load registry
 reg = loadRegistry("registry")
 tab = summarizeExperiments(by = c("job.id", "algorithm", 
 	"problem", "learner", "maxeval", "filter", "initialization", 
 	"lambda", "mu", "parent.sel", "chw.bitflip", "adaptive.filter.weights",
 	"filter.during.run", "surrogate", "MBMOmethod", "propose.points"))
+tab = tab[maxeval %in% c(2000, 4000), ]
+tab = rbind(tab[lambda != 4L, ], tab[is.na(lambda), ])
 
 path = "results_raw"
 
@@ -23,7 +28,7 @@ experiments = list(
 	RSIF = data.table(algorithm = "randomsearch", initialization = "unif", filter = "custom")
 	)
 
-collectBenchmarkResults(path, experiments)
+collectBenchmarkResults(path, experiments, tab)
 
 
 
@@ -54,69 +59,69 @@ collectBenchmarkResults(path, experiments)
 # }
 
 
-createReport = function(path, experiments, toextract, plot.by.colour, plot.by.lty = NULL) {
-	dir.create(paste("results_plots/", toextract[1], sep = ""))
+# createReport = function(path, experiments, toextract, plot.by.colour, plot.by.lty = NULL) {
+# 	dir.create(paste("results_plots/", toextract[1], sep = ""))
 
-	dflist = lapply(experiments, function(x) readRDS(file.path(path, x$algo, "result.rds"))[initialization == x$initialization & filter == x$filter & chw.bitflip == x$chw.bitflip, ])
-	if ("MBObaseline" %in% names(dflist)) {
-		dflist$MBObaseline = readRDS(file.path(path, "MBObaseline", "result.rds"))
-	}
+# 	dflist = lapply(experiments, function(x) readRDS(file.path(path, x$algo, "result.rds"))[initialization == x$initialization & filter == x$filter & chw.bitflip == x$chw.bitflip, ])
+# 	if ("MBObaseline" %in% names(dflist)) {
+# 		dflist$MBObaseline = readRDS(file.path(path, "MBObaseline", "result.rds"))
+# 	}
 
-	dflist = lapply(dflist, function(x) extractFromSummary(x, toextract))
-	df = do.call("rbind", dflist)
-	df = df[- which(problem %in% c("hypersphere.200.50", "hypersphere.200.200")), ]
+# 	dflist = lapply(dflist, function(x) extractFromSummary(x, toextract))
+# 	df = do.call("rbind", dflist)
+# 	df = df[- which(problem %in% c("hypersphere.200.50", "hypersphere.200.200")), ]
 
-	# vizualise hypervolume per evaluation	
-	dfp = dfp[, .(mean.domHV = mean(eval.domHV)), by = c("algorithm", "evals", "problem", "initialization", "filter", "learner", "parent.sel", "chw.bitflip")]
-	p = ggplot()
-	p = p + geom_line(data = dfp[algorithm == "mosmafs", ], aes_string(x = "evals", y = "mean.domHV", colour = plot.by.colour, lty = plot.by.lty))
-	p = p + geom_line(data = dfp[algorithm == "MBObaseline", ], aes_string(x = "evals", y = "mean.domHV"), colour = "black")
-	p = p + facet_grid(learner ~ problem) + theme_bw()
-	ggsave(paste("results_plots/", toextract[1], "/", paste(names(experiments), collapse = "_"), ".png", sep = ""), p, width = 15)
+# 	# vizualise hypervolume per evaluation	
+# 	dfp = dfp[, .(mean.domHV = mean(eval.domHV)), by = c("algorithm", "evals", "problem", "initialization", "filter", "learner", "parent.sel", "chw.bitflip")]
+# 	p = ggplot()
+# 	p = p + geom_line(data = dfp[algorithm == "mosmafs", ], aes_string(x = "evals", y = "mean.domHV", colour = plot.by.colour, lty = plot.by.lty))
+# 	p = p + geom_line(data = dfp[algorithm == "MBObaseline", ], aes_string(x = "evals", y = "mean.domHV"), colour = "black")
+# 	p = p + facet_grid(learner ~ problem) + theme_bw()
+# 	ggsave(paste("results_plots/", toextract[1], "/", paste(names(experiments), collapse = "_"), ".png", sep = ""), p, width = 15)
 
-	for (lrn in unique(df$learner)) {
-		for (prob in unique(df$problem)[c(1:6, 8:10)]) {
-				dir.create(paste("results_plots/", toextract[1], "/", learner, "_", prob, sep = ""))
-				dfp = df[problem == prob & learner == lrn, ]
-				dfp = dfp[- which(initialization == "none"), ]
-				dfp = dfp[- which(!chw.bitflip), ]
-				dfp$job.id = as.factor(dfp$job.id)
+# 	for (lrn in unique(df$learner)) {
+# 		for (prob in unique(df$problem)[c(1:6, 8:10)]) {
+# 				dir.create(paste("results_plots/", toextract[1], "/", learner, "_", prob, sep = ""))
+# 				dfp = df[problem == prob & learner == lrn, ]
+# 				dfp = dfp[- which(initialization == "none"), ]
+# 				dfp = dfp[- which(!chw.bitflip), ]
+# 				dfp$job.id = as.factor(dfp$job.id)
 
-				p = ggplot()
-				p = p + geom_line(data = dfp, aes_string(x = "evals", y = "eval.domHV", colour = "job.id"))
-				p = p + facet_grid( ~ algorithm) + theme_bw()
-				ggsave(paste("results_plots/", toextract[1], "/", learner, "_", prob, "/", "plot.png", sep = ""), p, width = 15)
+# 				p = ggplot()
+# 				p = p + geom_line(data = dfp, aes_string(x = "evals", y = "eval.domHV", colour = "job.id"))
+# 				p = p + facet_grid( ~ algorithm) + theme_bw()
+# 				ggsave(paste("results_plots/", toextract[1], "/", learner, "_", prob, "/", "plot.png", sep = ""), p, width = 15)
 
-		}
-	}
+# 		}
+# 	}
 
-	dflist = lapply(experiments, function(x) readRDS(file.path(path, x$algo, "result.rds"))[initialization == x$initialization & filter == x$filter & chw.bitflip == x$chw.bitflip, ])
-	if ("MBObaseline" %in% names(dflist)) {
-		dflist$MBObaseline = readRDS(file.path(path, "MBObaseline", "result.rds"))
-	}
+# 	dflist = lapply(experiments, function(x) readRDS(file.path(path, x$algo, "result.rds"))[initialization == x$initialization & filter == x$filter & chw.bitflip == x$chw.bitflip, ])
+# 	if ("MBObaseline" %in% names(dflist)) {
+# 		dflist$MBObaseline = readRDS(file.path(path, "MBObaseline", "result.rds"))
+# 	}
 
-	dflist = lapply(dflist, function(x) extractFromSummary(x, c("evals", "eval.perf.min", "eval.perf.mean", "eval.perf.max")))
-	df = do.call("rbind", dflist)
-	df = df[- which(problem %in% c("hypersphere.200.50", "hypersphere.200.200")), ]
+# 	dflist = lapply(dflist, function(x) extractFromSummary(x, c("evals", "eval.perf.min", "eval.perf.mean", "eval.perf.max")))
+# 	df = do.call("rbind", dflist)
+# 	df = df[- which(problem %in% c("hypersphere.200.50", "hypersphere.200.200")), ]
 
 
-	# viz final pareto front on training
-	for (lrn in unique(df$learner)) {
-		for (prob in unique(df$problem)[c(1:6, 8:10)]) {
-				dir.create(paste("results_plots/", "front", "/", learner, "_", prob, sep = ""))
-				dfp = df[problem == prob & learner == lrn, ]
-				dfp = dfp[- which(initialization == "none"), ]
-				dfp = dfp[- which(!chw.bitflip), ]
-				dfp$job.id = as.factor(dfp$job.id)
-				dfp = dfp[, .(eval.perf.min = mean(eval.perf.min), eval.perf.mean = mean(eval.perf.mean), eval.perf.max = mean(eval.perf.max)), by = c("algorithm", "evals", "problem", "initialization", "filter", "learner", "parent.sel", "chw.bitflip")]
+# 	# viz final pareto front on training
+# 	for (lrn in unique(df$learner)) {
+# 		for (prob in unique(df$problem)[c(1:6, 8:10)]) {
+# 				dir.create(paste("results_plots/", "front", "/", learner, "_", prob, sep = ""))
+# 				dfp = df[problem == prob & learner == lrn, ]
+# 				dfp = dfp[- which(initialization == "none"), ]
+# 				dfp = dfp[- which(!chw.bitflip), ]
+# 				dfp$job.id = as.factor(dfp$job.id)
+# 				dfp = dfp[, .(eval.perf.min = mean(eval.perf.min), eval.perf.mean = mean(eval.perf.mean), eval.perf.max = mean(eval.perf.max)), by = c("algorithm", "evals", "problem", "initialization", "filter", "learner", "parent.sel", "chw.bitflip")]
 
-				p = ggplot()
-				p = p + geom_line(data = dfp, aes_string(x = "evals", y = "eval.domHV", colour = "job.id"))
-				p = p + facet_grid( ~ algorithm) + theme_bw()
-				ggsave(paste("results_plots/", toextract[1], "/", learner, "_", prob, "/", "plot.png", sep = ""), p, width = 15)
+# 				p = ggplot()
+# 				p = p + geom_line(data = dfp, aes_string(x = "evals", y = "eval.domHV", colour = "job.id"))
+# 				p = p + facet_grid( ~ algorithm) + theme_bw()
+# 				ggsave(paste("results_plots/", toextract[1], "/", learner, "_", prob, "/", "plot.png", sep = ""), p, width = 15)
 
-		}
-	}	
+# 		}
+# 	}	
 
 	# viz final pareto front on test set
 
@@ -129,5 +134,5 @@ createReport = function(path, experiments, toextract, plot.by.colour, plot.by.lt
 
 	# create ranks
 
-}
+# }
 

@@ -3,6 +3,9 @@ library(ggplot2)
 library(batchtools)
 library(ecr)
 library(gridExtra)
+library(Hmisc)
+library(dplyr)
+library(plyr)
 
 source("helpers.R")
 
@@ -25,17 +28,12 @@ datapath = "results_raw"
 plotspath = "results_plots"
 reslist = lapply(names(experiments), function(x) readRDS(file.path(datapath, x, "result.rds")))
 res = do.call("rbind", reslist)
-populations = lapply(names(experiments), function(x) readRDS(file.path(datapath, x, "population.rds")))
-populations = do.call("rbind", populations)
-
-
+# populations = lapply(names(experiments), function(x) readRDS(file.path(datapath, x, "population.rds")))
+# populations = do.call("rbind", populations)
 
 # --- opt.paths per task per learner --- 
 plotOptPathHypervol(res, plotspath)
 plotRanks(res, plotspath) # steps needs to be a multiple of 15
-
-
-
 
 
 

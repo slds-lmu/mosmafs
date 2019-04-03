@@ -3,22 +3,26 @@ library(stringi)
 library(dplyr)
 
 resources.serial = list(
-	walltime = 3600L * 48L, memory = 1024L * 2L,
+	walltime = 3600L * 48L, memory = 1024L * 4L,
 	clusters = "serial" # get name from lrz homepage)
 )
 
-resources.ivymuc = list(ncpus = 5L,
-	walltime = 3600L * 48L, memory = 1024L * 9L,
+resources.ivymuc = list(ncpus = 15L, 
+	walltime = 3600L * 72L, memory = 1024L * 50L,
 	clusters = "ivymuc") # get name from lrz homepage))
 
-resources.teramem = list(ncpus = 5L,
-	walltime = 3600L * 48L, memory = 1024L * 60L,
+resources.teramem = list(ncpus = 15L,
+	walltime = 3600L * 48L, memory = 1024L * 200L,
 	clusters = "inter",
 	partition = "teramem_inter") # get name from lrz homepage))
 
-resources.mpp3 = list(ncpus = 5L,
-	walltime = 3600L * 48L, memory = 1024L * 9L,
+resources.mpp3 = list(ncpus = 15L,
+	walltime = 3600L * 48L, memory = 1000L * 50L,
 	clusters = "mpp3") # get name from lrz homepage))
+
+resources.mpp2 = list(ncpus = 15L,
+	walltime = 3600L * 48L, memory = 1000L * 50L,
+	clusters = "mpp2") # get name from lrz homepage))
 
 
 reg = loadRegistry("registry", writeable = TRUE)
@@ -34,12 +38,10 @@ source("probdesign.R")
 chunk.size = 10L
 
 problems.serial = c("sonar", "ionosphere", "hill-valley", "wdbc", "tecator", 
-	"madeline", "gina_agnostic", "madelon", "dilbert", "eating", "philippine",
-	"lsvt", "semeion", "isolet")
+	"madeline", "gina_agnostic", "madelon", "lsvt", "isolet",
+	"cnae-9", "clean1", "USPS")
 
-problems.hugemem = c("gisette", "Bioresponse")
-
-problems.dortmund =  setdiff(setdiff(datasets, problems.serial), problems.hugemem)
+problems.serial2 = c()
 
 experiments = list(
 	O = data.table(algorithm = "mosmafs", filter = "none", initialization = "none", chw.bitflip = FALSE, adaptive.filter.weights = FALSE, filter.during.run = FALSE),
@@ -49,11 +51,13 @@ experiments = list(
 	OIFiFmS = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = FALSE, adaptive.filter.weights = TRUE, filter.during.run = TRUE),
 	OIH = data.table(algorithm = "mosmafs", filter = "none", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = FALSE, filter.during.run = FALSE),
 	OIHFiFmS = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE),
-	RS = data.table(algorithm = "randomsearch", initialization = "none", filter = "none"),
-	RSI = data.table(algorithm = "randomsearch", initialization = "unif", filter = "none"),
-	RSIF = data.table(algorithm = "randomsearch", initialization = "unif", filter = "custom")
+	RS = data.table(algorithm = "randomsearch", initialization = "none", filter = "none", chw.bitflip = NA, adaptive.filter.weights = NA, filter.during.run = NA),
+	RSI = data.table(algorithm = "randomsearch", initialization = "unif", filter = "none", chw.bitflip = NA, adaptive.filter.weights = NA, filter.during.run = NA),
+	RSIF = data.table(algorithm = "randomsearch", initialization = "unif", filter = "custom", chw.bitflip = NA, adaptive.filter.weights = NA, filter.during.run = NA)
 	)
 
+experiments2 = do.call("rbind", experiments)
+experiments2$variant = names(experiments)
 
 # --- LRZ ---  
 
@@ -66,43 +70,43 @@ experiments = list(
 # RS done
 # RSI done
 # RSIF submitted
-experiment = "OIFiFm"
+experiment = "RSIF"
 tosubmit = ijoin(tab, experiments[[experiment]], by = names(experiments[[experiment]]))
 tosubmit = tosubmit[problem %in% problems.serial, ]
+done = ijoin(tosubmit, findDone())
+df = done[, replication := 1:length(job.id), by = c("learner", "problem")]
+
+status_finished = df[, max(replication), by = c("problem", "learner")]
+status_finished = status_finished[, sum(V1), by = c("problem", "learner")]
+status_finished
 # tosubmit = tosubmit[, chunk := chunk(job.id, chunk.size = 10)
 # nchunks = nrow(tosubmit) / chunk.size
 tosubmit = ijoin(tosubmit, findNotDone())
+ijoin(tosubmit, findOnSystem())
 tosubmit = tosubmit[- which(job.id %in% findOnSystem()$job.id), ]
 submitJobs(tosubmit, resources = resources.serial)
 
-# --- LRZ hugemem ---  
+# --- LRZ ivymuc ---  
 
-# Bioresponse, gisette only 
-experiment = "O"
-tosubmit = ijoin(tab, experiments[[experiment]], by = names(experiments[[experiment]]))
-tosubmit = tosubmit[problem %in% problems.hugemem, ]
+# run on ivymuc: 
+# USPS, clean1, 
+
+prob = "madelon"
+tosubmit = tab[problem %in% prob, ]
+tosubmit = ijoin(experiments2, tosubmit)
+done = ijoin(tosubmit, findDone())
+df = done[, replication := 1:length(job.id), by = c("learner", "problem", "variant")]
+
+status_finished = df[, max(replication), by = c("problem", "learner", "variant")]
+status_finished = status_finished[, sum(V1), by = c("problem", "learner", "variant")]
+status_finished
+tosubmit = ijoin(tosubmit, findNotDone())
+ijoin(tosubmit, findOnSystem())
+tosubmit = tosubmit[- which(job.id %in% findOnSystem()$job.id), ]
+chunk.size = 7L
+tosubmit$chunk = 1
 nchunks = nrow(tosubmit) / chunk.size
+
 tosubmit$chunk = rep(1:nchunks, each = chunk.size)
-tosubmit = tosubmit[- which(job.id %in% findOnSystem()$job.id), ]
-submitJobs(tosubmit, resources = resources.teramem)
 
-
-# --- LIDO ---  
-# memory is per node here! 
-resources.lido = list(walltime = 3600L * 1L, memory = 1024L * 16L)
-# O submitted
-# OI 
-# OIFi 
-# OIFiFm .
-# OIFiFmS 
-# OIH 
-# RS 
-# RSI 
-# RSIF 
-problems.dortmund = "philippine"
-experiment = "OIFi"
-tosubmit = ijoin(tab, experiments[[experiment]], by = names(experiments[[experiment]]))
-tosubmit = tosubmit[problem %in% problems.dortmund, ]
-tosubmit = ijoin(tosubmit, findNotDone(), by = "job.id")
-tosubmit = tosubmit[- which(job.id %in% findOnSystem()$job.id), ]
-submitJobs(tosubmit, resources = resources.lido)
+submitJobs(tosubmit, resources = resources.mpp2)
