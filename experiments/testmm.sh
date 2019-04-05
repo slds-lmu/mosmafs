@@ -1,5 +1,5 @@
 #!/bin/sh
-export RNG=$1
+sleep 9999999
 Rscript - > "/projects/user/mosmafstraces/run_${RNG}.out" 2>&1 <<EOF
 options(warn = 1)
 suppressMessages({

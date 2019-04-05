@@ -18,8 +18,8 @@ paretoEdges <- function(fitness, refpoint) {
   front <- fitness[, nondominated(fitness), drop = FALSE]
   front <- front[, order(front[1, ]), drop = FALSE]
   frontpoints <- sapply(seq_len(ncol(front) * 2 - 1) + 1, function(twicecol) {
-    pmax(front[, floor(twicecol / 2)],
-      front[, ceiling(twicecol / 2)])
+    pmax(front[, floor(twicecol / 2), drop = FALSE],
+      front[, ceiling(twicecol / 2), drop = FALSE])
   })
 
   resmat <- cbind(c(front[1, 1], refpoint[2]),
