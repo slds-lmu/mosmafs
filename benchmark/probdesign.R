@@ -1,14 +1,10 @@
 # problem design
-
 datafolder = "data"
 
 # --- problem design ---
 datasets = c("sonar", "ionosphere", "madelon", 
-	"madeline", "hill-valley", "gina_agnostic",
-	"AP_Lung_Uterus", "wdbc", "philippine", 
-	"tecator", "Bioresponse",
-	"gisette", "dilbert", "eating", "lsvt", "semeion",
-	"isolet", "cnae-9", "clean1", "arrhythmia", "USPS")
+	"madeline", "hill-valley", "wdbc", "tecator",
+	"lsvt", "isolet", "cnae-9", "clean1", "USPS")
 
 # --- specify learners ---
 # Machine learning algorithms to be benchmarked
@@ -28,6 +24,7 @@ PAR.SETS = list(
 		distance: numeric[1, 100],
 		kernel: discrete[rectangular, optimal, triangular, biweight]),
 	xgboost = makeParamSet(
+	  makeIntegerParam("nrounds", lower = 1L, upper = 2000L),	
 	  makeNumericParam("eta", lower = 0.01, upper = 0.2),
 	  makeNumericParam("gamma", lower = -7, upper = 6, trafo = function(x) 2^x),
 	  makeIntegerParam("max_depth", lower = 3, upper = 20),

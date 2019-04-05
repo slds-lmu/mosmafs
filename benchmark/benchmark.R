@@ -7,17 +7,16 @@ library("mlr")
 library("mlrCPO")
 library("mlrMBO")
 library("mosmafs")
-library("mlrMBO")
 
 
 TEST = FALSE
 
 if (TEST) {
   deffile = "def_test.R"
-  registry_name = "registry_temp"
+  registry_name = "registry_temp2"
 } else {
   deffile = "def.R"
-  registry_name = "registry"
+  registry_name = "registry2"
 }
 
 source(deffile)
@@ -98,7 +97,7 @@ randomsearch = function(data, job, instance, learner, maxeval, filter, initializ
   # result = mbo(obj, control = ctrl, learner = SURROGATE[[surrogate]])
 
   if (PARALLELIZE) {
-    parallelStartMulticore(cpus = 15L)
+    parallelStartMulticore(cpus = 80L)
   }
 
 
@@ -331,16 +330,12 @@ addAlgorithm(name = "randomsearch", reg = reg, fun = randomsearch)
 addAlgorithm(name = "mosmafs", reg = reg, fun = mosmafs)
 
 addExperiments(reg = reg, 
-  algo.designs = list(randomsearch = ades.random, 
-                      # MBObaseline = ades.mbo,
-                      mosmafs = ades.mosmafs),
+  algo.designs = list(randomsearch = ades.random), 
   repls = REPLICATIONS)
 
-# bla = tab[problem == "sonar", ]
-
-
-
-
+addExperiments(reg = reg, 
+  algo.designs = list(mosmafs = ades.mosmafs),
+  repls = REPLICATIONS)
 
 # for (dirs in dir()) for (item in c("train.arff", "test.arff")) {
 #   dat <- read.arff(file.path(dirs, item))

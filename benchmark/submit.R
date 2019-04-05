@@ -4,7 +4,7 @@ library(dplyr)
 
 resources.serial = list(
 	walltime = 3600L * 48L, memory = 1024L * 4L,
-	clusters = "serial" # get name from lrz homepage)
+	clusters = "serial", max.concurrent.jobs = 1200L # get name from lrz homepage)
 )
 
 resources.ivymuc = list(ncpus = 15L, 
@@ -25,23 +25,20 @@ resources.mpp2 = list(ncpus = 15L,
 	clusters = "mpp2") # get name from lrz homepage))
 
 
-reg = loadRegistry("registry", writeable = TRUE)
+reg = loadRegistry("registry2", writeable = TRUE)
 tab = summarizeExperiments(by = c("job.id", "algorithm", 
 	"problem", "learner", "maxeval", "filter", "initialization", 
 	"lambda", "mu", "parent.sel", "chw.bitflip", "adaptive.filter.weights",
 	"filter.during.run"))
-tab = tab[maxeval %in% c(2000, 4000), ]
+tab = tab[maxeval %in% c(4000), ]
 tab = rbind(tab[lambda != 4L, ], tab[is.na(lambda), ])
 
 source("probdesign.R")
 
-chunk.size = 10L
+problems.serial = c(
+	"wdbc", "ionosphere", "sonar", "hill-valley", "clean1", 
+	"tecator", "USPS", "madeline", "lsvt", "madelon", "isolet", "cnae-9")
 
-problems.serial = c("sonar", "ionosphere", "hill-valley", "wdbc", "tecator", 
-	"madeline", "gina_agnostic", "madelon", "lsvt", "isolet",
-	"cnae-9", "clean1", "USPS")
-
-problems.serial2 = c()
 
 experiments = list(
 	O = data.table(algorithm = "mosmafs", filter = "none", initialization = "none", chw.bitflip = FALSE, adaptive.filter.weights = FALSE, filter.during.run = FALSE),
@@ -91,22 +88,14 @@ submitJobs(tosubmit, resources = resources.serial)
 # run on ivymuc: 
 # USPS, clean1, 
 
-prob = "madelon"
-tosubmit = tab[problem %in% prob, ]
+lrn = "xgboost"
+tosubmit = tab[learner %in% lrn, ]
+tosubmit = tosubmit[problem %in% problems.serial, ]
 tosubmit = ijoin(experiments2, tosubmit)
-done = ijoin(tosubmit, findDone())
-df = done[, replication := 1:length(job.id), by = c("learner", "problem", "variant")]
 
-status_finished = df[, max(replication), by = c("problem", "learner", "variant")]
-status_finished = status_finished[, sum(V1), by = c("problem", "learner", "variant")]
-status_finished
-tosubmit = ijoin(tosubmit, findNotDone())
-ijoin(tosubmit, findOnSystem())
-tosubmit = tosubmit[- which(job.id %in% findOnSystem()$job.id), ]
-chunk.size = 7L
+chunk.size = 2L
 tosubmit$chunk = 1
 nchunks = nrow(tosubmit) / chunk.size
-
 tosubmit$chunk = rep(1:nchunks, each = chunk.size)
 
-submitJobs(tosubmit, resources = resources.mpp2)
+submitJobs(tosubmit[1001:1200, ], resources = resources.serial)

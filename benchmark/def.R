@@ -25,28 +25,13 @@ FEATURE_MUT = list("mutBitflipCHW" = ecr::setup(mutBitflipCHW), "mutBitflip" = m
 FILTER = list("none" = NULL,
 	"custom" = c("FSelectorRcpp_information.gain", "randomForestSRC_var.select", "praznik_JMI", "auc", "praznik_CMIM", "DUMMY"))
 
-SURROGATE = list(randomForest = cpoImputeConstant("__MISSING__") %>>% makeLearner("regr.randomForest", se.method = "jackknife", keep.inbag = TRUE, predict.type = "se"),
-	              km.nugget = cpoDummyEncode() %>>% makeLearner("regr.km", predict.type = "se", par.vals = list(nugget.estim = TRUE, nugget.stability = 10e-8))
-)
-
-INFILL = list("cb" = makeMBOInfillCritCB())
-
 ades.random = CJ(learner = c("SVM", "kknn", "xgboost"), 
 			maxeval = MAXEVAL, 
 			filter = c("none", "custom"),
 			initialization = c("none", "unif"), 
 			sorted = FALSE)
 
-ades.mbo = CJ(learner = c("SVM", "kknn", "xgboost"), 
-			maxeval = 2000L, 
-			filter = c("custom"),
-			infill = c("cb"),
-			surrogate = c("randomForest"),
-			MBMOmethod = c("parego"),
-			propose.points = c(10L),
-			sorted = FALSE)
-
-ades.mosmafs = CJ(learner = c("SVM", "kknn", "xgboost"), 
+ades.mosmafs = CJ(learner = c("xgboost"), 
 			maxeval = MAXEVAL, 
 			filter = c("none", "custom"),
 			initialization = c("none", "unif"), 

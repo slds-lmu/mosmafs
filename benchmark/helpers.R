@@ -202,7 +202,6 @@ collectResult <- function(ecr.object, aggregate.perresult = list(domHV = functio
 # CollectResults
 collectBenchmarkResults = function(path, experiments, tab) {
   
-
   for (experiment in names(experiments)) {
     toreduce = ijoin(tab, experiments[[experiment]], by = names(experiments[[experiment]]))
     toreduce = ijoin(toreduce, findDone(), by = "job.id")
@@ -228,6 +227,73 @@ collectBenchmarkResults = function(path, experiments, tab) {
 }
 
 
+collectParetofront = function(path, experiments, tab, problems, learners = "xgboost") {    
+
+    whichexp <- function(tabrow) {
+      expid <- sapply(experiments, function(excond) {
+        all(sapply(names(excond), function(n) excond[[n]] == tabrow[[n]]))
+      })
+      if (sum(expid) == 0) return(NA)
+      stopifnot(sum(expid) == 1)
+      names(experiments)[expid]
+    }
+
+    tab$maxeval <- NULL
+    tab <- tab[is.na(mu) | (mu == 80 & lambda == 15)]
+    tab$mu <- NULL
+    tab$lambda <- NULL
+    tab = ijoin(findDone(), tab)
+
+
+    tab$expname <- sapply(mosmafs:::transpose.list(tab), whichexp)
+    # tab <- tab[!is.na(expnames), ]
+
+    tab$filter <- NULL
+    tab$initialization <- NULL
+    tab$chw.bitflip <- NULL
+    tab$adaptive.filter.weights <- NULL
+    tab$filter.during.run <- NULL
+    tab$.count <- NULL
+
+    makeparetodata <- function(...) {
+      args <- list(...)
+      refpt <- c(1, 1)
+
+      stopifnot(!is.null(names(args)) && !"" %in% names(args))
+      stopifnot(all(names(args) %in% colnames(tab)))
+
+      checkline <- function(line) {
+        all(sapply(names(args), function(n) line[[n]] %in% args[[n]]))
+      }
+
+      subtab <- tab[sapply(mosmafs:::transpose.list(tab), checkline)]
+
+      fitn <- reduceResultsList(subtab, function(x) t(x$result$pareto.front))
+
+      restbl <- rbindlist(lapply(seq_along(fitn), function(fidx) {
+          fi <- fitn[[fidx]]
+          if (dim(fi)[2] == 1)
+            fi = cbind(fi, fi)
+          dfe <- as.data.table(paretoEdges(t(fi), refpt))
+          colnames(dfe)[1:2] <- c("mmce", "featfrac")
+          dfe$isref <- FALSE
+          dfe$instance <- fidx
+          cbind(dfe, subtab[fidx, ])
+      }))
+      restbl$job.id <- NULL
+
+      reftbl <- unique(restbl[, list(instance, algorithm, problem, learner, expname)])
+
+      rbind(
+          restbl,
+          cbind(data.table(mmce = refpt[1], featfrac = refpt[2], point = FALSE, isref = TRUE), reftbl), fill = TRUE)
+    }
+
+    parfrnt = makeparetodata(learner = learners, expname = names(experiments), problem = problems)
+    saveRDS(parfrnt, paste(path, "/pareto_examples/paretofront.rds", sep = ""))
+}
+
+
 extractFromSummary = function(res, toextract) {
   cols = ncol(res)
   hypervol = lapply(1:nrow(res), function(i) cbind(res[i, ]$job.id, setDT(res[i, ]$result[[1]])[, ..toextract]))
@@ -241,7 +307,7 @@ extractFromSummary = function(res, toextract) {
 theme_Publication <- function(base_size=14, base_family="helvetica") {
       library(grid)
       library(ggthemes)
-      (theme_foundation(base_size=base_size, base_family=base_family)
+      (theme_foundation(base_size=base_size)
        + theme(plot.title = element_text(face = "bold",
                                          size = rel(1.2), hjust = 0.5),
                text = element_text(),
@@ -271,15 +337,21 @@ theme_Publication <- function(base_size=14, base_family="helvetica") {
 
 scale_fill_Publication <- function(...){
       library(scales)
-      discrete_scale("fill","Publication",manual_pal(values = c("#386cb0","#fdb462","#7fc97f","#ef3b2c","#662506","#a6cee3","#fb9a99","#984ea3","#ffff33")), ...)
+      discrete_scale("fill","Publication",manual_pal(values = c("#386cb0","#fdb462","#7fc97f","#ef3b2c","#662506","#a6cee3","#fb9a99","#984ea3","#00856E","#000000")), ...)
 
 }
 
 scale_colour_Publication <- function(...){
       library(scales)
-      discrete_scale("colour","Publication",manual_pal(values = c("#386cb0","#fdb462","#7fc97f","#ef3b2c","#662506","#a6cee3","#fb9a99","#984ea3","#ffff33")), ...)
+      discrete_scale("colour","Publication",manual_pal(values = c("#386cb0","#fdb462","#7fc97f","#ef3b2c","#662506","#a6cee3","#fb9a99","#984ea3","#00856E","#000000")), ...)
 
 }
+
+scale_colour_spec <- function(...){
+      library(scales)
+      discrete_scale("colour","Publication",manual_pal(values = c("#000000", "#386cb0","#fdb462","#7fc97f","#ef3b2c","#662506","#a6cee3","#fb9a99","#984ea3","#ffff33")), ...)
+}
+
 
 plotOptPathHypervol = function(res, plotspath) {
   df = extractFromSummary(res, c("evals", "eval.domHV"))
@@ -336,9 +408,6 @@ plotPerformanceEval = function(res, plotspath) {
   df = df[- which(problem %in% c("hypersphere.200.50", "hypersphere.200.200")), ] 
   df = df[, replication := 1:length(job.id), by = c("learner", "variant", "problem", "evals")]
  
-  status_finished = df %>% group_by(variant, problem, learner) %>% summarize(num.repls = max(replication)) %>% filter(num.repls == 10)
-  df = ijoin(df, status_finished, by = c("problem", "learner", "variant")) 
-
   dfp = df[, .(min.perf = mean(eval.perf.min), mean.perf = mean(eval.perf.mean), max.perf = mean(eval.perf.max)), by = c("algorithm", "evals", "problem", "learner", "variant")]
   dfp = dfp[evals != 8000, ]
 
@@ -384,99 +453,77 @@ plotPerformanceHout = function(res, plotspath) {
 }
 
 
-plotRanks = function(res, plotspath, steps) {
-    # naive.hout.domHV
-    df = extractFromSummary(res, c("evals", "naive.hout.domHV"))
-    df = df[- which(problem %in% c("hypersphere.200.50", "hypersphere.200.200", "philippine", "dilbert", "AP_Lung_Uterus", "eating")), ] 
-    df = df[evals != 8000, ]
+plotRanks = function(res, plotspath, logscale = FALSE, metric = "naive.hout.domHV", limits = c(0.37, 1)) {
+    
+    # --- naive.hout.domHV
+    df = extractFromSummary(res, c("evals", metric))
+    df = df[evals < 4000, ]
     df$gen = (df$evals - 80) / 15
     df = df[, replication := 1:length(job.id), by = c("learner", "variant", "problem", "gen")]
-    df = df[evals < 4000, ]
-
-    # remove the ones where we have not enough replications
-    finished_exps = df[, .(num.repls = max(replication)), by = c("variant", "problem", "learner")]
-    dfs = ijoin(df, finished_exps[num.repls == 10, ], by = c("problem", "learner", "variant")) 
-    dfs = dfs[problem %in% c("USPS", "madeline", "madelon", "lsvt", "isolet", "cnae-9"), ]
+    df = renameAndRevalue(df)
+    names(df)[20] = "metric"
 
     # --- calculate ranks within learner, problem and replication ---
-    dfr = dfs[, rank_variant := rank(- naive.hout.domHV), by = c("learner", "problem", "evals", "replication")]
-    # average across replications
-    dfr = dfr[, mean(rank_variant), by = c("learner", "problem", "evals", "variant")]
-    # average across problems
-    ranks_overall = dfr[, mean(V1), by = c("evals", "variant")]
-    ranks_overall = ijoin(ranks_overall, unique(res[, c("variant", "algorithm")]), by = "variant")
-    ranks_overall[algorithm == "randomsearch" & variant == "RS", ]$variant = "O"
-    ranks_overall[algorithm == "randomsearch" & variant == "RSI", ]$variant = "OI"
-    ranks_overall[algorithm == "randomsearch" & variant == "RSIF", ]$variant = "OIFi"
+    dfr = df[, rank_variant := rank(- metric), by = c("learner", "problem", "evals", "replication")]
+    
+    # --- average domHV and ranks across replications
+    dfr = dfr[, .(mean(metric), mean(rank_variant)), by = c("algorithm", "learner", "problem", "evals", "variant")]
+    dfr$V2 = (dfr$V2 / 10)
 
-    library(forcats)
-    ord_ages_class = c("O", "OI", "OIFi", "OIFiFm", "OIFiFmS", "OIH", "OIHFiFmS")
-    ranks_overall$variant = factor(ranks_overall$variant, levels = ord_ages_class)
+    # --- average across problems
+    res_ovr = dfr[, .(mean.domHV = mean(V1), mean.rank = mean(V2)), by = c("evals", "variant", "algorithm")]
+    res_ovr = melt(res_ovr, id.vars = c("evals", "variant", "algorithm"))    
+    res_ovr$variable = revalue(res_ovr$variable, c("mean.domHV" = "Mean DomHV", "mean.rank" = "Mean Ranks"))
 
-    names(ranks_overall) = c("Evaluations", "Variant", "MeanRank", "Algorithm")
+    res_ovr_pl = dfr[, .(mean.domHV = mean(V1), mean.rank = mean(V2)), by = c("evals", "variant", "algorithm", "learner")]
+    res_ovr_pl = melt(res_ovr_pl, id.vars = c("evals", "variant", "algorithm", "learner"))
+    res_ovr_pl$variable = revalue(res_ovr_pl$variable, c("mean.domHV" = "Mean DomHV", "mean.rank" = "Mean Ranks"))
 
-    ranks_overall$Variant = revalue(ranks_overall$Variant, 
-      c("O" = "base version", "OI" = "+UI", "OIFi" = "+UI+FI", "OIFiFm" = "+UI+FI+FM", 
-        "OIFiFmS" = "+UI+FI+FM (s.a.)", "OIH" = "+UI+HP", "OIHFiFmS" = "+UI+FI+HP+FM (s.a.)"))
-    ranks_overall$Algorithm = revalue(ranks_overall$Algorithm, c("mosmafs" = "NSGA-II", "randomsearch" = "Random Search"))
-
-    scale_colour_spec <- function(...){
-          library(scales)
-          discrete_scale("colour","Publication",manual_pal(values = c("#000000", "#386cb0","#fdb462","#7fc97f","#ef3b2c","#662506","#a6cee3","#fb9a99","#984ea3","#ffff33")), ...)
-    }
+    # --- plot stuff over all learners first
+    p = ggplot()
+    p = p + geom_line(data = res_ovr, aes(x = evals, y = value, lty = algorithm, colour = variant), size = 0.6)
+    p = p + scale_colour_Publication() + theme_Publication() 
+    p = p + facet_grid(. ~ variable, scales = 'free') + labs(y="value_label_1") 
+    p = p + ylab("Value") + labs(colour = "Variant", lty = "Algorithm") 
+    p = p + scale_y_continuous(limits = limits, sec.axis = sec_axis(~.*10))
+    p = p + theme(legend.direction = "horizontal", legend.position = "top", legend.box = "vertical", legend.box.just = "left")
+    p = p + guides(lty = guide_legend(order = 1), colour = guide_legend(order = 2))
+    p = p + xlab("Evaluations")
+   
+    ggsave(file.path(plotspath, paste(metric, "ranks.pdf", sep = "_")), p, width = 9, height = 6, device = "pdf")
 
     p = ggplot()
-    p = p + geom_line(data = ranks_overall, aes(x = Evaluations, y = MeanRank, lty = Algorithm, colour = Variant), size = 1)
-    p = p + theme_bw()
-    p = p + scale_colour_Publication() + theme_Publication()
-    p = p + ylab("Mean DomHV (outer mmce)")
-    p = p + theme(legend.title = element_blank(), legend.direction = "vertical", legend.position = "bottom", legend.box = "horizontal")
-    # p = p + guides(color = guide_colorbar(order = 1), lty = guide_legend(order = 0))  
-    ggsave(file.path(plotspath, "ranks.domHV", "ranks_hout_ge100.png"), p, width = 7, height = 6)
-
-    for (lrn in unique(dfr$learner)) {
-      dfr_lrn = dfr[learner == lrn, ]
-      ranks_overall = dfr_lrn[, mean(V1), by = c("evals", "variant")]
-      names(ranks_overall) = c("Generation", "Variant", "MeanRank")
-
-      p = ggplot()
-      p = p + geom_line(data = ranks_overall, aes(x = Generation, y = MeanRank, colour = Variant))
-      p = p + theme_bw()
-      p = p + scale_colour_Publication() + theme_Publication()
-      ggsave(file.path(plotspath, "ranks.domHV", "perLearner", paste(lrn, "ranks.png", sep = ".")), p)
-    }
-
-
-    for (prob in unique(dfr$problem)) {
-      dfr_prob = dfr[problem == prob, ]
-      ranks_overall = dfr_prob[, mean(V1), by = c("evals", "variant")]
-        names(ranks_overall) = c("Generation", "Variant", "MeanRank")
-
-        p = ggplot()
-        p = p + geom_line(data = ranks_overall, aes(x = Generation, y = MeanRank, colour = Variant))
-      p = p + theme_bw()
-      p = p + scale_colour_Publication() + theme_Publication()
-      ggsave(file.path(plotspath, "ranks.domHV", "perProblem", paste(prob, "ranks.png", sep = ".")), p)
-    }
-
-  for (lrn in unique(dfr$learner)) {
-      for (prob in unique(dfr$problem)) {
-      dfr_prob = dfr[problem == prob & learner == lrn, ]
-      ranks_overall = dfr_prob[, mean(V1), by = c("evals", "variant")]
-        names(ranks_overall) = c("Generation", "Variant", "MeanRank")
-
-        p = ggplot()
-        p = p + geom_line(data = ranks_overall, aes(x = Generation, y = MeanRank, colour = Variant))
-      p = p + theme_bw()
-      p = p + scale_colour_Publication() + theme_Publication()
-      ggsave(file.path(plotspath, "ranks.domHV", "perLearnerperProblem", paste(lrn, prob, "ranks.png", sep = ".")), p)
-      }
-  }
+    p = p + geom_line(data = res_ovr_pl, aes(x = evals, y = value, lty = algorithm, colour = variant), size = 0.6)
+    p = p + scale_colour_Publication() + theme_Publication() 
+    p = p + facet_grid(learner ~ variable) 
+    p = p + ylab("Value") + labs(colour = "Variant", lty = "Algorithm") 
+    p = p + scale_y_continuous(limits = limits, sec.axis = sec_axis(~.*10))
+    p = p + theme(legend.direction = "horizontal", legend.position = "top", legend.box = "vertical", legend.box.just = "left")
+    p = p + guides(lty = guide_legend(order = 1), colour = guide_legend(order = 2))
+    p = p + xlab("Evaluations")
+      
+    ggsave(file.path(plotspath, paste(metric, "ranks_perLearner.pdf", sep = "_")), p, width = 7, height = 10)
 }
 
+# --- this is not a general function
+# --- should be rewritten
+renameAndRevalue = function(df) {
+    
+    # --- renaming ---
+    df[algorithm == "randomsearch" & variant == "RS", ]$variant = "O"
+    df[algorithm == "randomsearch" & variant == "RSI", ]$variant = "OI"
+    df[algorithm == "randomsearch" & variant == "RSIF", ]$variant = "OIFi"
+    
+    # --- reordering of factors for plots
+    library(forcats)
+    ord_ages_class = c("O", "OI", "OIFi", "OIFiFm", "OIFiFmS", "OIH", "OIHFiFmS")
+    df$variant = factor(df$variant, levels = ord_ages_class)
+    df$variant = revalue(df$variant, 
+      c("O" = "base version", "OI" = "+UI", "OIFi" = "+UI+FI", "OIFiFm" = "+UI+FI+FM", 
+        "OIFiFmS" = "+UI+FI+FM (s.a.)", "OIH" = "+UI+HP", "OIHFiFmS" = "+UI+FI+HP+FM (s.a.)"))
+    df$algorithm = revalue(df$algorithm, c("mosmafs" = "NSGA-II", "randomsearch" = "Random Search"))
 
-plotFeatures = function(res, plotspath) {
-
+    return(df)
 }
 
 
@@ -489,23 +536,27 @@ plotHeatmap = function(populations, plotspath) {
     plist = list()
 
       for (vari in unique(populations$variant)) {
-          pops = populations[problem == prob & learner == lrn & variant == vari, ]
+          pop = pops[problem == prob & learner == lrn & variant == vari, ]
           popls = list()
 
-          for (i in 1:nrow(pops)) {
-            popres = pops[i, ]$result[[1]]
-            popres = lapply(1:length(popres), function(i) popres[[i]][, which(doNondominatedSorting(popres[[i]])$ranks == 1)])
-            popres = lapply(1:length(popres), function(x) cbind(gen = x, as.data.frame(t(popres[[x]]))))
-            popres = do.call("rbind", popres)
-            popres = cbind(pops[i, ], popres)
-            names(popres)[19:20] = c("mmce", "nfeat")
-            popls[[i]] = popres
+          p = ggplot()
+
+          for (i in 1:10) {
+            popres = pop[i, ]$result[[1]][[263]]
+            popres = popres[, which(doNondominatedSorting(popres)$ranks == 1)]
+            popres = as.data.frame(t(popres))
+            names(popres) = c("mmce", "nfeat")
+            popres$replication = i
+            
+            p = p + geom_point(data = popres, aes(x = mmce, y = nfeat), alpha = 0.4, size = 1)
+            p = p + geom_line(data = popres, aes(x = mmce, y = nfeat), alpha = 0.4, size = 1)
+
+            p = p + theme_bw()
+            p = p + theme_Publication()
+            p = p + theme(legend.position = "none")
+
           }
 
-          popls = do.call("rbind", popls)
-          popls = popls[popls$gen %% 50 == 1, ]
-          
-          p = ggplot()
 
           for (job in unique(popls$job.id)) {
             p = p + geom_point(data = popls[job.id == job, ], aes(x = mmce, y = nfeat, colour = gen), alpha = 0.4, size = 1)
@@ -526,7 +577,7 @@ plotHeatmap = function(populations, plotspath) {
 
 
 
-calculateSummaryOfMethods = function(res) {
+calculateSummaryOfMethods = function(res, maxevals = 4000L) {
 
     # structure of the table
     # problem | RS (double budget) | RSI (double budget) | RSIF (double budget) | NSGA-II | MOSMAFS
@@ -535,24 +586,36 @@ calculateSummaryOfMethods = function(res) {
 
     # extract performance for half budget
     df = extractFromSummary(res, c("evals", "naive.hout.domHV"))
-    df = df[- which(problem %in% c("hypersphere.200.50", "hypersphere.200.200", "philippine", "dilbert", "AP_Lung_Uterus", "eating", "gina_agnostic")), ] 
-    df = df[evals != 8000, ]
     df$gen = (df$evals - 80) / 15
     df = df[, replication := 1:length(job.id), by = c("learner", "variant", "problem", "gen")]
-    df = df[evals < 4000, ]
+    df = df[evals < maxevals, ]
 
-    # --- double budget consideration
     dfs = df[, list(mean.domHV = mean(naive.hout.domHV, na.rm = TRUE), 
             sd.domHV = sd(naive.hout.domHV, na.rm = T) / sqrt(10)), 
             by = .(variant, problem, learner)]
-    dfs$evaldomHV = paste(round(dfs$mean.domHV, 2), " (", round(dfs$sd.domHV, 2), ")", sep = "")
-    
-    for (lrn in dfs$learner) {
-        dfr = dfs[learner == lrn , c("variant", "problem", "evaldomHV")]
-        dfr = dfr[variant %in% c("O", "OIHFiFmS", "RS", "RSI", "RSIF")]
-        dfc = dcast(dfr, problem ~ variant, value.var = "evaldomHV")
+    # dfs$evaldomHV = paste(round(dfs$mean.domHV, 2), " (", round(dfs$sd.domHV, 2), ")", sep = "")
+    dfs$evaldomHV = round(dfs$mean.domHV, 2)
 
-        print(xtable(dfc, type = "latex", include.rownames=FALSE), file = paste("latex_temp/houtdomHV", "_singlebudget/", lrn, ".tex", sep = ""))
+    for (lrn in unique(dfs$learner)) {
+
+        dfs$variant = revalue(dfs$variant, 
+          c("O" = "NSGA-II", "OI" = "+UI", "OIFi" = "+UI+FI", "OIFiFm" = "+UI+FI+FM", 
+              "OIFiFmS" = "+UI+FI+FM (s.a.)", "OIH" = "+UI+HP", "OIHFiFmS" = "+UI+FI+HP+FM (s.a.)"))
+
+
+        dfr = dfs[learner == lrn , c("variant", "problem", "evaldomHV")]
+        dfc = dcast(dfr, problem ~ variant, value.var = "evaldomHV")
+        dfc = ijoin(problems, dfc, by = "problem")
+        dfc = dfc[order(dfc$p), ]
+        dfc$dummycol = NA
+        dfcc = dfc[, c("problem", "NSGA-II", "+UI", "+UI+FI", "+UI+FI+FM", "+UI+FI+FM (s.a.)", "+UI+HP", "+UI+FI+HP+FM (s.a.)", "dummycol", "RS", "RSI", "RSIF")]
+        print(xtable::xtable(dfcc, type = "latex", include.rownames=FALSE), file = paste("latex_temp/houtdomHV", "_singlebudget/", lrn, "complete", "_", maxevals, ".tex", sep = ""))
+
+        dfcc = dfc[, c("problem", "n", "p", "NSGA-II", "+UI+FI+HP+FM (s.a.)", "RS", "RSI", "RSIF")]
+
+        print(xtable::xtable(dfcc, type = "latex", include.rownames=FALSE), file = paste("latex_temp/houtdomHV", "_singlebudget/", lrn, "_", maxevals, ".tex", sep = ""))
+
+
 
         # dfr = obj[learner == lrn & variant %in% c("O", "RS", "RSI", "RSIF", "OIHFiFmS"), c("variant", "problem", "houtdomHV")]
         # dfc = dcast(dfr, problem ~ variant, value.var = "houtdomHV")
@@ -577,59 +640,74 @@ calculateEvalsToRandomsearch = function(res) {
 
     # naive.hout.domHV
     df = extractFromSummary(res, c("evals", "naive.hout.domHV"))
-    df = df[- which(problem %in% c("hypersphere.200.50", "hypersphere.200.200", "philippine", "dilbert", "AP_Lung_Uterus", "eating")), ] 
-    df = df[evals != 8000, ]
     df$gen = (df$evals - 80) / 15
     df = df[, replication := 1:length(job.id), by = c("learner", "variant", "problem", "gen")]
     df = df[evals < 4000, ]
 
-    # remove the ones where we have not enough replications
-    finished_exps = df[, .(num.repls = max(replication)), by = c("variant", "problem", "learner")]
-    dfs = ijoin(df, finished_exps[num.repls == 10, ], by = c("problem", "learner", "variant")) 
-
-    dfr = dfs[algorithm == "randomsearch", ]
-    dfm = dfs[algorithm == "mosmafs", ]
+    dfr = df[variant %in% c("RS", "RSI", "RSIF"), ]
+    dfm = df[algorithm == "mosmafs", ]
     
     res2 = res
-    res2$RS.beat = 0
-    res2$RSI.beat = 0
-    res2$RSIF.beat = 0
     res2 = res2[algorithm == "mosmafs", ]
-    res2 = res2[- which(problem %in% c("hypersphere.200.50", "hypersphere.200.200", "philippine", "dilbert", "AP_Lung_Uterus", "eating", "gina_agnostic")), ] 
+    res2 = res2[, replication := 1:length(job.id), by = c("learner", "variant", "problem")]
 
     for (repl in 1:10) {
       for (prob in unique(dfm$problem)) {
         for (lrn in unique(dfm$learner)) {
           for (myvariant in unique(dfm$variant)) {
-            vals = dfs[replication == repl & problem == prob & learner == lrn & variant == myvariant , ]
-            vals = vals[, mean(naive.hout.domHV), by = c("evals")]
+            vals = dfm[replication == repl & problem == prob & learner == lrn & variant == myvariant , ]
 
             RS = mean(dfr[replication == repl & problem == prob & learner == lrn & variant == "RS" & evals == 3095, ]$naive.hout.domHV, na.rm = TRUE)
             RSI = mean(dfr[replication == repl & problem == prob & learner == lrn & variant == "RSI" & evals == 3095, ]$naive.hout.domHV, na.rm = TRUE)
             RSIF = mean(dfr[replication == repl & problem == prob & learner == lrn & variant == "RSIF" & evals == 3095, ]$naive.hout.domHV, na.rm = TRUE)
      
-            res2[replication == repl & replication == repl & replication == repl & learner == lrn & problem == prob & variant == myvariant, ]$RS.beat = vals[V1 >= RS, ][1, ]$evals
-            res2[replication == repl & replication == repl & learner == lrn & problem == prob & variant == myvariant, ]$RSI.beat = vals[V1 >= RSI, ][1, ]$evals
-            res2[replication == repl & learner == lrn & problem == prob & variant == myvariant, ]$RSIF.beat = vals[V1 >= RSIF, ][1, ]$evals
+            res2[replication == repl & replication == repl & replication == repl & learner == lrn & problem == prob & variant == myvariant, ]$RS.beat = vals[naive.hout.domHV >= RS, ][1, ]$evals
+            res2[replication == repl & replication == repl & learner == lrn & problem == prob & variant == myvariant, ]$RSI.beat = vals[naive.hout.domHV >= RSI, ][1, ]$evals
+            res2[replication == repl & learner == lrn & problem == prob & variant == myvariant, ]$RSIF.beat = vals[naive.hout.domHV >= RSIF, ][1, ]$evals
           }
         }
       }      
     }
-
+    path = "latex_temp"
     saveRDS(res2, file.path(path, "beat_randomsearch_complete.rds"))
   
-    
-    res3 = res2[, .(RS.beat = mean(RS.beat, na.rm = TRUE),
-                    RS.sd = sd(RS.beat, na.rm = TRUE) / sqrt(length(RS.beat)), 
+    # --- imputation
+    res3 = res2
+    res3[is.na(res3$RS.beat), ]$RS.beat = 8000L
+    res3[is.na(res3$RSI.beat), ]$RSI.beat = 8000L
+    res3[is.na(res3$RSIF.beat), ]$RSIF.beat = 8000L
+
+    res3 = res3[, .(RS.beat = mean(RS.beat, na.rm = TRUE),
+                    RS.sd = sd(RS.beat, na.rm = TRUE) / sqrt(360), 
                     RSI.beat = mean(RSI.beat, na.rm = TRUE), 
-                    RSI.sd = sd(RSI.beat, na.rm = TRUE) / sqrt(length(RS.beat)),                     
+                    RSI.sd = sd(RSI.beat, na.rm = TRUE) / sqrt(360),                     
                     RSIF.beat = mean(RSIF.beat, na.rm = TRUE),
-                    RSIF.sd = sd(RSIF.beat, na.rm = TRUE)  / sqrt(length(RS.beat)),
+                    RSIF.sd = sd(RSIF.beat, na.rm = TRUE) / sqrt(360),
                     test = length(RS.beat)), by = c("variant")]
     
-    res3$RS.beat = paste(round(res3$RS.beat, 2), " (", round(res3$RS.sd, 2), ")", sep = "")
-    res3$RSI.beat = paste(round(res3$RSI.beat, 2), " (", round(res3$RSI.sd, 2), ")", sep = "")
-    res3$RSIF.beat = paste(round(res3$RSIF.beat, 2), " (", round(res3$RSIF.sd, 2), ")", sep = "")
+    res3 = res2[, .(RS.beat = mean(RS.beat, na.rm = TRUE),
+                    RS.sd = sd(RS.beat, na.rm = TRUE) / sqrt(360), 
+                    RS.nas = mean(is.na(RS.beat)) * 100,
+                    RSI.beat = mean(RSI.beat, na.rm = TRUE), 
+                    RSI.sd = sd(RSI.beat, na.rm = TRUE) / sqrt(360),                     
+                    RSI.nas = mean(is.na(RSI.beat)) * 100,
+                    RSIF.beat = mean(RSIF.beat, na.rm = TRUE),
+                    RSIF.sd = sd(RSIF.beat, na.rm = TRUE) / sqrt(360),
+                    RSIF.nas = mean(is.na(RSIF.beat)) * 100,
+                    test = length(RS.beat)), by = c("variant")]
+    
+    res3$RS.beat = paste(round(res3$RS.beat), " (", round(res3$RS.sd), ")", sep = "")
+    res3$RSI.beat = paste(round(res3$RSI.beat), " (", round(res3$RSI.sd), ")", sep = "")
+    res3$RSIF.beat = paste(round(res3$RSIF.beat), " (", round(res3$RSIF.sd), ")", sep = "")
+    res3$RS.nas = round(res3$RS.nas, digits = 1)
+    res3$RSI.nas = round(res3$RSI.nas, digits = 1)
+    res3$RSIF.nas = round(res3$RSIF.nas, digits = 1)
+    
+    res3$variant = revalue(res3$variant, 
+      c("O" = "NSGA-II", "OI" = "+UI", "OIFi" = "+UI+FI", "OIFiFm" = "+UI+FI+FM", 
+        "OIFiFmS" = "+UI+FI+FM (s.a.)", "OIH" = "+UI+HP", "OIHFiFmS" = "+UI+FI+HP+FM (s.a.)"))
 
-    print(xtable(res3[, c("variant", "RS.beat", "RSI.beat", "RSIF.beat")], type = "latex", include.rownames=FALSE), file = paste("latex_temp/beatRS.tex", sep = ""))
+    names(res3) = c(" ", "RS", "RS.sd", "NAs.1", "RS+UI", "RSI.sd", "NAs.2", "RS+UI+IF", "RSUIIF.sd", "NAs.3", "test")
+
+    print(xtable::xtable(res3[, c(" ", "RS", "NAs.1", "RS+UI", "NAs.2", "RS+UI+IF", "NAs.3")], type = "latex", include.rownames=FALSE), file = paste("latex_temp/beatRS_with_nas_average_after.tex", sep = ""))
 }
