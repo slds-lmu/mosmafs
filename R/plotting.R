@@ -15,7 +15,8 @@
 #' @export
 paretoEdges <- function(fitness, refpoint) {
   fitness <- as.matrix(t(fitness))
-  front <- fitness[, nondominated(fitness), drop = FALSE]
+  if (ncol(fitness) > 1)  # TODO: can go when https://github.com/jakobbossek/ecr2/issues/120 is fixed
+    front <- fitness[, nondominated(fitness), drop = FALSE]
   front <- front[, order(front[1, ]), drop = FALSE]
   frontpoints <- sapply(seq_len(ncol(front) * 2 - 1) + 1, function(twicecol) {
     pmax(front[, floor(twicecol / 2), drop = FALSE],
