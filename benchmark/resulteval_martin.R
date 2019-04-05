@@ -254,44 +254,164 @@ tryalg <- ijoin(tab[algorithm == "mosmafs" & job.id > 200], findDone())[100, ]
 
 tab
 
-
-fitnesses <- reduceResultsList(tab[algorithm == "mosmafs" & problem == "madeline" &
+fitnesses1 <- reduceResultsList(tab[algorithm == "mosmafs" & problem == "madeline" &
+                                    learner == "xgboost" & initialization == "unif" &
+                                    filter == "custom" & filter.during.run &
+                                    chw.bitflip & adaptive.filter.weights],
+  function(x) t(x$result$pareto.front))
+fitnesses2 <- reduceResultsList(tab[algorithm == "mosmafs" & problem == "ionosphere" &
                                     learner == "xgboost" & initialization == "unif" &
                                     filter == "custom" & filter.during.run &
                                     chw.bitflip & adaptive.filter.weights],
   function(x) t(x$result$pareto.front))
 
-ggsummand <- function(fitnesses, color, alpha, cutrefpt = FALSE) {
-  if {cutrefpt) {
-    refpt <- max(unname(apply(do.call(cbind, fitnesses), 1, max))*1.1)
+
+fitnessesa <- reduceResultsList(tab[algorithm == "mosmafs" & problem == "ionosphere" &
+                                    learner == "xgboost" & initialization == "unif" &
+                                    filter == "custom" & filter.during.run &
+                                    chw.bitflip & adaptive.filter.weights],
+  function(x) t(x$result$pareto.front))
+fitnessesb <- reduceResultsList(tab[algorithm == "mosmafs" & problem == "ionosphere" &
+                                    learner == "SVM" & initialization == "unif" &
+                                    filter == "custom" & filter.during.run &
+                                    chw.bitflip & adaptive.filter.weights],
+  function(x) t(x$result$pareto.front))
+
+
+ggsummand <- function(fitnesseses, color, alpha, cutrefpt = FALSE, dolog = FALSE) {
+  if (cutrefpt) {
+    refpt <- (unname(apply(do.call(cbind, unlist(fitnesseses, recursive = FALSE)), 1, max))*1.1)
   } else {
     refpt <- c(1, 1)
   }
+  if (dolog) refpt <- log(refpt)
   refpt <- rep(refpt, 2)
-  allparetos <- rbindlist(lapply(seq_along(fitnesses), function(fidx) {
-    fi <- fitnesses[[fidx]]
-    rownames(fi) <- c("mmce", "featfrac")
-#    fi <- log(fi)
-    dfe <- as.data.table(paretoEdges(t(fi), refpt))
-    dfe$group <- fidx
-    dfe
+  allparetos <- rbindlist(lapply(seq_along(fitnesseses), function(fifiidx) {
+    fitnesses <- fitnesseses[[fifiidx]]
+    rbindlist(lapply(seq_along(fitnesses), function(fidx) {
+      fi <- fitnesses[[fidx]]
+      rownames(fi) <- c("mmce", "featfrac")
+      if (dolog) {
+        fi <- log(fi)
+      }
+      dfe <- as.data.table(paretoEdges(t(fi), refpt))
+      dfe$group <- fidx
+      dfe$colx <- color[fifiidx]
+      dfe
+    }))
   }))
 
   refline <- data.frame(mmce = refpt[1], featfrac = refpt[2], point = FALSE,
-    group = unique(allparetos$group))
+    group = rep(unique(allparetos$group), each = length(color)), colx = color)
 
-  ggplot(allparetos, aes(x = mmce, y = featfrac, group = group)) +  # TODO: achsen von 0 bis refpt
+  ggplot(allparetos, aes(x = mmce, y = featfrac, group = interaction(group, colx))) +  # TODO: achsen von 0 bis refpt
     geom_polygon(data = rbind(allparetos, refline),
-      alpha = alpha, fill = color) +
+      alpha = alpha, fill = rbind(allparetos, refline)$colx) +
     geom_line(data = allparetos, size = .1) +
-    geom_point(data = allparetos[point == TRUE])
+    geom_point(data = allparetos[point == TRUE], color = allparetos[point == TRUE]$colx) +
+    xlim(0, refpt[1]) +
+    ylim(0, refpt[2]) +
+    coord_fixed()
 }
 
 
-ggsummand(fitnesses, "red", 0.1)
+(list(fitnesses1, fitnesses2), c("red", "black"), 0.05, cutrefpt = TRUE)
+
+ggsummand(list(fitnessesa, fitnessesb), c("red", "black"), 0.05, cutrefpt = TRUE)
+
+########################################################################################################
+
+tab <- summarizeExperiments(by = c("job.id", "algorithm", "problem", "learner", "maxeval", "mu",
+  "lambda", "initialization", "filter", "filter.during.run", "chw.bitflip", "adaptive.filter.weights"))
+tab <- ijoin(tab, findDone())
+tab <- tab[algorithm %in% c("randomsearch", "mosmafs")]
+tab <- tab[maxeval == 4000]
+tab <- tab[problem %nin%  c("eating", "gina_agnostic", "dilbert", "philippine", "AP_Lung_Uterus", "hypersphere.200.50", "hypersphere.200.200")]
+tab$maxeval <- NULL
+tab <- tab[is.na(mu) | (mu == 80 & lambda == 15)]
+tab$mu <- NULL
+tab$lambda <- NULL
+
+experiments = list(
+    O = data.table(algorithm = "mosmafs", filter = "none", initialization = "none", chw.bitflip = FALSE, adaptive.filter.weights = FALSE, filter.during.run = FALSE),
+    OI = data.table(algorithm = "mosmafs", filter = "none", initialization = "unif", chw.bitflip = FALSE, adaptive.filter.weights = FALSE, filter.during.run = FALSE),
+    OIFi = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = FALSE, adaptive.filter.weights = FALSE, filter.during.run = FALSE),
+    OIFiFm = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = FALSE, adaptive.filter.weights = FALSE, filter.during.run = TRUE),
+    OIFiFmS = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = FALSE, adaptive.filter.weights = TRUE, filter.during.run = TRUE),
+    OIH = data.table(algorithm = "mosmafs", filter = "none", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = FALSE, filter.during.run = FALSE),
+    OIHFiFmS = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE),
+    RS = data.table(algorithm = "randomsearch", initialization = "none", filter = "none"),
+    RSI = data.table(algorithm = "randomsearch", initialization = "unif", filter = "none"),
+    RSIF = data.table(algorithm = "randomsearch", initialization = "unif", filter = "custom")
+)
+
+whichexp <- function(tabrow) {
+  expid <- sapply(experiments, function(excond) {
+    all(sapply(names(excond), function(n) excond[[n]] == tabrow[[n]]))
+  })
+  if (sum(expid) == 0) return(NA)
+  stopifnot(sum(expid) == 1)
+  names(experiments)[expid]
+}
+
+tab$expname <- sapply(mosmafs:::transpose.list(tab), whichexp)
+tab <- tab[!is.na(expnames)]
+
+tab$filter <- NULL
+tab$initialization <- NULL
+tab$chw.bitflip <- NULL
+tab$adaptive.filter.weights <- NULL
+tab$filter.during.run <- NULL
+tab$.count <- NULL
+
+makeparetodata <- function(...) {
+  args <- list(...)
+  refpt <- c(1, 1)
+
+  stopifnot(!is.null(names(args)) && !"" %in% names(args))
+  stopifnot(all(names(args) %in% colnames(tab)))
+
+  checkline <- function(line) {
+    all(sapply(names(args), function(n) line[[n]] %in% args[[n]]))
+  }
+
+  subtab <- tab[sapply(mosmafs:::transpose.list(tab), checkline)]
 
 
+  fitn <- reduceResultsList(subtab, function(x) t(x$result$pareto.front))
 
+  restbl <- rbindlist(lapply(seq_along(fitn), function(fidx) {
+      fi <- fitn[[fidx]]
+      dfe <- as.data.table(paretoEdges(t(fi), refpt))
+      colnames(dfe)[1:2] <- c("mmce", "featfrac")
+      dfe$isref <- FALSE
+      dfe$instance <- fidx
+      cbind(dfe, subtab[fidx, ])
+  }))
+  restbl$job.id <- NULL
+
+  reftbl <- unique(restbl[, list(instance, algorithm, problem, learner, expname)])
+
+  rbind(
+      restbl,
+      cbind(data.table(mmce = refpt[1], featfrac = refpt[2], point = FALSE, isref = TRUE), reftbl)
+  )
+}
+
+parfrnt <- makeparetodata(learner = c("SVM", "xgboost"), expname = "RS", problem = "madeline")
+
+
+ggplot(parfrnt[isref == FALSE], aes(x = mmce, y = featfrac, group = instance)) +
+  geom_point(data = parfrnt[point == TRUE], aes(color = learner)) +
+  geom_polygon(data = parfrnt, alpha = 0.1, aes(fill = learner)) +
+  geom_line(size = .1) +
+  geom_point(data = parfrnt[point == TRUE], aes(color = learner)) +
+  xlim(0, 1) +
+  ylim(0, 1) +
+  coord_fixed()
+
+
+########################################################################################################
 
 
 
