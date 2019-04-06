@@ -206,9 +206,9 @@ collectBenchmarkResults = function(path, experiments, tab) {
     toreduce = ijoin(tab, experiments[[experiment]], by = names(experiments[[experiment]]))
     toreduce = ijoin(toreduce, findDone(), by = "job.id")
 
-    dir = as.numeric(sapply(list.files("registry/results/"), function(x) strsplit(x, ".rds")[[1]][1]))
-    dir = data.frame(job.id = dir)
-    toreduce = ijoin(toreduce, dir)
+    # dir = as.numeric(sapply(list.files("registry/results/"), function(x) strsplit(x, ".rds")[[1]][1]))
+    # dir = data.frame(job.id = dir)
+    # toreduce = ijoin(toreduce, dir)
 
     res = reduceResultsDataTable(toreduce, function(x) collectResult(x$result))
     res = ijoin(tab, res, by = "job.id")
@@ -453,7 +453,7 @@ plotPerformanceHout = function(res, plotspath) {
 }
 
 
-plotRanks = function(res, plotspath, logscale = FALSE, metric = "naive.hout.domHV", limits = c(0.37, 1)) {
+plotRanks = function(res, plotspath, logscale = FALSE, metric = "naive.hout.domHV", limits = c(0.37, 1), height = 10, width = 7) {
     
     # --- naive.hout.domHV
     df = extractFromSummary(res, c("evals", metric))
@@ -461,7 +461,7 @@ plotRanks = function(res, plotspath, logscale = FALSE, metric = "naive.hout.domH
     df$gen = (df$evals - 80) / 15
     df = df[, replication := 1:length(job.id), by = c("learner", "variant", "problem", "gen")]
     df = renameAndRevalue(df)
-    names(df)[20] = "metric"
+    names(df)[17] = "metric"
 
     # --- calculate ranks within learner, problem and replication ---
     dfr = df[, rank_variant := rank(- metric), by = c("learner", "problem", "evals", "replication")]
@@ -490,7 +490,7 @@ plotRanks = function(res, plotspath, logscale = FALSE, metric = "naive.hout.domH
     p = p + guides(lty = guide_legend(order = 1), colour = guide_legend(order = 2))
     p = p + xlab("Evaluations")
    
-    ggsave(file.path(plotspath, paste(metric, "ranks.pdf", sep = "_")), p, width = 9, height = 6, device = "pdf")
+    ggsave(file.path(plotspath, paste(gsub("\\.", "", metric), "ranks.pdf", sep = "_")), p, width = 9, height = 6, device = "pdf")
 
     p = ggplot()
     p = p + geom_line(data = res_ovr_pl, aes(x = evals, y = value, lty = algorithm, colour = variant), size = 0.6)
@@ -502,7 +502,7 @@ plotRanks = function(res, plotspath, logscale = FALSE, metric = "naive.hout.domH
     p = p + guides(lty = guide_legend(order = 1), colour = guide_legend(order = 2))
     p = p + xlab("Evaluations")
       
-    ggsave(file.path(plotspath, paste(metric, "ranks_perLearner.pdf", sep = "_")), p, width = 7, height = 10)
+    ggsave(file.path(plotspath, paste(gsub("\\.", "", metric), "ranks_perLearner.pdf", sep = "_")), p, width = 7, height = 10)
 }
 
 # --- this is not a general function
@@ -577,7 +577,7 @@ plotHeatmap = function(populations, plotspath) {
 
 
 
-calculateSummaryOfMethods = function(res, maxevals = 4000L) {
+calculateSummaryOfMethods = function(path, res, maxevals = 4000L) {
 
     # structure of the table
     # problem | RS (double budget) | RSI (double budget) | RSIF (double budget) | NSGA-II | MOSMAFS
@@ -609,11 +609,11 @@ calculateSummaryOfMethods = function(res, maxevals = 4000L) {
         dfc = dfc[order(dfc$p), ]
         dfc$dummycol = NA
         dfcc = dfc[, c("problem", "NSGA-II", "+UI", "+UI+FI", "+UI+FI+FM", "+UI+FI+FM (s.a.)", "+UI+HP", "+UI+FI+HP+FM (s.a.)", "dummycol", "RS", "RSI", "RSIF")]
-        print(xtable::xtable(dfcc, type = "latex", include.rownames=FALSE), file = paste("latex_temp/houtdomHV", "_singlebudget/", lrn, "complete", "_", maxevals, ".tex", sep = ""))
+        print(xtable::xtable(dfcc, type = "latex", include.rownames=FALSE), file = paste("latex_temp/houtdomHV/", lrn, "complete", "_", maxevals, ".tex", sep = ""))
 
         dfcc = dfc[, c("problem", "n", "p", "NSGA-II", "+UI+FI+HP+FM (s.a.)", "RS", "RSI", "RSIF")]
 
-        print(xtable::xtable(dfcc, type = "latex", include.rownames=FALSE), file = paste("latex_temp/houtdomHV", "_singlebudget/", lrn, "_", maxevals, ".tex", sep = ""))
+        print(xtable::xtable(dfcc, type = "latex", include.rownames=FALSE), file = paste(path, "/houtdomHV/", lrn, "_", maxevals, ".tex", sep = ""))
 
 
 
@@ -626,8 +626,6 @@ calculateSummaryOfMethods = function(res, maxevals = 4000L) {
 
         # print(xtable(dfc, type = "latex", include.rownames=FALSE), file = paste("latex_temp/houtdomHV", "_", method, "/", lrn, ".tex", sep = ""))
     }
-
-
 } 
 
 g_legend<-function(a.gplot){
@@ -636,7 +634,7 @@ g_legend<-function(a.gplot){
   legend <- tmp$grobs[[leg]]
   return(legend)}
 
-calculateEvalsToRandomsearch = function(res) {
+calculateEvalsToRandomsearch = function(res, path) {
 
     # naive.hout.domHV
     df = extractFromSummary(res, c("evals", "naive.hout.domHV"))
@@ -650,6 +648,10 @@ calculateEvalsToRandomsearch = function(res) {
     res2 = res
     res2 = res2[algorithm == "mosmafs", ]
     res2 = res2[, replication := 1:length(job.id), by = c("learner", "variant", "problem")]
+
+    res2$RS.beat = 0
+    res2$RSI.beat = 0
+    res2$RSIF.beat = 0
 
     for (repl in 1:10) {
       for (prob in unique(dfm$problem)) {
@@ -668,23 +670,10 @@ calculateEvalsToRandomsearch = function(res) {
         }
       }      
     }
-    path = "latex_temp"
+    
     saveRDS(res2, file.path(path, "beat_randomsearch_complete.rds"))
   
     # --- imputation
-    res3 = res2
-    res3[is.na(res3$RS.beat), ]$RS.beat = 8000L
-    res3[is.na(res3$RSI.beat), ]$RSI.beat = 8000L
-    res3[is.na(res3$RSIF.beat), ]$RSIF.beat = 8000L
-
-    res3 = res3[, .(RS.beat = mean(RS.beat, na.rm = TRUE),
-                    RS.sd = sd(RS.beat, na.rm = TRUE) / sqrt(360), 
-                    RSI.beat = mean(RSI.beat, na.rm = TRUE), 
-                    RSI.sd = sd(RSI.beat, na.rm = TRUE) / sqrt(360),                     
-                    RSIF.beat = mean(RSIF.beat, na.rm = TRUE),
-                    RSIF.sd = sd(RSIF.beat, na.rm = TRUE) / sqrt(360),
-                    test = length(RS.beat)), by = c("variant")]
-    
     res3 = res2[, .(RS.beat = mean(RS.beat, na.rm = TRUE),
                     RS.sd = sd(RS.beat, na.rm = TRUE) / sqrt(360), 
                     RS.nas = mean(is.na(RS.beat)) * 100,
@@ -707,7 +696,7 @@ calculateEvalsToRandomsearch = function(res) {
       c("O" = "NSGA-II", "OI" = "+UI", "OIFi" = "+UI+FI", "OIFiFm" = "+UI+FI+FM", 
         "OIFiFmS" = "+UI+FI+FM (s.a.)", "OIH" = "+UI+HP", "OIHFiFmS" = "+UI+FI+HP+FM (s.a.)"))
 
-    names(res3) = c(" ", "RS", "RS.sd", "NAs.1", "RS+UI", "RSI.sd", "NAs.2", "RS+UI+IF", "RSUIIF.sd", "NAs.3", "test")
+    names(res3) = c(" ", "RS", "RS.sd", "NC.1", "RS+UI", "RSI.sd", "NC.2", "RS+UI+IF", "RSUIIF.sd", "NC.3", "test")
 
-    print(xtable::xtable(res3[, c(" ", "RS", "NAs.1", "RS+UI", "NAs.2", "RS+UI+IF", "NAs.3")], type = "latex", include.rownames=FALSE), file = paste("latex_temp/beatRS_with_nas_average_after.tex", sep = ""))
+    print(xtable::xtable(res3[, c(" ", "RS", "NC.1", "RS+UI", "NC.2", "RS+UI+IF", "NC.3")], type = "latex", include.rownames=FALSE), file = paste("latex_temp/beatRS_with_nas_average_after.tex", sep = ""))
 }

@@ -1,19 +1,24 @@
 library(batchtools)
 library(dplyr)
+library(mlr)
+library(mlrCPO)
 
 source("helpers.R")
 source("probdesign.R")
 
 # load registry
-reg = loadRegistry("registry")
+reg = loadRegistry("registry22", writeable = FALSE)
 tab = summarizeExperiments(by = c("job.id", "algorithm", 
 	"problem", "learner", "maxeval", "filter", "initialization", 
 	"lambda", "mu", "parent.sel", "chw.bitflip", "adaptive.filter.weights",
-	"filter.during.run", "surrogate", "MBMOmethod", "propose.points"))
-tab = tab[maxeval %in% c(4000), ]
-tab = rbind(tab[lambda != 4L, ], tab[is.na(lambda), ])
+	"filter.during.run"))
+tab = tab[learner == "xgboost", ]
+# tab = tab[maxeval %in% c(4000), ]
+# tab = rbind(tab[lambda != 4L, ], tab[is.na(lambda), ])
+done = ijoin(tab, findDone())
 
-path = "results_raw"
+path = "results_raw_xgboost"
+dir.create(path)
 
 problems = c("wdbc", "ionosphere", "sonar", "hill-valley", "clean1", 
   "tecator", "USPS", "madeline", "lsvt", "madelon", "isolet", "cnae-9")
@@ -32,7 +37,7 @@ experiments = list(
 	)
 
 collectBenchmarkResults(path, experiments, tab)
-collectParetofront(path, experiments = experiments[c("O", "OIHFiFmS", "RS", "RSI", "RSIF")], tab, problems, learners = c("SVM", "kknn"))
+collectParetofront(path, experiments = experiments[c("O", "OIHFiFmS", "RS", "RSI", "RSIF")], tab, problems, learners = c("xgboost"))
 
 
 
