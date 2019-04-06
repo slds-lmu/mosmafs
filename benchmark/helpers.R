@@ -527,56 +527,6 @@ renameAndRevalue = function(df) {
 }
 
 
-plotHeatmap = function(populations, plotspath) {
-
-  for (prob in unique(populations$problem)) {
-
-    for (lrn in unique(populations$learner)) {
-
-    plist = list()
-
-      for (vari in unique(populations$variant)) {
-          pop = pops[problem == prob & learner == lrn & variant == vari, ]
-          popls = list()
-
-          p = ggplot()
-
-          for (i in 1:10) {
-            popres = pop[i, ]$result[[1]][[263]]
-            popres = popres[, which(doNondominatedSorting(popres)$ranks == 1)]
-            popres = as.data.frame(t(popres))
-            names(popres) = c("mmce", "nfeat")
-            popres$replication = i
-            
-            p = p + geom_point(data = popres, aes(x = mmce, y = nfeat), alpha = 0.4, size = 1)
-            p = p + geom_line(data = popres, aes(x = mmce, y = nfeat), alpha = 0.4, size = 1)
-
-            p = p + theme_bw()
-            p = p + theme_Publication()
-            p = p + theme(legend.position = "none")
-
-          }
-
-
-          for (job in unique(popls$job.id)) {
-            p = p + geom_point(data = popls[job.id == job, ], aes(x = mmce, y = nfeat, colour = gen), alpha = 0.4, size = 1)
-            p = p + theme_bw()
-            p = p + theme_Publication()
-            p = p + theme(legend.position = "none")
-          }
-          p = p + ggtitle(vari)
-          plist[[vari]] = p
-        } 
-        g = do.call("grid.arrange", plist)
-        savepath = file.path(plotspath, "front", lrn)
-        dir.create(savepath)
-        ggsave(file.path(savepath, paste(prob, "front.png", sep = ".")), g, width = 15, height = 10)
-    }
-  }
-}
-
-
-
 calculateSummaryOfMethods = function(path, res, maxevals = 4000L) {
 
     # structure of the table
@@ -699,4 +649,42 @@ calculateEvalsToRandomsearch = function(res, path) {
     names(res3) = c(" ", "RS", "RS.sd", "NC.1", "RS+UI", "RSI.sd", "NC.2", "RS+UI+IF", "RSUIIF.sd", "NC.3", "test")
 
     print(xtable::xtable(res3[, c(" ", "RS", "NC.1", "RS+UI", "NC.2", "RS+UI+IF", "NC.3")], type = "latex", include.rownames=FALSE), file = paste("latex_temp/beatRS_with_nas_average_after.tex", sep = ""))
+}
+
+
+plotFrontPerProblem = function(path, parfront) {
+
+  for (prob in problems$problem) {
+
+  allparetos = parfrnt[problem == prob, ]
+  allparetos = allparetos[expname %in% c("O", "OIHFiFmS", "RS", "RSI", "RSIF"), ]
+
+  allparetos$expname = revalue(allparetos$expname, 
+      c("O" = "NSGAII", "OI" = "NSGAII+UI", "OIFi" = "NSGAII+UI+FI", "OIFiFm" = "NSGAII+UI+FI+FM", 
+          "OIFiFmS" = "NSGAII+UI+FI+FM(s.a.)", "OIH" = "NSGAII+UI+HP", "OIHFiFmS" = "NSGAII+UI+FI+HP+FM(s.a.)", 
+          "RS" = "RS", "RSI" = "RS+UI", "RSIF" = "RS+UI+IF"))
+  allparetos$expname = factor(allparetos$expname, levels = c("RS", "RS+UI", "RS+UI+IF", "NSGAII", "NSGAII+UI+FI+HP+FM(s.a.)"))
+  allparetos$learner = factor(allparetos$learner, levels = c("SVM", "kknn", "xgboost"))
+  
+  p = ggplot(allparetos, aes(x = mmce, y = featfrac, group = instance)) 
+  p = p + geom_polygon(data = allparetos, fill = "grey", alpha = 0.05) 
+  p = p + geom_line(data = allparetos, colour = "grey", alpha = 0.6) 
+  p = p + geom_point(data = allparetos[point == TRUE], color = "#386cb0", alpha = 0.4)
+  p = p + scale_colour_Publication() + theme_Publication() + scale_fill_Publication()
+  # p = p + ylab("Value") + labs(colour = "Variant", lty = "Algorithm") 
+  p = p + labs(colour = "", fill = "")
+  p = p + facet_grid(expname ~ learner) 
+  p = p + xlim(c(0, 1)) + ylim(c(0, 1)) + coord_fixed()
+  p = p + xlab(expression(mmce[outer])) + ylab("Fraction of features selected")
+  p = p + theme(legend.position = "none")
+  # p = p + theme(
+  #   strip.background = element_blank(),
+  #   strip.text.x = element_blank(),
+  #   strip.text.y = element_blank(),
+  #   legend.position = "right", legend.direction = "vertical", legend.box = "vertical")
+  # p = p + guides(colour = guide_legend(override.aes = list(size = 4, alpha = 0.6)))
+
+  ggsave(file.path(path, "front", paste("all_variants", "_", prob, ".pdf", sep = "")), p, width = 9, height = 12, device = "pdf")
+}
+
 }
