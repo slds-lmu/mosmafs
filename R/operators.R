@@ -12,24 +12,35 @@
 #'   variables.
 #' @return [`ecr_operator`][ecr::makeOperator] operator that operates on integers.
 #' @export
-intifyMutator <- function(operator) makeMutator(function(ind, ..., lower, upper) {
-  ind <- operator(as.numeric(ind), ..., lower = lower - 0.5, upper = upper + 0.5)
-  as.integer(pmin(pmax(lower, round(ind)), upper))
-}, supported = "custom")
+intifyMutator <- function(operator) {
+  assertClass(operator, c("ecr_mutator", "ecr_operator", "function"))
+  makeMutator(function(ind, ..., lower, upper) {
+    assertInteger(ind)
+    assertIntegerish(lower, any.missing = FALSE)
+    assertIntegerish(upper, any.missing = FALSE)
+    ind <- operator(as.numeric(ind), ..., lower = lower - 0.5, upper = upper + 0.5)
+    as.integer(pmin(pmax(lower, round(ind)), upper))
+}, supported = "custom")}
 
 #' @rdname intifyMutator
 #' @export
-intifyRecombinator <- function(operator) makeRecombinator(function(inds, ..., lower, upper) {
-  children <- operator(list(as.numeric(inds[[1]]), as.numeric(inds[[2]])),
-    ..., lower = lower - 0.5, upper = upper + 0.5)
-  if (attr(children, "multiple")) {
-    return(do.call(wrapChildren, lapply(children, function(x)
-      as.integer(pmin(pmax(lower, round(x)), upper)))))
-  }
+intifyRecombinator <- function(operator) { 
+  assertClass(operator, c("ecr_recombinator", "ecr_operator", "function"))
+  makeRecombinator(function(inds, ..., lower, upper) {
+    assertList(inds, any.missing = FALSE, min.len = 2)
+    lapply(inds, assertIntegerish)
+    assertIntegerish(lower, any.missing = FALSE)
+    assertIntegerish(upper, any.missing = FALSE)
+    children <- operator(list(as.numeric(inds[[1]]), as.numeric(inds[[2]])),
+      ..., lower = lower - 0.5, upper = upper + 0.5)
+    if (attr(children, "multiple")) {
+      return(do.call(wrapChildren, lapply(children, function(x)
+        as.integer(pmin(pmax(lower, round(x)), upper)))))
+    }
   wrapChildren(as.integer(pmin(pmax(lower, round(children)), upper)))
 },
 n.parents = ecr:::getNumberOfParentsNeededForMating.ecr_recombinator(operator),
-n.children = ecr:::getNumberOfChildren.ecr_recombinator(operator))
+n.children = ecr:::getNumberOfChildren.ecr_recombinator(operator))}
 
 
 #' @title Integer Gaussian Mutator
@@ -81,13 +92,15 @@ recIntIntermediate <- intifyRecombinator(recIntermediate)
 #' @export
 recGaussian <- makeRecombinator(function(inds, lower, upper) {
   assertList(inds, len = 2, any.missing = FALSE)
+  lapply(inds, assertNumeric)
+  assertNumeric(lower, any.missing = FALSE)
+  assertNumeric(upper, any.missing = FALSE)
   do.call(wrapChildren, replicate(2, simplify = FALSE, {
     ind <- rnorm(length(inds[[1]]),
       (inds[[1]] + inds[[2]]) / 2,
       abs(inds[[2]] - inds[[1]]) / 2)
     pmin(pmax(lower, ind), upper)
   }))
-
 }, supported = "float", n.parents = 2, n.children = 2)
 recIntGaussian <- intifyRecombinator(recGaussian)
 

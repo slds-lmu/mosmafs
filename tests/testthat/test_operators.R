@@ -3,46 +3,96 @@ context("operators")
 
 
 test_that("intified operators", {
+  
+  expect_error(intifyMutator(print), "Must inherit from class 'ecr_mutator'")
+  expect_error(mutGaussInt(c(1.5, 2L)), "Must be of type 'integer'")
+  expect_error(mutPolynomialInt(c(1L, 2L)), 'argument "lower" is missing, with no default')
+  expect_error(mutUniformInt(c(1L, 2L), lower = c(1L, 2L)), 'argument "upper" is missing, with no default')
+  expect_error(mutGaussInt(c(1L, 2L), lower = c("a", 3.5), upper = c(1L, 2L)),
+    "'lower' failed: Must be of type 'integer'")
+  expect_error(mutGaussInt(c(1L, 2L), lower = c(1L, 3L), upper = c("b", 2.5)),
+    "'upper' failed: Must be of type 'integer'")
+  expect_integer(mutGaussInt(c(1L, 2L), lower = c(1L, 3L), upper = c(3, 2)))
+  expect_error(intifyRecombinator(print), "Must inherit from class 'ecr_recombinator'")
+  expect_error(recIntSBX(list(c(1L, 2L))), "Must have length >= 2")
+  expect_error(recIntSBX(list(c(1L, 2L),c(3, -3.5)), lower = c(1L, -5L), upper = c(3L, 8L)), 
+    "elements of inds must be of type integer")
+  expect_error(recIntSBX(list(c(1L, 2L),c(3L, -3L)), lower = c("a", -5L)), 
+    "'lower' failed: Must be of type 'integer'")
+  expect_error(recIntSBX(list(c(1L, 2L),c(3L, -3L))), '"lower" is missing')
+  expect_error(recIntSBX(list(c(1L, 2L),c(3L, -3L)), lower = c(1L, -5L)), '"upper" is missing')
+  expect_error(recIntSBX(list(c(1L, 2L),c(3L, -3L)), lower = c(1L, -5L), upper = c(5L, "b")), 
+    "'upper' failed: Must be of type 'integer'")
+  expect_list(recIntSBX(list(c(1L, 2L),c(3L, -3L)), lower = c(1L, -5L), upper = c(5L, 6L)))
+  
+  
+  # testps <- mlrCPO::pSS(x: discrete[a, b, c], y: discrete[m, n, o],
+  #   z: discrete[x, y, z]^3,
+  #   one: logical, two: numeric[1, 10], three: numeric[0, 1])
+  # 
+  # 
+  # eco <- combine.operators(testps,
+  #   discrete = mutRandomChoice,
+  #   x = mutRandomChoice,
+  #   logical = mutBitflip,
+  #   numeric = mutGauss)
+  # 
+  # 
+  # initials <- sampleValues(testps, 1, discrete.names = TRUE)
+  # 
+  # initials
+  # resdf = do.call(rbind, replicate(1000,
+  #   as.data.frame(unlist(lapply(eco(initials[[1]]), as.list),
+  #     recursive = FALSE)), simplify = FALSE))
+  # 
+  # 
+  # # debug(mutRandomChoice)
+  # 
+  # eco(initials[[1]])
+  # 
+  # resdf$two <- NULL
+  # resdf$three <- NULL
+  # lapply(resdf, table)
+  # 
+  # 
+  # 
+  # initials <- sampleValues(testps, 2, discrete.names = TRUE)
+  # 
+  # reco <- combine.operators(testps,
+  #   discrete = recPCrossover,
+  #   x = ecr::setup(recPCrossover, p = .5),
+  #   logical = recCrossover,
+  #   numeric = recSBX)
+  # 
+  # expect_true(TRUE)
+})
 
-  testps <- mlrCPO::pSS(x: discrete[a, b, c], y: discrete[m, n, o],
-    z: discrete[x, y, z]^3,
-    one: logical, two: numeric[1, 10], three: numeric[0, 1])
+test_that("mutators and recombinators", {
+  
+  # recGaussian
+  
+  
+  # testps <- mlrCPO::pSS(
+  #   a: discrete[a, b, c],
+  #   b: discrete[m, n, o],
+  #   c: discrete[x, y, z]^3,
+  #   d: logical,
+  #   one: numeric[1, 10],
+  #   two: numeric[-1, 1],
+  #   three: integer[-5, 5])
+  # 
+  # eco <- combine.operators(testps,
+  #   discrete = mutRandomChoice,
+  #   d = mutBitflip, 
+  #   numeric = mutGauss, 
+    # integer = mutGaussInt)
+  
+  #initials <- sampleValues(testps, 1, discrete.names = TRUE)
+  
+  #eco(initials[[1]])
+  
 
 
-  eco <- combine.operators(testps,
-    discrete = mutRandomChoice,
-    x = mutRandomChoice,
-    logical = mutBitflip,
-    numeric = mutGauss)
-
-
-  initials <- sampleValues(testps, 1, discrete.names = TRUE)
-
-  initials
-  resdf = do.call(rbind, replicate(1000,
-    as.data.frame(unlist(lapply(eco(initials[[1]]), as.list),
-      recursive = FALSE)), simplify = FALSE))
-
-
-  # debug(mutRandomChoice)
-
-  eco(initials[[1]])
-
-  resdf$two <- NULL
-  resdf$three <- NULL
-  lapply(resdf, table)
-
-
-
-  initials <- sampleValues(testps, 2, discrete.names = TRUE)
-
-  reco <- combine.operators(testps,
-    discrete = recPCrossover,
-    x = ecr::setup(recPCrossover, p = .5),
-    logical = recCrossover,
-    numeric = recSBX)
-
-  expect_true(TRUE)
 })
 
 
