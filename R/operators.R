@@ -201,14 +201,14 @@ mutDoubleGeom <- makeMutator(function(ind, p = 1, geomp = 0.9, lower, upper) {
   affect <- runif(length(ind)) < p
   naffect <- sum(affect)
   ind[affect] <- ind[affect] + rgeom(naffect, prob = geomp) - rgeom(naffect, prob = geomp)
-  pmin(pmax(lower, ind), upper)
+  as.integer(pmin(pmax(lower, ind), upper))
 }, supported = "custom")
 
 #' @rdname mutDoubleGeom
 #' @export
 mutDoubleGeomScaled <- makeMutator(function(ind, p = 1, sdev = 0.05, lower, upper) {
-  assertNumeric(lower, any.missing = FALSE, finite = TRUE)
-  assertNumeric(upper, any.missing = FALSE, finite = TRUE)
+  assertIntegerish(lower, any.missing = FALSE)
+  assertIntegerish(upper, any.missing = FALSE)
   n = length(ind)
   if (!((length(lower) %in% c(n, 1)) & (length(upper) %in% c(n, 1)))) {
     stopf("Length of lower and upper must have same length as individual or 1.")
@@ -230,23 +230,29 @@ mutDoubleGeomScaled <- makeMutator(function(ind, p = 1, sdev = 0.05, lower, uppe
 #' @param p `[numeric]` probability to affect each individual component
 #' @param `lx` `[numeric]` uniform distribution bandwidth
 #' @param `sdev` `[numeric]` standard deviation, will be scaled to `upper - lower`
-#' @param lower `[numeric]` lower bounds of `ind` values. Must have same length as
-#'   `ind`.
-#' @param upper `[numeric]` upper bounds of `ind` values. Must have same length as
-#'   `ind`.
+#' @param lower `[integer]` lower bounds of `ind` values. May have same length as
+#'   `ind` or may be a single number, if the lower bounds are the same for all 
+#'   values. 
+#' @param upper `[integer]` upper bounds of `ind` values. May have same length as
+#'  `ind` or may be a single number, if the upper bounds are the same for all 
+#'   values. 
 #' @export
 mutUniformParametric <- makeMutator(function(ind, p, lx, lower, upper) {
-  assertNumeric(lower, any.missing = FALSE, len = length(ind))
-  assertNumeric(upper, any.missing = FALSE, len = length(ind))
-  n = length(ind)
-  if (!((length(lx) %in% c(n, 1)) & (length(lx) %in% c(n, 1)))) {
-    stopf("Length of lx must be the same as length of individual or 1.")
-  }
-  assertNumeric(lx, any.missing = FALSE, finite = TRUE, len = )
-  if (length(lx) == 1) {
-    lx <- rep_len(lx, length(ind))
-  }
+  assertNumeric(ind)
+  assertNumeric(lower, any.missing = FALSE)
+  assertNumeric(upper, any.missing = FALSE)
+  assertNumeric(lx, any.missing = FALSE, finite = TRUE)
   assertNumeric(p, lower = 0 - .tol, upper = 1 + .tol, any.missing = FALSE)
+  n = length(ind)
+  for (arg in c("lx", "lower", "upper", "p")) {
+    if (!(length(get(arg)) %in% c(n, 1))) {
+      stopf("%s must have same length as individual or 1.", 
+        arg)
+    }
+    if ((length(get(arg)) == 1) & (arg != "p")) {
+      assign(arg, rep_len(get(arg), length(ind)))
+    }
+  }
   affect <- runif(length(ind)) < p
   naffect <- sum(affect)
   ind[affect] <- runif(naffect,

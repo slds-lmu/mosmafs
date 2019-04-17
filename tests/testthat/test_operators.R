@@ -19,6 +19,7 @@ test_that("intified operators", {
     "Length of lower and upper must have same length as individual or 1.")
   expect_error(mutGaussInt(c(1L, 2L), lower = c(1L, 3L, 4), upper = c(3, 4)), 
     "Length of lower and upper must have same length as individual or 1.")
+
   
   
   expect_list(recIntSBX(list(c(1L, 2),c(3L, -3L)), lower = c(1L, -5L), 
@@ -44,47 +45,6 @@ test_that("intified operators", {
     upper = c(5L, 6L, 7)), "Length of lower and upper must have same length as one individual or 1.")
   expect_error(recIntSBX(list(c(1L, 2),c(3L, -3L)), lower = c(1L, -5L), 
     upper = c(5L, 6L, 7)))
-  
-  
-  # testps <- mlrCPO::pSS(x: discrete[a, b, c], y: discrete[m, n, o],
-  #   z: discrete[x, y, z]^3,
-  #   one: logical, two: numeric[1, 10], three: numeric[0, 1])
-  # 
-  # 
-  # eco <- combine.operators(testps,
-  #   discrete = mutRandomChoice,
-  #   x = mutRandomChoice,
-  #   logical = mutBitflip,
-  #   numeric = mutGauss)
-  # 
-  # 
-  # initials <- sampleValues(testps, 1, discrete.names = TRUE)
-  # 
-  # initials
-  # resdf = do.call(rbind, replicate(1000,
-  #   as.data.frame(unlist(lapply(eco(initials[[1]]), as.list),
-  #     recursive = FALSE)), simplify = FALSE))
-  # 
-  # 
-  # # debug(mutRandomChoice)
-  # 
-  # eco(initials[[1]])
-  # 
-  # resdf$two <- NULL
-  # resdf$three <- NULL
-  # lapply(resdf, table)
-  # 
-  # 
-  # 
-  # initials <- sampleValues(testps, 2, discrete.names = TRUE)
-  # 
-  # reco <- combine.operators(testps,
-  #   discrete = recPCrossover,
-  #   x = ecr::setup(recPCrossover, p = .5),
-  #   logical = recCrossover,
-  #   numeric = recSBX)
-  # 
-  # expect_true(TRUE)
 })
 
 test_that("mutators and recombinators", {
@@ -117,7 +77,7 @@ test_that("mutators and recombinators", {
   # mutrandomchoice
   expect_character(mutRandomChoice(c("a", "m"), 
     list("1" = c("a", "b", "c", "d"), 
-    "2" = c("m", "n")), p = 0.9))
+    "2" = c("m", "n")), p = 0))
   expect_character(mutRandomChoice(c("a", "m"), 
     list("1" = c("a", "b", "c", "m")), p = 1))
   expect_error(mutRandomChoice(c("a", "m", "x"), 
@@ -159,9 +119,9 @@ test_that("mutators and recombinators", {
   expect_error(mutDoubleGeomScaled(c(1L, 2L), lower = c(1L, 2L)), 
     'argument "upper" is missing, with no default')
   expect_error(mutDoubleGeomScaled(c(1L, 2L), lower = c("a", 3.5), upper = c(1L, 2L)),
-    "'lower' failed: Must be of type 'numeric'")
+    "'lower' failed: Must be of type 'integerish'")
   expect_error(mutDoubleGeomScaled(c(1L, 2L), lower = c(1L, 3L), upper = c("b", 2.5)),
-    "'upper' failed: Must be of type 'numeric'")
+    "'upper' failed: Must be of type 'integerish'")
   expect_error(mutDoubleGeomScaled(c(1L, 2L), lower = c(1L, 3L), upper = c(3, 4, 5)), 
     "Length of lower and upper must have same length as individual or 1.")
   expect_error(mutDoubleGeomScaled(c(1L, 2L), lower = c(1L, 3L, 4), upper = c(3, 4)), 
@@ -175,7 +135,26 @@ test_that("mutators and recombinators", {
     "'sdev' failed: Element 0 ")
   
   # mutUniformParametric
+  expect_numeric(mutUniformParametric(ind = c(1, 2, 3), p = 0.1, 
+    lx = c(0.5, 0.6, 3), lower = 1, upper = c(5,5,5)))
+  expect_error(mutUniformParametric(ind = c("a", 2, 3),p = 0.1, 
+    lx = c(0.5, 0.6, 3), lower = c(1, 1, 1), upper = c(5,5,5)), 
+    "'ind' failed: Must be of type 'numeric'")
+  expect_error(mutUniformParametric(ind = c(1, 2, 3), p = 5, 
+    lx = c(0.5, 0.6, 3), lower = c(1, 1, 1), upper = c(5,5,5)), 
+    "'p' failed")
+  expect_error(mutUniformParametric(ind = c(1, 2, 3), p = 0.5, 
+    lx = c(0.5, 0.6, 3), lower = c("a"), upper = c(5,5,5)), 
+    "'lower' failed: Must be of type 'numeric'")
+  expect_error(mutUniformParametric(ind = c(1, 2, 3), p = 0.5, 
+    lx = c(5, "a"), lower = 1, upper = 5), 
+    "'lx' failed: Must be of type 'numeric'")
+  expect_error(mutUniformParametricScaled(ind = c(1, 2, 3), p = c(0.9, 0.3), 
+    sdev = c(0.5, 0.6, 3), lower = 1, upper = c(5,5,5)), 
+    "p must have same length as individual or 1.")
   
+  
+
   # testps <- mlrCPO::pSS(
   #   a: discrete[a, b, c],
   #   b: discrete[m, n, o],
