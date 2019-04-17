@@ -4,26 +4,46 @@ context("operators")
 
 test_that("intified operators", {
   
-  expect_error(intifyMutator(print), "Must inherit from class 'ecr_mutator'")
-  expect_error(mutGaussInt(c(1.5, 2L)), "Must be of type 'integer'")
-  expect_error(mutPolynomialInt(c(1L, 2L)), 'argument "lower" is missing, with no default')
-  expect_error(mutUniformInt(c(1L, 2L), lower = c(1L, 2L)), 'argument "upper" is missing, with no default')
-  expect_error(mutGaussInt(c(1L, 2L), lower = c("a", 3.5), upper = c(1L, 2L)),
-    "'lower' failed: Must be of type 'integer'")
-  expect_error(mutGaussInt(c(1L, 2L), lower = c(1L, 3L), upper = c("b", 2.5)),
-    "'upper' failed: Must be of type 'integer'")
   expect_integer(mutGaussInt(c(1L, 2L), lower = c(1L, 3L), upper = c(3, 2)))
+  expect_error(intifyMutator(print), "Must inherit from class 'ecr_mutator'")
+  expect_error(mutGaussInt(c(1.5, 2L)), "Must be of type 'integerish'")
+  expect_error(mutPolynomialInt(c(1L, 2L)), 
+    'argument "lower" is missing, with no default')
+  expect_error(mutUniformInt(c(1L, 2L), lower = c(1L, 2L)), 
+    'argument "upper" is missing, with no default')
+  expect_error(mutGaussInt(c(1L, 2L), lower = c("a", 3.5), upper = c(1L, 2L)),
+    "'lower' failed: Must be of type 'integerish'")
+  expect_error(mutGaussInt(c(1L, 2L), lower = c(1L, 3L), upper = c("b", 2.5)),
+    "'upper' failed: Must be of type 'integerish'")
+  expect_error(mutGaussInt(c(1L, 2L), lower = c(1L, 3L), upper = c(3, 4, 5)), 
+    "Length of lower and upper must have same length as individual or 1.")
+  expect_error(mutGaussInt(c(1L, 2L), lower = c(1L, 3L, 4), upper = c(3, 4)), 
+    "Length of lower and upper must have same length as individual or 1.")
+  
+  
+  expect_list(recIntSBX(list(c(1L, 2),c(3L, -3L)), lower = c(1L, -5L), 
+    upper = c(5L, 6L)))
+  expect_error(recIntSBX(list(c(1L, 2, 3),c(3L, -3L)), lower = c(1L, -5L), 
+    upper = c(5L, 6L)), "Length of components of individuals must be the same.")
   expect_error(intifyRecombinator(print), "Must inherit from class 'ecr_recombinator'")
   expect_error(recIntSBX(list(c(1L, 2L))), "Must have length >= 2")
-  expect_error(recIntSBX(list(c(1L, 2L),c(3, -3.5)), lower = c(1L, -5L), upper = c(3L, 8L)), 
-    "elements of inds must be of type integer")
+  expect_error(recIntSBX(list(c(1L, 2L),c(3, -3.5)), lower = c(1L, -5L), 
+    upper = c(3L, 8L)), 
+    "Must be of type 'integerish'")
   expect_error(recIntSBX(list(c(1L, 2L),c(3L, -3L)), lower = c("a", -5L)), 
-    "'lower' failed: Must be of type 'integer'")
+    "'lower' failed: Must be of type 'integerish'")
   expect_error(recIntSBX(list(c(1L, 2L),c(3L, -3L))), '"lower" is missing')
-  expect_error(recIntSBX(list(c(1L, 2L),c(3L, -3L)), lower = c(1L, -5L)), '"upper" is missing')
-  expect_error(recIntSBX(list(c(1L, 2L),c(3L, -3L)), lower = c(1L, -5L), upper = c(5L, "b")), 
-    "'upper' failed: Must be of type 'integer'")
-  expect_list(recIntSBX(list(c(1L, 2L),c(3L, -3L)), lower = c(1L, -5L), upper = c(5L, 6L)))
+  expect_error(recIntSBX(list(c(1L, 2L),c(3L, -3L)), lower = c(1L, -5L)), 
+    '"upper" is missing')
+  expect_error(recIntSBX(list(c(1L, 2L),c(3L, -3L)), lower = c(1L, -5L), 
+    upper = c(5L, "b")), 
+    "'upper' failed: Must be of type 'integerish'")
+  expect_error(recIntSBX(list(c(1L, 2),c(3L, -3L)), lower = c(1L, -5L, 3), 
+    upper = c(5L, 6L)), "Length of lower and upper must have same length as one individual or 1.")
+  expect_error(recIntSBX(list(c(1L, 2),c(3L, -3L)), lower = c(1L, -5L), 
+    upper = c(5L, 6L, 7)), "Length of lower and upper must have same length as one individual or 1.")
+  expect_error(recIntSBX(list(c(1L, 2),c(3L, -3L)), lower = c(1L, -5L), 
+    upper = c(5L, 6L, 7)))
   
   
   # testps <- mlrCPO::pSS(x: discrete[a, b, c], y: discrete[m, n, o],
@@ -70,7 +90,91 @@ test_that("intified operators", {
 test_that("mutators and recombinators", {
   
   # recGaussian
+  expect_list(recGaussian(list(c(1, 2),c(3, -3.5)), lower = c(1, -3), 
+    upper = c(3, 5)))
+  expect_list(recGaussian(list(c(1, 3.5), c(4, 6)), lower = c(2, 3), 
+    upper = c(8)))
+  expect_error(recGaussian(list(c(1, 3.5, 6), c(2, 5))))
+  expect_error(recGaussian(list(c(1, 3.5))), 
+    "'inds' failed: Must have length 2")
+  expect_error(recGaussian(list(c(1, 3, 4), c(2, 3))), 
+    "Length of components of individuals must be the same")
+  expect_error(recGaussian(list(c(1, 3.5), c(4, 6))), 
+    '"lower" is missing')
+  expect_error(recGaussian(list(c(1, 3.5), c(4, 6)), lower = c(1, 3)), 
+    '"upper" is missing')
+  expect_error(recGaussian(list(c(1, 3.5), c(4, 6)), lower = c("a", 3), 
+    upper = c(5, 7)), 
+    "'lower' failed: Must be of type 'numeric'")
+  expect_error(recGaussian(list(c(1, 3.5), c(4, 6)), lower = c(1, 5, 7), 
+    upper = c(5, 7)), 
+    "Length of lower and upper must have same length as one individual or 1.")
+  expect_error(recGaussian(list(c(1, 3.5), c(4, 6)), lower = c(2, 3), 
+    upper = c("c", 7)), "'upper' failed: Must be of type 'numeric'")
+  expect_error(recGaussian(list(c(1, 3.5), c(4, 6)), lower = c(2, 3, 3.5), 
+    upper = c(8, 7)))
   
+  # mutrandomchoice
+  expect_character(mutRandomChoice(c("a", "m"), 
+    list("1" = c("a", "b", "c", "d"), 
+    "2" = c("m", "n")), p = 0.9))
+  expect_character(mutRandomChoice(c("a", "m"), 
+    list("1" = c("a", "b", "c", "m")), p = 1))
+  expect_error(mutRandomChoice(c("a", "m", "x"), 
+    list("1" = c("a", "b", "c", "d"), "2" = c("m", "n")), p = 0.8), 
+    "length of values must be equal to length of ind")
+  expect_error(mutRandomChoice(c("a"), values = c("1", "3")), 
+    "'values' failed: Must be of type 'list'")
+  expect_error(mutRandomChoice(c(23), values = list("a" = c("1", "3"))), 
+    "'ind' failed: Must be of type 'character'")
+  expect_error(mutRandomChoice(c("a", "m"), 
+    list("1" = c("a", "b", "c", "d"), 
+      "2" = c("m", "n")), p = 3), "'p' failed: Element 1 is not <= 1")
+  
+  #mutDoubleGeom
+  expect_integerish(mutDoubleGeom(c(1L, 2L), lower = c(1L, 3L), upper = c(3, 2)))
+  expect_error(mutDoubleGeom(c(1L, 2L)), 
+    'argument "lower" is missing, with no default')
+  expect_error(mutDoubleGeom(c(1L, 2L), lower = c(1L, 2L)), 
+    'argument "upper" is missing, with no default')
+  expect_error(mutDoubleGeom(c(1L, 2L), lower = c("a", 3.5), upper = c(1L, 2L)),
+    "'lower' failed: Must be of type 'integerish'")
+  expect_error(mutDoubleGeom(c(1L, 2L), lower = c(1L, 3L), upper = c("b", 2.5)),
+    "'upper' failed: Must be of type 'integerish'")
+  expect_error(mutDoubleGeom(c(1L, 2L), lower = c(1L, 3L), upper = c(3, 4, 5)), 
+    "Length of lower and upper must have same length as individual or 1.")
+  expect_error(mutDoubleGeom(c(1L, 2L), lower = c(1L, 3L, 4), upper = c(3, 4)), 
+    "Length of lower and upper must have same length as individual or 1.")
+  expect_error(mutDoubleGeom(c(1, 4), lower = c(2, 3), 
+    upper = c(8, 7, 4)), 
+    "Length of lower and upper must have same length as individual or 1.")
+  expect_error(mutDoubleGeom(c(1L, 2L), lower = c(1L, 3L), upper = c(3, 2), p = NA), 
+    "'p' failed: Contains missing values")
+  expect_error(mutDoubleGeom(c(1L, 2L), lower = c(1L, 3L), upper = c(3, 2), geomp = -0.1), 
+    "'geomp' failed: Element 0 ")
+  
+  expect_integerish(mutDoubleGeomScaled(c(1L, 2L), lower = c(1L, 3L), upper = c(3, 2)))
+  expect_error(mutDoubleGeomScaled(c(1L, 2L)), 
+    'argument "lower" is missing, with no default')
+  expect_error(mutDoubleGeomScaled(c(1L, 2L), lower = c(1L, 2L)), 
+    'argument "upper" is missing, with no default')
+  expect_error(mutDoubleGeomScaled(c(1L, 2L), lower = c("a", 3.5), upper = c(1L, 2L)),
+    "'lower' failed: Must be of type 'numeric'")
+  expect_error(mutDoubleGeomScaled(c(1L, 2L), lower = c(1L, 3L), upper = c("b", 2.5)),
+    "'upper' failed: Must be of type 'numeric'")
+  expect_error(mutDoubleGeomScaled(c(1L, 2L), lower = c(1L, 3L), upper = c(3, 4, 5)), 
+    "Length of lower and upper must have same length as individual or 1.")
+  expect_error(mutDoubleGeomScaled(c(1L, 2L), lower = c(1L, 3L, 4), upper = c(3, 4)), 
+    "Length of lower and upper must have same length as individual or 1.")
+  expect_error(mutDoubleGeomScaled(c(1, 4), lower = c(2, 3), 
+    upper = c(8, 7, 4)), 
+    "Length of lower and upper must have same length as individual or 1.")
+  expect_error(mutDoubleGeomScaled(c(1L, 2L), lower = c(1L, 3L), upper = c(3, 2), p = NA), 
+    "'p' failed: Contains missing values")
+  expect_error(mutDoubleGeomScaled(c(1L, 2L), lower = c(1L, 3L), upper = c(3, 2), sdev = -0.1), 
+    "'sdev' failed: Element 0 ")
+  
+  # mutUniformParametric
   
   # testps <- mlrCPO::pSS(
   #   a: discrete[a, b, c],
@@ -83,14 +187,14 @@ test_that("mutators and recombinators", {
   # 
   # eco <- combine.operators(testps,
   #   discrete = mutRandomChoice,
-  #   d = mutBitflip, 
-  #   numeric = mutGauss, 
-    # integer = mutGaussInt)
-  
-  #initials <- sampleValues(testps, 1, discrete.names = TRUE)
-  
-  #eco(initials[[1]])
-  
+  #   d = mutBitflip,
+  #   numeric = mutGauss,
+  # integer = mutGaussInt)
+  # 
+  # initials <- sampleValues(testps, 1, discrete.names = TRUE)
+  # 
+  # eco(initials[[1]])
+  # 
 
 
 })

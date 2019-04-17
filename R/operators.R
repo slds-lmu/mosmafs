@@ -15,9 +15,13 @@
 intifyMutator <- function(operator) {
   assertClass(operator, c("ecr_mutator", "ecr_operator", "function"))
   makeMutator(function(ind, ..., lower, upper) {
-    assertInteger(ind)
+    assertIntegerish(ind)
     assertIntegerish(lower, any.missing = FALSE)
     assertIntegerish(upper, any.missing = FALSE)
+    n = length(ind)
+    if (!((length(lower) %in% c(n, 1)) & (length(upper) %in% c(n, 1)))) {
+      stopf("Length of lower and upper must have same length as individual or 1.")
+    }
     ind <- operator(as.numeric(ind), ..., lower = lower - 0.5, upper = upper + 0.5)
     as.integer(pmin(pmax(lower, round(ind)), upper))
 }, supported = "custom")}
@@ -29,8 +33,15 @@ intifyRecombinator <- function(operator) {
   makeRecombinator(function(inds, ..., lower, upper) {
     assertList(inds, any.missing = FALSE, min.len = 2)
     lapply(inds, assertIntegerish)
+    if (length(unique(lapply(inds, length))) != 1) {
+      stop("Length of components of individuals must be the same.")
+    }
     assertIntegerish(lower, any.missing = FALSE)
     assertIntegerish(upper, any.missing = FALSE)
+    n = length(inds[[1]])
+    if (!((length(lower) %in% c(n, 1)) & (length(upper) %in% c(n, 1)))) {
+      stopf("Length of lower and upper must have same length as one individual or 1.")
+    }
     children <- operator(list(as.numeric(inds[[1]]), as.numeric(inds[[2]])),
       ..., lower = lower - 0.5, upper = upper + 0.5)
     if (attr(children, "multiple")) {
@@ -80,19 +91,35 @@ recIntSBX <- intifyRecombinator(recSBX)
 #'
 #' @description
 #' See [ecr::recIntermediate]
+#' 
 #' @family operators
 #' @export
 recIntIntermediate <- intifyRecombinator(recIntermediate)
+
 
 #' @title Gaussian Intermediate Recombinator
 #'
 #' @description
 #' See [ecr::recIntermediate]
+#' @param ind `[list]` list of two individuals to recombinate
+#' @param lower `[integer]` lower bounds of `inds` values. May have same length as
+#'   one individual or may be a single number, if the lower bounds are the same for all 
+#'   values. 
+#' @param upper `[integer]` upper bounds of `inds` values. May have same length as
+#'   one individual or may be a single number, if the upper bounds are the same for all 
+#'   values. 
 #' @family operators
 #' @export
 recGaussian <- makeRecombinator(function(inds, lower, upper) {
   assertList(inds, len = 2, any.missing = FALSE)
   lapply(inds, assertNumeric)
+  if (length(inds[[1]]) != length(inds[[2]])) {
+    stop("Length of components of individuals must be the same.")
+  }
+  n = length(inds[[1]])
+  if (!((length(lower) %in% c(n, 1)) & (length(upper) %in% c(n, 1)))) {
+    stopf("Length of lower and upper must have same length as one individual or 1.")
+  }
   assertNumeric(lower, any.missing = FALSE)
   assertNumeric(upper, any.missing = FALSE)
   do.call(wrapChildren, replicate(2, simplify = FALSE, {
@@ -109,16 +136,23 @@ recIntGaussian <- intifyRecombinator(recGaussian)
 #' @title Random Choice Mutator
 #'
 #' @description
-#' "Random Choice" mutation operator for discrete parameters: with prob. `p` chooses
-#' one of the available categories at random (this *may* be the original value!)
+#' "Random Choice" mutation operator for discrete parameters: with probability
+#'  `p` chooses one of the available categories at random (this *may* be 
+#'  the original value!)
 #' @param ind `[character]` individuum to mutate
 #' @param values `[list of character]` set of possible values for `ind` entries to take.
 #'   May be a list of length 1, in which case it is recycled.
-#' @param p `[numeric(1)]` probability with which to mutate
+#' @param p `[numeric(1)]` probability to affect each individual component
 #' @return [`character`]
 #' @family operators
 #' @export
 mutRandomChoice <- makeMutator(function(ind, values, p = 0.1) {
+  assertCharacter(ind, any.missing = FALSE)
+  assertList(values, any.missing = FALSE)
+  if (!(length(values) %in% c(1, length(ind)))) {
+    stop("length of values must be equal to length of ind")
+  }
+  assertNumber(p, lower = 0 - .tol, upper = 1 + .tol)
   mapply(function(i, v) {
     if (runif(1) < p) {
       sample(v, 1)
@@ -132,30 +166,38 @@ mutRandomChoice <- makeMutator(function(ind, values, p = 0.1) {
 #' @title Double Geometric Distribution Mutator
 #'
 #' @description
-#' "Double Geometric" mutation operator for integer parameters: with prob. `p` both
-#' adds a random geometrically distributed value, and subtracts (a different) one.
+#' "Double Geometric" mutation operator for integer parameters: with 
+#' probability `p` a random geometrically distributed value is added, 
+#' and another (different) one subtracted.
 #'
 #' `mutDoubleGeomScaled` scales `sdev` with each component's range and then uses
 #' `geomp = (sqrt(2 * sdev^2 + 1) - 1) / sdev^2`.
 #'
 #'
-#' @param ind `[integer]` individuum to mutate
-#' @param p `[numeric(1)]` probability with which to mutate
+#' @param ind `[integer]` individual to mutate
+#' @param p `[numeric(1)]` probability to affect each individual component
 #' @param geomp `[numeric]` geometric distribution parameter
 #' @param sdev `[numeric]` standard deviation, relative to `upper - lower`
-#' @param lower `[integer]` lower bounds on `ind` values. May have same length as
-#'   `ind` or may be shorter, in which case it is recycled.
-#' @param upper `[integer]` upper bounds on `ind` values. May have same length as
-#'   `ind` or may be shorter, in which case it is recycled.
+#' @param lower `[integer]` lower bounds of `ind` values. May have same length as
+#'   `ind` or may be a single number, if the lower bounds are the same for all 
+#'   values. 
+#' @param upper `[integer]` upper bounds of `ind` values. May have same length as
+#'  `ind` or may be a single number, if the upper bounds are the same for all 
+#'   values. 
 #' @return [`integer`]
 #' @family operators
 #' @export
 mutDoubleGeom <- makeMutator(function(ind, p = 1, geomp = 0.9, lower, upper) {
+  assertIntegerish(ind)
   assertNumeric(p, lower = 0 - .tol, upper = 1 + .tol, any.missing = FALSE)
   assertNumeric(geomp, lower = 0 - .tol, upper = 1 + .tol, any.missing = FALSE)
-  assertNumeric(lower, any.missing = FALSE)
-  assertNumeric(upper, any.missing = FALSE)
-
+  n = length(ind)
+  assertIntegerish(lower, any.missing = FALSE)
+  assertIntegerish(upper, any.missing = FALSE)
+  n = length(ind)
+  if (!((length(lower) %in% c(n, 1)) & (length(upper) %in% c(n, 1)))) {
+    stopf("Length of lower and upper must have same length as individual or 1.")
+  }
   affect <- runif(length(ind)) < p
   naffect <- sum(affect)
   ind[affect] <- ind[affect] + rgeom(naffect, prob = geomp) - rgeom(naffect, prob = geomp)
@@ -167,9 +209,14 @@ mutDoubleGeom <- makeMutator(function(ind, p = 1, geomp = 0.9, lower, upper) {
 mutDoubleGeomScaled <- makeMutator(function(ind, p = 1, sdev = 0.05, lower, upper) {
   assertNumeric(lower, any.missing = FALSE, finite = TRUE)
   assertNumeric(upper, any.missing = FALSE, finite = TRUE)
+  n = length(ind)
+  if (!((length(lower) %in% c(n, 1)) & (length(upper) %in% c(n, 1)))) {
+    stopf("Length of lower and upper must have same length as individual or 1.")
+  }
   assertNumeric(sdev, lower = 0 - .tol, any.missing = FALSE, finite = TRUE)
   sdev <- sdev * (upper - lower)
-  mutDoubleGeom(ind, p = p, geomp = (sqrt(2 * sdev^2 + 1) - 1) / sdev^2, lower = lower, upper = upper)
+  mutDoubleGeom(ind, p = p, geomp = (sqrt(2 * sdev^2 + 1) - 1) / sdev^2, 
+    lower = lower, upper = upper)
 }, supported = "custom")
 
 #' @title Parametric Uniform  Mutation
@@ -179,17 +226,23 @@ mutDoubleGeomScaled <- makeMutator(function(ind, p = 1, sdev = 0.05, lower, uppe
 #' with probability `p`, where `delta` is uniformly
 #' distributed between `pmax(lower - ind[x], -lx/2)` and
 #' `pmin(upper - ind[i], lx/2)`.
-#' @param ind `[numeric | integer]` individuum
+#' @param ind `[numeric | integer]` individuum to mutate
 #' @param p `[numeric]` probability to affect each individual component
 #' @param `lx` `[numeric]` uniform distribution bandwidth
 #' @param `sdev` `[numeric]` standard deviation, will be scaled to `upper - lower`
-#' @param lower `[numeric]` lower bound
-#' @param upper `[numeric]` upper bound
+#' @param lower `[numeric]` lower bounds of `ind` values. Must have same length as
+#'   `ind`.
+#' @param upper `[numeric]` upper bounds of `ind` values. Must have same length as
+#'   `ind`.
 #' @export
 mutUniformParametric <- makeMutator(function(ind, p, lx, lower, upper) {
-  assertNumeric(lower, any.missing = FALSE)
-  assertNumeric(upper, any.missing = FALSE)
-  assertNumeric(lx, any.missing = FALSE, finite = TRUE)
+  assertNumeric(lower, any.missing = FALSE, len = length(ind))
+  assertNumeric(upper, any.missing = FALSE, len = length(ind))
+  n = length(ind)
+  if (!((length(lx) %in% c(n, 1)) & (length(lx) %in% c(n, 1)))) {
+    stopf("Length of lx must be the same as length of individual or 1.")
+  }
+  assertNumeric(lx, any.missing = FALSE, finite = TRUE, len = )
   if (length(lx) == 1) {
     lx <- rep_len(lx, length(ind))
   }
@@ -306,7 +359,7 @@ makeFilterStrategy <- function(reset.dists, weight.param.name) {
 #' @family operators
 #' @export
 mutGaussScaled <- makeMutator(function(ind, p = 1, sdev = 0.05, lower, upper) {
-  assertNumber(p, lower = 0 - .tol, upper = 1 + .tol, na.ok = FALSE)
+  assertNumeric(p, lower = 0 - .tol, upper = 1 + .tol, any.missing = FALSE)
   assertNumeric(sdev, lower = 0 - .tol, any.missing = FALSE, finite = TRUE)
   assertNumeric(lower, any.missing = FALSE, finite = TRUE)
   assertNumeric(upper, any.missing = FALSE, finite = TRUE)
