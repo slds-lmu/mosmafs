@@ -12,14 +12,15 @@ mutRandomChoice(ind, values, p = 0.1)
 \item{values}{\code{[list of character]} set of possible values for \code{ind} entries to take.
 May be a list of length 1, in which case it is recycled.}
 
-\item{p}{\code{[numeric(1)]} probability with which to mutate}
+\item{p}{\code{[numeric(1)]} probability to affect each individual component}
 }
 \value{
 \code{\link{character}}
 }
 \description{
-"Random Choice" mutation operator for discrete parameters: with prob. \code{p} chooses
-one of the available categories at random (this \emph{may} be the original value!)
+"Random Choice" mutation operator for discrete parameters: with probability
+\code{p} chooses one of the available categories at random (this \emph{may} be
+the original value!)
 }
 \seealso{
 Other operators: \code{\link{mutDoubleGeom}},

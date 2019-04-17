@@ -6,6 +6,17 @@
 \usage{
 recGaussian(inds, lower, upper)
 }
+\arguments{
+\item{lower}{\code{[integer]} lower bounds of \code{inds} values. May have same length as
+one individual or may be a single number, if the lower bounds are the same for all
+values.}
+
+\item{upper}{\code{[integer]} upper bounds of \code{inds} values. May have same length as
+one individual or may be a single number, if the upper bounds are the same for all
+values.}
+
+\item{ind}{\code{[list]} list of two individuals to recombinate}
+}
 \description{
 See \link[ecr:recIntermediate]{ecr::recIntermediate}
 }
