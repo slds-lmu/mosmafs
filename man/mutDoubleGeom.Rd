@@ -10,17 +10,19 @@ mutDoubleGeom(ind, p = 1, geomp = 0.9, lower, upper)
 mutDoubleGeomScaled(ind, p = 1, sdev = 0.05, lower, upper)
 }
 \arguments{
-\item{ind}{\code{[integer]} individuum to mutate}
+\item{ind}{\code{[integer]} individual to mutate}
 
-\item{p}{\code{[numeric(1)]} probability with which to mutate}
+\item{p}{\code{[numeric(1)]} probability to affect each individual component}
 
 \item{geomp}{\code{[numeric]} geometric distribution parameter}
 
-\item{lower}{\code{[integer]} lower bounds on \code{ind} values. May have same length as
-\code{ind} or may be shorter, in which case it is recycled.}
+\item{lower}{\code{[integer]} lower bounds of \code{ind} values. May have same length as
+\code{ind} or may be a single number, if the lower bounds are the same for all
+values.}
 
-\item{upper}{\code{[integer]} upper bounds on \code{ind} values. May have same length as
-\code{ind} or may be shorter, in which case it is recycled.}
+\item{upper}{\code{[integer]} upper bounds of \code{ind} values. May have same length as
+\code{ind} or may be a single number, if the upper bounds are the same for all
+values.}
 
 \item{sdev}{\code{[numeric]} standard deviation, relative to \code{upper - lower}}
 }
@@ -28,8 +30,9 @@ mutDoubleGeomScaled(ind, p = 1, sdev = 0.05, lower, upper)
 \code{\link{integer}}
 }
 \description{
-"Double Geometric" mutation operator for integer parameters: with prob. \code{p} both
-adds a random geometrically distributed value, and subtracts (a different) one.
+"Double Geometric" mutation operator for integer parameters: with
+probability \code{p} a random geometrically distributed value is added,
+and another (different) one subtracted.
 
 \code{mutDoubleGeomScaled} scales \code{sdev} with each component's range and then uses
 \code{geomp = (sqrt(2 * sdev^2 + 1) - 1) / sdev^2}.

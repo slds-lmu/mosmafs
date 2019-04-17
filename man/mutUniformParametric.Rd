@@ -16,13 +16,15 @@ mutUniformParametricInt(ind, ..., lower, upper)
 mutUniformParametricIntScaled(ind, ..., lower, upper)
 }
 \arguments{
-\item{ind}{\code{[numeric | integer]} individuum}
+\item{ind}{\code{[numeric | integer]} individuum to mutate}
 
 \item{p}{\code{[numeric]} probability to affect each individual component}
 
-\item{lower}{\code{[numeric]} lower bound}
+\item{lower}{\code{[numeric]} lower bounds of \code{ind} values. Must have same length as
+\code{ind}.}
 
-\item{upper}{\code{[numeric]} upper bound}
+\item{upper}{\code{[numeric]} upper bounds of \code{ind} values. Must have same length as
+\code{ind}.}
 
 \item{`lx`}{\code{[numeric]} uniform distribution bandwidth}
 
