@@ -20,11 +20,13 @@ mutUniformParametricIntScaled(ind, ..., lower, upper)
 
 \item{p}{\code{[numeric]} probability to affect each individual component}
 
-\item{lower}{\code{[numeric]} lower bounds of \code{ind} values. Must have same length as
-\code{ind}.}
+\item{lower}{\code{[integer]} lower bounds of \code{ind} values. May have same length as
+\code{ind} or may be a single number, if the lower bounds are the same for all
+values.}
 
-\item{upper}{\code{[numeric]} upper bounds of \code{ind} values. Must have same length as
-\code{ind}.}
+\item{upper}{\code{[integer]} upper bounds of \code{ind} values. May have same length as
+\code{ind} or may be a single number, if the upper bounds are the same for all
+values.}
 
 \item{`lx`}{\code{[numeric]} uniform distribution bandwidth}
 
