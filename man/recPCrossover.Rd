@@ -4,12 +4,12 @@
 \alias{recPCrossover}
 \title{General Uniform Crossover}
 \usage{
-recPCrossover(ind, p = 0.1, ...)
+recPCrossover(inds, p = 0.1, ...)
 }
 \arguments{
-\item{ind}{\code{[list of any]} list of two individuals to perform uniform crossover on}
-
 \item{p}{\code{[numeric(1)]} per-entry probability to perform crossover}
+
+\item{ind}{\code{[list of any]} list of two individuals to perform uniform crossover on}
 }
 \value{
 \code{[list of any]} The mutated individuals.
