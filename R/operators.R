@@ -287,12 +287,21 @@ mutUniformParametricIntScaled <- intifyMutator(mutUniformParametricScaled)
 #' @param p `[numeric(1)]` per-entry probability to perform crossover
 #' @return `[list of any]` The mutated individuals.
 #' @export
-recPCrossover <- makeRecombinator(function(ind, p = 0.1, ...) {
-  crossovers = runif(length(ind[[1]])) < p
-  tmp = ind[[1]][crossovers]
-  ind[[1]][crossovers] = ind[[2]][crossovers]
-  ind[[2]][crossovers] = tmp
-  wrapChildren(ind[[1]], ind[[2]])
+recPCrossover <- makeRecombinator(function(inds, p = 0.1, ...) {
+  assertList(inds, len = 2, any.missing = FALSE)
+  lapply(inds, assertNumeric)
+  if (length(inds[[1]]) != length(inds[[2]])) {
+    stop("Length of components of individuals must be the same.")
+  }
+  n = length(inds[[1]])
+  if (!(length(p) %in% c(n, 1))) {
+    stopf("Length of p must be the same as length of one individual or 1.")
+  }
+  crossovers = runif(length(inds[[1]])) < p
+  tmp = inds[[1]][crossovers]
+  inds[[1]][crossovers] = inds[[2]][crossovers]
+  inds[[2]][crossovers] = tmp
+  wrapChildren(inds[[1]], inds[[2]])
 }, n.parents = 2, n.children = 2)
 
 #' @title Uniform Reset for Binary Parameters

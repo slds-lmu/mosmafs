@@ -13,6 +13,8 @@ Roxygen: list(wrap = FALSE, markdown = TRUE)
 ByteCompile: yes
 Version: 0.0.1
 VignetteBuilder: knitr
+Depends: 
+  ecr (>= 2.1.0.9000)
 Imports:
   BBmisc,
   checkmate (>= 1.9.0),
@@ -21,7 +23,6 @@ Imports:
   smoof,
   mlrCPO (>= 0.3.4),
   mlr,
-  ecr (>= 2.1.0.9000),
   parallelMap
 Suggests:
   knitr,
