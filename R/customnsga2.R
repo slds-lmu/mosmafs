@@ -172,8 +172,7 @@ continueEcr <- function(ecr.object, generations, lambda = NULL, mutator = NULL, 
     stop("Inconsistent ecr.object: 'last.fidelity' not given, but 'fidelity' is.")
   }
 
-  needed.args <- c("lambda", "mutator", "recombinator", "parent.selector", 
-    "survival.selector", "p.recomb", "p.mut", "survival.strategy", "unbiased.fidelity")
+  needed.args <- c("lambda", "mutator", "recombinator", "parent.selector", "survival.selector", "p.recomb", "p.mut", "survival.strategy", "unbiased.fidelity")
   for (na in needed.args) {
     if (is.null(get(na))) {
       stopf("%s is not given and could not be found in ecr.object", na)
@@ -182,7 +181,7 @@ continueEcr <- function(ecr.object, generations, lambda = NULL, mutator = NULL, 
 
   n.objectives <- ecr.object$task$n.objectives
   checkEcrArgs(lambda, population, mutator, recombinator, generations, parent.selector, survival.selector, p.recomb, p.mut, survival.strategy, n.elite, n.objectives)
-  
+
   ctrl[c("mutate", "recombine", "selectForMating", "selectForSurvival")] <- NULL
 
   ctrl <- registerECROperator(ctrl, "mutate", mutator)

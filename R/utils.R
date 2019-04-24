@@ -186,26 +186,36 @@ collectResult <- function(ecr.object, aggregate.perresult = list(domHV = functio
   hofitnesses <- popAggregate(ecr.object$log, "fitness.holdout")
 
   if (any(vlapply(hofitnesses, function(x) any(is.finite(x))))) {
-
-    corcols <- lapply(seq_len(ecr.object$task$n.objectives), function(idx) {
-      mapply(function(eval.fit, hout.fit) {
-        suppressWarnings(cor.fun(eval.fit[idx, ], hout.fit[idx, ]))
+    
+    if (ecr.object$task$n.objectives == 1) {
+      corcols <- mapply(function(eval.fit, hout.fit) {
+        suppressWarnings(cor.fun(eval.fit, hout.fit))
       }, fitnesses, hofitnesses)
-    })
-    names(corcols) <- rownames(fitnesses[[1]]) %??% paste0("obj.", seq_len(corcols))
-
-
-    true.hout.domHV <- mapply(function(eval.fit, hout.fit) {
-      unbiasedHoldoutDomHV(eval.fit, hout.fit, ref.point)
-    }, fitnesses, hofitnesses)
-
-    naive.hout.domHV <- mapply(function(eval.fit, hout.fit) {
-      naiveHoldoutDomHV(eval.fit, hout.fit, ref.point)
-    }, fitnesses, hofitnesses)
-
+      names(corcols) <- "obj.1"
+      true.hout.domHV <- NA
+      naive.hout.domHV <- NA
+      resdf <- cbind(resdf, hout = aggregate.fitness(hofitnesses),
+        cor = corcols)
+    }
+    else {
+      corcols <- lapply(seq_len(ecr.object$task$n.objectives), function(idx) {
+        mapply(function(eval.fit, hout.fit) {
+          suppressWarnings(cor.fun(eval.fit[idx, ], hout.fit[idx, ]))
+        }, fitnesses, hofitnesses)
+      })
+      names(corcols) <- rownames(fitnesses[[1]]) %??% paste0("obj.", seq_len(corcols))
+      
+      true.hout.domHV <- mapply(function(eval.fit, hout.fit) {
+        unbiasedHoldoutDomHV(eval.fit, hout.fit, ref.point)
+      }, fitnesses, hofitnesses)
+  
+      naive.hout.domHV <- mapply(function(eval.fit, hout.fit) {
+        naiveHoldoutDomHV(eval.fit, hout.fit, ref.point)
+      }, fitnesses, hofitnesses)
     resdf <- cbind(resdf, hout = aggregate.fitness(hofitnesses),
       true.hout.domHV, naive.hout.domHV,
       cor = corcols)
+    }
   }
   resdf
 }
