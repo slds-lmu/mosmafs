@@ -1,6 +1,6 @@
 context("customnsga2")
 
-test_that("slickEcr", {
+test_that("slickEcr, initEcr, continueEcr", {
   ps.simple <- pSS(
     a: numeric [0, 10],
     selector.selection: logical^10)
@@ -25,7 +25,7 @@ test_that("slickEcr", {
       c(perf = args$a, propfeat = propfeat)
     })
   
-  fitness.fun.single<- smoof::makeMultiObjectiveFunction(
+  fitness.fun.single <- smoof::makeMultiObjectiveFunction(
     sprintf("simple test"),
     has.simple.signature = FALSE, par.set = ps.simple, n.objectives = 1, 
     noisy = TRUE,
@@ -35,18 +35,11 @@ test_that("slickEcr", {
       c(propfeat = propfeat)
     })
   
-  generations = 10
-  lambda = 10
+  generations <- 10
+  lambda <- 10
   
-  set.seed(100)
   results <- slickEcr(fitness.fun = fitness.fun, lambda = lambda, population = initials, 
     mutator = mutator.simple, recombinator = crossover.simple, generations = 10)
-  
-  
-  # results.comma <- slickEcr(fitness.fun = fitness.fun, lambda = lambda, population = initials, 
-  #   mutator = mutator.simple, recombinator = crossover.simple, generations = 10, 
-  #   survival.strategy = "comma", n.elite = 10)
-  
   
   results.single <- slickEcr(fitness.fun.single, lambda = lambda, 
     population = initials, mutator = mutator.simple, recombinator = crossover.simple, 
@@ -62,8 +55,18 @@ test_that("slickEcr", {
     survival.selector = selTournament, 
     survival.strategy = "comma", n.elite = 10)
   
+  # output initEcr 
+  init.result = initEcr(fitness.fun = fitness.fun.single, 
+    population = initials) 
+  init.statistics = getStatistics(init.result$log)
   
-  # output tests
+  expect_class(init.result, "MosmafsResult")
+  expect_data_frame(getStatistics(init.result$log), any.missing = FALSE, 
+    nrows = 1)
+  expect_equal(init.statistics$gen, 0)
+  expect_list(init.result$last.population)
+  
+  # output slickEcr/continueEcr
   statistics <- getStatistics(results$log)
   expect_equal(statistics$gen, 0:generations)
   expect_equal(statistics$state[1], "init")
@@ -79,7 +82,7 @@ test_that("slickEcr", {
     expect_numeric(statistics[, nam])
   }
   
-  statistics.single <- getStatistics(results.single$log)
+  statistics.single <- getStatistics(results.single.comma$log)
   for(nam in grep("(fitness.obj.[123].min)", 
     colnames(statistics), value = TRUE)) {
     expect_numeric(statistics[, nam])
@@ -109,51 +112,9 @@ test_that("slickEcr", {
 
 })
 
-test_that("initEcr", {
-  ps.simple <- pSS(
-    a: numeric [0, 10],
-    selector.selection: logical^10)
 
-  initials <- sampleValues(ps.simple, 30, discrete.names = TRUE)
+test_that("multiFidelity operators work", {
+  ### TO DO
   
-  fitness.fun.single<- smoof::makeMultiObjectiveFunction(
-    sprintf("simple test"),
-    has.simple.signature = FALSE, par.set = ps.simple, n.objectives = 1, 
-    noisy = TRUE,
-    ref.point = c(10),
-    fn = function(args, fidelity = NULL, holdout = FALSE) {
-      propfeat <- mean(args$selector.selection)
-      c(propfeat = propfeat)
-    })
-  
-  init.result = initEcr(fitness.fun = fitness.fun.single, 
-    population = initials) 
-  init.statistics = getStatistics(init.result$log)
-  
-  expect_class(init.result, "MosmafsResult")
-  expect_data_frame(getStatistics(init.result$log), any.missing = FALSE, 
-    nrows = 1)
-  expect_equal(init.statistics$gen, 0)
-  expect_list(init.result$last.population)
-  
-  # continueEcr(ecr.object = init.result, generations = 10, lambda = 10, 
-  #   mutator = mutator.simple, recombinator = crossover.simple,
-  #   p.recomb = 0.7, p.mut = 0.3, survival.strategy = "plus",
-  #   parent.selector = selSimple, 
-  #   survival.selector = selTournament)
-
-  
-  # expect_utils::tail(getPopulations(ecr.object$log), 1)[[1]]$fitness
-  # ctrl <- ecr.object$control
-  # 
-  # lambda <- lambda %??% ecr.object$lambda
-  # mutator <- mutator %??% ctrl$mutate
-  # recombinator <- recombinator %??% ctrl$recombine
-  # parent.selector <- parent.selector %??% ctrl$selectForMating
-  # survival.selector <- survival.selector %??% ctrl$selectForSurvival
-  # p.recomb <- p.recomb %??% ctrl$p.recomb
-  # p.mut <- p.mut %??% ctrl$p.mut
-  # survival.strategy <- survival.strategy %??% ecr.object$survival.strategy
-  
-})
+}) 
   
