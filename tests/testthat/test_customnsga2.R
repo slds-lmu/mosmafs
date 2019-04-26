@@ -113,8 +113,90 @@ test_that("slickEcr, initEcr, continueEcr", {
 })
 
 
-test_that("multiFidelity operators work", {
-  ### TO DO
+test_that("multiFidelity", {
+  task.whole <- mlr::bh.task
+  rows.whole <- sample(1:nrow(getTaskData(task.whole)))
+  task <- subsetTask(task.whole, rows.whole[1:250])
+  task.hout <- subsetTask(task.whole, rows.whole[250:505])
   
+  lrn <- makeLearner("regr.lm")
+  
+  ps.simple <- pSS(
+    a: numeric [0, 10],
+    selector.selection: logical^getTaskNFeats(task))
+  
+  initials <- sampleValues(ps.simple, 15, discrete.names = TRUE)
+  
+  nRes <- function(n) {
+    makeResampleDesc("Subsample", split = 0.9, iters = n)
+  }
+  fitness.fun <- makeObjective(learner = lrn, task = task, ps = ps.simple, 
+      resampling = nRes, holdout.data = task.hout, worst.measure = .Machine$double.xmax)
+  
+  fidelity <- data.frame(
+    c(1, 6, 10),
+    c(1, 3, 5))
+  
+  mutator.simple <- combine.operators(ps.simple,
+    numeric = ecr::setup(mutGauss, sdev = 0.1),
+    integer = ecr::setup(mutGaussInt, sdev = 3),
+    selector.selection = mutBitflipCHW)
+  
+  crossover.simple <- combine.operators(ps.simple,
+    numeric = recPCrossover,
+    integer = recPCrossover,
+    selector.selection = recPCrossover)
+  
+  gen = 10
+  
+  results.mufi <- slickEcr(
+    fitness.fun = fitness.fun,
+    lambda = 5,
+    population = initials,
+    mutator = mutator.simple,
+    recombinator = crossover.simple,
+    generations = gen,
+    fidelity = fidelity)
+  statistics.mufi <- getStatistics(results.mufi$log)
+  
+  expect_data_frame(results.mufi$fidelity, null.ok = FALSE)
+  expect_equal(results.mufi$last.fidelity, fidelity[nrow(fidelity), ncol(fidelity)])
+  expect_equal(statistics.mufi$gen, 0:gen)
+  expect_equal(statistics.mufi$state[1], "init")
+  expect_equal(statistics.mufi$state[-1], rep("generation", gen))
+  expect_equal(length(results.mufi$pareto.set), nrow(results.mufi$pareto.front))
+  expect_class(results.mufi, c("MosmafsResult"))
+  expect_equal(length(results.mufi$last.population), length(initials))
+  
+  
+  fidelity <- data.frame(
+    c(1, 6),
+    c(1, 3))
+  
+  results.mufi2 <- slickEcr(
+    fitness.fun = fitness.fun,
+    lambda = 5,
+    population = initials,
+    mutator = mutator.simple,
+    recombinator = crossover.simple,
+    generations = gen,
+    fidelity = fidelity)
+  statistics.mufi2 <- getStatistics(results.mufi$log)
+  
+  expect_equal(results.mufi2$last.fidelity, fidelity[nrow(fidelity), ncol(fidelity)])
+  expect_equal(length(results.mufi2$pareto.set), nrow(results.mufi2$pareto.front))
+  expect_class(results.mufi2, c("MosmafsResult"))
+  expect_equal(length(results.mufi2$last.population), length(initials))
+  
+  expect_error(slickEcr(fitness.fun = fitness.fun,
+    lambda = 5,population = initials, mutator = mutator.simple,
+    recombinator = crossover.simple, generations = gen, fidelity = 
+      data.frame(c(1, 2), c("a", 3))), 
+    "Must be of type 'numeric', not 'factor'")
+  
+  expect_error(slickEcr(fitness.fun = fitness.fun, lambda = 5,population = initials, mutator = mutator.simple,
+    recombinator = crossover.simple, generations = gen, fidelity = 
+      data.frame(c(1, 2))), 
+    "'fidelity' failed: Must have at least 2 cols")
 }) 
   
