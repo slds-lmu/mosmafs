@@ -242,9 +242,8 @@ continueEcr <- function(ecr.object, generations, lambda = NULL, mutator = NULL, 
     assertTRUE(log.newinds$env$n.gens + 1 == gen)
     assertTRUE(log$env$n.gens + 1 == gen)
 
-    # TODO: capture.output can go when https://github.com/jakobbossek/ecr2/issues/112 is fixed
-    capture.output(offspring <- generateOffspring(ctrl, population,
-      fitness, lambda = lambda, p.recomb = p.recomb, p.mut = p.mut))
+    offspring <- generateOffspring(ctrl, population,
+      fitness, lambda = lambda, p.recomb = p.recomb, p.mut = p.mut)
     ef <- slickEvaluateFitness(ctrl, offspring,
       fidelity = c(fidelity[[2]][fidelity.row], if (length(fidelity) > 2) fidelity[[3]][fidelity.row]),
       previous.points = fitness)
@@ -253,12 +252,15 @@ continueEcr <- function(ecr.object, generations, lambda = NULL, mutator = NULL, 
 
     updateLogger(log.newinds, offspring, fitness.offspring, n.evals = length(offspring),
       extras = list(size = length(offspring), population = "offspring"))
-
-    if (survival.strategy == "plus") {
+    
+    if (is.function(survival.strategy)) {
+      sel <- survival.strategy(ctrl, population, offspring, fitness, fitness.offspring)
+    } else if (survival.strategy == "plus") {
       sel <- replaceMuPlusLambda(ctrl, population, offspring, fitness, fitness.offspring)
     } else {
       sel <- replaceMuCommaLambda(ctrl, population, offspring, fitness, fitness.offspring, n.elite = n.elite)
     }
+    
     population <- sel$population
     fitness <- sel$fitness
 
@@ -310,6 +312,7 @@ slickEvaluateFitness <- function(ctrl, population, fidelity = NULL, previous.poi
   ps <- getParamSet(fitness.fun)
   n.obj <- smoof::getNumberOfObjectives(fitness.fun)
   wrapped.fitness <- function(x, fidelity, holdout) {
+    x = valuesFromNames(ps, x)
     assertTRUE(isFeasible(ps, x))
     if (!missing(holdout)) {
       if ("holdout" %nin% names(formals(fitness.fun))) {
@@ -400,7 +403,12 @@ checkEcrArgs <- function(lambda, population, mutator, recombinator, generations,
   assertClass(survival.selector, "ecr_selector")
   assertNumber(p.recomb, lower = 0, upper = 1)
   assertNumber(p.mut, lower = 0, upper = 1)
-  assertChoice(survival.strategy, c("plus", "comma"))
+  if (is.character(survival.strategy)) {
+    assertChoice(survival.strategy, c("plus", "comma"))
+  } else {
+    assertFunction(survival.strategy)
+  }
+  
   assertInt(n.elite, lower = 0)
 
   if (n.objectives > 1) {

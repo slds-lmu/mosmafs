@@ -78,7 +78,6 @@ makeObjective <- function(learner, task, ps, resampling, measure = NULL, holdout
       if (!missing(fidelity) && identical(fidelity, 0)) {
         return(c(0, 0))
       }
-      args <- valuesFromNames(ps, args)
       args <- trafoValue(ps, args)
       # filter out strategy parameters
       args <- args[intersect(names(args), argnames)]
