@@ -139,12 +139,10 @@ test_that("multiFidelity", {
   
   mutator.simple <- combine.operators(ps.simple,
     numeric = ecr::setup(mutGauss, sdev = 0.1),
-    integer = ecr::setup(mutGaussInt, sdev = 3),
     selector.selection = mutBitflipCHW)
   
   crossover.simple <- combine.operators(ps.simple,
     numeric = recPCrossover,
-    integer = recPCrossover,
     selector.selection = recPCrossover)
   
   gen = 10
