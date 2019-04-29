@@ -63,7 +63,7 @@ test_that("ecrshims error messages", {
     x = recIntermediate,
     .strategy.x = identity, .strategy.a = identity),
     " a without corresponding function")
-  expect_warning(combine.operators(param.set.numeric, .params.x = c("a", "b"),
+  expect_message(combine.operators(param.set.numeric, .params.x = c("a", "b"),
     x = recSBX, numeric = recPMX),
     " numeric, but no parameters of that type present")
 

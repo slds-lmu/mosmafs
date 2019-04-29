@@ -181,7 +181,7 @@ combine.operators <- function(param.set, ..., .binary.discrete.as.logical = TRUE
   #    if all parameters of that type have overriding definitions
   unusedtypes <- setdiff(typeargnames, requiredtypegroupnames)
   if (length(unusedtypes)) {
-    warningf("Function defined for type(s) %s, but no parameters of that type present or non-covered by other group/function.",
+    messagef("Function defined for type(s) %s, but no parameters of that type present or non-covered by other group/function.",
       collapse(unusedtypes))
   }
 
