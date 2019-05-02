@@ -153,34 +153,84 @@ test_that("mutators and recombinators", {
     sdev = c(0.5, 0.6, 3), lower = 1, upper = c(5,5,5)), 
     "p must have same length as individual or 1.")
   
+  # recPCrossover
+  expect_error(recPCrossover(inds = list(c(1, 2), c(3)), p = 1), 
+    "Length of components of individuals must be the same")
+  inds = list(c(1.5, 3), c(4, 5))
+  expect_error(recPCrossover(inds = inds, p = c(0.1, 6, 8)), 
+    "p must have same length as individual or 1")
+  # if p = 1, elements of inds are just flipped around
+  expect_true(length(setdiff(recPCrossover(inds = inds, p = 1), list(inds[[2]], inds[[1]]))) == 0)
   
+  # mutUniformReset
+  expect_integerish(mutUniformReset(ind = c(1, 1, 1, 0, 0), p = 0.5, reset.dist = 0.1), 
+    lower = 0, upper = 1, len = 5)
+  expect_true(all(mutUniformReset(ind = c(1, 1, 1, 0, 0), p = 1, reset.dist = 0.0) == 0))
+  expect_error(mutUniformReset(ind = c(1, 1, 1, 0), p = c(0.9, 0.3), 
+    reset.dist = 0.1), "Argument p must have same length as individual or 1.")
+  
+  #mutUniformMetaReset
+  expect_integerish(mutUniformMetaReset(ind = c(1, 1, 1, 0, 0), p = 0.5, 
+    reset.dist = matrix(c(0.1, 0.2, 0.1, 0.1, 0.2, 
+    0.3, 0.3, 0.3, 0.2, 0.8), nrow = 5, ncol = 2), 
+    reset.dist.weights = c(0.2, 0.3)), lower = 0, upper = 1, len = 5)
+  expect_error(mutUniformMetaReset(ind = c(1, 1, 1, 0, 0), p = 0.5, 
+    reset.dist = matrix(c(0.1, 0.2, 0.1, 0.1, 0.2, 
+      0.3, 0.3, 0.3, 0.2, 0.8), nrow = 2, ncol = 5), 
+    reset.dist.weights = c(0.2, 0.3, 0.5)), 
+    "'reset.dists' failed: Must have exactly 5 rows, but has 2 rows")
+  
+  # mutGaussScaled
+  expect_numeric(mutGaussScaled(runif(5, 0, 10), sdev = runif(5, 0, 1), p = 0.5, lower = rep(0, 5), 
+    upper = rep(10, 5)), len = 5)
+  expect_integerish(mutGaussIntScaled(sample(1:10, size = 5, replace = TRUE), 
+    sdev = runif(5, 0, 1), p = 0.5, lower = rep(0, 5), upper = rep(10, 5)), len = 5)
 
-  # testps <- mlrCPO::pSS(
-  #   a: discrete[a, b, c],
-  #   b: discrete[m, n, o],
-  #   c: discrete[x, y, z]^3,
-  #   d: logical,
-  #   one: numeric[1, 10],
-  #   two: numeric[-1, 1],
-  #   three: integer[-5, 5])
-  # 
-  # eco <- combine.operators(testps,
-  #   discrete = mutRandomChoice,
-  #   d = mutBitflip,
-  #   numeric = mutGauss,
-  # integer = mutGaussInt)
-  # 
-  # initials <- sampleValues(testps, 1, discrete.names = TRUE)
-  # 
-  # eco(initials[[1]])
-  # 
-
-
+  
+  # selSimpleUnique
+  # all selected elements need to be unique
+  expect_true(all(!duplicated(selSimpleUnique(matrix(c(1.5, 2.7, 3, 7.5, 8, 9, 10, 5, 5), ncol = 9), 
+    n.select = 9))))
+  
+  # mutBitflipCHW
+  expect_integerish(mutBitflipCHW(ind = c(1, 1, 0, 0), p = 0.4), lower = 0, upper = 1)
+  expect_error(mutBitflipCHW(ind = c(1, 1, 0, 0), p = 0.8), "'p' failed: Element 1 is not <= 0.5")
+  
+  
+  # mutUnformResetSHW 
+  a = c(1, 1, 1, 0, 0)
+  expect_integerish(mutUniformResetSHW(ind = a, p = 0.5, reset.dist = 0.5))
+  expect_true(all(mutUniformResetSHW(ind = a, p = 1, reset.dist = 0) == 0))
+  expect_true(all(mutUniformResetSHW(ind = a, p = 1, reset.dist = 1) == 1))
+  expect_true(all(mutUniformResetSHW(ind = a, p = 0, reset.dist = 1) == a))
+  expect_error(mutUniformResetSHW(ind = a, p = c(0.5, 1), reset.dist = 1))
+  
+  # mutUniformMetaResetSHW
+  expect_integerish(mutUniformMetaResetSHW(ind = c(1, 1, 1, 0, 0), p = 0.5, 
+    reset.dist = matrix(c(0.1, 0.2, 0.1, 0.1, 0.2, 
+      0.3, 0.3, 0.3, 0.2, 0.8), nrow = 5, ncol = 2), 
+    reset.dist.weights = c(0.2, 0.3)), lower = 0, upper = 1, len = 5)
+  expect_error(mutUniformMetaResetSHW(ind = c(1, 1, 1, 0, 0), p = 0.5, 
+    reset.dist = matrix(c(0.1, 0.2, 0.1, 0.1, 0.2, 
+      0.3, 0.3, 0.3, 0.2, 0.8), nrow = 2, ncol = 5), 
+    reset.dist.weights = c(0.2, 0.3, 0.5)), 
+    "'reset.dists' failed: Must have exactly 5 rows, but has 2 rows")
 })
 
 
+test_that("makeFilterStrategy", {  
+  expect_function(makeFilterStrategy(as.matrix(c(0.1, 0.2, 0.3)), "param.name"))
+  expect_error(makeFilterStrategy(as.matrix(c(0.3, 0.6, "a")), "param.name"), 
+  "'reset.dists' failed: Must store numerics.")
+})
+
 test_that("overallRankMO sorts as expected", {
 
+  # element 3 should be never selected
+  expect_true(all(!(selTournamentMO(matrix(c(1.5, 2.7, 3, 7.5, 8, 9), nrow = 2, ncol = 3), 
+    n.select = 2) %in% 3)))
+  
+  
   mat <- matrix(
       c(10, 1, 8, 2, 3, 3, 2, 4, 1, 10,
         10, 4, 6, 6, 4, 8, 9, 9),

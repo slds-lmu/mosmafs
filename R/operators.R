@@ -142,7 +142,7 @@ recIntGaussian <- intifyRecombinator(recGaussian)
 #' @param ind `[character]` individuum to mutate
 #' @param values `[list of character]` set of possible values for `ind` entries to take.
 #'   May be a list of length 1, in which case it is recycled.
-#' @param p `[numeric(1)]` probability to affect each individual component
+#' @param p `[numeric(1)]` per-entry probability to perform mutation
 #' @return [`character`]
 #' @family operators
 #' @export
@@ -175,7 +175,7 @@ mutRandomChoice <- makeMutator(function(ind, values, p = 0.1) {
 #'
 #'
 #' @param ind `[integer]` individual to mutate
-#' @param p `[numeric(1)]` probability to affect each individual component
+#' @param p `[numeric(1)]` per-entry probability to perform mutation
 #' @param geomp `[numeric]` geometric distribution parameter
 #' @param sdev `[numeric]` standard deviation, relative to `upper - lower`
 #' @param lower `[integer]` lower bounds of `ind` values. May have same length as
@@ -227,7 +227,7 @@ mutDoubleGeomScaled <- makeMutator(function(ind, p = 1, sdev = 0.05, lower, uppe
 #' distributed between `pmax(lower - ind[x], -lx/2)` and
 #' `pmin(upper - ind[i], lx/2)`.
 #' @param ind `[numeric | integer]` individuum to mutate
-#' @param p `[numeric]` probability to affect each individual component
+#' @param p `[numeric]` per-entry probability to perform mutation
 #' @param `lx` `[numeric]` uniform distribution bandwidth
 #' @param `sdev` `[numeric]` standard deviation, will be scaled to `upper - lower`
 #' @param lower `[integer]` lower bounds of `ind` values. May have same length as
@@ -289,13 +289,12 @@ mutUniformParametricIntScaled <- intifyMutator(mutUniformParametricScaled)
 #' @export
 recPCrossover <- makeRecombinator(function(inds, p = 0.1, ...) {
   assertList(inds, len = 2, any.missing = FALSE)
-  lapply(inds, assertNumeric)
   if (length(inds[[1]]) != length(inds[[2]])) {
     stop("Length of components of individuals must be the same.")
   }
   n = length(inds[[1]])
   if (!(length(p) %in% c(n, 1))) {
-    stopf("Length of p must be the same as length of one individual or 1.")
+    stopf("Argument p must have same length as individual or 1.")
   }
   crossovers = runif(length(inds[[1]])) < p
   tmp = inds[[1]][crossovers]
@@ -308,6 +307,9 @@ recPCrossover <- makeRecombinator(function(inds, p = 0.1, ...) {
 #'
 #' @description
 #' Uniformly with probability `p`, draw each bit again: 1 w/prob `reset.dist`, 0 otherwise.
+#' Uniformly sample elements of `ind` with probability `p`. If the selected elements 
+#' are selected in another sampling process with probability `reset.dist`, they are 1, 
+#' otherwise 0.
 #'
 #' @param ind `[integer]` binary individuum with values 0 or 1
 #' @param p `[numeric(1)]` entry-wise reset probability
@@ -316,11 +318,16 @@ recPCrossover <- makeRecombinator(function(inds, p = 0.1, ...) {
 #' @return `[integer]` the mutated individuum.
 #' @export
 mutUniformReset <- makeMutator(function(ind, p = 0.1, reset.dist) {
+  assertIntegerish(ind, lower = 0, upper = 1)
   if (length(reset.dist) == 1) {
     reset.dist = rep(reset.dist, length(ind))
   }
-  assertNumeric(reset.dist, lower = 0 - .tol, upper = 1 + .tol, len = length(ind), any.missing = FALSE)
+  assertNumeric(reset.dist, lower = 0 - .tol, upper = 1 + .tol, 
+    len = length(ind), any.missing = FALSE)
   assertNumeric(p, lower = 0 - .tol, upper = 1 + .tol)
+  if (!(length(p) %in% c(length(ind), 1))) {
+      stopf("Argument p must have same length as individual or 1.")
+  }
   affect <- runif(length(ind)) < p
   naffect <- sum(affect)
   ind[affect] <- as.numeric(runif(naffect) < reset.dist[affect])
@@ -334,14 +341,14 @@ mutUniformReset <- makeMutator(function(ind, p = 0.1, reset.dist) {
 #' @param ind `[integer]` binary individuum with values 0 or 1
 #' @param p `[numeric(1)]` entry-wise reset probability
 #' @param reset.dists `[matrix]` columns of probabilities to draw 1-bit per entry, if reset is performed.
-#'   Must have `length(ind)` columns and `length(reset.dist.weights)` rows.
+#'   Must have `length(ind)` rows and `length(reset.dist.weights)` columns.
 #' @param reset.dist.weights `[numeric]` weight vector to select among `reset.dists` columns.
 #' @return `[integer]` the mutated individuum.
 #' @export
 mutUniformMetaReset <- makeMutator(function(ind, p = 0.1, reset.dists, reset.dist.weights) {
   assertNumeric(reset.dist.weights, lower = 0 - .tol, upper = 1 + .tol, any.missing = FALSE)
   reset.dist.weights <- pmin(reset.dist.weights, 1 - .Machine$double.eps)
-  assertMatrix(reset.dists, nrows = length(ind), ncols = length(reset.dist.weights))
+  assertMatrix(reset.dists, mode = "numeric", nrows = length(ind), ncols = length(reset.dist.weights))
   reset.dist.weights <- -log(1 - reset.dist.weights)
   reset.dist.weights <- reset.dist.weights / max(sum(reset.dist.weights), .001)
   mutUniformReset(ind, p = p, reset.dist = reset.dists %*% reset.dist.weights)
@@ -351,7 +358,7 @@ mutUniformMetaReset <- makeMutator(function(ind, p = 0.1, reset.dists, reset.dis
 #'
 #' @description
 #' Creates a strategy function that uses the `weight.param.name` entry of
-#' individuals as a weighting vector `reset.dist.weights and `reset.dists`
+#' individuals as a weighting vector `reset.dist.weights` and `reset.dists`
 #' for [`mutUniformMetaReset`] and [`mutUniformMetaResetSHW`].
 #'
 #' @param reset.dists `[matrix]` see `reset.dists` in [mutUniformMetaReset]
@@ -360,6 +367,8 @@ mutUniformMetaReset <- makeMutator(function(ind, p = 0.1, reset.dists, reset.dis
 #' @return `function`
 #' @export
 makeFilterStrategy <- function(reset.dists, weight.param.name) {
+  assertMatrix(reset.dists, mode = "numeric")
+  assertCharacter(weight.param.name)
   function(ind) {
     list(reset.dists = reset.dists, reset.dist.weights = ind[[weight.param.name]])
   }
@@ -378,6 +387,7 @@ mutGaussScaled <- makeMutator(function(ind, p = 1, sdev = 0.05, lower, upper) {
   assertNumeric(sdev, lower = 0 - .tol, any.missing = FALSE, finite = TRUE)
   assertNumeric(lower, any.missing = FALSE, finite = TRUE)
   assertNumeric(upper, any.missing = FALSE, finite = TRUE)
+  
   sdev.scaled <- sdev * (upper - lower)
   new.ind <- rnorm(length(ind), mean = ind, sd = sdev.scaled)
   which.step <- runif(length(ind)) < p
@@ -447,6 +457,8 @@ selTournamentMO <- makeSelector(function(fitness, n.select, sorting = "crowding"
 #' @family Selectors
 #' @export
 selSimpleUnique <- makeSelector(function(fitness, n.select) {
+  assertMatrix(fitness, mode = "numeric")
+  assertIntegerish(n.select, lower = 1)
   sample(ncol(fitness), size = n.select, replace = FALSE)
 }, supported.objectives = c("single-objective", "multi-objective"))
 
@@ -512,6 +524,7 @@ overallRankMO <- function(fitness, sorting = "crowding", ref.point) {
 #' @export
 mutBitflipCHW <- makeMutator(function(ind, p = 0.1) {
   assertNumeric(p, lower = 0 - .tol, upper = 0.5)
+  assertIntegerish(ind, lower = 0, upper = 1, min.len = 1)
   m <- sum(ind)
   bern.p <- (m + 1) / (length(ind) + 2)
 
@@ -545,11 +558,16 @@ mutBitflipCHW <- makeMutator(function(ind, p = 0.1) {
 #' @return `[integer]` the mutated individuum
 #' @export
 mutUniformResetSHW <- makeMutator(function(ind, p = 0.1, reset.dist) {
+  assertIntegerish(ind, lower = 0, upper = 1, min.len = 1)
   if (length(reset.dist) == 1) {
     reset.dist <- rep(reset.dist, length(ind))
   }
   assertNumeric(reset.dist, lower = 0 - .tol, upper = 1 + .tol, len = length(ind), any.missing = FALSE)
   assertNumeric(p, lower = 0 - .tol, upper = 1 + .tol)
+  if (!(length(p) %in% c(length(ind), 1))) {
+    stopf("Argument p must have same length as individual or 1.")
+  }
+  
   affect <- runif(length(ind)) < p
 
   m <- sum(ind)
@@ -569,3 +587,5 @@ mutUniformMetaResetSHW <- makeMutator(function(ind, p = 0.1, reset.dists, reset.
   reset.dist.weights <- reset.dist.weights / max(sum(reset.dist.weights), .001)
   mutUniformResetSHW(ind, p = p, reset.dist = reset.dists %*% reset.dist.weights)
 }, supported = "binary")
+
+
