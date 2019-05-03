@@ -196,5 +196,6 @@ test_that("multiFidelity", {
     recombinator = crossover.simple, generations = gen, fidelity = 
       data.frame(c(1, 2))), 
     "'fidelity' failed: Must have at least 2 cols")
+
 }) 
   

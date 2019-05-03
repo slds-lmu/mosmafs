@@ -307,26 +307,45 @@ slickEvaluateFitness <- function(ctrl, population, fidelity = NULL, previous.poi
   assertList(population)
   assertNumeric(fidelity, min.len = 1, max.len = 2, null.ok = TRUE)
   assertMatrix(previous.points, min.rows = 1, null.ok = length(fidelity) < 2)
-
   fitness.fun = ctrl$task$fitness
+  do.vectorize <- identical(attr(fitness.fun, "mosmafs.vectorize"), TRUE)
   ps <- getParamSet(fitness.fun)
   n.obj <- smoof::getNumberOfObjectives(fitness.fun)
   wrapped.fitness <- function(x, fidelity, holdout) {
-    x = valuesFromNames(ps, x)
-    assertTRUE(isFeasible(ps, x))
+    if (do.vectorize) {
+      x <- lapply(x, function(obs) {
+        obstest <- valuesFromNames(ps, obs)
+        assertTRUE(isFeasible(ps, obstest))
+        trafoValue(ps, obs)
+      })
+      x <- listToDf(x, ps) 
+    } else {
+      obstest <- valuesFromNames(ps, x)
+      assertTRUE(isFeasible(ps, obstest))
+      x <- valuesFromNames(ps, trafoValue(ps, x))
+    }
     if (!missing(holdout)) {
       if ("holdout" %nin% names(formals(fitness.fun))) {
-        return(rep_len(Inf, n.obj))
+        if (do.vectorize) {
+          return(matrix(rep(Inf, n.obj*length(population)), ncol = length(population)))
+        } else {
+          return(rep_len(Inf, n.obj))
+        }
       }
       if (!missing(fidelity)) {
-        ret <- c(fitness.fun(x, fidelity = fidelity, holdout = holdout))
+        ret <- fitness.fun(x, fidelity = fidelity, holdout = holdout)
       } else {
-        ret <- c(fitness.fun(x, holdout = holdout))
+        ret <- fitness.fun(x, holdout = holdout)
       }
     } else {
-      ret <- c(fitness.fun(x, fidelity = fidelity))
+      ret <- fitness.fun(x, fidelity = fidelity)
     }
-    assertNumeric(ret, any.missing = FALSE, len = n.obj)
+    if (do.vectorize) {
+      assertMatrix(ret, any.missing = FALSE, ncols = nrow(x), nrows = n.obj)
+    } else {
+      ret <- c(ret)
+      assertNumeric(ret, any.missing = FALSE, len = n.obj)
+    }
     ret
   }
   if (is.null(fidelity)) {
@@ -363,9 +382,22 @@ slickEvaluateFitness <- function(ctrl, population, fidelity = NULL, previous.poi
       list(time = time, res = phyttniss, fidelity = sum(fidelity), holdout = holdout)
     }
   }
-
-  results <- parallelMap::parallelMap(invocation, population, level = "ecr.evaluateFitness")
-  fitness <- extractSubList(results, "res", simplify = FALSE)
+  if (do.vectorize) {
+    results <- invocation(population)
+    time <- results$time/length(population)
+    fitness <- results$res
+    spfitness <- split(t(fitness),seq(ncol(fitness)))
+    spholdout <- split(t(results$holdout), seq(ncol(results$holdout)))
+    results <- mapply(function(res, hold) {
+      list(time = time, res = res, fidelity = results$fidelity, holdout = hold)
+    }, spfitness, spholdout, SIMPLIFY = FALSE)
+    
+  }
+  else {
+    results <- parallelMap::parallelMap(invocation, population, level = "ecr.evaluateFitness")
+    fitness <- extractSubList(results, "res", simplify = FALSE)
+    fitness <- do.call(cbind, fitness)
+  }
   list(
     population = mapply(function(ind, res) {
       attr(ind, "fitness") <- res$res
@@ -374,7 +406,7 @@ slickEvaluateFitness <- function(ctrl, population, fidelity = NULL, previous.poi
       attr(ind, "fitness.holdout") <- res$holdout
       ind
     }, population, results, SIMPLIFY = FALSE),
-    fitness = ecr:::makeFitnessMatrix(do.call(cbind, fitness), ctrl))
+    fitness = ecr:::makeFitnessMatrix(fitness, ctrl))
 }
 
 
@@ -423,3 +455,5 @@ checkEcrArgs <- function(lambda, population, mutator, recombinator, generations,
     stopf("survival.selector does not support %s fitness", obj.name)
   }
 }
+
+

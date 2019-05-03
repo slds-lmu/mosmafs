@@ -356,3 +356,54 @@ getPopulations <- function(log) {
 }
 
 
+ 
+heuristicHasSimpleSig <- function(fn) { ## testen
+  identical(names(environment(fn)), "fn")
+}
+
+
+#' @title Set or change attribute `mosmafs.vectorize` in fitness function
+#' 
+#' @export
+setMosmafsVectorized <- function(fn, vectorize = TRUE) { 
+  if (vectorize && heuristicHasSimpleSig(fn)) {
+    warningf("...")  ## schreiben wir sind uns nicht sicher weeil wir nur eine heuristik haben, aber wahrscheinlich macht der user was falsch
+  }
+  attr(fn, "mosmafs.vectorize") = vectorize
+  fn
+}
+
+
+listToDf = function(list.object, par.set) {
+  assertList(list.object)
+  checkClass <- function(l) {
+    if(any(lapply(l, class) %in% "factor")) {
+      stop("list elements are not allowed to be of type factor.")
+    } 
+  }
+  lapply(list.object, checkClass)
+  df = lapply(list.object, function(x) {
+    mapply(function(p, v) {
+      if (isScalarNA(v)) 
+        v = as.data.frame(t(rep(v, p$len)))
+      else 
+        as.data.frame(t(v))
+    }, par.set$pars, x)
+  })
+  df = lapply(df, do.call, what = cbind)
+  df = do.call(rbind, df)
+  colnames(df) = getParamIds(par.set, repeated = TRUE, with.nr = TRUE)
+  fixDesignFactors(df, par.set)
+}
+
+fixDesignFactors <- function(df, ps) {
+  coltypes <- getParamTypes(ps, df.cols = TRUE)
+  psvals <- rep(getValues(ps)[getParamIds(ps)], getParamLengths(ps))
+  for (col in seq_along(df)) {
+    if (coltypes[col] == "factor") {
+      df[[col]] <- factor(df[[col]], levels = names(psvals[[col]]))
+    }
+  }
+  return(df)
+}
+

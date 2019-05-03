@@ -306,10 +306,10 @@ recPCrossover <- makeRecombinator(function(inds, p = 0.1, ...) {
 #' @title Uniform Reset for Binary Parameters
 #'
 #' @description
-#' Uniformly with probability `p`, draw each bit again: 1 w/prob `reset.dist`, 0 otherwise.
-#' Uniformly sample elements of `ind` with probability `p`. If the selected elements 
-#' are selected in another sampling process with probability `reset.dist`, they are 1, 
-#' otherwise 0.
+#' For each bit individually, decide with probability `p` to "reset" it to an
+#' equilibrium distribution which is specified by `reset.dist`: a bit being
+#' reset is set to 1 with probability `reset.dist` and set to 0 with probability
+#' (1 - `reset.dist`).
 #'
 #' @param ind `[integer]` binary individuum with values 0 or 1
 #' @param p `[numeric(1)]` entry-wise reset probability
