@@ -113,7 +113,7 @@ test_that("slickEcr, initEcr, continueEcr", {
 })
 
 
-test_that("multiFidelity", {
+test_that("multiFidelity with 2 columns", {
   task.whole <- mlr::bh.task
   rows.whole <- sample(1:nrow(getTaskData(task.whole)))
   task <- subsetTask(task.whole, rows.whole[1:250])
@@ -198,4 +198,97 @@ test_that("multiFidelity", {
     "'fidelity' failed: Must have at least 2 cols")
 
 }) 
+
+test_that("survival.strategy as function works", {
+  ps.simple <- pSS(
+    a: numeric [0, 10],
+    selector.selection: logical^10)
   
+  mutator.simple <- combine.operators(ps.simple,
+    a = mutGauss,
+    selector.selection = mutBitflipCHW)
+  
+  crossover.simple <- combine.operators(ps.simple,
+    a = recSBX,
+    selector.selection = recPCrossover)
+  
+  initials <- sampleValues(ps.simple, 30, discrete.names = TRUE)
+  
+  fitness.fun <- smoof::makeMultiObjectiveFunction(
+    sprintf("simple test"),
+    has.simple.signature = FALSE, par.set = ps.simple, n.objectives = 2, 
+    noisy = TRUE,
+    ref.point = c(10, 1),
+    fn = function(args, fidelity = NULL, holdout = FALSE) {
+      propfeat <- mean(args$selector.selection)
+      c(perf = args$a, propfeat = propfeat)
+    })
+  
+  survival.strategy <- function(control, population, offspring, fitness, fitness.offspring) {
+    merged.pop <- c(population, offspring)
+    merged.fit <- cbind(fitness, fitness.offspring)
+    fitness <- ecr:::transformFitness(merged.fit, control$task, 
+      control$selectForSurvival)
+    # only select by one objective
+    surv.idx <- order(fitness[1,])[1:length(population)]
+
+    fitness = merged.fit[, surv.idx, drop = FALSE]
+    fitness = ecr:::makeFitnessMatrix(fitness, control)
+    return(list(population = merged.pop[surv.idx], fitness = fitness))
+  }
+  
+  
+  generations <- 10
+  lambda <- 10
+  expect_class(results <- results <- slickEcr(fitness.fun = fitness.fun, lambda = lambda, 
+    population = initials, 
+    mutator = mutator.simple, recombinator = crossover.simple, 
+    survival.strategy = survival.strategy, generations = generations), 
+    "MosmafsResult")
+  expect_list(results$pareto.set, min.len = 1)
+  expect_true(all(diff(getStatistics(results$log)$fitness.obj.1.min) <= 0))
+
+})
+
+test_that("vectorized fitness evaluation", {
+  ps.simple <- pSS(
+    a: numeric [0, 10],
+    selector.selection: logical^10)
+  
+  mutator.simple <- combine.operators(ps.simple,
+    a = mutGauss,
+    selector.selection = mutBitflipCHW)
+  
+  crossover.simple <- combine.operators(ps.simple,
+    a = recSBX,
+    selector.selection = recPCrossover)
+  
+  initials <- sampleValues(ps.simple, 30, discrete.names = TRUE)
+  
+  fitness.fun <- smoof::makeMultiObjectiveFunction(
+    sprintf("simple test"),
+    has.simple.signature = FALSE, par.set = ps.simple, n.objectives = 2, 
+    noisy = TRUE,
+    ref.point = c(10, 1),
+    fn = function(args, fidelity = NULL) {
+      propfeat <- rowMeans(args[, grepl("selector.selection", names(args))])
+      fitness = mapply(function(propfeat, perform) {
+        c(propfeat, perform)
+      }, propfeat, args$a)
+  })
+  fitness.fun <- setMosmafsVectorized(fitness.fun)
+
+  generations <- 10
+  lambda <- 10
+  expect_class(results <- results <- slickEcr(fitness.fun = fitness.fun, lambda = lambda, 
+    population = initials, 
+    mutator = mutator.simple, recombinator = crossover.simple, generations = generations), 
+    "MosmafsResult")
+  stats <- collectResult(results)
+  expect_true(all(diff(stats$eval.obj.1.min) <= 0))
+  expect_true(all(diff(stats$eval.obj.2.min) <= 0))
+  expect_numeric(diff(stats$eval.domHV), lower = 0-1e-5)
+  expect_list(results$pareto.set, min.len = 1)
+  
+})
+

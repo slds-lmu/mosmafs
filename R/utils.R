@@ -363,11 +363,13 @@ heuristicHasSimpleSig <- function(fn) { ## testen
 
 
 #' @title Set or change attribute `mosmafs.vectorize` in fitness function
-#' 
+#' @param fn `smoof_multi_objective_function` fitness function 
+#' @param vectorize `[logical(1)]` whether to force `slickEvaluateFitness` to 
+#' pass candidates to fitness function as `data.frame` or not
 #' @export
 setMosmafsVectorized <- function(fn, vectorize = TRUE) { 
   if (vectorize && heuristicHasSimpleSig(fn)) {
-    warningf("...")  ## schreiben wir sind uns nicht sicher weeil wir nur eine heuristik haben, aber wahrscheinlich macht der user was falsch
+    warningf("attribute has.simple.signature of fn was set to TRUE, correct fitness evaluation can not be guaranteed")  ## schreiben wir sind uns nicht sicher weeil wir nur eine heuristik haben, aber wahrscheinlich macht der user was falsch
   }
   attr(fn, "mosmafs.vectorize") = vectorize
   fn

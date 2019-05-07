@@ -39,6 +39,17 @@ test_that("listToDf", {
   ind.list.error[[2]]$char <- factor(ind.list.error[[2]]$char)
   expect_error(listToDf(ind.list.error, ps.simple))
   
-
+  
+  fitness.fun <- smoof::makeMultiObjectiveFunction(
+    sprintf("simple test"),
+    has.simple.signature = TRUE, par.set = ps.simple, n.objectives = 2, 
+    noisy = TRUE,
+    ref.point = c(10, 1),
+    fn = function(args, fidelity = NULL) {
+      next
+    })
+  
+  expect_warning(setMosmafsVectorized(fitness.fun), 
+    "attribute has.simple.signature of fn was set to TRUE")
   
 })

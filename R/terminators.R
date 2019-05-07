@@ -19,6 +19,10 @@
 #' @param stag.index `[character(1)]` one of `"generations"` (default),
 #'   `"evals"`, `"time"`, `"fidelity"`: What index to count `stag` against when
 #'   aborting after stagnation.
+#' @param obj.stat `[character(1)]` what statistic of the objective to test.
+#'   One of "min", "mean", "max". Default "mean"
+#' @param objective.index `[integer]` index of objective(s) to consider. Terminates
+#'   if all the objectives listed here stagnate. Default 1.
 #' @return `function` a terminator function
 #' @export
 mosmafsTermEvals <- function(evals) {
@@ -98,9 +102,12 @@ mosmafsTermStagnationHV <- function(stag, stag.index = "generations") {
 
 #' @export
 #' @rdname mosmafsTermEvals
-mosmafsTermStagnationObjMean <- function(stag, stag.index = "generations") {
+mosmafsTermStagnationObjStatistic <- function(stag, stag.index = "generations", obj.stat = "mean", objective.index = 1) {
   assertInt(stag)
   assertChoice(stag.index, c("generations", "evals", "time", "fidelity"))
+  assertChoice(obj.stat, c("min", "mean", "max"))
+  assertIntegerish(objective.index, lower = 1, any.missing = FALSE)
+  searchpat <- sprintf("^eval\\..*\\.%s$", obj.stat)
   stag.access <- switch(stag.index,
     generations = "gen",
     evals = "evals",
@@ -119,12 +126,12 @@ mosmafsTermStagnationObjMean <- function(stag, stag.index = "generations") {
       result <- result[-drop, ]
     }
 
-    obj.colnames <- grep("^eval\\..*\\.mean$", colnames(result), value = TRUE)
+    obj.colnames <- grep(searchpat, colnames(result), value = TRUE)
     stags <- lapply(result[obj.colnames], function(col) {
       stagnation <- max(result[[stag.access]]) -
         result[[stag.access]][which.min(col)]
     })
-    stagnation <- min(stags)
+    stagnation <- min(unlist(stags)[objective.index])
     if (stagnation >= stag) {
       sprintf("Mean objective performance did not increase for %s %s (limit %s)",
         stagnation, stag.name, stag)
