@@ -12,7 +12,7 @@ mutRandomChoice(ind, values, p = 0.1)
 \item{values}{\code{[list of character]} set of possible values for \code{ind} entries to take.
 May be a list of length 1, in which case it is recycled.}
 
-\item{p}{\code{[numeric(1)]} probability to affect each individual component}
+\item{p}{\code{[numeric(1)]} per-entry probability to perform mutation}
 }
 \value{
 \code{\link{character}}

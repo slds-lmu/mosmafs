@@ -18,7 +18,7 @@ mutUniformParametricIntScaled(ind, ..., lower, upper)
 \arguments{
 \item{ind}{\code{[numeric | integer]} individuum to mutate}
 
-\item{p}{\code{[numeric]} probability to affect each individual component}
+\item{p}{\code{[numeric]} per-entry probability to perform mutation}
 
 \item{lower}{\code{[integer]} lower bounds of \code{ind} values. May have same length as
 \code{ind} or may be a single number, if the lower bounds are the same for all
