@@ -16,7 +16,7 @@ test_that("ecrshims error messages", {
     param.set.logical.extended, param.set.discrete)
 
   expect_error(combine.operators(param.set.numeric, .params.x = c("a", "b"),
-    x = mutGauss, x = mutGauss), "uniquely named")
+    x = mutGauss, x = mutGauss), "unique")
   expect_error(combine.operators(pSS(logical: logical), logical = mutBitflip),
     "nameclash with special type names")
   expect_error(combine.operators(pSS(x: character), x = mutBitflip),
