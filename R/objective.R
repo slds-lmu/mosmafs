@@ -61,8 +61,12 @@ makeObjective <- function(learner, task, ps, resampling, measure = NULL, holdout
 
   worst.measure <- worst.measure * obj.factor
 
-
-
+  # Test if selector.selection in ps, if not 
+  # add it to ps c()
+  if (!("selector.selection" %in% ParamHelpers::getParamIds(ps))) {
+    ps = c(ps, pSS(selector.selection: logical^getTaskNFeats(task)))
+  }
+  
   learner <- cpoSelector() %>>% checkLearner(learner, type = getTaskType(task))
   learner %<<<% cpo
 
@@ -78,7 +82,6 @@ makeObjective <- function(learner, task, ps, resampling, measure = NULL, holdout
       if (!missing(fidelity) && identical(fidelity, 0)) {
         return(c(0, 0))
       }
-      args <- trafoValue(ps, args)
       # filter out strategy parameters
       args <- args[intersect(names(args), argnames)]
       learner <- setHyperPars(learner, par.vals = args)
