@@ -12,7 +12,7 @@ mutUniformMetaReset(ind, p = 0.1, reset.dists, reset.dist.weights)
 \item{p}{\code{[numeric(1)]} entry-wise reset probability}
 
 \item{reset.dists}{\code{[matrix]} columns of probabilities to draw 1-bit per entry, if reset is performed.
-Must have \code{length(ind)} columns and \code{length(reset.dist.weights)} rows.}
+Must have \code{length(ind)} rows and \code{length(reset.dist.weights)} columns.}
 
 \item{reset.dist.weights}{\code{[numeric]} weight vector to select among \code{reset.dists} columns.}
 }

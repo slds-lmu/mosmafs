@@ -18,5 +18,8 @@ mutUniformReset(ind, p = 0.1, reset.dist)
 \code{[integer]} the mutated individuum.
 }
 \description{
-Uniformly with probability \code{p}, draw each bit again: 1 w/prob \code{reset.dist}, 0 otherwise.
+For each bit individually, decide with probability \code{p} to "reset" it to an
+equilibrium distribution which is specified by \code{reset.dist}: a bit being
+reset is set to 1 with probability \code{reset.dist} and set to 0 with probability
+(1 - \code{reset.dist}).
 }

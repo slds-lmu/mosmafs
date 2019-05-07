@@ -17,5 +17,6 @@ makeFilterStrategy(reset.dists, weight.param.name)
 }
 \description{
 Creates a strategy function that uses the \code{weight.param.name} entry of
-individuals as a weighting vector \code{reset.dist.weights and }reset.dists\code{ for [}mutUniformMetaReset\code{] and [}mutUniformMetaResetSHW`].
+individuals as a weighting vector \code{reset.dist.weights} and \code{reset.dists}
+for \code{\link{mutUniformMetaReset}} and \code{\link{mutUniformMetaResetSHW}}.
 }
