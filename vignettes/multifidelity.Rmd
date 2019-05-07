@@ -117,17 +117,22 @@ ps.simple <- pSS(
   cp: numeric[0.001, 0.999],
   selector.selection: logical^getTaskNFeats(task))
 
-mutator.simple <- combine.operators(ps.simple,
+fitness.fun.simple <- makeObjective(lrn, task, ps.simple, cv5,
+  holdout.data = task.hout)
+
+ps.objective <- getParamSet(fitness.fun.simple)
+
+mutator.simple <- combine.operators(ps.objective,
   numeric = ecr::setup(mutGauss, sdev = 0.1),
   integer = ecr::setup(mutGaussInt, sdev = 3),
   selector.selection = mutBitflipCHW)
 
-crossover.simple <- combine.operators(ps.simple,
+crossover.simple <- combine.operators(ps.objective,
   numeric = recPCrossover,
   integer = recPCrossover,
   selector.selection = recPCrossover)
 
-initials <- sampleValues(ps.simple, 32, discrete.names = TRUE)
+initials <- sampleValues(ps.objective, 32, discrete.names = TRUE)
 ```
 
 ## Multi-Fidelity
@@ -152,7 +157,7 @@ nRes <- function(n) {
 
 We can use this function to create a multi-fidelity fitness function:
 ```{r}
-fitness.fun <- makeObjective(lrn, task, ps.simple, nRes, holdout.data = task.hout)
+fitness.fun <- makeObjective(lrn, task, ps.objective, nRes, holdout.data = task.hout)
 
 formals(fitness.fun)
 ```

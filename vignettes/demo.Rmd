@@ -324,27 +324,42 @@ In this example, we choose to optimize the `"classif.rpart"` learner from the `r
 lrn <- makeLearner("classif.rpart", maxsurrogate = 0)
 ```
 
-The parameter set we optimize over is the following:
+The parameter set we optimize over is the following 
 
 ```{r}
 ps.simple <- pSS(
   maxdepth: integer[1, 30],
   minsplit: integer[2, 30],
-  cp: numeric[0.001, 0.999],
-  selector.selection: logical^getTaskNFeats(task))
+  cp: numeric[0.001, 0.999])
 ```
 
-Notably we have included the parameter `selector.selection`, which controls what features are selected.
+Furthermore, a resampling strategy must be chosen. It can be either a `mlr::ResampleDesc` object, `mlr::ResampleInst` object 
+or any function which maps fidelity to the resampling to use. We use the resampling strategy `mlr::cv5``. 
+
+Now we have all the information needed to define an objective function we try to optimize. If we are doing feature selection, the `makeObjective()` function does this for us; otherwise we would need to define a "`smoof`" function using `smoof::makeSingleObjectiveFunction()` or `smoof::makeMultiObjectiveFunction()`.
+
+The `makeObjective()` function allows us to supply a holdout dataset on which each model will be evaluated. If a holdout is given, then the resampling is performed as given to the `resampling` parameter, and, *additionally*, the given `Learner` is trained on the whole training data and predicted on the holdout set.
+
+```{r}
+fitness.fun.simple <- makeObjective(lrn, task, ps.simple, cv5,
+  holdout.data = task.hout)
+```
+Notably the parameter `selector.selection` was added within `makeObjective()` to the parameter set, which controls what features are selected. 
+The new parameter set needs to be used for the definition of the mutators and recombinators. 
+
+```{r}
+ps.objective <- getParamSet(fitness.fun.simple)
+```
 
 We are using some standard mutation and recombination operators for the parameters: Gaussian and rounded-gaussian mutation for numeric parameters, hamming weight preserving bitflip for `selector.selection`, and generally uniform crossover mutation. We use the `ecr::setup` method to set hyperparameters of some mutation operators.
 
 ```{r}
-mutator.simple <- combine.operators(ps.simple,
+mutator.simple <- combine.operators(ps.objective,
   numeric = ecr::setup(mutGauss, sdev = 0.1),
   integer = ecr::setup(mutGaussInt, sdev = 3),
   selector.selection = mutBitflipCHW)
 
-crossover.simple <- combine.operators(ps.simple,
+crossover.simple <- combine.operators(ps.objective,
   numeric = recPCrossover,
   integer = recPCrossover,
   selector.selection = recPCrossover)
@@ -353,16 +368,7 @@ crossover.simple <- combine.operators(ps.simple,
 The initial population to sample over can be generated using the `ParamHelpers` function `sampleValues()`. Note that by generating an initial population of a certain size (32 here), we implicitly determine the ECR hyperparameter `mu` of individuals in a generation.
 
 ```{r}
-initials.simple <- sampleValues(ps.simple, 32, discrete.names = TRUE)
-```
-
-At last we need to define the objective function which we try to optimize. If we are doing feature selection, the `makeObjective()` function does this for us; otherwise we would need to define a "`smoof`" function using `smoof::makeSingleObjectiveFunction()` or `smoof::makeMultiObjectiveFunction()`.
-
-The `makeObjective()` function allows us to supply a holdout dataset on which each model will be evaluated. If a holdout is given, then the resampling is performed as given to the `resampling` parameter, and, *additionally*, the given `Learner` is trained on the whole training data and predicted on the holdout set.
-
-```{r}
-fitness.fun.simple <- makeObjective(lrn, task, ps.simple, cv5,
-  holdout.data = task.hout)
+initials.simple <- sampleValues(ps.objective , 32, discrete.names = TRUE)
 ```
 
 This is all that is necessary, and it can be used to call the `ecr()` function in the `ecr` package. The `mosmafs` package comes with a useful interface that sets some defaults: `slickEcr()`. The run time, 10 generations, would probably be to short for serious applications, but should be enough for demonstration purposes.
@@ -448,13 +454,18 @@ ps.strat <- pSS(
   maxdepth: integer[1, 30],
   minsplit: integer[2, 30],
   cp: numeric[0.001, 0.999],
-  selector.selection: logical^getTaskNFeats(task),
   filterweights: numeric[0.001, 0.999]^length(filters))
+```
+Before mutation and recombination can be defined, the parameter set must be
+substracted from `makeObjective()`
+```{r}
+fitness.fun.strat <- makeObjective(lrn, task, ps.strat, cv5)
+ps.strat.obj <- getParamSet(fitness.fun.strat)
 ```
 
 The mutation operator must now include information on how to use the strategy parameter. Instead of writing out the function, we are using the helper `makeFilterStrategy()` that is designed out for this usecase:
 ```{r}
-mutator.strat <- combine.operators(ps.strat,
+mutator.strat <- combine.operators(ps.strat.obj,
   numeric = ecr::setup(mutGauss, sdev = 0.1),
   integer = ecr::setup(mutGaussInt, sdev = 3),
   selector.selection = mutUniformMetaResetSHW,
@@ -463,7 +474,7 @@ mutator.strat <- combine.operators(ps.strat,
 ```
 We are going to use the same crossover operator as before, but we have to construct it with the new `ParamSet`:
 ```{r}
-crossover.strat <- combine.operators(ps.strat,
+crossover.strat <- combine.operators(ps.strat.obj,
   numeric = recPCrossover,
   integer = recPCrossover,
   selector.selection = recPCrossover)
@@ -472,7 +483,7 @@ crossover.strat <- combine.operators(ps.strat,
 The initial population we sample again using the `ParamHelpers` function `sampleValues()`. We are then sampling the `$selector.selection` part again using `initSelector()`, which makes the number of 0s and 1s uniformly distributed, and applies the equilibrium-distribution of `mutUniformMetaResetSHW()`:
 
 ```{r}
-initials.strat <- sampleValues(ps.strat, 32, discrete.names = TRUE) %>%
+initials.strat <- sampleValues(ps.strat.obj, 32, discrete.names = TRUE) %>%
   initSelector(
     soften.op = ecr::setup(mutUniformMetaResetSHW, p = 1),
     soften.op.strategy = makeFilterStrategy(fima, "filterweights"))
@@ -484,7 +495,7 @@ set.seed(2)
 ```
 ```{r}
 run.strat <- slickEcr(
-  fitness.fun = makeObjective(lrn, task, ps.strat, cv5),
+  fitness.fun = fitness.fun.strat,
   lambda = 16,
   population = initials.strat,
   mutator = mutator.strat,
