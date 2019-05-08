@@ -5,7 +5,7 @@
 \alias{mosmafsTermTime}
 \alias{mosmafsTermFidelity}
 \alias{mosmafsTermStagnationHV}
-\alias{mosmafsTermStagnationObjMean}
+\alias{mosmafsTermStagnationObjStatistic}
 \title{Termination Function Creator}
 \usage{
 mosmafsTermEvals(evals)
@@ -16,7 +16,8 @@ mosmafsTermFidelity(fidelity)
 
 mosmafsTermStagnationHV(stag, stag.index = "generations")
 
-mosmafsTermStagnationObjMean(stag, stag.index = "generations")
+mosmafsTermStagnationObjStatistic(stag, stag.index = "generations",
+  obj.stat = "mean", objective.index = 1)
 }
 \arguments{
 \item{evals}{\code{[integer(1)]} limit evals}
@@ -32,6 +33,12 @@ without progress in hypervolume or mean objective value}
 \item{stag.index}{\code{[character(1)]} one of \code{"generations"} (default),
 \code{"evals"}, \code{"time"}, \code{"fidelity"}: What index to count \code{stag} against when
 aborting after stagnation.}
+
+\item{obj.stat}{\code{[character(1)]} what statistic of the objective to test.
+One of "min", "mean", "max". Default "mean"}
+
+\item{objective.index}{\code{[integer]} index of objective(s) to consider. Terminates
+if all the objectives listed here stagnate. Default 1.}
 
 \item{generations}{\code{[integer(1)]} limit generations. Initial population does
 not count.}
