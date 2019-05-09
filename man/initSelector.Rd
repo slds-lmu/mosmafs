@@ -4,20 +4,24 @@
 \alias{initSelector}
 \title{Initialize Selector}
 \usage{
-initSelector(individuals, distribution = function() floor(runif(1, 0,
-  length(individuals[[1]]$selector.selection) + 1)), soften.op = NULL,
+initSelector(individuals, vector.name = "selector.selection",
+  distribution = function() floor(runif(1, 0,
+  length(individuals[[1]][[vector.name]]) + 1)), soften.op = NULL,
   soften.op.strategy = NULL, soften.op.repeat = 1,
-  reject.zero = TRUE)
+  reject.condition = function(x) !any(x))
 }
 \arguments{
 \item{individuals}{\code{[list of named lists]} the individuals to initialize}
 
+\item{vector.name}{\code{[character(1)]} the variable name, whose entries are
+sampled}
+
 \item{distribution}{\code{[function]} function that returns a random integer
-from 0 to the length of each individual's \code{$selector.selection} slot.
+from 0 to the length of each individual's \code{vector.name} slot.
 Defaults to the uniform distribution from 1 to \code{length()}.}
 
 \item{soften.op}{\code{[ecr_mutator]} an optional mutator to apply to the
-\code{$selector.selection} variable.}
+\code{vector.name} variable.}
 
 \item{soften.op.strategy}{\code{function} an optional function that can set
 the \code{soften.op}'s parameters. See \code{\link{combine.operators}} strategy parameters.
@@ -26,14 +30,14 @@ Ignored if \code{soften.op} is not given.}
 \item{soften.op.repeat}{\code{[integer(1)]} how often to repeat \code{soften.op}
 application. Ignored if \code{soften.op} is not given.}
 
-\item{reject.zero}{\code{[logical(1)]} whether to reject (and sample anew)
-vectors with all zeroes. Default \code{TRUE}.}
+\item{reject.condition}{\code{[function]} reject condition as a function applied
+to newly generated values of \code{vector.name}. If set to NULL, no rejection is done.}
 }
 \value{
 \code{list of named lists} The individuals with initialized
-`$selector.selection.
+\code{[[vector.name]]}.
 }
 \description{
-Sample the \code{selector.selection} variable such that the number of ones
+Sample the \code{vector.name} variable such that the number of ones
 has a given distribution.
 }
