@@ -344,17 +344,22 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <a class="sourceLine" id="cb2-13" data-line-number="13">  cp<span class="op">:</span><span class="st"> </span>numeric[<span class="fl">0.001</span>, <span class="fl">0.999</span>],</a>
 <a class="sourceLine" id="cb2-14" data-line-number="14">  selector.selection<span class="op">:</span><span class="st"> </span>logical<span class="op">^</span><span class="kw">getTaskNFeats</span>(task))</a>
 <a class="sourceLine" id="cb2-15" data-line-number="15"></a>
-<a class="sourceLine" id="cb2-16" data-line-number="16">mutator.simple &lt;-<span class="st"> </span><span class="kw">combine.operators</span>(ps.simple,</a>
-<a class="sourceLine" id="cb2-17" data-line-number="17">  <span class="dt">numeric =</span> ecr<span class="op">::</span><span class="kw">setup</span>(mutGauss, <span class="dt">sdev =</span> <span class="fl">0.1</span>),</a>
-<a class="sourceLine" id="cb2-18" data-line-number="18">  <span class="dt">integer =</span> ecr<span class="op">::</span><span class="kw">setup</span>(mutGaussInt, <span class="dt">sdev =</span> <span class="dv">3</span>),</a>
-<a class="sourceLine" id="cb2-19" data-line-number="19">  <span class="dt">selector.selection =</span> mutBitflipCHW)</a>
+<a class="sourceLine" id="cb2-16" data-line-number="16">fitness.fun.simple &lt;-<span class="st"> </span><span class="kw">makeObjective</span>(lrn, task, ps.simple, cv5,</a>
+<a class="sourceLine" id="cb2-17" data-line-number="17">  <span class="dt">holdout.data =</span> task.hout)</a>
+<a class="sourceLine" id="cb2-18" data-line-number="18"></a>
+<a class="sourceLine" id="cb2-19" data-line-number="19">ps.objective &lt;-<span class="st"> </span><span class="kw">getParamSet</span>(fitness.fun.simple)</a>
 <a class="sourceLine" id="cb2-20" data-line-number="20"></a>
-<a class="sourceLine" id="cb2-21" data-line-number="21">crossover.simple &lt;-<span class="st"> </span><span class="kw">combine.operators</span>(ps.simple,</a>
-<a class="sourceLine" id="cb2-22" data-line-number="22">  <span class="dt">numeric =</span> recPCrossover,</a>
-<a class="sourceLine" id="cb2-23" data-line-number="23">  <span class="dt">integer =</span> recPCrossover,</a>
-<a class="sourceLine" id="cb2-24" data-line-number="24">  <span class="dt">selector.selection =</span> recPCrossover)</a>
+<a class="sourceLine" id="cb2-21" data-line-number="21">mutator.simple &lt;-<span class="st"> </span><span class="kw">combine.operators</span>(ps.objective,</a>
+<a class="sourceLine" id="cb2-22" data-line-number="22">  <span class="dt">numeric =</span> ecr<span class="op">::</span><span class="kw">setup</span>(mutGauss, <span class="dt">sdev =</span> <span class="fl">0.1</span>),</a>
+<a class="sourceLine" id="cb2-23" data-line-number="23">  <span class="dt">integer =</span> ecr<span class="op">::</span><span class="kw">setup</span>(mutGaussInt, <span class="dt">sdev =</span> <span class="dv">3</span>),</a>
+<a class="sourceLine" id="cb2-24" data-line-number="24">  <span class="dt">selector.selection =</span> mutBitflipCHW)</a>
 <a class="sourceLine" id="cb2-25" data-line-number="25"></a>
-<a class="sourceLine" id="cb2-26" data-line-number="26">initials &lt;-<span class="st"> </span><span class="kw">sampleValues</span>(ps.simple, <span class="dv">32</span>, <span class="dt">discrete.names =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
+<a class="sourceLine" id="cb2-26" data-line-number="26">crossover.simple &lt;-<span class="st"> </span><span class="kw">combine.operators</span>(ps.objective,</a>
+<a class="sourceLine" id="cb2-27" data-line-number="27">  <span class="dt">numeric =</span> recPCrossover,</a>
+<a class="sourceLine" id="cb2-28" data-line-number="28">  <span class="dt">integer =</span> recPCrossover,</a>
+<a class="sourceLine" id="cb2-29" data-line-number="29">  <span class="dt">selector.selection =</span> recPCrossover)</a>
+<a class="sourceLine" id="cb2-30" data-line-number="30"></a>
+<a class="sourceLine" id="cb2-31" data-line-number="31">initials &lt;-<span class="st"> </span><span class="kw">sampleValues</span>(ps.objective, <span class="dv">32</span>, <span class="dt">discrete.names =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
 </div>
 <div id="multi-fidelity" class="section level2">
 <h2>Multi-Fidelity</h2>
@@ -370,7 +375,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <a class="sourceLine" id="cb4-2" data-line-number="2">  <span class="kw">makeResampleDesc</span>(<span class="st">&quot;Subsample&quot;</span>, <span class="dt">split =</span> <span class="fl">0.9</span>, <span class="dt">iters =</span> n)</a>
 <a class="sourceLine" id="cb4-3" data-line-number="3">}</a></code></pre></div>
 <p>We can use this function to create a multi-fidelity fitness function:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1">fitness.fun &lt;-<span class="st"> </span><span class="kw">makeObjective</span>(lrn, task, ps.simple, nRes, <span class="dt">holdout.data =</span> task.hout)</a>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1">fitness.fun &lt;-<span class="st"> </span><span class="kw">makeObjective</span>(lrn, task, ps.objective, nRes, <span class="dt">holdout.data =</span> task.hout)</a>
 <a class="sourceLine" id="cb5-2" data-line-number="2"></a>
 <a class="sourceLine" id="cb5-3" data-line-number="3"><span class="kw">formals</span>(fitness.fun)</a>
 <a class="sourceLine" id="cb5-4" data-line-number="4"><span class="co">#&gt; $args</span></a>
