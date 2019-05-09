@@ -53,3 +53,48 @@ test_that("listToDf", {
     "attribute has.simple.signature of fn was set to TRUE")
   
 })
+
+
+
+test_that("initSelector", {
+  ps.simple <- pSS(
+    a: numeric [1, 10], 
+    b: discrete [a, b], 
+    selector.selection: logical^10)
+  
+  
+  newly.generated <- function(list1, list2, vector.name) {
+    not.newly.generated <- mapply(function(ind1, ind2) {
+      all(ind1[[vector.name]] == ind2[[vector.name]])
+      }, list1, list2)
+  expect_true(!all(not.newly.generated))
+  }
+  
+  
+  initials <- sampleValues(ps.simple, 100, discrete.names = TRUE)
+  initials.new <- initSelector(initials)
+  expect_true(all(unlist(lapply(initials.new, function(x) any(x$selector.selection)))))
+  newly.generated(initials, initials.new, "selector.selection")
+  
+  # Condition NULL
+  initials <- sampleValues(ps.simple, 100, discrete.names = TRUE)
+  set.seed(100)
+  initials.new <- initSelector(initials, reject.condition = NULL)
+  expect_true(any(unlist(lapply(initials.new, function(x) !any(x$selector.selection)))))
+  newly.generated(initials, initials.new, "selector.selection")
+  
+  # Other selector 
+  ps.simple.new <- c(ps.simple, pSS(use.original: logical^5))
+  initials <- sampleValues(ps.simple.new, 100, discrete.names = TRUE)
+  init.use.original <- initSelector(initials, "use.original", reject.condition = all)
+  # use.original newly generated? 
+  newly.generated(initials, init.use.original, "use.original")
+  expect_true(any(unlist(lapply(init.use.original, function(x) !all(x$use.original)))))
+  
+  # Condition NULL
+  set.seed(100)
+  init.use.original.wth <- initSelector(initials, "use.original", reject.condition = NULL)
+  newly.generated(initials, init.use.original.wth, "use.original")
+  # some elemnts all TRUE
+  expect_true(any(unlist(lapply(init.use.original.wth, function(x) all(x$use.original)))))
+})
