@@ -395,7 +395,7 @@ listToDf = function(list.object, par.set) {
     }, par.set$pars, x)
   })
   df = lapply(df, do.call, what = cbind)
-  df = do.call(rbind, df)
+  df = as.data.frame(do.call(rbind, df))
   colnames(df) = getParamIds(par.set, repeated = TRUE, with.nr = TRUE)
   fixDesignFactors(df, par.set)
 }
