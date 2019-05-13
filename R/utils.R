@@ -115,6 +115,7 @@ availableAttributes <- function(log, check = FALSE) {
 #' @export
 collectResult <- function(ecr.object, aggregate.perresult = list(domHV = function(x) computeHV(x, ref.point)), aggregate.perobjective = list("min", "mean", "max"), ref.point = smoof::getRefPoint(ecr.object$control$task$fitness.fun), cor.fun = cor) {
   assertClass(ecr.object, "MosmafsResult")
+  nobj <- ecr.object$task$n.objectives
 
   normalize.funlist <- function(fl) {
     assertList(fl, any.missing = FALSE, types = c("function", "character"))
@@ -131,8 +132,10 @@ collectResult <- function(ecr.object, aggregate.perresult = list(domHV = functio
   aggregate.perresult <- normalize.funlist(aggregate.perresult)
   aggregate.perobjective <- normalize.funlist(aggregate.perobjective)
 
-  assertNumeric(ref.point, any.missing = FALSE, finite = TRUE,
-    len = ecr.object$task$n.objectives)
+  if (nobj > 1) {
+    assertNumeric(ref.point, any.missing = FALSE, finite = TRUE,
+      len = ecr.object$task$n.objectives)
+  }
   assertFunction(cor.fun)
 
   aggregate.fitness <- function(fitness) {
@@ -187,7 +190,7 @@ collectResult <- function(ecr.object, aggregate.perresult = list(domHV = functio
 
   if (any(vlapply(hofitnesses, function(x) any(is.finite(x))))) {
     
-    if (ecr.object$task$n.objectives == 1) {
+    if (nobj == 1) {
       corcols <- mapply(function(eval.fit, hout.fit) {
         suppressWarnings(cor.fun(eval.fit, hout.fit))
       }, fitnesses, hofitnesses)
@@ -196,8 +199,7 @@ collectResult <- function(ecr.object, aggregate.perresult = list(domHV = functio
       naive.hout.domHV <- NA
       resdf <- cbind(resdf, hout = aggregate.fitness(hofitnesses),
         cor = corcols)
-    }
-    else {
+    } else {
       corcols <- lapply(seq_len(ecr.object$task$n.objectives), function(idx) {
         mapply(function(eval.fit, hout.fit) {
           suppressWarnings(cor.fun(eval.fit[idx, ], hout.fit[idx, ]))
