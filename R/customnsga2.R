@@ -346,7 +346,7 @@ slickEvaluateFitness <- function(ctrl, population, fidelity = NULL, previous.poi
     }
     if (do.vectorize) {
       if (n.obj == 1 && !is.matrix(ret) && is.atomic(ret)) {
-        ret <- matrix(ret, ncol = 1)
+        ret <- matrix(ret, nrow = 1)
       }
       assertMatrix(ret, any.missing = FALSE, ncols = nrow(x), nrows = n.obj)
     } else {
