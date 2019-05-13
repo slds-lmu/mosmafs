@@ -522,7 +522,7 @@ overallRankMO <- function(fitness, sorting = "crowding", ref.point) {
 #' @param p `[numeric]` average flip probability, must be between 0
 #'   and 0.5.
 #' @export
-mutBitflipCHW <- makeMutator(function(ind, p = 0.1) {
+mutBitflipCHW <- makeMutator(function(ind, p = 0.1, ...) {
   assertNumeric(p, lower = 0 - .tol, upper = 0.5)
   assertIntegerish(ind, lower = 0, upper = 1, min.len = 1)
   m <- sum(ind)
@@ -557,7 +557,7 @@ mutBitflipCHW <- makeMutator(function(ind, p = 0.1) {
 #' @param reset.dist.weights `[numeric]` weight vector to select among `reset.dist` columns.
 #' @return `[integer]` the mutated individuum
 #' @export
-mutUniformResetSHW <- makeMutator(function(ind, p = 0.1, reset.dist) {
+mutUniformResetSHW <- makeMutator(function(ind, p = 0.1, reset.dist, ...) {
   assertIntegerish(ind, lower = 0, upper = 1, min.len = 1)
   if (length(reset.dist) == 1) {
     reset.dist <- rep(reset.dist, length(ind))
@@ -579,7 +579,7 @@ mutUniformResetSHW <- makeMutator(function(ind, p = 0.1, reset.dist) {
 
 #' @rdname mutUniformResetSHW
 #' @export
-mutUniformMetaResetSHW <- makeMutator(function(ind, p = 0.1, reset.dists, reset.dist.weights) {
+mutUniformMetaResetSHW <- makeMutator(function(ind, p = 0.1, reset.dists, reset.dist.weights, ...) {
   assertNumeric(reset.dist.weights, lower = 0 - .tol, upper = 1 + .tol, any.missing = FALSE)
   reset.dist.weights <- pmin(reset.dist.weights, 1 - .Machine$double.eps)
   assertMatrix(reset.dists, nrows = length(ind), ncols = length(reset.dist.weights))
