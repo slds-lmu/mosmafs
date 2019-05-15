@@ -21,8 +21,8 @@
 #'   aborting after stagnation.
 #' @param obj.stat `[character(1)]` what statistic of the objective to test.
 #'   One of "min", "mean", "max". Default "mean"
-#' @param objective.index `[integer]` index of objective(s) to consider. Terminates
-#'   if all the objectives listed here stagnate. Default 1.
+#' @param objective.index `[integer | logical]` index of objective(s) to consider. Terminates
+#'   if all the objectives listed here stagnate. `TRUE` for all objectives. Default `TRUE`.
 #' @return `function` a terminator function
 #' @export
 mosmafsTermEvals <- function(evals) {
@@ -102,11 +102,17 @@ mosmafsTermStagnationHV <- function(stag, stag.index = "generations") {
 
 #' @export
 #' @rdname mosmafsTermEvals
-mosmafsTermStagnationObjStatistic <- function(stag, stag.index = "generations", obj.stat = "mean", objective.index = 1) {
+mosmafsTermStagnationObjStatistic <- function(stag, stag.index = "generations", obj.stat = "mean", objective.index = TRUE) {
   assertInt(stag)
   assertChoice(stag.index, c("generations", "evals", "time", "fidelity"))
   assertChoice(obj.stat, c("min", "mean", "max"))
-  assertIntegerish(objective.index, lower = 1, any.missing = FALSE)
+  assert(
+    checkIntegerish(objective.index, lower = 1, any.missing = FALSE),
+    checkLogical(objective.index, min.len = 1, any.missing = FALSE)
+  )
+  if (is.logical(objective.index)) {
+    assertTRUE(any(objective.index))
+  }
   searchpat <- sprintf("^eval\\..*\\.%s$", obj.stat)
   stag.access <- switch(stag.index,
     generations = "gen",
@@ -121,7 +127,7 @@ mosmafsTermStagnationObjStatistic <- function(stag, stag.index = "generations", 
   function(result) {
     if (nrow(result) < 1) return(NULL)
     # drop everything up to the last fid.reeval
-    if ("fid.reeval" %in% colnames(result) && any(results$fid.reeval)) {
+    if ("fid.reeval" %in% colnames(result) && any(result$fid.reeval)) {
       drop <- seq_len(max(which(result$fid.reeval)))
       result <- result[-drop, ]
     }
@@ -131,9 +137,10 @@ mosmafsTermStagnationObjStatistic <- function(stag, stag.index = "generations", 
       stagnation <- max(result[[stag.access]]) -
         result[[stag.access]][which.min(col)]
     })
+
     stagnation <- min(unlist(stags)[objective.index])
     if (stagnation >= stag) {
-      sprintf("Mean objective performance did not increase for %s %s (limit %s)",
+      sprintf("Mean objective performance did not improve for %s %s (limit %s)",
         stagnation, stag.name, stag)
     }
   }
