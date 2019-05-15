@@ -334,7 +334,7 @@ ps.simple <- pSS(
 ```
 
 Furthermore, a resampling strategy must be chosen. It can be either a `mlr::ResampleDesc` object, `mlr::ResampleInst` object 
-or any function which maps fidelity to the resampling to use. We use the resampling strategy `mlr::cv5``. 
+or any function which maps fidelity to the resampling to use. We use the resampling strategy `mlr::cv5`. 
 
 Now we have all the information needed to define an objective function we try to optimize. If we are doing feature selection, the `makeObjective()` function does this for us; otherwise we would need to define a "`smoof`" function using `smoof::makeSingleObjectiveFunction()` or `smoof::makeMultiObjectiveFunction()`.
 

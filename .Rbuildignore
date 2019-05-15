@@ -6,3 +6,5 @@
 ^notes$
 ^pkgdown$
 ^\.travis\.yml$
+^.*\.Rproj$
+^\.Rproj\.user$

@@ -115,10 +115,10 @@ availableAttributes <- function(log, check = FALSE) {
 #' @export
 collectResult <- function(ecr.object, aggregate.perresult = list(domHV = function(x) computeHV(x, ref.point)), aggregate.perobjective = list("min", "mean", "max"), ref.point = smoof::getRefPoint(ecr.object$control$task$fitness.fun), cor.fun = cor) {
   assertClass(ecr.object, "MosmafsResult")
-
+  
   normalize.funlist <- function(fl) {
     assertList(fl, any.missing = FALSE, types = c("function", "character"))
-
+    
     charentries <- vlapply(fl, is.character)
     names(fl)[charentries] <- ifelse(is.na(names2(fl)[charentries]),
       unlist(fl[charentries], recursive = FALSE),
@@ -127,14 +127,14 @@ collectResult <- function(ecr.object, aggregate.perresult = list(domHV = functio
       envir = .GlobalEnv, mode = "function")
     assertList(fl, any.missing = FALSE, types = "function", names = "unique")
   }
-
+  
   aggregate.perresult <- normalize.funlist(aggregate.perresult)
   aggregate.perobjective <- normalize.funlist(aggregate.perobjective)
-
+  
   assertNumeric(ref.point, any.missing = FALSE, finite = TRUE,
     len = ecr.object$task$n.objectives)
   assertFunction(cor.fun)
-
+  
   aggregate.fitness <- function(fitness) {
     resmat <- sapply(fitness, function(fit) {
       if (ecr.object$task$n.objectives == 1) {
@@ -153,20 +153,20 @@ collectResult <- function(ecr.object, aggregate.perresult = list(domHV = functio
     })
     as.data.frame(t(resmat))
   }
-
-
+  
+  
   fitnesses <- popAggregate(ecr.object$log, "fitness")
-
+  
   stats <- getStatistics(ecr.object$log)
   stats.newinds <- getStatistics(ecr.object$log.newinds)
-
+  
   no.fid <- is.null(stats.newinds$fidelity)
   if (no.fid) {
     stats.newinds$fidelity.sum <- 0
   } else {
     reevals <- stats.newinds$gen[stats.newinds$population == "fidelity.reeval"]
   }
-
+  
   resdf <- with(stats.newinds, data.frame(
     gen,
     runtime = cumsum(runtime.sum),
@@ -182,9 +182,9 @@ collectResult <- function(ecr.object, aggregate.perresult = list(domHV = functio
   }
   resdf <- cbind(resdf,
     eval = aggregate.fitness(fitnesses))
-
+  
   hofitnesses <- popAggregate(ecr.object$log, "fitness.holdout")
-
+  
   if (any(vlapply(hofitnesses, function(x) any(is.finite(x))))) {
     
     if (ecr.object$task$n.objectives == 1) {
@@ -208,13 +208,13 @@ collectResult <- function(ecr.object, aggregate.perresult = list(domHV = functio
       true.hout.domHV <- mapply(function(eval.fit, hout.fit) {
         unbiasedHoldoutDomHV(eval.fit, hout.fit, ref.point)
       }, fitnesses, hofitnesses)
-  
+      
       naive.hout.domHV <- mapply(function(eval.fit, hout.fit) {
         naiveHoldoutDomHV(eval.fit, hout.fit, ref.point)
       }, fitnesses, hofitnesses)
-    resdf <- cbind(resdf, hout = aggregate.fitness(hofitnesses),
-      true.hout.domHV, naive.hout.domHV,
-      cor = corcols)
+      resdf <- cbind(resdf, hout = aggregate.fitness(hofitnesses),
+        true.hout.domHV, naive.hout.domHV,
+        cor = corcols)
     }
   }
   resdf
@@ -245,22 +245,22 @@ collectResult <- function(ecr.object, aggregate.perresult = list(domHV = functio
 #'   `[[vector.name]]`.
 #' @export
 initSelector <- function(individuals, vector.name = "selector.selection", distribution = function() floor(runif(1, 0, length(individuals[[1]][[vector.name]]) + 1)), soften.op = NULL, soften.op.strategy = NULL, soften.op.repeat = 1, reject.condition = function(x) !any(x)) {
-
+  
   ilen <- length(individuals[[1]][[vector.name]])
   assertList(individuals, types = "list", min.len = 1)
   assertTRUE(all(viapply(individuals, function(x) {
     length(x[[vector.name]])
   }) == ilen))
-
+  
   if (!is.null(soften.op)) {
     assertClass(soften.op, "ecr_mutator")
     assertTRUE("binary" %in%
-      ecr:::getSupportedRepresentations.ecr_operator(soften.op))
+        ecr:::getSupportedRepresentations.ecr_operator(soften.op))
     assertFunction(soften.op.strategy, null.ok = TRUE)
     assertInt(soften.op.repeat, lower = 0)
   }
   assertFunction(reject.condition, null.ok = TRUE)
-
+  
   lapply(individuals, function(ind) {
     repeat {  # repeat when rejecting 0s
       ind.new <- ind
