@@ -254,6 +254,7 @@ collectResult <- function(ecr.object, aggregate.perresult = list(domHV = functio
 initSelector <- function(individuals, vector.name = "selector.selection", distribution = function() floor(runif(1, 0, length(individuals[[1]][[vector.name]]) + 1)), soften.op = NULL, soften.op.strategy = NULL, soften.op.repeat = 1, reject.condition = function(x) !any(x)) {
   
   ilen <- length(individuals[[1]][[vector.name]])
+  iint <- is.numeric(individuals[[1]][[vector.name]])
   assertList(individuals, types = "list", min.len = 1)
   assertTRUE(all(viapply(individuals, function(x) {
     length(x[[vector.name]])
@@ -287,6 +288,9 @@ initSelector <- function(individuals, vector.name = "selector.selection", distri
         new.selection <- new.selection > 0.5
       }
       if (is.null(reject.condition) || !reject.condition(new.selection)) {
+        if (iint) {
+          new.selection <- as.integer(new.selection)
+        }
         ind.new[[vector.name]] <- new.selection
         break
       }
