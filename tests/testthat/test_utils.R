@@ -52,10 +52,30 @@ test_that("listToDf", {
   expect_warning(setMosmafsVectorized(fitness.fun), 
     "attribute has.simple.signature of fn was set to TRUE")
   
+  # Check if dataframe in case of one discrete parameter 
+  ps.simple <- pSS(
+    disc: discrete[charToFactor(temp)]
+  )
+  
+  ind.list <- sampleValues(ps.simple, 1, discrete.names = TRUE, trafo = TRUE)
+  result <- listToDf(ind.list, ps.simple)
+  expect_data_frame(result, nrows = 1, ncol = 1)
+  
+  ps.simple.d <- pSS(
+    disc: discrete[temp]
+  )
+  ps.simple.dv <- pSS(
+    disc: discrete[temp]^3
+  )
+  ind.list <- sampleValues(ps.simple.d, 1, discrete.names = TRUE, trafo = TRUE)
+  result <- listToDf(ind.list, ps.simple.d)
+  expect_data_frame(result, nrows = 1, ncol = 1, any.missing = FALSE)
+  
+  ind.list <- sampleValues(ps.simple.dv, 1, discrete.names = TRUE, trafo = TRUE)
+  result <- listToDf(ind.list, ps.simple.dv)
+  expect_data_frame(result, nrows = 1, ncol = 3, any.missing = FALSE)
 })
-
-
-
+  
 test_that("initSelector", {
   ps.simple <- pSS(
     a: numeric [1, 10], 

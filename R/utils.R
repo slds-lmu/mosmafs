@@ -394,11 +394,10 @@ listToDf = function(list.object, par.set) {
   }
   lapply(list.object, checkClass)
   df = lapply(list.object, function(x) {
-    mapply(function(p, v) {
+    Map(function(p, v) {
       if (isScalarNA(v)) 
         v = as.data.frame(t(rep(v, p$len)))
-      else 
-        as.data.frame(t(v))
+      else as.data.frame(t(v))
     }, par.set$pars, x)
   })
   df = lapply(df, do.call, what = cbind)
