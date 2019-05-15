@@ -34,6 +34,7 @@ if (Sys.getenv("FASTVIGNETTE") != "true") {
 }
 if (.Platform$OS.type == "windows") {
   parallelStartSocket(cores, show.info = FALSE)
+  parallelLibrary("mlr")
 } else {
   parallelStartMulticore(cores, show.info = FALSE, mc.set.seed = FALSE)
 }
