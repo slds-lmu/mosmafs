@@ -1,3 +1,5 @@
+context("utils")
+
 test_that("listToDf", {
   
   temp <- c("a", "b", "c")
@@ -118,6 +120,11 @@ test_that("initSelector", {
   # some elemnts all TRUE
   expect_true(any(unlist(lapply(init.use.original.wth, function(x) all(x$use.original)))))
   
+  # Numeric
+  ps.simple <- pSS(
+    a: numeric [1, 10], 
+    b: discrete [a, b], 
+    selector.selection: logical^10)
   
   # With filter strategy and mutator
   task <- mlr::pid.task
@@ -144,10 +151,71 @@ test_that("initSelector", {
   new.inds <- initSelector(inds, 
     soften.op = ecr::setup(mut.simple))
   invisible(lapply(new.inds, function(x) expect_true(all(x$selector.selection))))
-  
-  
-  
+
 })
 
+
+test_that("popAggregate", {
+  ps.simple <- pSS(
+    a: numeric [0, 10],
+    selector.selection: logical^10)
+  
+  mutator.simple <- combine.operators(ps.simple,
+    a = mutGauss,
+    selector.selection = mutBitflipCHW)
+  
+  crossover.simple <- combine.operators(ps.simple,
+    a = recSBX,
+    selector.selection = recPCrossover)
+  
+  initials <- sampleValues(ps.simple, 10, discrete.names = TRUE)
+  
+  fitness.fun <- smoof::makeMultiObjectiveFunction(
+    sprintf("simple test"),
+    has.simple.signature = FALSE, par.set = ps.simple, n.objectives = 2, 
+    noisy = TRUE,
+    ref.point = c(10, 1),
+    fn = function(args, fidelity = NULL, holdout = FALSE) {
+      propfeat <- mean(args$selector.selection)
+      c(perf = args$a, propfeat = propfeat)
+  })
+  
+  gen <- 3
+  
+  results <- slickEcr(fitness.fun = fitness.fun, 
+    lambda = 10, 
+    population = initials, 
+    mutator = mutator.simple, recombinator = crossover.simple, 
+    generations = gen) 
+  
+  # data.frame
+  aggr.df <- popAggregate(results$log, extract = c("runtime", "fitness"), 
+    data.frame = TRUE)
+  expect_list(aggr.df, len = gen + 1)
+  expect_data_frame(aggr.df[[1]], nrows = 10, ncols = 3)
+  aggr.df <- popAggregate(results$log, extract = c("runtime"), 
+    data.frame = TRUE)
+  expect_data_frame(aggr.df[[1]], nrows = 10, ncols = 1)
+  
+  # matrix
+  aggr.mat <- popAggregate(results$log, extract = c("runtime", "fitness"), 
+    data.frame = FALSE)
+  expect_matrix(aggr.mat[[1]], nrows = 3, ncols = 10)
+  
+  # list
+  aggr.list <- popAggregate(results$log, extract = c("runtime", "fitness"), 
+    simplify = FALSE)
+  expect_list(aggr.list, len = gen + 1) 
+  expect_list(aggr.list[[1]], len = 10)
+  
+  # expect_error
+  expect_error(popAggregate(results$log, extract = "hoh"))
+  expect_error(popAggregate(results, extract = "fitness"), 
+    "'log' failed: Must inherit from class 'ecr_logger'")
+  expect_error(popAggregate(results$log, extract = "fitness", 
+    data.frame = 1))
+  
+  
+}) 
 
 

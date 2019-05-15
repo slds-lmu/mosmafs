@@ -18,7 +18,8 @@ clonelog <- function(log) {
 #' log object to a more accessible matrix or data.frame.
 #'
 #' @param log `[ecr_logger]` ecr log object
-#' @param extract `[character]` what to extract
+#' @param extract `[character]` names of attributes to extract, currently 
+#' "names", "fitness", "runtime", "fitness.holdout" and "fidelity" (if used) are supported
 #' @param simplify `[logical(1)]` whether to create a
 #'   `matrix`/`data.frame` for each generation (default).
 #'    Otherwise a list is returned for each generation containing
@@ -34,6 +35,9 @@ popAggregate <- function(log, extract, simplify = TRUE, data.frame = FALSE) {
   assertFlag(simplify)
   assertFlag(data.frame)
   pop <- getPopulations(log)
+  if (!(all(extract %in% names(attributes(pop[[1]]$population[[1]]))))) {
+    stop("Assertion on 'extract' failed: Must be name(s) of attributes of population")
+  }
   lapply(pop, function(generation) {
     aggr <- sapply(generation$population, function(individuum) {
       info <- attributes(individuum)[extract]
@@ -101,7 +105,7 @@ availableAttributes <- function(log, check = FALSE) {
 #'   to apply to fitness and holdout fitness. Every entry must either be
 #'   a `character(1)` naming the function to use, or a function, in which
 #'   that entry must have a name. Each function must return exactly one
-#'   numeric value when fed a fitness matrix of one generation. This i
+#'   numeric value when fed a fitness matrix of one generation. This is
 #'   ignored for single-objective runs.
 #' @param aggregate.perobjective `[list]` list of functions
 #'   to apply to fitness and holdout fitness matrix rows, formatted like
@@ -250,7 +254,6 @@ collectResult <- function(ecr.object, aggregate.perresult = list(domHV = functio
 initSelector <- function(individuals, vector.name = "selector.selection", distribution = function() floor(runif(1, 0, length(individuals[[1]][[vector.name]]) + 1)), soften.op = NULL, soften.op.strategy = NULL, soften.op.repeat = 1, reject.condition = function(x) !any(x)) {
   
   ilen <- length(individuals[[1]][[vector.name]])
-  iint <- is.numeric(individuals[[1]][[vector.name]])
   assertList(individuals, types = "list", min.len = 1)
   assertTRUE(all(viapply(individuals, function(x) {
     length(x[[vector.name]])
@@ -284,9 +287,6 @@ initSelector <- function(individuals, vector.name = "selector.selection", distri
         new.selection <- new.selection > 0.5
       }
       if (is.null(reject.condition) || !reject.condition(new.selection)) {
-        if (iint) {
-          new.selection <- as.integer(new.selection)
-        }
         ind.new[[vector.name]] <- new.selection
         break
       }
@@ -385,6 +385,7 @@ setMosmafsVectorized <- function(fn, vectorize = TRUE) {
 }
 
 
+#' @export
 listToDf = function(list.object, par.set) {
   assertList(list.object)
   checkClass <- function(l) {
