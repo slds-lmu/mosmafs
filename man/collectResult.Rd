@@ -17,7 +17,7 @@ collectResult(ecr.object, aggregate.perresult = list(domHV = function(x)
 to apply to fitness and holdout fitness. Every entry must either be
 a \code{character(1)} naming the function to use, or a function, in which
 that entry must have a name. Each function must return exactly one
-numeric value when fed a fitness matrix of one generation. This i
+numeric value when fed a fitness matrix of one generation. This is
 ignored for single-objective runs.}
 
 \item{aggregate.perobjective}{\code{[list]} list of functions

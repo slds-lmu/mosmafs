@@ -9,7 +9,8 @@ popAggregate(log, extract, simplify = TRUE, data.frame = FALSE)
 \arguments{
 \item{log}{\code{[ecr_logger]} ecr log object}
 
-\item{extract}{\code{[character]} what to extract}
+\item{extract}{\code{[character]} names of attributes to extract, currently
+"names", "fitness", "runtime", "fitness.holdout" and "fidelity" (if used) are supported}
 
 \item{simplify}{\code{[logical(1)]} whether to create a
 \code{matrix}/\code{data.frame} for each generation (default).
