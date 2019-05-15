@@ -117,4 +117,37 @@ test_that("initSelector", {
   newly.generated(initials, init.use.original.wth, "use.original")
   # some elemnts all TRUE
   expect_true(any(unlist(lapply(init.use.original.wth, function(x) all(x$use.original)))))
+  
+  
+  # With filter strategy and mutator
+  task <- mlr::pid.task
+  filters <- c("praznik_JMI", "auc", "anova.test", "variance", "DUMMY")
+  fima <- makeFilterMat(task, filters = filters)
+  
+  ps.strat <- pSS(
+    maxdepth: integer[1, 30],
+    filterweights: numeric[0.001, 0.999]^length(filters), 
+    selector.selection: logical^8)
+  
+  ind <- sampleValues(ps.strat, 10, discrete.names = TRUE)
+  new.ind <- initSelector(ind, 
+    soften.op = ecr::setup(mutUniformMetaResetSHW, p = 1),
+    soften.op.strategy = makeFilterStrategy(fima, "filterweights"))
+  expect_list(new.ind, any.missing = FALSE, len = 10)
+  
+  # Mutator returning only 1s
+  # Test for line 'new.selection <- new.selection > 0.5'
+  mut.simple <- makeMutator(function(ind) {
+    return(rep(1, length(ind)))
+  }, supported = "binary")
+  inds <- sampleValues(ps.strat, 10, discrete.names = TRUE)
+  new.inds <- initSelector(inds, 
+    soften.op = ecr::setup(mut.simple))
+  invisible(lapply(new.inds, function(x) expect_true(all(x$selector.selection))))
+  
+  
+  
 })
+
+
+
