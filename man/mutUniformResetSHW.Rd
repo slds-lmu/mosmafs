@@ -5,9 +5,10 @@
 \alias{mutUniformMetaResetSHW}
 \title{Uniform Reset Scaled by Hamming Weight}
 \usage{
-mutUniformResetSHW(ind, p = 0.1, reset.dist)
+mutUniformResetSHW(ind, p = 0.1, reset.dist, ...)
 
-mutUniformMetaResetSHW(ind, p = 0.1, reset.dists, reset.dist.weights)
+mutUniformMetaResetSHW(ind, p = 0.1, reset.dists, reset.dist.weights,
+  ...)
 }
 \arguments{
 \item{ind}{\code{[integer]} binary individual}

@@ -4,7 +4,7 @@
 \alias{mutBitflipCHW}
 \title{Bitflip (Approximately, in Expectation) Conserving Hamming Weight}
 \usage{
-mutBitflipCHW(ind, p = 0.1)
+mutBitflipCHW(ind, p = 0.1, ...)
 }
 \arguments{
 \item{ind}{\code{[integer]} binary individual}

@@ -127,6 +127,8 @@ scaled <- function(scaling, fs = filterresults) {
 }
 
 
+filterresults <- readRDS("../experiments/filterresults_small.rds")
+filterresults2 <- readRDS("../experiments/filterresults_small_2.rds")
 
 
 snames <- strsplit(names(scaled("mosmafs")), ",")
@@ -231,8 +233,9 @@ plot(hclust(meandist("scale", outds = setdiff(datasets, "dexter"))))
 plot(hclust(meandist("scale", corfun = cordiff, outds = setdiff(datasets, "dexter"))))
 
 
-plot(hclust(meandist("rank", both = TRUE)))
-
+pdf(width = 10, height = 10)
+plot(hclust(meandist("rank", both = TRUE)), ylab = "", sub = "", xlab = "", main = "")
+dev.off()
 
 plot(hclust(meandist("rank")))
 
