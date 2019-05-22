@@ -65,7 +65,7 @@ makeObjective <- function(learner, task, ps, resampling, measure = NULL, holdout
   if ("selector.selection" %in% ParamHelpers::getParamIds(ps)) {
     stop("selector.selection is not allowed to be part of 'ps' as it is automatically added")
   }
-  ps = c(ps, pSS(selector.selection: logical^getTaskNFeats(task)))
+  ps = c(ps, pSS(selector.selection = NA: logical^getTaskNFeats(task)))
   
   learner <- cpoSelector() %>>% checkLearner(learner, type = getTaskType(task))
   learner %<<<% cpo
