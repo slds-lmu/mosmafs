@@ -32,7 +32,8 @@ Suggests:
   testthat,
   rpart,
   parallel,
-  praznik
+  praznik,
+  mlrMBO
 Remotes:
   jakobbossek/ecr2,
   mlr-org/mlr
