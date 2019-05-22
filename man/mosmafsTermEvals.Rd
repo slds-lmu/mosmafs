@@ -17,7 +17,7 @@ mosmafsTermFidelity(fidelity)
 mosmafsTermStagnationHV(stag, stag.index = "generations")
 
 mosmafsTermStagnationObjStatistic(stag, stag.index = "generations",
-  obj.stat = "mean", objective.index = 1)
+  obj.stat = "mean", objective.index = TRUE)
 }
 \arguments{
 \item{evals}{\code{[integer(1)]} limit evals}
@@ -37,8 +37,8 @@ aborting after stagnation.}
 \item{obj.stat}{\code{[character(1)]} what statistic of the objective to test.
 One of "min", "mean", "max". Default "mean"}
 
-\item{objective.index}{\code{[integer]} index of objective(s) to consider. Terminates
-if all the objectives listed here stagnate. Default 1.}
+\item{objective.index}{\code{[integer | logical]} index of objective(s) to consider. Terminates
+if all the objectives listed here stagnate. \code{TRUE} for all objectives. Default \code{TRUE}.}
 
 \item{generations}{\code{[integer(1)]} limit generations. Initial population does
 not count.}
