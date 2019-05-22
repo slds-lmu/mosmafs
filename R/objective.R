@@ -120,6 +120,9 @@ makeObjective <- function(learner, task, ps, resampling, measure = NULL, holdout
 #'   of values of discrete params converted to the actual values.
 #' @export
 valuesFromNames <- function(paramset, value) {
+  assertClass(paramset, "ParamSet")
+  assertList(value, len = length(paramset$pars))
+  assertSubset(names(value), getParamIds(paramset), empty.ok = FALSE)
   adapt <- getParamIds(paramset)[getParamTypes(paramset) %in% c("discrete", "discretevector")]
   adapt <- intersect(adapt, names(value))
   for (pname in adapt) {
