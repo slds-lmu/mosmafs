@@ -155,7 +155,7 @@ test_that("initSelector", {
 })
 
 
-test_that("popAggregate", {
+test_that("popAggregate and availableAttributes", {
   ps.simple <- pSS(
     a: numeric [0, 10],
     selector.selection: logical^10)
@@ -188,6 +188,7 @@ test_that("popAggregate", {
     mutator = mutator.simple, recombinator = crossover.simple, 
     generations = gen) 
   
+  ## popAggregate
   # data.frame
   aggr.df <- popAggregate(results$log, extract = c("runtime", "fitness"), 
     data.frame = TRUE)
@@ -215,6 +216,12 @@ test_that("popAggregate", {
   expect_error(popAggregate(results$log, extract = "fitness", 
     data.frame = 1))
   
+  ## availableAttributes
+  expect_character(availableAttributes(results$log, check = TRUE), 
+    len = 4, unique = TRUE, any.missing = FALSE)
+  empty.pop <- results$log
+  empty.pop$env$pop <- NULL
+  expect_character(availableAttributes(empty.pop), len = 0)
   
 }) 
 

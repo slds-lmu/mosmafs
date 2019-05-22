@@ -122,16 +122,18 @@ test_that("multiFidelity with 2 columns", {
   lrn <- makeLearner("regr.lm")
   
   ps.simple <- pSS(
-    a: numeric [0, 10],
-    selector.selection: logical^getTaskNFeats(task))
-  
-  initials <- sampleValues(ps.simple, 15, discrete.names = TRUE)
+    a: numeric [0, 10])
   
   nRes <- function(n) {
     makeResampleDesc("Subsample", split = 0.9, iters = n)
   }
+  
   fitness.fun <- makeObjective(learner = lrn, task = task, ps = ps.simple, 
-      resampling = nRes, holdout.data = task.hout, worst.measure = .Machine$double.xmax)
+    resampling = nRes, holdout.data = task.hout, worst.measure = .Machine$double.xmax)
+  
+  ps.simple <- getParamSet(fitness.fun)
+  
+  initials <- sampleValues(ps.simple, 15, discrete.names = TRUE)
   
   fidelity <- data.frame(
     c(1, 6, 10),
@@ -201,8 +203,8 @@ test_that("multiFidelity with 2 columns", {
 
 test_that("survival.strategy as function works", {
   ps.simple <- pSS(
-    a: numeric [0, 10],
-    selector.selection: logical^10)
+    a: numeric [0, 10], 
+    selector.selection: logical^7)
   
   mutator.simple <- combine.operators(ps.simple,
     a = mutGauss,

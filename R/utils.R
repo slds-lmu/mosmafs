@@ -35,7 +35,7 @@ popAggregate <- function(log, extract, simplify = TRUE, data.frame = FALSE) {
   assertFlag(simplify)
   assertFlag(data.frame)
   pop <- getPopulations(log)
-  if (!(all(extract %in% names(attributes(pop[[1]]$population[[1]]))))) {
+  if (!(all(extract %in% availableAttributes(log)))) {
     stop("Assertion on 'extract' failed: Must be name(s) of attributes of population")
   }
   lapply(pop, function(generation) {
@@ -246,7 +246,7 @@ collectResult <- function(ecr.object, aggregate.perresult = list(domHV = functio
 #'   Ignored if `soften.op` is not given.
 #' @param soften.op.repeat `[integer(1)]` how often to repeat `soften.op`
 #'   application. Ignored if `soften.op` is not given.
-#' @param reject.condition `[function]` reject condition as a function applied
+#' @param reject.condition `[function | NULL]` reject condition as a function applied
 #' to newly generated values of `vector.name`. If set to NULL, no rejection is done. 
 #' @return `list of named lists` The individuals with initialized
 #'   `[[vector.name]]`.
@@ -385,6 +385,19 @@ setMosmafsVectorized <- function(fn, vectorize = TRUE) {
 }
 
 
+#' @title Convert a list to a data.frame based on parameter set 
+#' 
+#' @description 
+#' List elements must have the correct type with respect to 
+#' parameter set. Exceptions are discrete parameters, whose values should be 
+#' factors, only characters are accepted and factors are returned. \n
+#' Returned `data.frame` has column names equal to parameter ids. In case 
+#' of vector parameters column names will be numbered. 
+#' 
+#' @param list.object `[list]` list of individuals, each with elements named 
+#' by parameter ids
+#' @param par.set `[ParamSet]` parameter set 
+#' @return `[data.frame]`
 #' @export
 listToDf = function(list.object, par.set) {
   assertList(list.object)

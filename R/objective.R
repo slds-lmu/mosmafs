@@ -61,11 +61,11 @@ makeObjective <- function(learner, task, ps, resampling, measure = NULL, holdout
 
   worst.measure <- worst.measure * obj.factor
 
-  # Test if selector.selection in ps, if not 
-  # add it to ps c()
-  if (!("selector.selection" %in% ParamHelpers::getParamIds(ps))) {
-    ps = c(ps, pSS(selector.selection: logical^getTaskNFeats(task)))
+  # error if selector.selection already in ps, will be automatically added
+  if ("selector.selection" %in% ParamHelpers::getParamIds(ps)) {
+    stop("selector.selection is not allowed to be part of 'ps' as it is automatically added")
   }
+  ps = c(ps, pSS(selector.selection: logical^getTaskNFeats(task)))
   
   learner <- cpoSelector() %>>% checkLearner(learner, type = getTaskType(task))
   learner %<<<% cpo

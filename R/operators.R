@@ -375,7 +375,7 @@ makeFilterStrategy <- function(reset.dists, weight.param.name) {
 }
 
 
-#' @title Integer Scaled Gaussian Mutator
+#' @title Scaled Gaussian Mutator
 #'
 #' @description
 #' See [ecr::mutGauss]. Allows a vector of standard deviations. Scales

@@ -31,7 +31,7 @@ test_that("terminator terminate the right way", {
   expect_null(mosmafsTermEvals(3)(data.frame(evals = c(1:2))))
   nr.evals <- function(lambda) {round((100 - 30)/lambda)}
   lambda <- 5
-  results <- results <- slickEcr(fitness.fun = fitness.fun, 
+  results <- slickEcr(fitness.fun = fitness.fun, 
     lambda = lambda, 
     population = initials, 
     mutator = mutator.simple, recombinator = crossover.simple, 
@@ -137,6 +137,9 @@ test_that("termination with fidelity", {
 
   expect_string(mosmafsTermFidelity(1.5)(data.frame(cum.fid = c(1, 1.2, 1.5, 1.4))))
   expect_null(mosmafsTermFidelity(1.5)(data.frame(cum.fid = rep(1, 5))))
+  expect_string(mosmafsTermStagnationHV(stag = 3, stag.index = "fidelity")(
+    data.frame(eval.domH = rep(1, 4), 
+      cum.fid = 1:4)), "HV performance did not increase for 3")
   
   task.whole <- mlr::bh.task
   rows.whole <- sample(1:nrow(getTaskData(task.whole)))
@@ -146,16 +149,18 @@ test_that("termination with fidelity", {
   lrn <- makeLearner("regr.lm")
   
   ps.simple <- pSS(
-    a: numeric [0, 10],
-    selector.selection: logical^getTaskNFeats(task))
-  
-  initials <- sampleValues(ps.simple, 15, discrete.names = TRUE)
+    a: numeric [0, 10])
   
   nRes <- function(n) {
     makeResampleDesc("Subsample", split = 0.9, iters = n)
   }
   fitness.fun <- makeObjective(learner = lrn, task = task, ps = ps.simple,
     resampling = nRes, holdout.data = task.hout, worst.measure = .Machine$double.xmax)
+  
+  ps.simple <- getParamSet(fitness.fun)
+  
+  
+  initials <- sampleValues(ps.simple, 15, discrete.names = TRUE)
   
   fidelity <- data.frame(
     c(1, 6, 10),
@@ -184,15 +189,5 @@ test_that("termination with fidelity", {
   stats = collectResult(results.mufi)
   assert_true(tail(stats$cum.fid, 1) >= max.fidelity)
   
-  
-  results.mufi.staghv <- slickEcr(
-    fitness.fun = fitness.fun,
-    lambda = 5,
-    population = initials,
-    mutator = mutator.simple,
-    recombinator = crossover.simple,
-    generations = list(mosmafsTermStagnationHV(2, "fidelity"), mosmafsTermGenerations(10)),
-    fidelity = fidelity)
-  stats.staghv = collectResult(results.mufi.staghv)
-  assert_true(tail(stats.staghv$gen, 1) == 1)
+
 })
