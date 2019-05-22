@@ -80,7 +80,7 @@ makeObjective <- function(learner, task, ps, resampling, measure = NULL, holdout
         return(c(perf = Inf, propfeat = Inf))
       }
       if (!missing(fidelity) && identical(fidelity, 0)) {
-        return(c(0, 0))
+        return(c(perf = 0, propfeat = 0))
       }
       # filter out strategy parameters
       args <- args[intersect(names(args), argnames)]
@@ -162,7 +162,7 @@ valuesFromNames <- function(paramset, value) {
 #' @param numfeats `[integer(1)]` number of features to consider. Is extracted
 #'   from the `task` but should be given if `cpo` changes the number of features.
 #' @return `function` that can be used for mlrMBO; irace possibly needs some
-#'   adjustmens
+#'   adjustments
 #' @export
 makeBaselineObjective <- function(learner, task, filters, ps, resampling, measure = NULL, num.explicit.featsel = 0, holdout.data = NULL, worst.measure = NULL, cpo = NULLCPO, numfeats = getTaskNFeats(task)) {
   if (is.null(measure)) {
@@ -224,7 +224,11 @@ makeBaselineObjective <- function(learner, task, filters, ps, resampling, measur
       # mlrMBO is the platonic ideal of awful design.
       # The function parameter actually must be named 'x'.
       args <- x
-
+      dif.names <- getParamIds(ps)[!getParamIds(ps) %in% names(args)]
+      if (length(dif.names) > 0) {
+        stop(sprintf("%s must be an element in list 'x'", dif.names))
+      }
+      
       # trafo not necessary in mlrMBO
 
       # set up `selector.selection` from nselect, iselect, select.weights and fmat

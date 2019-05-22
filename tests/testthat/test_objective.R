@@ -60,6 +60,19 @@ test_that('makeObjective', {
     "selector.selection is not allowed to be part of 'ps'")
   
   
+  # without holdout
+  fitness.fun.mos <- makeObjective(lrn, task, ps.simple, resampling = cv5, 
+    measure = mse, worst.measure = 100)
+  
+  res <- fitness.fun.mos(args, fidelity = 2, holdout = FALSE)
+  expect_numeric(res, len = 2)
+  
+  res <- fitness.fun.mos(args, fidelity = 2, holdout = TRUE)
+  expect_true(all(is.infinite(res)))
+  
+  # with fidelity 0 
+  res <- fitness.fun.mos(args, fidelity = 0, holdout = FALSE)
+  expect_true(all(res == 0))
   
 })
 
@@ -122,11 +135,17 @@ test_that("makeBaselineObjective", {
     cp: numeric[0.001, 0.999])
   filters <- c("praznik_JMI", "anova.test")
   
+  # no measure given
+  assert_class(makeBaselineObjective(lrn, task, filters = filters, ps = ps, 
+    resampling = cv5), "smoof_multi_objective_function")
+  
+  # measure given
   obj <- makeBaselineObjective(lrn, task,
-    filters = filters, worst.measure = 1,
+    filters = filters,  measure = acc,
     ps = ps, resampling = cv5, holdout.data = task.hout)
   
   expect_class(obj, "smoof_multi_objective_function")
+  
   nam <- getParamIds(attr(obj, "par.set"))
   expect_equal(length(grep("mosmafs.select.weights", nam)), length(filters))
   
@@ -140,13 +159,12 @@ test_that("makeBaselineObjective", {
   learner <- setHyperPars(lrn, par.vals = args)
   model <- train(learner, task)
   prd <- predict(model, task.hout)
-  mse.hout <- performance(prd, list(mmce), task, model)[1]
+  mse.hout <- performance(prd, list(acc), task, model)[1] * -1
   expect_equal(attr(res, "extra")$fitness.holdout.perf, 
-    mse.hout[["mmce"]])
+    mse.hout[["acc"]])
   
   expect_equal(res[["propfeat"]], 0.5)
   expect_equal(attr(res, "extras")$fitness.holdout.propfeat, 0.5)
-
 
   ### with mbo 
   require("mlrMBO")
@@ -158,8 +176,23 @@ test_that("makeBaselineObjective", {
   mbo_res <- mbo(obj, control = ctrl)
   
   expect_class(mbo_res, "MBOMultiObjResult")
-
-
+  
+  # only one filter value
+  filters <- c("anova.test")
+  objFil <- makeBaselineObjective(lrn, task, filters = filters, ps = ps, 
+    resampling = cv5)
+  
+  expect_true(all(!(getParamIds(getParamSet(objFil)) %in% 
+      c("mosmafs.select.weights.1", "mosmafs.select.weights.2"))))
+  
+  res <- objFil(list(maxdepth = 3, minsplit = 2, cp = 0.5, 
+    mosmafs.nselect = 2,
+    mosmafs.select.weights.1 = 1,
+    mosmafs.select.weights.2 = 0.0))
+  
+  expect_error(objFil(list(maxdepth = 3, minsplit = 2, cp = 0.5)), 
+    "mosmafs.nselect must be an element in list 'x'")
+    
 })
 
 

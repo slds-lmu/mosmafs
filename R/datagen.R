@@ -3,8 +3,7 @@
 #'
 #' @description
 #' Create linear model data `Y = X * beta + epsilon` with
-#' `X = X^` if `[permute] == FALSE`, and `X = shuffle_columns(X^)`
-#' if `[permute] == TRUE` where `X^` is an `[n] * [p]` matrix of MVN distributed
+#' X as a `n * p` matrix of multivariate normal distributed
 #' rows with covariance matrix
 #'
 #' ```
@@ -14,13 +13,15 @@
 #' ...
 #' rho^p ...
 #' ```
-#'
-#' `epsilon` is normally distributed with stdev 1.
-#'
-#' `beta = shuffle(beta^)` if `[permute] == TRUE` and `beta = beta^` otherwise,
-#' and `beta^[i] = beta0 * q ^ (i - 1)` for `i` = `1..p`
-#'
-#' `$orig.features` are the features with `beta > 1 / sqrt(n)`
+#' 
+#' `epsilon` is standard normally distributed and 
+#' `beta[i] = beta0 * q ^ (i - 1)` for `i = 1,..., p`.  
+#' 
+#' If `permute == TRUE`, columns of `X` as well as `beta` are permuted before
+#' the linear model equation is evaluated to generate `Y`. These permuted
+#' values are also the ones returned in the result.
+#' 
+#' `$orig.features` are the features with `beta > 1 / sqrt(n)`.
 #'
 #' @param n `[integer(1)]` number of rows to generate
 #' @param p `[integer(1)]` number of columns to generate
@@ -33,6 +34,13 @@
 #' @family Artificial Datasets
 #' @export
 create.linear.data <- function(n, p, q = exp(-1), beta0 = 1, rho = 0, permute = TRUE) {
+  assertInt(n, lower = 1)
+  assertInt(p, lower = 1)
+  assertNumber(q, lower = 0)
+  assertNumber(beta0)
+  assertNumber(rho, lower = -1, upper = 1)
+  assertLogical(permute, len = 1)
+  
   cormat <- sapply(seq_len(p), function(x) rho ^ abs(x - seq_len(p)))
   X <- MASS::mvrnorm(n, rep(0, p), cormat)
   if (permute) {
@@ -58,20 +66,24 @@ create.linear.data <- function(n, p, q = exp(-1), beta0 = 1, rho = 0, permute = 
 #'
 #' * Sample `dim` columns of data from `dist` (which must be a function
 #'   `n -> vector length (n)` and should probably sample randomly to create `X`.
-#' * `Y[i]` is `+1` if the L_`norm`-norm of `X[i, ]` is < `radius`, and `-1` otherwise.
+#' * `Y[i]` is `+1` if the L_`norm` of `X[i, ]` is `< radius^norm`, and `-1` otherwise.
 #'
 #' @param dim `[integer(1)]` number of columns to create
 #' @param n `[integer(1)]` number of sample to create
 #' @param dist `[function]` function `n` -> `numeric(n)` that is used to sample points dimension-wise
 #' @param norm `[numeric(1)]` Norm Exponent
-#' @param radius `[numeric(1)]` Radious to check against
+#' @param radius `[numeric(1)]` Radius to check against
 #' @return `list(X = [Matrix], Y = [vector], orig.features = logical)`
 #' @family Artificial Datasets
 #' @export
 create.hypersphere.data <- function(dim, n, dist = function(x) runif(x, -1, 1), norm = 2, radius = 1) {
+  assertInt(dim, lower = 1)
+  assertInt(n, lower = 1)
+  assertFunction(dist, nargs = 1)
+  assertNumber(norm)
+  assertNumber(radius, lower = 0)
   X = replicate(dim, dist(n))
-  Y =
-  sign(radius^norm - apply(X, 1, function(x) sum(abs(x)^norm)))
+  Y = sign(radius^norm - apply(X, 1, function(x) sum(abs(x)^norm)))
   list(X = X, Y = Y, orig.features = rep(TRUE, dim))
 }
 
