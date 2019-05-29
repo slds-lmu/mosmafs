@@ -104,13 +104,14 @@ create.hypersphere.data <- function(dim, n, dist = function(x) runif(x, -1, 1), 
 #' @family Artificial Datasets
 #' @export
 create.linear.toy.data <- function(n) {
+  assertInt(n, lower = 1, na.ok = FALSE)
   Y = sample(c(-1, 1), n, replace = TRUE)
   X1 = cbind(apply(matrix(1:3, nrow = 1), 2, function(i) Y * rnorm(n, i, 1)), replicate(3, rnorm(n)))
   X2 = cbind(replicate(3, rnorm(n)), apply(matrix(1:3, nrow = 1), 2, function(i) Y * rnorm(n, i - 3, 1)))
   u = runif(n)
   X = rbind(X1[u <= 0.7, ], X2[u > 0.7, ])
   X = cbind(X, replicate(196, rnorm(n, 0, 20)))
-  list(X = X, Y = Y, orig.features = rep(c(TRUE, FALSE), each = c(6, 196)))
+  list(X = X, Y = Y, orig.features = c(rep(TRUE, 6), rep(FALSE, 196)))
 }
 
 
