@@ -44,6 +44,52 @@ test_that("hypersphere data", {
   
 })
   
+
+
+test_that("create.linear.toy.data", {
+  expect_error(create.linear.toy.data("a"), 
+    "'n' failed: Must be of type 'single integerish value'")
+  df = create.linear.toy.data(10)
+  expect_list(df, len = 3)
+  expect_logical(df$orig.features, len = 202)
+  expect_true(all(df$Y %in% c(-1, 1)))
+  expect_matrix(df$X, nrows = 10, ncols = 202)  
+})
+
+test_that("create task and clone task", {
+  df = create.linear.toy.data(10)
+  df2 = create.linear.toy.data(10)
+  
+  # regr.task
+  regrtask = create.regr.task("toy", data = df)
+  expect_error(create.regr.task(data = df), 
+    'argument "id" is missing, with no default')
+  expect_class(create.regr.task("toy", df), "RegrTask")
+  
+  # classif.task
+  clastask = create.classif.task("toy", df)
+  expect_class(clastask, "ClassifTask")
+  expect_error(create.classif.task(data = df), 
+    'argument "id" is missing, with no default')
+  
+  # clone task
+  Y = c(rep("+", 5), rep("-", 5))
+  new.task = clonetask(clastask, newdata = data.frame(X = df2$X[, 1:10], Y), 
+  newid = "toy.new")
+  assert_class(new.task, "ClassifTask")
+  # wrong target variable
+  expect_error(clonetask(clastask, newdata = data.frame(X = df2$X, Y = df2$Y), 
+    newid = "toy.new"), 
+    "'Y' failed: Must be of type 'factor', not 'double'")
+  
+  # Wrong dimension of data compared to orig.features
+  expect_error(clonetask(regrtask, newdata = data.frame(X = df2$X[, 1:10], 
+    Y = df2$Y), newid = "toy.new"))
+  newregrtask = clonetask(regrtask, newdata = data.frame(X = df2$X, 
+    Y = df2$Y), newid = "toy.new")
+  assert_class(newregrtask, "RegrTask")
+})
+
   
 test_that("generating data", {
  
@@ -60,6 +106,4 @@ test_that("generating data", {
   expect_equal(sum(htaskperm$orig.features), 2)
 })
 
-test_that("linear data", {
-  
-})
+

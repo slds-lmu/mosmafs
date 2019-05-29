@@ -89,16 +89,17 @@ create.hypersphere.data <- function(dim, n, dist = function(x) runif(x, -1, 1), 
 
 #' @title Linear Toy Data
 #'
-#' Linear toy data (Weston, Feature Selection for SVMs).
+#' @description Linear toy data (Weston, Feature Selection for SVMs).
 #'
 #' Creates matrix `X` and vector `Y` with six dimensions out of 202 relevant and
 #' equal probability of `y` = 1 or -1.
 #'
 #' With a prob of 0.7 we draw `xi = y * norm(i, 1)` for `i` = 1, 2, 3 and
-#' `xi` = `norm(0, 1)` for i = 4, 5, 6.
-#' Otherwise: `xi = norm(0, 1)` for `i` = 1, 2, 3 and `xi` = `y * norm(i - 3, 1)`.
+#' `xi` = `norm(0, 1)` for `i` = 4, 5, 6.      
+#' Otherwise: `xi = norm(0, 1)` for `i` = 1, 2, 3 and `xi = y * norm(i - 3, 1)` 
+#' for `i` = 4, 5, 6.
 #'
-#' All other features are noise
+#' All other features are noise.
 #' @param n `[integer(1)]` number of samples to draw
 #' @return `list(X = [Matrix], Y = [vector], orig.features = logical)`
 #' @family Artificial Datasets
@@ -128,6 +129,9 @@ create.linear.toy.data <- function(n) {
 #' @family Artificial Datasets
 #' @export
 create.regr.task <- function(id, data) {
+  assertString(id)
+  assertList(data, any.missing = FALSE, min.len = 3)
+  assertTRUE(all(c("X", "Y", "orig.features") %in% names(data)))
   task <- makeRegrTask(id, data.frame(X = data$X, Y = data$Y), target = "Y")
   task$orig.features <- data$orig.features
   task
@@ -138,6 +142,10 @@ create.regr.task <- function(id, data) {
 #' @family Artificial Datasets
 #' @export
 create.classif.task <- function(id, data, cutoff = 0) {
+  assertString(id)
+  assertList(data, any.missing = FALSE, min.len = 3)
+  assertTRUE(all(c("X", "Y") %in% names(data)))
+  assertNumber(cutoff)
   makeClassifTask(id, data.frame(X = data$X,
     Y = ifelse(data$Y < cutoff, "-", "+")), target = "Y", positive = "+")
 }
@@ -160,6 +168,13 @@ create.classif.task <- function(id, data, cutoff = 0) {
 #' @export
 clonetask <- function(task, newdata, newid,
   orig.features = rep(TRUE, ncol(newdata) - length(getTaskTargetNames(task)))) {
+  assert(
+    checkClass(task, "RegrTask"), 
+    checkClass(task, "ClassifTask"))
+  assertDataFrame(newdata)
+  assertString(newid)
+  assertLogical(orig.features)
+  
   rettask <- switch(getTaskType(task),
     classif = {
       makeClassifTask(newid, newdata,

@@ -394,7 +394,8 @@ setMosmafsVectorized <- function(fn, vectorize = TRUE) {
 #' @description 
 #' List elements must have the correct type with respect to 
 #' parameter set. Exceptions are discrete parameters, whose values should be 
-#' factors, only characters are accepted and factors are returned. \n
+#' factors, only characters are accepted and factors are returned.           
+#' 
 #' Returned `data.frame` has column names equal to parameter ids. In case 
 #' of vector parameters column names will be numbered. 
 #' 
