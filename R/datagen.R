@@ -168,9 +168,7 @@ create.classif.task <- function(id, data, cutoff = 0) {
 #' @export
 clonetask <- function(task, newdata, newid,
   orig.features = rep(TRUE, ncol(newdata) - length(getTaskTargetNames(task)))) {
-  assert(
-    checkClass(task, "RegrTask"), 
-    checkClass(task, "ClassifTask"))
+  assertClass(task, "Task")
   assertDataFrame(newdata)
   assertString(newid)
   assertLogical(orig.features)
@@ -217,7 +215,10 @@ clonetask <- function(task, newdata, newid,
 #' @family Artificial Datasets
 #' @export
 task.add.random.cols <- function(task, num, dist = rnorm) {
-
+  
+  assertClass(task, "Task")
+  assertInt(num, lower = 1)
+  assertFunction(dist)
   # use 'task$env$data' instead of 'getTaskData' because we want
   # the target column(s) as a data.frame
   data <- task$env$data

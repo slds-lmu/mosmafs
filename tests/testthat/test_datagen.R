@@ -61,20 +61,20 @@ test_that("create task and clone task", {
   df2 = create.linear.toy.data(10)
   
   # regr.task
-  regrtask = create.regr.task("toy", data = df)
+  regrtask <- create.regr.task("toy", data = df)
   expect_error(create.regr.task(data = df), 
     'argument "id" is missing, with no default')
   expect_class(create.regr.task("toy", df), "RegrTask")
   
   # classif.task
-  clastask = create.classif.task("toy", df)
+  clastask <- create.classif.task("toy", df)
   expect_class(clastask, "ClassifTask")
   expect_error(create.classif.task(data = df), 
     'argument "id" is missing, with no default')
   
   # clone task
-  Y = c(rep("+", 5), rep("-", 5))
-  new.task = clonetask(clastask, newdata = data.frame(X = df2$X[, 1:10], Y), 
+  Y <- c(rep("+", 5), rep("-", 5))
+  new.task <- clonetask(clastask, newdata = data.frame(X = df2$X[, 1:10], Y), 
   newid = "toy.new")
   assert_class(new.task, "ClassifTask")
   # wrong target variable
@@ -85,9 +85,39 @@ test_that("create task and clone task", {
   # Wrong dimension of data compared to orig.features
   expect_error(clonetask(regrtask, newdata = data.frame(X = df2$X[, 1:10], 
     Y = df2$Y), newid = "toy.new"))
-  newregrtask = clonetask(regrtask, newdata = data.frame(X = df2$X, 
+  newregrtask <- clonetask(regrtask, newdata = data.frame(X = df2$X, 
     Y = df2$Y), newid = "toy.new")
   assert_class(newregrtask, "RegrTask")
+})
+
+test_that("add columns", {
+  
+  example.task <- mlr::bh.task
+  n.col <- ncol(example.task$env$data)
+  # orig.features already given
+  example.task.2 <- create.regr.task("linear", data = create.linear.data(5, 5))
+  
+  # Random columns
+  new.task <- task.add.random.cols(example.task, 10)
+  expect_equal(ncol(new.task$env$data), n.col + 10)
+  expect_logical(new.task$orig.features, len = (n.col - 1) + 10)
+  expect_equal(sum(new.task$orig.features), n.col - 1)
+
+  new.task.2 <- task.add.random.cols(example.task.2, 10)
+  expect_equal(sum(new.task.2$orig.features), 1)
+  expect_equal(length(grep("RANDOM", names(new.task.2$env$data))), 10)
+  
+  
+  # Permutated columns
+  new.task <- task.add.permuted.cols(example.task, 1)
+  expect_equal(ncol(new.task$env$data), n.col + n.col - 1)
+  expect_equal(length(grep("PERM", names(new.task$env$data))), n.col - 1)
+  expect_logical(new.task$orig.features, len = (n.col*2 - 2))
+  expect_equal(sum(new.task$orig.features), n.col - 1)
+  
+  new.task.2 <- task.add.permuted.cols(example.task.2, 2)
+  expect_equal(sum(new.task.2$orig.features), 1)
+  expect_equal(length(grep("PERM", names(new.task.2$env$data))), 10)
 })
 
   
