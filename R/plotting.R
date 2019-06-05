@@ -7,13 +7,18 @@
 #'
 #' @param fitness `[matrix | data.frame]` Matrix or (numeric) `data.frame`
 #'   with two columns and rows for each individuum
-#' @param refpoint `[numeric]` Reference point
+#' @param refpoint `[numeric(2)]` Reference point
 #' @return `data.frame` with three columns: The points on the pareto front,
 #'   and a `logical` column `point` indicating whether the point is on the pareto front
 #'   (`TRUE`) or an auxiliary point for plotting (`FALSE`)
 #' @family Utility Functions
 #' @export
 paretoEdges <- function(fitness, refpoint) {
+  assert(
+    checkMatrix(fitness, ncols = 2, min.rows = 1, mode = "numeric"),
+    checkDataFrame(fitness, ncols = 2, min.rows = 1, types = c("numeric", "numeric"))
+  )
+  assertNumeric(refpoint, lower = min(fitness), len = 2)
   fitness <- as.matrix(t(fitness))
   front <- fitness  # TODO see line below
   if (ncol(fitness) > 1)  # TODO: can go when https://github.com/jakobbossek/ecr2/issues/120 is fixed

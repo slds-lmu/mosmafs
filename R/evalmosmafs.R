@@ -14,12 +14,16 @@
 #' @param learner `[Learner]` the learner to optimize
 #' @param ps `[ParamSet]` the parameter set of the learner (and `cpo`) alone
 #' @param measure `[Measure]` measure to optimize
+#' @param worst.measure `[numeric(1)]` worst value for measure to consider,
+#'   for dominated hypervolume calculation. Will be extracted from the
+#'   given measure if not given, but will raise an error if the extracted
+#'   (or given) value is infinite.
 #' @param cpo `[CPO]` cpo to prepend feature selection
 #' @param nfeat `[integer(1)]` number of features
 #' @param evals `[integer(1)]` number of evals to perform. Note this concerns fidelity
 #'   evaluations (i.e. single CV folds). When not using multifid the number of points
 #'   evaluated is 1/10th the `evals` value.
-#' @param outer.resampling: outer resampling to use.
+#' @param outer.resampling outer resampling to use.
 #' @param savedir `[character(1) | NULL]` the directory to save every trace to.
 #'   If this is `NULL` (the default) evaluations are not saved.
 #' @return `function` a smoof function.
@@ -46,31 +50,31 @@ constructEvalSetting <- function(task, learner, ps, measure = getDefaultMeasure(
 
   mosmafs.params <- pSS(
 
-    init.distribution.constructor: discrete [list(
+    init.distribution.constructor = NA: discrete [list(
       binomial = function(param) function() rbinom(1, nfeat, param),
       geometric = function(param) function() {
         res <- 1 + rgeom(1000, 1 / max(1, (nfeat * param)))
         c(res[res <= nfeat], nfeat)[1]
       },
       uniform = function(param) function() floor(runif(1, 0, nfeat + 1)))],
-    init.distribution.param: numeric[0.001, 0.999] [[requires =
+    init.distribution.param = NA: numeric[0.001, 0.999] [[requires =
       quote(init.distribution.constructor %in% c("binomial", "geometric"))]],
 
-    init.soften.iters: integer[0, 2],
-    use.SHW.init: logical,
-    use.SHW: logical,
+    init.soften.iters = NA: integer[0, 2],
+    use.SHW.init = NA: logical,
+    use.SHW = NA: logical,
 
-    filters: discrete [list(
+    filters = NA: discrete [list(
       none = character(0),
       many.filters = c("auc", "praznik_JMI",
         "FSelectorRcpp_information.gain",
         "randomForestSRC_importance", "DUMMY"),
       few.filters = c("praznik_JMI", "FSelectorRcpp_information.gain"))],
-    filter.strategy: logical [[requires = quote(filters != "none")]],
-    selector.strategy.p: logical,
-    selector.p: numeric[0, 1] [[requires = quote(!selector.strategy.p)]],
+    filter.strategy = NA: logical [[requires = quote(filters != "none")]],
+    selector.strategy.p = NA: logical,
+    selector.p = NA: numeric[0, 1] [[requires = quote(!selector.strategy.p)]],
 
-    ops.parentsel: discrete[list(
+    ops.parentsel = NA: discrete[list(
       selSimple = selSimple,
       selNondom = makeSelector(function(fitness, n.select) {
         res <- integer(0)
@@ -82,16 +86,16 @@ constructEvalSetting <- function(task, learner, ps, measure = getDefaultMeasure(
         c(res, selNondom(fitness = fitness, n.select = n.select))
       }, supported.objectives = "multi-objective"),
       selTournamentMO = selTournamentMO)],
-    ops.survsel: discrete[list(
+    ops.survsel = NA: discrete[list(
       selSimple = selSimpleUnique,
       selNondom = selNondom,
       selTournamentMO = selTournamentMO)],
-    ops.tournament.k: numeric[1, 5] [[trafo = function(x) round(2^x),
+    ops.tournament.k = NA: numeric[1, 5] [[trafo = function(x) round(2^x),
       requires = quote(ops.parentsel == "selTournamentMO" || ops.survsel == "selTournamentMO")]],
-    ops.tournament.sorting: discrete[crowding, domhv]
+    ops.tournament.sorting = NA: discrete[crowding, domhv]
       [[requires = quote(ops.parentsel == "selTournamentMO" || ops.survsel == "selTournamentMO")]],
 
-    ops.mut.int: discrete[list(
+    ops.mut.int = NA: discrete[list(
       mutGaussIntScaled = mutGaussIntScaled,
       mutDoubleGeomScaled = mutDoubleGeomScaled,
       mutPolynomialInt = makeMutator(function(ind, p, sdev, lower, upper) {
@@ -99,40 +103,40 @@ constructEvalSetting <- function(task, learner, ps, measure = getDefaultMeasure(
           lower = lower, upper = upper)
       }, supported = "custom"),
       mutUniformParametricIntScaled = mutUniformParametricIntScaled)],
-    ops.mut.numeric: discrete[list(
+    ops.mut.numeric = NA: discrete[list(
       mutGaussScaled = mutGaussScaled,
       mutPolynomial = makeMutator(function(ind, p, sdev, lower, upper) {
         mutPolynomial(ind, p = p, eta = max(1, (sqrt(8 + sdev^2) / sdev - 5) / 2),
           lower = lower, upper = upper)
       }, supported = "float"),
       mutUniformParametricScaled = mutUniformParametricScaled)],
-    ops.mut.strategy: logical,
-    ops.mut.sdev: numeric[log(0.005), 0]
+    ops.mut.strategy = NA: logical,
+    ops.mut.sdev = NA: numeric[log(0.005), 0]
       [[trafo = function(x) exp(x), requires = quote(!ops.mut.strategy)]],
-    ops.mut.p: numeric[0, 1] [[requires = quote(!ops.mut.strategy)]],
+    ops.mut.p = NA: numeric[0, 1] [[requires = quote(!ops.mut.strategy)]],
 
-    ops.rec.nums: discrete[list(
+    ops.rec.nums = NA: discrete[list(
       recSBX = recSBX,
       recGaussian = recGaussian,
       recPCrossover = recPCrossover)],
-    ops.rec.strategy: logical,
-    ops.rec.crossover.p: numeric[0, 1]
+    ops.rec.strategy = NA: logical,
+    ops.rec.crossover.p = NA: numeric[0, 1]
       [[requires = quote(!ops.rec.strategy)]],
-    ops.rec.sbx.eta: numeric[1, 10]
+    ops.rec.sbx.eta = NA: numeric[1, 10]
       [[requires = quote(!ops.rec.strategy && ops.rec.nums == "recSBX")]],
 
-    mu: numeric[3, 8] [[trafo = function(x) round(2^x)]],
-    lambda: numeric[3, 8] [[trafo = function(x) round(2^x)]],
+    mu = NA: numeric[3, 8] [[trafo = function(x) round(2^x)]],
+    lambda = NA: numeric[3, 8] [[trafo = function(x) round(2^x)]],
 
-    generation.fid: logical,
-    generation.fid.point: numeric[0, 1] [[requires = quote(generation.fid == TRUE)]],
+    generation.fid = NA: logical,
+    generation.fid.point = NA: numeric[0, 1] [[requires = quote(generation.fid == TRUE)]],
 
-    dominance.fid: logical,
+    dominance.fid = NA: logical,
 
-    fixed.ri: logical,
+    fixed.ri = NA: logical,
 
-    p.recomb: numeric[0, 1],
-    p.mut: numeric[0, 1]
+    p.recomb = NA: numeric[0, 1],
+    p.mut = NA: numeric[0, 1]
   )
 
   simple.params <- mosmafs.params
@@ -193,7 +197,7 @@ constructEvalSetting <- function(task, learner, ps, measure = getDefaultMeasure(
       }
 
       # Construct ParamSet
-      eval.ps <- c(ps, pSS(selector.selection: logical^nfeat))
+      eval.ps <- c(ps, pSS(selector.selection = NA: logical^nfeat))
 
       if (length(filters)) {
         fima <- makeFilterMat(task, filters = filters)
@@ -203,7 +207,7 @@ constructEvalSetting <- function(task, learner, ps, measure = getDefaultMeasure(
         if (filter.strategy) {
           filterstrat <- makeFilterStrategy(reset.dists = fima,
             weight.param.name = "filterweights")
-          eval.ps <- c(eval.ps, pSS(filterweights: numeric[0, ~1]^length(filters)))
+          eval.ps <- c(eval.ps, pSS(filterweights = NA: numeric[0, ~1]^length(filters)))
           init.strategy <- makeFilterStrategy(reset.dists = fima,
             weight.param.name = "filterweights")
         } else {
@@ -226,7 +230,7 @@ constructEvalSetting <- function(task, learner, ps, measure = getDefaultMeasure(
         init.strategy = function(ind) list()
       }
       if (selector.strategy.p) {
-        eval.ps <- c(eval.ps, pSS(selector.p: numeric[0, 1]))
+        eval.ps <- c(eval.ps, pSS(selector.p = NA: numeric[0, 1]))
       }
 
       # Construct mutator I
@@ -236,8 +240,8 @@ constructEvalSetting <- function(task, learner, ps, measure = getDefaultMeasure(
         strategy.num.mut <- function(ind) list(p = ind$strategy.p, sdev = exp(ind$strategy.sdev))
         strategy.disc.mut <- function(ind) list(p = ind$strategy.p)
         eval.ps <- c(eval.ps, pSS(
-          strategy.p: numeric[0, 1],
-          strategy.sdev: numeric[log(0.005), 0]))
+          strategy.p = NA: numeric[0, 1],
+          strategy.sdev = NA: numeric[log(0.005), 0]))
       } else {
         destrategize.num.mut <- function(x) ecr::setup(x, p = ops.mut.p, sdev = ops.mut.sdev)
         destrategize.disc.mut <- function(x) ecr::setup(x, p = ops.mut.p)
@@ -256,8 +260,8 @@ constructEvalSetting <- function(task, learner, ps, measure = getDefaultMeasure(
           else list()
         strategy.disc.rec <- function(ind) c(list(p = mean(c(ind[[1]]$strategy.rec.p, ind[[2]]$strategy.rec.p))))
         eval.ps <- c(eval.ps, pSS(
-          strategy.rec.p: numeric[0, 1],
-          strategy.rec.eta: numeric[1, 10]))
+          strategy.rec.p = NA: numeric[0, 1],
+          strategy.rec.eta = NA: numeric[1, 10]))
       } else {
         destrategize.num.rec <- function(x)
           if (num.needs.p) ecr::setup(x, p = ops.rec.crossover.p)

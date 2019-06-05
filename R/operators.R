@@ -55,7 +55,12 @@ n.children = ecr:::getNumberOfChildren.ecr_recombinator(operator))}
 
 
 #' @title Integer Gaussian Mutator
-#'
+#' 
+#' @param ind `[integer]` Integer vector/individual to mutate.
+#' @param lower `[integer]` Vector of minimal values for each parameter of the 
+#' decision space. Must have the same length as `ind`.
+#' @param uppper `[integer]` Vector of maximal values for each parameter of the 
+#' decision space. Must have the same length as `ind`.
 #' @description
 #' See [ecr::mutGauss]
 #' @family operators
@@ -66,6 +71,11 @@ mutGaussInt <- intifyMutator(mutGauss)
 #'
 #' @description
 #' See [ecr::mutPolynomial]
+#' @param ind `[integer]` Integer vector/individual to mutate.
+#' @param lower `[integer]` Vector of minimal values for each parameter of the 
+#' decision space. Must have the same length as `ind`.
+#' @param uppper `[integer]` Vector of maximal values for each parameter of the 
+#' decision space. Must have the same length as `ind`.
 #' @family operators
 #' @export
 mutPolynomialInt <- intifyMutator(mutPolynomial)
@@ -74,6 +84,11 @@ mutPolynomialInt <- intifyMutator(mutPolynomial)
 #'
 #' @description
 #' See [ecr::mutUniform]
+#' @param ind `[integer]` Integer vector/individual to mutate.
+#' @param lower `[integer]` Vector of minimal values for each parameter of the 
+#' decision space. Must have the same length as `ind`.
+#' @param uppper `[integer]` Vector of maximal values for each parameter of the 
+#' decision space. Must have the same length as `ind`.
 #' @family operators
 #' @export
 mutUniformInt <- intifyMutator(mutUniform)
@@ -82,6 +97,13 @@ mutUniformInt <- intifyMutator(mutUniform)
 #'
 #' @description
 #' See [ecr::recSBX]
+#' @param inds `[integer]` Parents, i.e., list of exactly two numeric vectors 
+#' of equal length.
+#' @param lower `[integer]` Vector of minimal values for each parameter of the 
+#' decision space.
+#' @param upper `[integer]` Vector of maximal values for each parameter of the 
+#' decision space.
+#' @param ...  Other arguments passed on to the method. 
 #' @family operators
 #' @export
 recIntSBX <- intifyRecombinator(recSBX)
@@ -92,6 +114,8 @@ recIntSBX <- intifyRecombinator(recSBX)
 #' @description
 #' See [ecr::recIntermediate]
 #' 
+#' @param inds `[inds]` Parents, i.e., list of exactly two integer vectors 
+#' of equal length.
 #' @family operators
 #' @export
 recIntIntermediate <- intifyRecombinator(recIntermediate)
@@ -101,7 +125,7 @@ recIntIntermediate <- intifyRecombinator(recIntermediate)
 #'
 #' @description
 #' See [ecr::recIntermediate]
-#' @param ind `[list]` list of two individuals to recombinate
+#' @param inds `[list]` list of two individuals to recombinate
 #' @param lower `[integer]` lower bounds of `inds` values. May have same length as
 #'   one individual or may be a single number, if the lower bounds are the same for all 
 #'   values. 
@@ -228,8 +252,8 @@ mutDoubleGeomScaled <- makeMutator(function(ind, p = 1, sdev = 0.05, lower, uppe
 #' `pmin(upper - ind[i], lx/2)`.
 #' @param ind `[numeric | integer]` individuum to mutate
 #' @param p `[numeric]` per-entry probability to perform mutation
-#' @param `lx` `[numeric]` uniform distribution bandwidth
-#' @param `sdev` `[numeric]` standard deviation, will be scaled to `upper - lower`
+#' @param lx `[numeric]` uniform distribution bandwidth
+#' @param sdev `[numeric]` standard deviation, will be scaled to `upper - lower`
 #' @param lower `[integer]` lower bounds of `ind` values. May have same length as
 #'   `ind` or may be a single number, if the lower bounds are the same for all 
 #'   values. 
@@ -283,7 +307,7 @@ mutUniformParametricIntScaled <- intifyMutator(mutUniformParametricScaled)
 #' @description
 #' Crossover recombination operator that crosses over each position iid with prob. `p`
 #' and can also be used for non-binary operators.
-#' @param ind `[list of any]` list of two individuals to perform uniform crossover on
+#' @param inds `[list of any]` list of two individuals to perform uniform crossover on
 #' @param p `[numeric(1)]` per-entry probability to perform crossover
 #' @return `[list of any]` The mutated individuals.
 #' @export
@@ -380,6 +404,8 @@ makeFilterStrategy <- function(reset.dists, weight.param.name) {
 #' @description
 #' See [ecr::mutGauss]. Allows a vector of standard deviations. Scales
 #' standard deviations to the range of `[lower, upper]`.
+#' @inheritParams ecr::mutGauss
+#' @param sdev `[numeric]` Standard deviation(s) of the Gauss mutation. 
 #' @family operators
 #' @export
 mutGaussScaled <- makeMutator(function(ind, p = 1, sdev = 0.05, lower, upper) {
@@ -399,6 +425,10 @@ mutGaussScaled <- makeMutator(function(ind, p = 1, sdev = 0.05, lower, upper) {
 #'
 #' @description
 #' See [mutGaussScaled]
+#' @param ind `[integer]` Integer vector/individual to mutate.
+#' @param lower `[integer]` Vector of minimal values for each parameter of the decision space. Must have the same length as `ind`.
+#' @param uppper `[integer]` Vector of maximal values for each parameter of the decision space. Must have the same length as `ind`.
+#' @param ...  Other arguments passed on to the method. 
 #' @family operators
 #' @export
 mutGaussIntScaled <- intifyMutator(mutGaussScaled)
@@ -521,6 +551,7 @@ overallRankMO <- function(fitness, sorting = "crowding", ref.point) {
 #' @param ind `[integer]` binary individual
 #' @param p `[numeric]` average flip probability, must be between 0
 #'   and 0.5.
+#' @param ...  Other arguments passed on to the method.
 #' @export
 mutBitflipCHW <- makeMutator(function(ind, p = 0.1, ...) {
   assertNumeric(p, lower = 0 - .tol, upper = 0.5)
@@ -555,6 +586,7 @@ mutBitflipCHW <- makeMutator(function(ind, p = 0.1, ...) {
 #' @param reset.dists `[matrix]` columns of probabilities, with `length(ind)` cols and
 #'   `length(reset.dist.weights)` rows.
 #' @param reset.dist.weights `[numeric]` weight vector to select among `reset.dist` columns.
+#' @param ...  Other arguments passed on to the method.
 #' @return `[integer]` the mutated individuum
 #' @export
 mutUniformResetSHW <- makeMutator(function(ind, p = 0.1, reset.dist, ...) {

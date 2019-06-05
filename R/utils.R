@@ -313,8 +313,8 @@ initSelector <- function(individuals, vector.name = "selector.selection", distri
 #' @return `numeric`
 #' @export
 unbiasedHoldoutDomHV <- function(fitness, holdout, refpoint) {
-  assertMatrix(fitness, nrow = 2)
-  assertMatrix(holdout, nrow = 2, ncol = ncol(fitness))
+  assertMatrix(fitness, nrows = 2)
+  assertMatrix(holdout, nrows = 2, ncols = ncol(fitness))
   assertNumeric(refpoint, finite = TRUE, len = 2, any.missing = FALSE)
   ordering <- order(fitness[2, ], decreasing = TRUE)
   ordering <- intersect(ordering, which.nondominated(fitness))
@@ -346,7 +346,7 @@ unbiasedHoldoutDomHV <- function(fitness, holdout, refpoint) {
 #' @return `numeric`
 #' @export
 naiveHoldoutDomHV <- function(fitness, holdout, refpoint) {
-  assertMatrix(holdout, nrow = nrow(fitness), ncol = ncol(fitness))
+  assertMatrix(holdout, nrows = nrow(fitness), ncols = ncol(fitness))
   assertNumeric(refpoint, finite = TRUE, len = nrow(fitness), any.missing = FALSE)
   computeHV(holdout[, nondominated(fitness), drop = FALSE], ref.point = refpoint)
 }
@@ -354,6 +354,7 @@ naiveHoldoutDomHV <- function(fitness, holdout, refpoint) {
 
 #' @title Replace ecr::getStatistics because original is buggy
 #'
+#' @param log `[ecr_logger]` ecr log object
 #' @export
 getStatistics <- function(log) {
   assertClass(log, "ecr_logger")
@@ -361,7 +362,8 @@ getStatistics <- function(log) {
 }
 
 #' @title Replace ecr::getPopulation because original is buggy
-#'
+#' 
+#' @param log `[ecr_logger]` ecr log object
 #' @export
 getPopulations <- function(log) {
   assertClass(log, "ecr_logger")

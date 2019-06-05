@@ -56,7 +56,7 @@ test_that("slickEcr, initEcr, continueEcr", {
     survival.strategy = "comma", n.elite = 10)
   
   # output initEcr 
-  init.result = initEcr(fitness.fun = fitness.fun.single, 
+  init.result <- initEcr(fitness.fun = fitness.fun.single, 
     population = initials) 
   init.statistics = getStatistics(init.result$log)
   
@@ -66,7 +66,7 @@ test_that("slickEcr, initEcr, continueEcr", {
   expect_equal(init.statistics$gen, 0)
   expect_list(init.result$last.population)
   
-  # output slickEcr/continueEcr
+  # output slickEcr
   statistics <- getStatistics(results$log)
   expect_equal(statistics$gen, 0:generations)
   expect_equal(statistics$state[1], "init")
@@ -81,7 +81,6 @@ test_that("slickEcr, initEcr, continueEcr", {
     colnames(statistics), value = TRUE)) {
     expect_numeric(statistics[, nam])
   }
-  
   statistics.single <- getStatistics(results.single.comma$log)
   for(nam in grep("(fitness.obj.[123].min)", 
     colnames(statistics), value = TRUE)) {
@@ -109,6 +108,48 @@ test_that("slickEcr, initEcr, continueEcr", {
   
   expect_error(initEcr(fitness.fun = print, population = initials), 
     "fitness.fun must be a SMOOF function")
+  
+  # continueEcr for single objective 
+  cont.result <- continueEcr(ecr.object = init.result, generations = 10, 
+    lambda = 10, mutator = mutator.simple, recombinator = crossover.simple, 
+    parent.selector = selSimple,
+    survival.selector = selTournament, 
+    p.recomb = 0.7, p.mut = 0.3,
+    survival.strategy = "plus", n.elite = 0, fidelity = NULL,
+    unbiased.fidelity = TRUE)
+  expect_data_frame(getStatistics(cont.result$log), nrows = 11)
+  expect_error(continueEcr(ecr.object = init.result, generations = 10, 
+    mutator = mutator.simple, recombinator = crossover.simple, 
+    parent.selector = selSimple,
+    survival.selector = selTournament, 
+    p.recomb = 0.7, p.mut = 0.3,
+    survival.strategy = "plus", n.elite = 0, fidelity = NULL,
+    unbiased.fidelity = TRUE), 
+    "lambda is not given")
+  # multifidelity not in init defined, but now in continue
+  fidelity <- data.frame(
+    c(1, 6, 10),
+    c(1, 3, 5))
+  expect_error(continueEcr(ecr.object = init.result, generations = 10, 
+    lambda = 10, mutator = mutator.simple, recombinator = crossover.simple, 
+    parent.selector = selSimple,
+    survival.selector = selTournament, 
+    p.recomb = 0.7, p.mut = 0.3,
+    survival.strategy = "plus", n.elite = 0, fidelity = fidelity,
+    unbiased.fidelity = TRUE), 
+    "Can't use multifidelity when ecr.object was initialized without multifidelity")
+  # no last fidelity given 
+  init_result2 <- initEcr(fitness.fun = fitness.fun.single, 
+    population = initials, fidelity = fidelity)
+  init_result2$last.fidelity = NULL
+  expect_error(continueEcr(ecr.object = init_result2, generations = 10, 
+    lambda = 10, mutator = mutator.simple, recombinator = crossover.simple, 
+    parent.selector = selSimple,
+    survival.selector = selTournament, 
+    p.recomb = 0.7, p.mut = 0.3,
+    survival.strategy = "plus", n.elite = 0, fidelity = fidelity,
+    unbiased.fidelity = TRUE), 
+    "Inconsistent ecr.object: 'last.fidelity' not given, but 'fidelity' is.")
 
 })
 
@@ -293,4 +334,59 @@ test_that("vectorized fitness evaluation", {
   expect_list(results$pareto.set, min.len = 1)
   
 })
+
+test_that("fidelity with 3 columns", {
+  task.whole <- mlr::bh.task
+  rows.whole <- sample(1:nrow(getTaskData(task.whole)))
+  task <- subsetTask(task.whole, rows.whole[1:250])
+  task.hout <- subsetTask(task.whole, rows.whole[250:505])
+  
+  lrn <- makeLearner("regr.lm")
+  
+  ps.simple <- pSS(
+    a: numeric [0, 10])
+  
+  nRes <- function(n) {
+    makeResampleDesc("Subsample", split = 0.9, iters = n)
+  }
+  
+  fitness.fun <- makeObjective(learner = lrn, task = task, ps = ps.simple, 
+    resampling = nRes, holdout.data = task.hout, worst.measure = .Machine$double.xmax)
+  
+  ps.simple <- getParamSet(fitness.fun)
+  
+  initials <- sampleValues(ps.simple, 15, discrete.names = TRUE)
+  
+  fidelity <- data.frame(
+    c(1, 6, 10),
+    c(1, 3, 5), 
+    c(1, 5, 7))
+  
+  mutator.simple <- combine.operators(ps.simple,
+    numeric = ecr::setup(mutGauss, sdev = 0.1),
+    selector.selection = mutBitflipCHW)
+  
+  crossover.simple <- combine.operators(ps.simple,
+    numeric = recPCrossover,
+    selector.selection = recPCrossover)
+  
+  gen = 11
+  
+  results.mufi <- slickEcr(
+    fitness.fun = fitness.fun,
+    lambda = 5,
+    population = initials,
+    mutator = mutator.simple,
+    recombinator = crossover.simple,
+    generations = gen,
+    fidelity = fidelity)
+  statistics.mufi <- getStatistics(results.mufi$log)
+  
+
+  expect_equal(length(results.mufi$pareto.set), nrow(results.mufi$pareto.front))
+  expect_class(results.mufi, c("MosmafsResult"))
+  expect_equal(length(results.mufi$last.population), length(initials))
+  
+})
+
 
