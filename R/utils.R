@@ -17,14 +17,14 @@ clonelog <- function(log) {
 #' Extract attributes saved for individuums in a
 #' log object to a more accessible matrix or data.frame.
 #'
-#' @param log `[ecr_logger]` ecr log object
+#' @param log `[ecr_logger]` ecr log object.
 #' @param extract `[character]` names of attributes to extract, currently 
-#' "names", "fitness", "runtime", "fitness.holdout" and "fidelity" (if used) are supported
+#' "names", "fitness", "runtime", "fitness.holdout" and "fidelity" (if used) are supported.
 #' @param simplify `[logical(1)]` whether to create a
 #'   `matrix`/`data.frame` for each generation (default).
 #'    Otherwise a list is returned for each generation containing
 #'    the value (if `length(extract) == 1`) or a named list of values.
-#' @param data.frame `[logical(1)]` Whether to return a `data.frame`
+#' @param data.frame `[logical(1)]` whether to return a `data.frame`
 #'   with rows for each individuum (if `TRUE`) or to return a `matrix`
 #'   with columns for each individuum compatible as fitness matrix
 #'   with various ecr tools (if `FALSE`, default). Only effective if
@@ -67,11 +67,11 @@ popAggregate <- function(log, extract, simplify = TRUE, data.frame = FALSE) {
 #'
 #' @description
 #' Looks at the first individuum in the first generation and
-#' returns its attributes. if `check` is TRUE it checks that the
-#' log object is consistent and throws an error if not. "consistent"
+#' returns its attributes. If `check` is TRUE it checks that the
+#' log object is consistent and throws an error if not. "Consistent"
 #' here means that all individuals in all generations have the same
-#' attributes
-#' @param log `[ecr_logger]` ecr log object
+#' attributes.
+#' @param log `[ecr_logger]` ecr log object.
 #' @param check `[logical(1)]` whether to check consistency.
 #'   This should almost never be useful.
 #' @return `[character]` attributes of individuals in population.
@@ -100,7 +100,7 @@ availableAttributes <- function(log, check = FALSE) {
 #' with information about progress (both on training data and on
 #' holdout data) and ressource usage.
 #'
-#' @param ecr.object `[MosmafsResult]` `slickEcr()` result to analyse
+#' @param ecr.object `[MosmafsResult]` `slickEcr()` result to analyse.
 #' @param aggregate.perresult `[list]` list of functions
 #'   to apply to fitness and holdout fitness. Every entry must either be
 #'   a `character(1)` naming the function to use, or a function, in which
@@ -111,11 +111,11 @@ availableAttributes <- function(log, check = FALSE) {
 #'   to apply to fitness and holdout fitness matrix rows, formatted like
 #'   `aggregate.perresult`. Each function must return exactly one numeric
 #'   value when fed a fitness vector.
-#' @param ref.point `[numeric]` reference point to use for HV computation
+#' @param ref.point `[numeric]` reference point to use for HV computation.
 #' @param cor.fun `[function]` function to use for calculation of
 #'   correlation between objective and holdout. Must take two `numeric`
 #'   arguments and return a `numeric(1)`.
-#' @return `data.frame`
+#' @return `data.frame` 
 #' @export
 collectResult <- function(ecr.object, aggregate.perresult = list(domHV = function(x) computeHV(x, ref.point)), aggregate.perobjective = list("min", "mean", "max"), ref.point = smoof::getRefPoint(ecr.object$control$task$fitness.fun), cor.fun = cor) {
   assertClass(ecr.object, "MosmafsResult")
@@ -233,9 +233,9 @@ collectResult <- function(ecr.object, aggregate.perresult = list(domHV = functio
 #' Sample the `vector.name` variable such that the number of ones
 #' has a given distribution.
 #'
-#' @param individuals `[list of named lists]` the individuals to initialize
+#' @param individuals `[list of named lists]` the individuals to initialize.
 #' @param vector.name `[character(1)]` the variable name, whose entries are 
-#' sampled
+#' sampled.
 #' @param distribution `[function]` function that returns a random integer
 #'   from 0 to the length of each individual's `vector.name` slot.
 #'   Defaults to the uniform distribution from 1 to `length()`.
@@ -248,7 +248,7 @@ collectResult <- function(ecr.object, aggregate.perresult = list(domHV = functio
 #'   application. Ignored if `soften.op` is not given.
 #' @param reject.condition `[function | NULL]` reject condition as a function applied
 #' to newly generated values of `vector.name`. If set to NULL, no rejection is done. 
-#' @return `list of named lists` The individuals with initialized
+#' @return `list of named lists` the individuals with initialized
 #'   `[[vector.name]]`.
 #' @export
 initSelector <- function(individuals, vector.name = "selector.selection", distribution = function() floor(runif(1, 0, length(individuals[[1]][[vector.name]]) + 1)), soften.op = NULL, soften.op.strategy = NULL, soften.op.repeat = 1, reject.condition = function(x) !any(x)) {
@@ -303,13 +303,13 @@ initSelector <- function(individuals, vector.name = "selector.selection", distri
 #'
 #' @description
 #' Calculate dominated hypervolume on holdout data. The result is
-#' unbiased with respect to (uncorrelated w/r/t objectives) noise in holdout data
+#' unbiased with respect to (uncorrelated with respect to objectives) noise in holdout data
 #' performance, but it is *not* an estimate of real "dominated hypervolume".
 #'
-#' Only works on 2-objective performance matrices
-#' @param fitness `[matrix]` fitness matrix on training data
-#' @param holdout `[matrix]` fitness matrix on holdout data
-#' @param refpoint `numeric` reference point
+#' Only works on two-objective performance matrices.
+#' @param fitness `[matrix]` fitness matrix on training data.
+#' @param holdout `[matrix]` fitness matrix on holdout data.
+#' @param refpoint `[numeric]` reference point.
 #' @return `numeric`
 #' @export
 unbiasedHoldoutDomHV <- function(fitness, holdout, refpoint) {
@@ -340,9 +340,9 @@ unbiasedHoldoutDomHV <- function(fitness, holdout, refpoint) {
 #' Calculate dominated hypervolume on holdout data. The result is
 #' biased depending on noise in holdout data performance.
 #'
-#' @param fitness `[matrix]` fitness matrix on training data
-#' @param holdout `[matrix]` fitness matrix on holdout data
-#' @param refpoint `numeric` reference point
+#' @param fitness `[matrix]` fitness matrix on training data.
+#' @param holdout `[matrix]` fitness matrix on holdout data.
+#' @param refpoint `[numeric]` reference point.
 #' @return `numeric`
 #' @export
 naiveHoldoutDomHV <- function(fitness, holdout, refpoint) {
@@ -352,8 +352,10 @@ naiveHoldoutDomHV <- function(fitness, holdout, refpoint) {
 }
 
 
-#' @title Replace ecr::getStatistics because original is buggy
-#'
+#' @title Get Statistics 
+#' @description
+#' Get statistics from ecr_logger. Replaces ecr::getStatistics 
+#' because original is buggy.
 #' @param log `[ecr_logger]` ecr log object
 #' @export
 getStatistics <- function(log) {
@@ -361,7 +363,10 @@ getStatistics <- function(log) {
   log$env$stats[seq_len(log$env$cur.line - 1), , drop = FALSE]
 }
 
-#' @title Replace ecr::getPopulation because original is buggy
+#' @title Get Populations
+#' @description 
+#' Get populations from ecr_logger. Replaces ecr::getPopulation because 
+#' original is buggy.
 #' 
 #' @param log `[ecr_logger]` ecr log object
 #' @export
@@ -371,16 +376,17 @@ getPopulations <- function(log) {
 }
 
 
- 
-heuristicHasSimpleSig <- function(fn) { ## testen
+heuristicHasSimpleSig <- function(fn) { 
   identical(names(environment(fn)), "fn")
 }
 
 
-#' @title Set or change attribute `mosmafs.vectorize` in fitness function
-#' @param fn `smoof_multi_objective_function` fitness function 
+#' @title Set mosmafs.vectorize
+#' @description 
+#' Set or change attribute `mosmafs.vectorized` in fitness function. 
+#' @param fn `smoof_multi_objective_function` fitness function. 
 #' @param vectorize `[logical(1)]` whether to force `slickEvaluateFitness` to 
-#' pass candidates to fitness function as `data.frame` or not
+#' pass candidates to fitness function as `data.frame` or not.
 #' @export
 setMosmafsVectorized <- function(fn, vectorize = TRUE) { 
   if (vectorize && heuristicHasSimpleSig(fn)) {
@@ -391,9 +397,11 @@ setMosmafsVectorized <- function(fn, vectorize = TRUE) {
 }
 
 
-#' @title Convert a list to a data.frame based on parameter set 
+#' @title List to data.frame
 #' 
 #' @description 
+#' Converts a list to a data.frame based on given parameter set.
+#' 
 #' List elements must have the correct type with respect to 
 #' parameter set. Exceptions are discrete parameters, whose values should be 
 #' factors, only characters are accepted and factors are returned.           
@@ -402,8 +410,8 @@ setMosmafsVectorized <- function(fn, vectorize = TRUE) {
 #' of vector parameters column names will be numbered. 
 #' 
 #' @param list.object `[list]` list of individuals, each with elements named 
-#' by parameter ids
-#' @param par.set `[ParamSet]` parameter set 
+#' by parameter ids.
+#' @param par.set `[ParamSet]` parameter set.
 #' @return `[data.frame]`
 #' @export
 listToDf = function(list.object, par.set) {

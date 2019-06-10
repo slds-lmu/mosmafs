@@ -2,20 +2,21 @@
 #' @title Create ecr Objective Function
 #'
 #' @description
-#' Create an objective function that resamples `learner` on `task`
+#' Creates an objective function that resamples `learner` on `task`
 #' with `resampling` and measures `measure` (optional), together
 #' with the number of features selected.
 #'
-#' The `ParamSet` used to generate individuals for the ecr must include,
-#' besides parameters for `learner`, a parameter `selector.selection`,
-#' a `logical` parameter with length equal `getTaskNFeats(task)`.
+#' The `ParamSet` used to generate individuals for the ecr must include 
+#' parameters for `learner`, not a `logical` parameter with length equal 
+#' to `getTaskNFeats(task)` for feature selection, as it is automatically added.
 #'
 #' `learner` must *not* include a `cpoSelector()` applied to it, this
 #' happens automatically within `makeObjective`.
 #'
 #' @param learner `[Learner]` A [`Learner`][mlr::makeLearner] object to optimize.
 #' @param task `[Task]` The [`mlr::Task`] object to optimize on.
-#' @param ps `[ParamSet]` The [`ParamSet`][ParamHelpers::makeParamSet] to optimize over.
+#' @param ps `[ParamSet]` The [`ParamSet`][ParamHelpers::makeParamSet] to optimize over, only parameters of the 
+#' actual learner. 
 #' @param resampling `[ResampleDesc | ResampleInst | function]` The [`ResampleDesc`][mlr::makeResampleDesc] or
 #'   [`ResampleInst`][mlr::makeResampleInstance] object to use. This may be a function
 #'   `numeric(1)` -> `ResampleDesc`/`ResampleInst` which maps fidelity to the resampling to use.
@@ -141,28 +142,30 @@ valuesFromNames <- function(paramset, value) {
 #' @title Create mlrMBO Objective Function
 #'
 #' @description
-#' "Baseline" performance measure: We just do normal parameter optimization
-#' with additional parameters: mosmafs.nselect (how many features to select),
-#' mosmafs.iselect (vector integer parameter that selects explicit features out
-#' of order) and mosmafs.select.weights (numeric parameter vector that does
+#' "Baseline" performance measure: Creates an objective function that performs 
+#' normal parameter optimization by evaluating filters with additional parameters: 
+#' `mosmafs.nselect` (how many features to select),
+#' `mosmafs.iselect` (vector integer parameter that selects explicit features 
+#' that are not necessary the best according to filter values) 
+#' and `mosmafs.select.weights` (numeric parameter vector that does
 #' weighting between filter values to use.
-#' @param learner `[Learner]` the base learner to use
-#' @param task `[Task]` the task to optimize
-#' @param filters `[character]` filter values to evaluate and use
+#' @param learner `[Learner]` the base learner to use.
+#' @param task `[Task]` the task to optimize.
+#' @param filters `[character]` filter values to evaluate and use.
 #' @param ps `[ParamSet]` the ParamSet of the learner to evaluate. Should
 #'   not include `selector.selection` etc., only parameters of the actual
 #'   learner.
-#' @param resampling `[ResampleDesc | ResampleInstance]` the resampling to use
-#' @param measure `[Measure]` the measure to evaluate
+#' @param resampling `[ResampleDesc | ResampleInstance]` the resampling strategy to use.
+#' @param measure `[Measure]` the measure to evaluate.
 #' @param num.explicit.featsel `[integer(1)]` additional number of parameters
 #'   to add for explicit feature selection.
-#' @param holdout.data `[Task | NULL]` the holdout data to consider
-#' @param worst.measure `[numeric(1)]` worst value to impute for failed evals
-#' @param cpo `[CPO]` CPO pipeline to apply before feature selection
+#' @param holdout.data `[Task | NULL]` the holdout data to consider.
+#' @param worst.measure `[numeric(1)]` worst value to impute for failed evals.
+#' @param cpo `[CPO]` CPO pipeline to apply before feature selection.
 #' @param numfeats `[integer(1)]` number of features to consider. Is extracted
 #'   from the `task` but should be given if `cpo` changes the number of features.
 #' @return `function` that can be used for mlrMBO; irace possibly needs some
-#'   adjustments
+#'   adjustments.
 #' @export
 makeBaselineObjective <- function(learner, task, filters, ps, resampling, measure = NULL, num.explicit.featsel = 0, holdout.data = NULL, worst.measure = NULL, cpo = NULLCPO, numfeats = getTaskNFeats(task)) {
   if (is.null(measure)) {
@@ -174,6 +177,7 @@ makeBaselineObjective <- function(learner, task, filters, ps, resampling, measur
   assertClass(holdout.data, "Task", null.ok = TRUE)
   assertCharacter(filters, any.missing = FALSE, min.len = 1)
   assertSubset(filters, names(mlr:::.FilterRegister))
+  assertInt(num.explicit.featsel, lower =  0)
   assertClass(ps, "ParamSet")
   assert(
       checkClass(resampling, "ResampleInstance"),

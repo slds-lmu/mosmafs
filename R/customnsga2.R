@@ -13,10 +13,10 @@
 #' (a result from a previous `initEcr`, `slickEcr`, or `continueEcr` call) and
 #' `generations` must be given, the other arguments are optional *if* they were set
 #' in a previous `slickEcr` or `continueEcr` call, in which case the values from the
-#' previous run are used. Otherwise is possible to supply any combination of these values
+#' previous run are used. Otherwise it is possible to supply any combination of these values
 #' to set them to new values.
 #'
-#' Note, for `fidelity`, that the generation continue counting from previous runs,
+#' Note, for `fidelity`, that the generation continues counting from previous runs,
 #' so if `initEcr` was ran for 5 generations and `continueEcr` is called with
 #' a `fidelity` with first column values `c(1, 8)`, then the fidelity given in the
 #' first row is applied for 2 generations, after which the fidelity given in the
@@ -24,20 +24,22 @@
 #'
 #' @param fitness.fun `[smoof_multi_objective_function]` fitness function, must be a
 #'   "`smoof`" function.
-#' @param lambda `[integer(1)]` number of individuals to add each generation
+#' @param lambda `[integer(1)]` number of individuals to add each generation.
 #' @param population `[list]` list of individuals to start off from.
-#' @param mutator `[ecr_mutator]` mutation operator
-#' @param recombinator `[ecr_recombinator]` recombination operator
+#' @param mutator `[ecr_mutator]` mutation operator.
+#' @param recombinator `[ecr_recombinator]` recombination operator.
 #' @param generations `[integer(1) | list of function]` number of iterations to
 #'   evaluate if it is an integer, or [terminator][mosmafsTermEvals] function.
 #'   If this is an integer, it counts the *new* generations to evaluate;
 #'   otherwise the terminator functions are applied to the whole combined trace
 #'   of evaluation.
-#' @param parent.selector `[ecr_selector]` parent selection operator
-#' @param survival.selector `[ecr_selector]` survival selection operator
-#' @param p.recomb `[numeric(1)]` probability to apply a recombination operator
-#' @param p.mut `[numeric(1)]` probability to apply mutation operator
-#' @param survival.strategy `[character(1)]` one of `"plus"` or `"comma"`
+#' @param parent.selector `[ecr_selector]` parent selection operator.
+#' @param survival.selector `[ecr_selector]` survival selection operator.
+#' @param p.recomb `[numeric(1)]` probability to apply a recombination operator.
+#' @param p.mut `[numeric(1)]` probability to apply mutation operator.
+#' @param survival.strategy `[character(1)|function]` one of `"plus"` or `"comma"`
+#' or a function. If function, arguments must be the same as for 
+#' [`ecr::replaceMuPlusLambda`].
 #' @param n.elite `[integer(1)]` Number of elites to keep, only used if
 #'   `survival.strategy` is `"comma"`
 #' @param fidelity `[data.frame | NULL]` If this is given, it controls the
@@ -287,10 +289,10 @@ continueEcr <- function(ecr.object, generations, lambda = NULL, mutator = NULL, 
 #' @description
 #' Evaluates fitness with varying fidelity. Fidelity parameter
 #' is passed on to `fidelity` parameter of objective stored in
-#' `ctrl`
+#' `ctrl`.
 #'
-#' @param ctrl ecr control object
-#' @param population `[list]` list of individuals to evaluate
+#' @param ctrl `[ecr_control]` control object.
+#' @param population `[list]` list of individuals to evaluate.
 #' @param fidelity `[numeric]` vector of fidelity, with one
 #'   or two elements. If this has one element, it is directly
 #'   passed on to the fitness function. If it has two elements,

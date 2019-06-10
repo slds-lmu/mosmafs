@@ -3,14 +3,14 @@
 #' @title Get Pareto Front Edges from Fitness Matrix
 #'
 #' @description
-#' Get the edges defining a 2D pareto front for plotting
+#' Get the edges defining a 2D pareto front for plotting.
 #'
-#' @param fitness `[matrix | data.frame]` Matrix or (numeric) `data.frame`
-#'   with two columns and rows for each individuum
-#' @param refpoint `[numeric(2)]` Reference point
+#' @param fitness `[matrix | data.frame]` matrix or (numeric) `data.frame`
+#'   with two columns and rows for each individuum.
+#' @param refpoint `[numeric(2)]` reference point.
 #' @return `data.frame` with three columns: The points on the pareto front,
 #'   and a `logical` column `point` indicating whether the point is on the pareto front
-#'   (`TRUE`) or an auxiliary point for plotting (`FALSE`)
+#'   (`TRUE`) or an auxiliary point for plotting (`FALSE`).
 #' @family Utility Functions
 #' @export
 paretoEdges <- function(fitness, refpoint) {
@@ -41,7 +41,7 @@ paretoEdges <- function(fitness, refpoint) {
 #' @description
 #' Extract fitnesses for each generation from ECR log
 #'
-#' @param results `[ecr_multi_objective_result]` ecr run log
+#' @param results `[ecr_multi_objective_result]` ecr run log.
 #' @param trafo `[function]` function `matrix`|`data.frame` -> `matrix`|`data.frame`
 #'   to transforms individual generation matrices.
 #' @return `data.frame` of fitnesses from ecr run log, with extra column `iter`.

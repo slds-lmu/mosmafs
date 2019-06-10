@@ -5,13 +5,13 @@
 #' A Filter-Matrix can be used in combination with [`mutUniformMetaReset`] for
 #' heuristic-supported biased mutation.
 #'
-#' @param task `[Task]` The task to generate filter information for
+#' @param task `[Task]` The task to generate filter information for.
 #' @param filters `[character]` The filters to use. Special vilter `"DUMMY"`
 #'   gives a constant column of `expectfeatfrac`.
 #' @param expectfeatfrac `[numeric(1)]` The expected fraction of features to have in equilibrium. Ignored if `expectfeats` is given.
 #' @param expectfeats `[numeric(1)]` The expected number of features to have in equilibrium.
-#' @param minprob `[numeric(1)]` The minimum probability for each feature
-#' @param maxprob `[numeric(1)]` The maximum probability for each feature
+#' @param minprob `[numeric(1)]` The minimum probability for each feature.
+#' @param maxprob `[numeric(1)]` The maximum probability for each feature.
 #' @return `matrix`
 #' @export
 makeFilterMat <- function(task, filters, expectfeatfrac = 0.5, expectfeats = getTaskNFeats(task) * expectfeatfrac, minprob = 0, maxprob = 1) {

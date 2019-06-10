@@ -23,11 +23,11 @@
 #' 
 #' `$orig.features` are the features with `beta > 1 / sqrt(n)`.
 #'
-#' @param n `[integer(1)]` number of rows to generate
-#' @param p `[integer(1)]` number of columns to generate
-#' @param q `[numeric(1)]` attenuation factor for beta coefficients
-#' @param beta0 `[numeric(1)]` size of first coefficient
-#' @param rho `[numeric(1)]` parameter for correlation matrix
+#' @param n `[integer(1)]` number of rows to generate.
+#' @param p `[integer(1)]` number of columns to generate.
+#' @param q `[numeric(1)]` attenuation factor for beta coefficients.
+#' @param beta0 `[numeric(1)]` size of first coefficient.
+#' @param rho `[numeric(1)]` parameter for correlation matrix.
 #' @param permute `[logical(1)]` whether to permute columns of `X` and coefficient
 #'   vector (`beta`).
 #' @return `list(X=[Matrix], Y=[vector], beta = [vector], orig.features = logical)`
@@ -62,17 +62,19 @@ create.linear.data <- function(n, p, q = exp(-1), beta0 = 1, rho = 0, permute = 
 #' @title Create Hypersphere Data
 #'
 #' @description
-#' Creates matrix X and vector Y:
+#' Creates hypersphere data with X  as a `n * dim` matrix of sampled columns 
+#' from `dist`. `dist` must be a function 
+#' `n -> vector length (n)` 
+#' and should (probably) sample randomly to create `X`.
+#' 
+#' Y is a vector with entries `Y[i]` = `+1` if the L_`norm` of `X[i, ]` is `< radius^norm`, 
+#' and `Y[i]` = `-1` otherwise.
 #'
-#' * Sample `dim` columns of data from `dist` (which must be a function
-#'   `n -> vector length (n)` and should probably sample randomly to create `X`.
-#' * `Y[i]` is `+1` if the L_`norm` of `X[i, ]` is `< radius^norm`, and `-1` otherwise.
-#'
-#' @param dim `[integer(1)]` number of columns to create
-#' @param n `[integer(1)]` number of sample to create
-#' @param dist `[function]` function `n` -> `numeric(n)` that is used to sample points dimension-wise
-#' @param norm `[numeric(1)]` Norm Exponent
-#' @param radius `[numeric(1)]` Radius to check against
+#' @param dim `[integer(1)]` number of columns to create.
+#' @param n `[integer(1)]` number of sample to create.
+#' @param dist `[function]` function `n` -> `numeric(n)` that is used to sample points dimension-wise.
+#' @param norm `[numeric(1)]` Norm exponent.
+#' @param radius `[numeric(1)]` Radius to check against.
 #' @return `list(X = [Matrix], Y = [vector], orig.features = logical)`
 #' @family Artificial Datasets
 #' @export
@@ -100,7 +102,7 @@ create.hypersphere.data <- function(dim, n, dist = function(x) runif(x, -1, 1), 
 #' for `i` = 4, 5, 6.
 #'
 #' All other features are noise.
-#' @param n `[integer(1)]` number of samples to draw
+#' @param n `[integer(1)]` number of samples to draw.
 #' @return `list(X = [Matrix], Y = [vector], orig.features = logical)`
 #' @family Artificial Datasets
 #' @export
@@ -123,8 +125,8 @@ create.linear.toy.data <- function(n) {
 #' `Y`, but `create.classif.task` binarizes it on `cutoff` to create a classification
 #' task, while `create.regr.task` creates a regression task.
 #'
-#' @param id `[character(1)]` ID to use for [`Task`]
-#' @param data `[named list]` with columns entries `$X`, `$Y`, and `orig.features`.
+#' @param id `[character(1)]` ID to use for [`Task`].
+#' @param data `[named list]` with columns entries `$X`, `$Y`, and `$orig.features`.
 #' @return [`Task`]
 #' @family Artificial Datasets
 #' @export
@@ -153,15 +155,15 @@ create.classif.task <- function(id, data, cutoff = 0) {
 #' @title Replace Data in Task with new Data
 #'
 #' @description
-#' Create new task identical to the old one, but with 'newdata' instead
+#' Create new task identical to the old one, but with `newdata` instead
 #' of old data. This should either preserve the `orig.features` of the
 #' original task, or should add new noise-features, in which case `orig.features`
 #' should mark the features that correspond to the full original task.
 #'
-#' @param task `[Task]` mlr [`Task`] to use
+#' @param task `[Task]` mlr [`Task`] to use.
 #' @param newdata `[data.frame]` data to replace `task` data with; must
-#'   include the target column with same name
-#' @param newid `[character(1)]` ID to use for new `Task`
+#'   include the target column with same name.
+#' @param newid `[character(1)]` ID to use for new `Task`.
 #' @param orig.features `[logical]` features that correspond to original task's data.
 #' @return [`Task`]
 #' @family Artificial Datasets
@@ -207,10 +209,10 @@ clonetask <- function(task, newdata, newid,
 #' If the `$orig.features` slot is already present in
 #' the input `task`, then the output will have added `FALSE` entries at
 #' appropriate positions.
-#' @param task `[Task]` the input task
-#' @param num `[integer(1)]` number of noise features to add
+#' @param task `[Task]` the input task.
+#' @param num `[integer(1)]` number of noise features to add.
 #' @param dist `[function]` function `n` -> `numeric(n)` that samples
-#'   random noise features
+#'   random noise features.
 #' @return [`Task`]
 #' @family Artificial Datasets
 #' @export
@@ -238,7 +240,8 @@ task.add.random.cols <- function(task, num, dist = rnorm) {
 }
 
 #' @title Add Permuted Noise-Features to Task
-#'
+#' 
+#' @description 
 #' Adds `num` copies of the `task` with permuted rows.
 #'
 #' The feature names of the `i`th permuted copy have `PERM.i.` prepended to them.
@@ -247,8 +250,8 @@ task.add.random.cols <- function(task, num, dist = rnorm) {
 #'
 #' If the `$orig.features` slot is already present in the input `task`, then the
 #' output will have added `FALSE` entries at appropriate positions.
-#' @param task `[Task]` the input task
-#' @param num `[integer(1)]` Number of noise features to add
+#' @param task `[Task]` the input task.
+#' @param num `[integer(1)]` Number of noise features to add.
 #' @return [`Task`]
 #' @family Artificial Datasets
 #' @export

@@ -10,17 +10,17 @@
 #'
 #' @param generations `[integer(1)]` limit generations. Initial population does
 #'   not count.
-#' @param evals `[integer(1)]` limit evals
+#' @param evals `[integer(1)]` limit evals.
 #' @param time  `[numeric(1)]` limit evaluation time (which does not count
-#'   holdout fitting time
-#' @param fidelity `[numeric(1)]` total fidelity evaluation to limit
+#'   holdout fitting time.
+#' @param fidelity `[numeric(1)]` total fidelity evaluation to limit.
 #' @param stag `[integer(1)]` number of generations (or other measures)
-#'   without progress in hypervolume or mean objective value
+#'   without progress in hypervolume or mean objective value.
 #' @param stag.index `[character(1)]` one of `"generations"` (default),
 #'   `"evals"`, `"time"`, `"fidelity"`: What index to count `stag` against when
 #'   aborting after stagnation.
 #' @param obj.stat `[character(1)]` what statistic of the objective to test.
-#'   One of "min", "mean", "max". Default "mean"
+#'   One of "min", "mean", "max". Default "mean".
 #' @param objective.index `[integer | logical]` index of objective(s) to consider. Terminates
 #'   if all the objectives listed here stagnate. `TRUE` for all objectives. Default `TRUE`.
 #' @return `function` a terminator function
