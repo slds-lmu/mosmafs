@@ -166,6 +166,19 @@ test_that("makeBaselineObjective", {
   expect_equal(res[["propfeat"]], 0.5)
   expect_equal(attr(res, "extras")$fitness.holdout.propfeat, 0.5)
 
+  mbo.two <- makeBaselineObjective(lrn, task,
+    filters = filters,  measure = acc,
+    ps = ps, resampling = cv5, holdout.data = task.hout, 
+    num.explicit.featsel = 2)
+  
+  mbo.two(list(maxdepth = 1, minsplit = 2, cp = 0.5, 
+    mosmafs.nselect = 4,
+    mosmafs.iselect.1 = 0, 
+    mosmafs.iselect.2 = 0,
+    mosmafs.select.weights.1 = 1,
+    mosmafs.select.weights.2 = 0.0))
+  
+  
   ### with mbo 
   require("mlrMBO")
   ctrl <- makeMBOControl(n.objectives = 2) %>%
@@ -196,3 +209,28 @@ test_that("makeBaselineObjective", {
 })
 
 
+test_that("class in training data, not in test data ", {
+  train_data <- data.frame(one = as.factor(
+    sample(c("a", "b", "c"), size = 10, replace = TRUE)), 
+    y = factor(sample(c(0, 1), size = 10, replace = TRUE)))
+  test_data = data.frame(one = factor(sample(c("d", "e"), 
+    size = 4, replace = TRUE)), 
+    y = factor(sample(c(0, 1), size = 4, replace = TRUE)))
+  
+  example.task <- makeClassifTask(data = train_data, target = "y")
+  hold.task <- makeClassifTask(data = test_data, target = "y")
+  lrn <- makeLearner("classif.rpart")
+  
+  nRes <- function(n) {
+    makeResampleDesc("Subsample", split = 0.9, iters = n)
+  }
+  
+  ps = pSS(
+    one = NA: discrete [c("a", "b", "c")]
+  )
+  
+  exp.obj <- makeObjective(lrn, example.task, ps,  nRes, 
+    holdout.data = hold.task)
+  exp.obj(list(one = "10", selector.selection = FALSE), fidelity = 2)
+  
+})

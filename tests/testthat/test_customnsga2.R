@@ -21,8 +21,8 @@ test_that("slickEcr, initEcr, continueEcr", {
     noisy = TRUE,
     ref.point = c(10, 1),
     fn = function(args, fidelity = NULL, holdout = FALSE) {
-      propfeat <- mean(args$selector.selection)
-      c(perf = args$a, propfeat = propfeat)
+      pfeat <- mean(args$selector.selection)
+      c(perform = args$a, pfeat = pfeat)
     })
   
   fitness.fun.single <- smoof::makeMultiObjectiveFunction(
@@ -388,5 +388,41 @@ test_that("fidelity with 3 columns", {
   expect_equal(length(results.mufi$last.population), length(initials))
   
 })
+
+test_that("maximization", {
+  ps.simple <- pSS(
+    a: numeric [0, 10])
+  
+  mutator.simple <- combine.operators(ps.simple,
+    a = mutGauss)
+  
+  crossover.simple <- combine.operators(ps.simple,
+    a = recSBX)
+  
+  initials <- sampleValues(ps.simple, 30, discrete.names = TRUE)
+  
+  fitness.fun.single <- smoof::makeSingleObjectiveFunction(
+    sprintf("simple test"),
+    has.simple.signature = FALSE, par.set = ps.simple, 
+    noisy = TRUE,
+    fn = function(args, fidelity = NULL, holdout = FALSE) {
+      c(perform = -args$a)
+    })
+
+  generations <- 20
+  lambda <- 10
+
+  set.seed(100)
+  results.single <- slickEcr(fitness.fun.single, lambda = lambda, 
+    population = initials, mutator = mutator.simple, recombinator = crossover.simple, 
+    generations = generations, 
+    parent.selector = selSimple, 
+    survival.selector = selTournament)
+  
+  expect_equal(results.single$best.x[[1]]$a, 10, tolerance = 0.01)
+  
+})
+
+
 
 
