@@ -287,5 +287,3 @@ test_that("measure to be maximized, is multiplied by -1", {
 })
 
 
-test_that("")
-
