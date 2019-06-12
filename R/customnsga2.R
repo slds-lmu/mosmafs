@@ -288,7 +288,13 @@ continueEcr <- function(ecr.object, generations, lambda = NULL, mutator = NULL, 
 #' @title Compute the Fitness of Individuals
 #'
 #' @description
-#' Evaluates fitness with varying fidelity, if specified.
+#' Takes a list of individuals `population` and evaluates the fitness
+#' with varying `fidelity`, if specified.
+#' 
+#' A list is returned with two elements, one being the list of individuals and 
+#' one being the matrix of fitness values. In the matrix each column represents 
+#' the fitness values of one individual. 
+#' For consistency, a matrix is also returned for single objective fitness function. 
 #' 
 #'
 #' @param ctrl `[ecr_control]` control object.

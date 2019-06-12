@@ -165,19 +165,29 @@ test_that("makeBaselineObjective", {
   
   expect_equal(res[["propfeat"]], 0.5)
   expect_equal(attr(res, "extras")$fitness.holdout.propfeat, 0.5)
-
+  
+  ### with num.explicit.featsel
   mbo.two <- makeBaselineObjective(lrn, task,
     filters = filters,  measure = acc,
     ps = ps, resampling = cv5, holdout.data = task.hout, 
     num.explicit.featsel = 2)
-  
-  mbo.two(list(maxdepth = 1, minsplit = 2, cp = 0.5, 
-    mosmafs.nselect = 4,
+  args <- list(maxdepth = 1, minsplit = 2, cp = 0.5, 
+    mosmafs.nselect = 2,
     mosmafs.iselect.1 = 0, 
     mosmafs.iselect.2 = 0,
     mosmafs.select.weights.1 = 1,
-    mosmafs.select.weights.2 = 0.0))
+    mosmafs.select.weights.2 = 0.0)
+  set.seed(1234)
+  val.1 <- mbo.two(args)[[1]]
   
+  # Compare to acc computed by hand
+  args <- args[1:3]
+  learner <- setHyperPars(lrn, par.vals = args)
+  task.sub <- subsetTask(task, features = c(4,3))
+  set.seed(1234)
+  val.2 <- resample(learner, task.sub, cv5,
+    list(acc), show.info = FALSE)$aggr[[1]]
+  expect_equal(val.1, -val.2)
   
   ### with mbo 
   require("mlrMBO")
@@ -251,8 +261,8 @@ test_that("measure to be maximized, is multiplied by -1", {
   }
   
   fitness.fun.mos <- makeObjective(learner, task, ps.simple, nRes, 
-    measure = acc, 
-    holdout.data = task.hout)
+    measure = acc)
+  expect_equal(attr(fitness.fun.mos, "ref.point")[[1]], 0)
   
   ps.obj  <- attr(fitness.fun.mos, "par.set")
   
@@ -262,5 +272,20 @@ test_that("measure to be maximized, is multiplied by -1", {
   res <- fitness.fun.mos(args, fidelity = 5)
   expect_true(res[[1]] < 0)
   
+  fitness.fun.mos.baseline <- makeBaselineObjective(learner, task, 
+    filters = "anova.test", ps.obj, measure = acc, resampling = cv5)
+  expect_equal(attr(fitness.fun.mos.baseline, "ref.point")[[1]], 0)
+  
+  res_baseline <- fitness.fun.mos.baseline(
+    list(maxdepth = 1, minsplit = 1, 
+      cp = 0.5, selector.selection = c(rep(T, 4)), 
+      mosmafs.nselect = 2))
+  
+  expect_true(res_baseline[[1]] < 0) 
+  
+  
 })
+
+
+test_that("")
 
