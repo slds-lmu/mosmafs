@@ -11,6 +11,10 @@ cpoSelector(selection, id, export = "export.default",
   affect.pattern.perl = FALSE, affect.pattern.fixed = FALSE)
 }
 \arguments{
+\item{selection}{\code{[logical]}\cr
+Logical vector indicating if a features
+was selected or not. Must have the same length as number of features.}
+
 \item{id}{[\code{character(1)} | \code{NULL}]\cr
 ID to use for the CPO. if \code{NULL} is given, this defaults to
 a name describing the action performed by the CPO, which can be retrieved using \code{\link{getCPOName}}.
@@ -59,8 +63,6 @@ Use Perl-style regular expressions for \code{affect.pattern}; see \code{\link[ba
 \item{affect.pattern.fixed}{[\code{logical(1)}]\cr
 Use fixed matching instead of regular expressions for \code{affect.pattern}; see \code{\link[base]{grep}}.
 Has no effect when \code{affect.pattern} is \code{NULL}. Default is \code{FALSE}.}
-
-\item{selector}{\code{\link{NULL}}}
 }
 \description{
 CPO that Selects Features

@@ -23,7 +23,9 @@ makes sense. For example, the function could map an integer to a corresponding n
 or repetitions.}
 
 \item{measure}{\code{[Measure | NULL]} The \code{\link[mlr:makeMeasure]{Measure}} to optimize for.
-The default is \code{NULL}, which uses the \code{task}'s default \code{Measure}.}
+The default is \code{NULL}, which uses the \code{task}'s default \code{Measure}.
+If measure needs to be maximized, the measure is multiplied
+by -1, to make it a minimization task.}
 
 \item{holdout.data}{\code{[Task]} Additional data on which to predict each
 configuration after training on \code{task}.}
@@ -31,7 +33,8 @@ configuration after training on \code{task}.}
 \item{worst.measure}{\code{[numeric(1)]} worst value for measure to consider,
 for dominated hypervolume calculation. Will be extracted from the
 given measure if not given, but will raise an error if the extracted
-(or given) value is infinite.}
+(or given) value is infinite. Measure is multiplied by -1, if measure needs
+to be maximized.}
 
 \item{cpo}{\code{[CPO]} CPO pipeline to apply before feature selection.
 (A CPO that should be applied \emph{after} feature selection should already be
@@ -46,6 +49,8 @@ the data that \code{cpo} emits.}
 Creates an objective function that resamples \code{learner} on \code{task}
 with \code{resampling} and measures \code{measure} (optional), together
 with the number of features selected.
+If measure needs to be maximized, it is multiplied by -1 to make it
+a minimization task.
 
 The \code{ParamSet} used to generate individuals for the ecr must include
 parameters for \code{learner}, not a \code{logical} parameter with length equal

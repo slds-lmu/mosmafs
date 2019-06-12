@@ -28,7 +28,11 @@ to if \code{fidelity} has two elements. Otherwise not used.}
 \code{list(population = list, fitness = matrix)}
 }
 \description{
-Evaluates fitness with varying fidelity. Fidelity parameter
-is passed on to \code{fidelity} parameter of objective stored in
-\code{ctrl}.
+Takes a list of individuals \code{population} and evaluates the fitness
+with varying \code{fidelity}, if specified.
+
+A list is returned with two elements, one being the list of individuals and
+one being the matrix of fitness values. In the matrix each column represents
+the fitness values of one individual.
+For consistency, a matrix is also returned for single objective fitness function.
 }

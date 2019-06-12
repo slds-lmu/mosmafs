@@ -22,7 +22,9 @@ learner.}
 
 \item{resampling}{\code{[ResampleDesc | ResampleInstance]} the resampling strategy to use.}
 
-\item{measure}{\code{[Measure]} the measure to evaluate.}
+\item{measure}{\code{[Measure]} the measure to evaluate.
+If measure needs to be maximized, the measure is multiplied by -1,
+to make it a minimization task.}
 
 \item{num.explicit.featsel}{\code{[integer(1)]} additional number of parameters
 to add for explicit feature selection.}
