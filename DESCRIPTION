@@ -34,7 +34,8 @@ Suggests:
   parallel,
   praznik,
   mlrMBO,
-  emoa
+  emoa,
+  DiceKriging
 Remotes:
   jakobbossek/ecr2,
   mlr-org/mlr
