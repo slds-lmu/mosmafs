@@ -1,5 +1,5 @@
 
-
+# nocov start
 #' @title Parameter Configuration of Mosmafs
 #'
 #' @description
@@ -420,5 +420,5 @@ constructEvalSetting <- function(task, learner, ps, measure = getDefaultMeasure(
     })
 }
 
-
+# nocov end
 

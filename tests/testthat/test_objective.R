@@ -209,28 +209,58 @@ test_that("makeBaselineObjective", {
 })
 
 
-test_that("class in training data, not in test data ", {
-  train_data <- data.frame(one = as.factor(
-    sample(c("a", "b", "c"), size = 10, replace = TRUE)), 
-    y = factor(sample(c(0, 1), size = 10, replace = TRUE)))
-  test_data = data.frame(one = factor(sample(c("d", "e"), 
-    size = 4, replace = TRUE)), 
-    y = factor(sample(c(0, 1), size = 4, replace = TRUE)))
+# test_that("class in training data, not in test data ", {
+#   train_data <- data.frame(one = as.factor(
+#     sample(c("a", "b", "c"), size = 10, replace = TRUE)), 
+#     y = factor(sample(c(0, 1), size = 10, replace = TRUE)))
+#   test_data = data.frame(one = factor(sample(c("d", "e"), 
+#     size = 4, replace = TRUE)), 
+#     y = factor(sample(c(0, 1), size = 4, replace = TRUE)))
+#   
+#   example.task <- makeClassifTask(data = train_data, target = "y")
+#   hold.task <- makeClassifTask(data = test_data, target = "y")
+#   lrn <- makeLearner("classif.rpart")
+#   
+#   nRes <- function(n) {
+#     makeResampleDesc("Subsample", split = 0.9, iters = n)
+#   }
+#   
+#   ps = pSS(
+#     one = NA: discrete [c("a", "b", "c")]
+#   )
+#   
+#   exp.obj <- makeObjective(lrn, example.task, ps,  nRes, 
+#     holdout.data = hold.task)
+#   exp.obj(list(one = "10", selector.selection = FALSE), fidelity = 2)
+#   
+# })
+
+
+test_that("measure to be maximized, is multiplied by -1", {
+  task <- mlr::iris.task
   
-  example.task <- makeClassifTask(data = train_data, target = "y")
-  hold.task <- makeClassifTask(data = test_data, target = "y")
-  lrn <- makeLearner("classif.rpart")
+  learner <- makeLearner("classif.rpart")
+  
+  ps.simple <- pSS(
+    maxdepth: integer[1, 30],
+    minsplit: integer[2, 30],
+    cp: numeric[0.001, 0.999])
   
   nRes <- function(n) {
     makeResampleDesc("Subsample", split = 0.9, iters = n)
   }
   
-  ps = pSS(
-    one = NA: discrete [c("a", "b", "c")]
-  )
+  fitness.fun.mos <- makeObjective(learner, task, ps.simple, nRes, 
+    measure = acc, 
+    holdout.data = task.hout)
   
-  exp.obj <- makeObjective(lrn, example.task, ps,  nRes, 
-    holdout.data = hold.task)
-  exp.obj(list(one = "10", selector.selection = FALSE), fidelity = 2)
+  ps.obj  <- attr(fitness.fun.mos, "par.set")
+  
+  args <- list(maxdepth = 1, minsplit = 1, 
+    cp = 0.5, selector.selection = c(rep(T, 4)))
+  
+  res <- fitness.fun.mos(args, fidelity = 5)
+  expect_true(res[[1]] < 0)
   
 })
+
