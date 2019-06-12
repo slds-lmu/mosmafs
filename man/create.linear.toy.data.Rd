@@ -2,40 +2,28 @@
 % Please edit documentation in R/datagen.R
 \name{create.linear.toy.data}
 \alias{create.linear.toy.data}
-\title{Linear Toy Data
-
-Linear toy data (Weston, Feature Selection for SVMs).
-
-Creates matrix \code{X} and vector \code{Y} with six dimensions out of 202 relevant and
-equal probability of \code{y} = 1 or -1.
-
-With a prob of 0.7 we draw \code{xi = y * norm(i, 1)} for \code{i} = 1, 2, 3 and
-\code{xi} = \code{norm(0, 1)} for i = 4, 5, 6.
-Otherwise: \code{xi = norm(0, 1)} for \code{i} = 1, 2, 3 and \code{xi} = \code{y * norm(i - 3, 1)}.
-
-All other features are noise}
+\title{Linear Toy Data}
 \usage{
 create.linear.toy.data(n)
 }
 \arguments{
-\item{n}{\code{[integer(1)]} number of samples to draw}
+\item{n}{\code{[integer(1)]} number of samples to draw.}
 }
 \value{
 \code{list(X = [Matrix], Y = [vector], orig.features = logical)}
 }
 \description{
-Linear Toy Data
-
 Linear toy data (Weston, Feature Selection for SVMs).
 
 Creates matrix \code{X} and vector \code{Y} with six dimensions out of 202 relevant and
 equal probability of \code{y} = 1 or -1.
 
 With a prob of 0.7 we draw \code{xi = y * norm(i, 1)} for \code{i} = 1, 2, 3 and
-\code{xi} = \code{norm(0, 1)} for i = 4, 5, 6.
-Otherwise: \code{xi = norm(0, 1)} for \code{i} = 1, 2, 3 and \code{xi} = \code{y * norm(i - 3, 1)}.
+\code{xi} = \code{norm(0, 1)} for \code{i} = 4, 5, 6.
+Otherwise: \code{xi = norm(0, 1)} for \code{i} = 1, 2, 3 and \code{xi = y * norm(i - 3, 1)}
+for \code{i} = 4, 5, 6.
 
-All other features are noise
+All other features are noise.
 }
 \seealso{
 Other Artificial Datasets: \code{\link{clonetask}},

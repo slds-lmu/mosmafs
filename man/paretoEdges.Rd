@@ -7,18 +7,18 @@
 paretoEdges(fitness, refpoint)
 }
 \arguments{
-\item{fitness}{\code{[matrix | data.frame]} Matrix or (numeric) \code{data.frame}
-with two columns and rows for each individuum}
+\item{fitness}{\code{[matrix | data.frame]} matrix or (numeric) \code{data.frame}
+with two columns and rows for each individuum.}
 
-\item{refpoint}{\code{[numeric]} Reference point}
+\item{refpoint}{\code{[numeric(2)]} reference point.}
 }
 \value{
 \code{data.frame} with three columns: The points on the pareto front,
 and a \code{logical} column \code{point} indicating whether the point is on the pareto front
-(\code{TRUE}) or an auxiliary point for plotting (\code{FALSE})
+(\code{TRUE}) or an auxiliary point for plotting (\code{FALSE}).
 }
 \description{
-Get the edges defining a 2D pareto front for plotting
+Get the edges defining a 2D pareto front for plotting.
 }
 \seealso{
 Other Utility Functions: \code{\link{fitnesses}}

@@ -2,9 +2,24 @@
 % Please edit documentation in R/operators.R
 \name{mutGaussScaled}
 \alias{mutGaussScaled}
-\title{Integer Scaled Gaussian Mutator}
+\title{Scaled Gaussian Mutator}
 \usage{
 mutGaussScaled(ind, p = 1, sdev = 0.05, lower, upper)
+}
+\arguments{
+\item{ind}{[\code{numeric}]\cr
+Numeric vector / individual to mutate.}
+
+\item{p}{[\code{numeric(1)}]\cr
+Probability of mutation for the gauss mutation operator.}
+
+\item{sdev}{\code{[numeric]} standard deviation(s) of the Gauss mutation.}
+
+\item{lower}{[\code{numeric}]\cr
+Vector of minimal values for each parameter of the decision space.}
+
+\item{upper}{[\code{numeric}]\cr
+Vector of maximal values for each parameter of the decision space.}
 }
 \description{
 See \link[ecr:mutGauss]{ecr::mutGauss}. Allows a vector of standard deviations. Scales

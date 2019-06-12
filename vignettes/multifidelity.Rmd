@@ -157,7 +157,7 @@ nRes <- function(n) {
 
 We can use this function to create a multi-fidelity fitness function:
 ```{r}
-fitness.fun <- makeObjective(lrn, task, ps.objective, nRes, holdout.data = task.hout)
+fitness.fun <- makeObjective(lrn, task, ps.simple, nRes, holdout.data = task.hout)
 
 formals(fitness.fun)
 ```

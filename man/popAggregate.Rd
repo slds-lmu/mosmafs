@@ -7,17 +7,17 @@
 popAggregate(log, extract, simplify = TRUE, data.frame = FALSE)
 }
 \arguments{
-\item{log}{\code{[ecr_logger]} ecr log object}
+\item{log}{\code{[ecr_logger]} ecr log object.}
 
 \item{extract}{\code{[character]} names of attributes to extract, currently
-"names", "fitness", "runtime", "fitness.holdout" and "fidelity" (if used) are supported}
+"names", "fitness", "runtime", "fitness.holdout" and "fidelity" (if used) are supported.}
 
 \item{simplify}{\code{[logical(1)]} whether to create a
 \code{matrix}/\code{data.frame} for each generation (default).
 Otherwise a list is returned for each generation containing
 the value (if \code{length(extract) == 1}) or a named list of values.}
 
-\item{data.frame}{\code{[logical(1)]} Whether to return a \code{data.frame}
+\item{data.frame}{\code{[logical(1)]} whether to return a \code{data.frame}
 with rows for each individuum (if \code{TRUE}) or to return a \code{matrix}
 with columns for each individuum compatible as fitness matrix
 with various ecr tools (if \code{FALSE}, default). Only effective if

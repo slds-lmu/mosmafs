@@ -7,9 +7,9 @@
 mutUniformReset(ind, p = 0.1, reset.dist)
 }
 \arguments{
-\item{ind}{\code{[integer]} binary individuum with values 0 or 1}
+\item{ind}{\code{[integer]} binary individuum with values 0 or 1.}
 
-\item{p}{\code{[numeric(1)]} entry-wise reset probability}
+\item{p}{\code{[numeric(1)]} entry-wise reset probability.}
 
 \item{reset.dist}{\code{[numeric]} probability to draw 1-bit per entry, if reset is performed.
 \code{reset.dist} can be length 1 or same length as \code{ind} (which uses a different distribution for each bit).}

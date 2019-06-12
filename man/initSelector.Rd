@@ -11,10 +11,10 @@ initSelector(individuals, vector.name = "selector.selection",
   reject.condition = function(x) !any(x))
 }
 \arguments{
-\item{individuals}{\code{[list of named lists]} the individuals to initialize}
+\item{individuals}{\code{[list of named lists]} the individuals to initialize.}
 
 \item{vector.name}{\code{[character(1)]} the variable name, whose entries are
-sampled}
+sampled.}
 
 \item{distribution}{\code{[function]} function that returns a random integer
 from 0 to the length of each individual's \code{vector.name} slot.
@@ -30,11 +30,11 @@ Ignored if \code{soften.op} is not given.}
 \item{soften.op.repeat}{\code{[integer(1)]} how often to repeat \code{soften.op}
 application. Ignored if \code{soften.op} is not given.}
 
-\item{reject.condition}{\code{[function]} reject condition as a function applied
+\item{reject.condition}{\code{[function | NULL]} reject condition as a function applied
 to newly generated values of \code{vector.name}. If set to NULL, no rejection is done.}
 }
 \value{
-\code{list of named lists} The individuals with initialized
+\code{list of named lists} the individuals with initialized
 \code{[[vector.name]]}.
 }
 \description{

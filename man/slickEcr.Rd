@@ -29,13 +29,13 @@ continueEcr(ecr.object, generations, lambda = NULL, mutator = NULL,
 \item{fitness.fun}{\code{[smoof_multi_objective_function]} fitness function, must be a
 "\code{smoof}" function.}
 
-\item{lambda}{\code{[integer(1)]} number of individuals to add each generation}
+\item{lambda}{\code{[integer(1)]} number of individuals to add each generation.}
 
 \item{population}{\code{[list]} list of individuals to start off from.}
 
-\item{mutator}{\code{[ecr_mutator]} mutation operator}
+\item{mutator}{\code{[ecr_mutator]} mutation operator.}
 
-\item{recombinator}{\code{[ecr_recombinator]} recombination operator}
+\item{recombinator}{\code{[ecr_recombinator]} recombination operator.}
 
 \item{generations}{\code{[integer(1) | list of function]} number of iterations to
 evaluate if it is an integer, or \link[=mosmafsTermEvals]{terminator} function.
@@ -43,15 +43,17 @@ If this is an integer, it counts the \emph{new} generations to evaluate;
 otherwise the terminator functions are applied to the whole combined trace
 of evaluation.}
 
-\item{parent.selector}{\code{[ecr_selector]} parent selection operator}
+\item{parent.selector}{\code{[ecr_selector]} parent selection operator.}
 
-\item{survival.selector}{\code{[ecr_selector]} survival selection operator}
+\item{survival.selector}{\code{[ecr_selector]} survival selection operator.}
 
-\item{p.recomb}{\code{[numeric(1)]} probability to apply a recombination operator}
+\item{p.recomb}{\code{[numeric(1)]} probability to apply a recombination operator.}
 
-\item{p.mut}{\code{[numeric(1)]} probability to apply mutation operator}
+\item{p.mut}{\code{[numeric(1)]} probability to apply mutation operator.}
 
-\item{survival.strategy}{\code{[character(1)]} one of \code{"plus"} or \code{"comma"}}
+\item{survival.strategy}{\code{[character(1)|function]} one of \code{"plus"} or \code{"comma"}
+or a function. If function, arguments must be the same as for
+\code{\link[ecr:replaceMuPlusLambda]{ecr::replaceMuPlusLambda}}.}
 
 \item{n.elite}{\code{[integer(1)]} Number of elites to keep, only used if
 \code{survival.strategy} is \code{"comma"}}
@@ -91,10 +93,10 @@ mutation or selection.
 (a result from a previous \code{initEcr}, \code{slickEcr}, or \code{continueEcr} call) and
 \code{generations} must be given, the other arguments are optional \emph{if} they were set
 in a previous \code{slickEcr} or \code{continueEcr} call, in which case the values from the
-previous run are used. Otherwise is possible to supply any combination of these values
+previous run are used. Otherwise it is possible to supply any combination of these values
 to set them to new values.
 
-Note, for \code{fidelity}, that the generation continue counting from previous runs,
+Note, for \code{fidelity}, that the generation continues counting from previous runs,
 so if \code{initEcr} was ran for 5 generations and \code{continueEcr} is called with
 a \code{fidelity} with first column values \code{c(1, 8)}, then the fidelity given in the
 first row is applied for 2 generations, after which the fidelity given in the

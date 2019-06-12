@@ -7,7 +7,7 @@
 availableAttributes(log, check = FALSE)
 }
 \arguments{
-\item{log}{\code{[ecr_logger]} ecr log object}
+\item{log}{\code{[ecr_logger]} ecr log object.}
 
 \item{check}{\code{[logical(1)]} whether to check consistency.
 This should almost never be useful.}
@@ -17,8 +17,8 @@ This should almost never be useful.}
 }
 \description{
 Looks at the first individuum in the first generation and
-returns its attributes. if \code{check} is TRUE it checks that the
-log object is consistent and throws an error if not. "consistent"
+returns its attributes. If \code{check} is TRUE it checks that the
+log object is consistent and throws an error if not. "Consistent"
 here means that all individuals in all generations have the same
-attributes
+attributes.
 }

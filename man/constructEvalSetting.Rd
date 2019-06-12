@@ -19,6 +19,11 @@ constructEvalSetting(task, learner, ps,
 
 \item{measure}{\code{[Measure]} measure to optimize}
 
+\item{worst.measure}{\code{[numeric(1)]} worst value for measure to consider,
+for dominated hypervolume calculation. Will be extracted from the
+given measure if not given, but will raise an error if the extracted
+(or given) value is infinite.}
+
 \item{cpo}{\code{[CPO]} cpo to prepend feature selection}
 
 \item{nfeat}{\code{[integer(1)]} number of features}
@@ -27,10 +32,10 @@ constructEvalSetting(task, learner, ps,
 evaluations (i.e. single CV folds). When not using multifid the number of points
 evaluated is 1/10th the \code{evals} value.}
 
+\item{outer.resampling}{outer resampling to use.}
+
 \item{savedir}{\code{[character(1) | NULL]} the directory to save every trace to.
 If this is \code{NULL} (the default) evaluations are not saved.}
-
-\item{outer.resampling:}{outer resampling to use.}
 }
 \value{
 \code{function} a smoof function.

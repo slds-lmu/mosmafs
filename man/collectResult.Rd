@@ -11,7 +11,7 @@ collectResult(ecr.object, aggregate.perresult = list(domHV = function(x)
   cor.fun = cor)
 }
 \arguments{
-\item{ecr.object}{\code{[MosmafsResult]} \code{slickEcr()} result to analyse}
+\item{ecr.object}{\code{[MosmafsResult]} \code{slickEcr()} result to analyse.}
 
 \item{aggregate.perresult}{\code{[list]} list of functions
 to apply to fitness and holdout fitness. Every entry must either be
@@ -25,7 +25,7 @@ to apply to fitness and holdout fitness matrix rows, formatted like
 \code{aggregate.perresult}. Each function must return exactly one numeric
 value when fed a fitness vector.}
 
-\item{ref.point}{\code{[numeric]} reference point to use for HV computation}
+\item{ref.point}{\code{[numeric]} reference point to use for HV computation.}
 
 \item{cor.fun}{\code{[function]} function to use for calculation of
 correlation between objective and holdout. Must take two \code{numeric}

@@ -7,11 +7,11 @@
 naiveHoldoutDomHV(fitness, holdout, refpoint)
 }
 \arguments{
-\item{fitness}{\code{[matrix]} fitness matrix on training data}
+\item{fitness}{\code{[matrix]} fitness matrix on training data.}
 
-\item{holdout}{\code{[matrix]} fitness matrix on holdout data}
+\item{holdout}{\code{[matrix]} fitness matrix on holdout data.}
 
-\item{refpoint}{\code{numeric} reference point}
+\item{refpoint}{\code{[numeric]} reference point.}
 }
 \value{
 \code{numeric}

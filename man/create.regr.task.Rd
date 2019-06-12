@@ -10,9 +10,9 @@ create.regr.task(id, data)
 create.classif.task(id, data, cutoff = 0)
 }
 \arguments{
-\item{id}{\code{[character(1)]} ID to use for \code{\link{Task}}}
+\item{id}{\code{[character(1)]} ID to use for \code{\link{Task}}.}
 
-\item{data}{\code{[named list]} with columns entries \code{$X}, \code{$Y}, and \code{orig.features}.}
+\item{data}{\code{[named list]} with columns entries \code{$X}, \code{$Y}, and \code{$orig.features}.}
 
 \item{cutoff}{\code{[numeric(1)]} cutoff at which to binarize target.}
 }
