@@ -400,7 +400,23 @@ test_that("maximization", {
     a = recSBX)
   
   initials <- sampleValues(ps.simple, 30, discrete.names = TRUE)
+  lambda <- 10
   
+  # Smoof function with argument minimize = FALSE
+  fitness.fun <- smoof::makeMultiObjectiveFunction(
+    sprintf("simple test"),
+    has.simple.signature = FALSE, par.set = ps.simple, n.objectives = 2, 
+    noisy = TRUE, ref.point = c(10, 1), minimize = c(FALSE, TRUE),
+    fn = function(args, fidelity = NULL, holdout = FALSE) {
+      pfeat <- mean(args$a)
+      c(perform = args$a, pfeat = pfeat)
+    })
+  
+  expect_error(slickEcr(fitness.fun = fitness.fun, lambda = lambda, population = initials, 
+    mutator = mutator.simple, recombinator = crossover.simple, generations = 10), 
+    "failed: Must be TRUE.")
+  
+  # maximization with negative objective
   fitness.fun.single <- smoof::makeSingleObjectiveFunction(
     sprintf("simple test"),
     has.simple.signature = FALSE, par.set = ps.simple, 
@@ -409,19 +425,18 @@ test_that("maximization", {
       c(perform = -args$a)
     })
 
-  generations <- 20
-  lambda <- 10
-
-  set.seed(100)
+  set.seed(10)
   results.single <- slickEcr(fitness.fun.single, lambda = lambda, 
     population = initials, mutator = mutator.simple, recombinator = crossover.simple, 
-    generations = generations, 
+    generations = 30, 
     parent.selector = selSimple, 
     survival.selector = selTournament)
   
   expect_equal(results.single$best.x[[1]]$a, 10, tolerance = 0.01)
   
 })
+
+
 
 
 

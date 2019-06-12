@@ -79,6 +79,7 @@ initEcr <- function(fitness.fun, population, fidelity = NULL, log.stats = NULL, 
   if (!smoof::isSmoofFunction(fitness.fun)) {
     stop("fitness.fun must be a SMOOF function")
   }
+  assertTRUE(all(attr(fitness.fun, "minimize")))
   n.objectives <- smoof::getNumberOfObjectives(fitness.fun)
   if (is.null(log.stats)) {
     if (n.objectives == 1) {
@@ -287,9 +288,8 @@ continueEcr <- function(ecr.object, generations, lambda = NULL, mutator = NULL, 
 #' @title Compute the Fitness of Individuals
 #'
 #' @description
-#' Evaluates fitness with varying fidelity. Fidelity parameter
-#' is passed on to `fidelity` parameter of objective stored in
-#' `ctrl`.
+#' Evaluates fitness with varying fidelity, if specified.
+#' 
 #'
 #' @param ctrl `[ecr_control]` control object.
 #' @param population `[list]` list of individuals to evaluate.
