@@ -7,9 +7,9 @@
 recPCrossover(inds, p = 0.1, ...)
 }
 \arguments{
-\item{p}{\code{[numeric(1)]} per-entry probability to perform crossover}
+\item{inds}{\code{[list of any]} list of two individuals to perform uniform crossover on}
 
-\item{ind}{\code{[list of any]} list of two individuals to perform uniform crossover on}
+\item{p}{\code{[numeric(1)]} per-entry probability to perform crossover}
 }
 \value{
 \code{[list of any]} The mutated individuals.

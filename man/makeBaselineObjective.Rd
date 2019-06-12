@@ -10,40 +10,42 @@ makeBaselineObjective(learner, task, filters, ps, resampling,
   numfeats = getTaskNFeats(task))
 }
 \arguments{
-\item{learner}{\code{[Learner]} the base learner to use}
+\item{learner}{\code{[Learner]} the base learner to use.}
 
-\item{task}{\code{[Task]} the task to optimize}
+\item{task}{\code{[Task]} the task to optimize.}
 
-\item{filters}{\code{[character]} filter values to evaluate and use}
+\item{filters}{\code{[character]} filter values to evaluate and use.}
 
 \item{ps}{\code{[ParamSet]} the ParamSet of the learner to evaluate. Should
 not include \code{selector.selection} etc., only parameters of the actual
 learner.}
 
-\item{resampling}{\code{[ResampleDesc | ResampleInstance]} the resampling to use}
+\item{resampling}{\code{[ResampleDesc | ResampleInstance]} the resampling strategy to use.}
 
-\item{measure}{\code{[Measure]} the measure to evaluate}
+\item{measure}{\code{[Measure]} the measure to evaluate.}
 
 \item{num.explicit.featsel}{\code{[integer(1)]} additional number of parameters
 to add for explicit feature selection.}
 
-\item{holdout.data}{\code{[Task | NULL]} the holdout data to consider}
+\item{holdout.data}{\code{[Task | NULL]} the holdout data to consider.}
 
-\item{worst.measure}{\code{[numeric(1)]} worst value to impute for failed evals}
+\item{worst.measure}{\code{[numeric(1)]} worst value to impute for failed evals.}
 
-\item{cpo}{\code{[CPO]} CPO pipeline to apply before feature selection}
+\item{cpo}{\code{[CPO]} CPO pipeline to apply before feature selection.}
 
 \item{numfeats}{\code{[integer(1)]} number of features to consider. Is extracted
 from the \code{task} but should be given if \code{cpo} changes the number of features.}
 }
 \value{
 \code{function} that can be used for mlrMBO; irace possibly needs some
-adjustmens
+adjustments.
 }
 \description{
-"Baseline" performance measure: We just do normal parameter optimization
-with additional parameters: mosmafs.nselect (how many features to select),
-mosmafs.iselect (vector integer parameter that selects explicit features out
-of order) and mosmafs.select.weights (numeric parameter vector that does
+"Baseline" performance measure: Creates an objective function that performs
+normal parameter optimization by evaluating filters with additional parameters:
+\code{mosmafs.nselect} (how many features to select),
+\code{mosmafs.iselect} (vector integer parameter that selects explicit features
+that are not necessary the best according to filter values)
+and \code{mosmafs.select.weights} (numeric parameter vector that does
 weighting between filter values to use.
 }

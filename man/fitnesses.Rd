@@ -7,7 +7,7 @@
 fitnesses(results, trafo = identity)
 }
 \arguments{
-\item{results}{\code{[ecr_multi_objective_result]} ecr run log}
+\item{results}{\code{[ecr_multi_objective_result]} ecr run log.}
 
 \item{trafo}{\code{[function]} function \code{matrix}|\code{data.frame} -> \code{matrix}|\code{data.frame}
 to transforms individual generation matrices.}

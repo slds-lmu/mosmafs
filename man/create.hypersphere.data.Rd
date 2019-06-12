@@ -8,26 +8,27 @@ create.hypersphere.data(dim, n, dist = function(x) runif(x, -1, 1),
   norm = 2, radius = 1)
 }
 \arguments{
-\item{dim}{\code{[integer(1)]} number of columns to create}
+\item{dim}{\code{[integer(1)]} number of columns to create.}
 
-\item{n}{\code{[integer(1)]} number of sample to create}
+\item{n}{\code{[integer(1)]} number of sample to create.}
 
-\item{dist}{\code{[function]} function \code{n} -> \code{numeric(n)} that is used to sample points dimension-wise}
+\item{dist}{\code{[function]} function \code{n} -> \code{numeric(n)} that is used to sample points dimension-wise.}
 
-\item{norm}{\code{[numeric(1)]} Norm Exponent}
+\item{norm}{\code{[numeric(1)]} Norm exponent.}
 
-\item{radius}{\code{[numeric(1)]} Radious to check against}
+\item{radius}{\code{[numeric(1)]} Radius to check against.}
 }
 \value{
 \code{list(X = [Matrix], Y = [vector], orig.features = logical)}
 }
 \description{
-Creates matrix X and vector Y:
-\itemize{
-\item Sample \code{dim} columns of data from \code{dist} (which must be a function
-\code{n -> vector length (n)} and should probably sample randomly to create \code{X}.
-\item \code{Y[i]} is \code{+1} if the L_\code{norm}-norm of \code{X[i, ]} is < \code{radius}, and \code{-1} otherwise.
-}
+Creates hypersphere data with X  as a \code{n * dim} matrix of sampled columns
+from \code{dist}. \code{dist} must be a function
+\code{n -> vector length (n)}
+and should (probably) sample randomly to create \code{X}.
+
+Y is a vector with entries \code{Y[i]} = \code{+1} if the L_\code{norm} of \code{X[i, ]} is \code{< radius^norm},
+and \code{Y[i]} = \code{-1} otherwise.
 }
 \seealso{
 Other Artificial Datasets: \code{\link{clonetask}},

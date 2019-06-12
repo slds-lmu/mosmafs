@@ -6,6 +6,15 @@
 \usage{
 mutGaussIntScaled(ind, ..., lower, upper)
 }
+\arguments{
+\item{ind}{\code{[integer]} integer vector/individual to mutate.}
+
+\item{...}{other arguments passed on to the method.}
+
+\item{lower}{\code{[integer]} vector of minimal values for each parameter of the decision space. Must have the same length as \code{ind}.}
+
+\item{uppper}{\code{[integer]} vector of maximal values for each parameter of the decision space. Must have the same length as \code{ind}.}
+}
 \description{
 See \link{mutGaussScaled}
 }

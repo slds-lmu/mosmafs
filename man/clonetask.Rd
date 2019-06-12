@@ -8,12 +8,12 @@ clonetask(task, newdata, newid, orig.features = rep(TRUE, ncol(newdata) -
   length(getTaskTargetNames(task))))
 }
 \arguments{
-\item{task}{\code{[Task]} mlr \code{\link{Task}} to use}
+\item{task}{\code{[Task]} mlr \code{\link{Task}} to use.}
 
 \item{newdata}{\code{[data.frame]} data to replace \code{task} data with; must
-include the target column with same name}
+include the target column with same name.}
 
-\item{newid}{\code{[character(1)]} ID to use for new \code{Task}}
+\item{newid}{\code{[character(1)]} ID to use for new \code{Task}.}
 
 \item{orig.features}{\code{[logical]} features that correspond to original task's data.}
 }
@@ -21,7 +21,7 @@ include the target column with same name}
 \code{\link{Task}}
 }
 \description{
-Create new task identical to the old one, but with 'newdata' instead
+Create new task identical to the old one, but with \code{newdata} instead
 of old data. This should either preserve the \code{orig.features} of the
 original task, or should add new noise-features, in which case \code{orig.features}
 should mark the features that correspond to the full original task.

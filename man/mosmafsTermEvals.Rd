@@ -20,22 +20,22 @@ mosmafsTermStagnationObjStatistic(stag, stag.index = "generations",
   obj.stat = "mean", objective.index = TRUE)
 }
 \arguments{
-\item{evals}{\code{[integer(1)]} limit evals}
+\item{evals}{\code{[integer(1)]} limit evals.}
 
 \item{time}{\code{[numeric(1)]} limit evaluation time (which does not count
-holdout fitting time}
+holdout fitting time.}
 
-\item{fidelity}{\code{[numeric(1)]} total fidelity evaluation to limit}
+\item{fidelity}{\code{[numeric(1)]} total fidelity evaluation to limit.}
 
 \item{stag}{\code{[integer(1)]} number of generations (or other measures)
-without progress in hypervolume or mean objective value}
+without progress in hypervolume or mean objective value.}
 
 \item{stag.index}{\code{[character(1)]} one of \code{"generations"} (default),
 \code{"evals"}, \code{"time"}, \code{"fidelity"}: What index to count \code{stag} against when
 aborting after stagnation.}
 
 \item{obj.stat}{\code{[character(1)]} what statistic of the objective to test.
-One of "min", "mean", "max". Default "mean"}
+One of "min", "mean", "max". Default "mean".}
 
 \item{objective.index}{\code{[integer | logical]} index of objective(s) to consider. Terminates
 if all the objectives listed here stagnate. \code{TRUE} for all objectives. Default \code{TRUE}.}

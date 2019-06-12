@@ -7,27 +7,27 @@
 combine.operators(param.set, ..., .binary.discrete.as.logical = TRUE)
 }
 \arguments{
-\item{param.set}{\code{[ParamSet]} \code{\link[ParamHelpers:makeParamSet]{ParamSet}} that defines the search space}
+\item{param.set}{\code{[ParamSet]} \code{\link[ParamHelpers:makeParamSet]{ParamSet}} that defines the search space.}
 
-\item{...}{see description}
+\item{...}{additional parameters. See description.}
 
 \item{.binary.discrete.as.logical}{\code{[logical(1)]} whether to treat binary discrete parameters as \code{logical} parameters and
 use bitwise operators.}
 }
 \value{
-\code{\link[ecr:makeOperator]{ecr_operator}} ECR operator
+\code{\link[ecr:makeOperator]{ecr_operator}} ecr operator.
 }
 \description{
 TODO: This seriously needs better documentation.
 
-combine operators to be applied to individuals that conform to parameter set param.set.
-Parameters are the param.set, and the names / types of params with the operator to use.
-Parameter groups that use a single operator can be defined using \code{.params.<groupname>} = \link{character}`.
+Combine operators to be applied to individuals that conform to parameter set \code{param.set}.
+Parameters are the \code{param.set}, and the names / types of params with the operator to use.
+Parameter groups that use a single operator can be defined using \code{.params.<groupname> = [character]}.
 
-say param.set has three logical params 'l1', 'l2', 'l3' and two numeric params 'n1', 'n2'.
-We want to use operatorA for 'l1' and 'l2', operatorB for 'l3', and operatorC for all numeric
-params. Call as
-combineOperator(param.set, .params.group1 = c("l1", "l2"), group1 = operatorA, l3 = operatorB, numeric = operatorC)
+Say \code{param.set} has three logical params 'l1', 'l2', 'l3' and two numeric params 'n1', 'n2'.
+To use operatorA for 'l1' and 'l2', operatorB for 'l3', and operatorC for all numeric
+params, call
+\code{combineOperator(param.set, .params.group1 = c("l1", "l2"), group1 = operatorA, l3 = operatorB, numeric = operatorC)}.
 
 Use arguments by types, names of parameters, or group name. Valid types are 'numeric', 'logical', 'integer', 'discrete'.
 Operators given for groups or individual parameters supercede operators given for types.
@@ -37,14 +37,13 @@ taking a named list of parameter values (i.e. an individuum) as input and return
 to be given to the respective group's / parameter's or type's operator. If, in the example above, \code{operatorA} has
 a parameter \code{sigma} that should also be treated as a parameter under evolution (and in fact be equal to \code{l3}), then
 the above call would become
-combineOperator(param.set, .params.group1 = c("l1", "l2"), group1 = operatorA, .strategy.group1 = function(x) list(sigma = x$l3),
-l3 = operatorB, numeric = operatorC)
+\code{combineOperator(param.set, .params.group1 = c("l1", "l2"), group1 = operatorA, .strategy.group1 = function(x) list(sigma = x$l3), l3 = operatorB, numeric = operatorC)}.
 
 If .binary.discrete.as.logical is TRUE, then binary discrete params are handled as logical params.
 
-operators for logical parameters must have only one argument. operators for discreten parameters
-must have an additional argument 'values', operators for continuous or integer parameters must have
+Operators for logical parameters must have only one argument. Operators for discrete parameters
+must have an additional argument 'values'. Operators for continuous or integer parameters must have
 an additional argument 'lower', 'upper'.
 
-use the ecr::setup function to set parameters for operators ("currying")
+Use the ecr::setup function to set parameters for operators ("currying").
 }

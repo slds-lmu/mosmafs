@@ -12,7 +12,8 @@ makeObjective(learner, task, ps, resampling, measure = NULL,
 
 \item{task}{\code{[Task]} The \code{\link[mlr:Task]{mlr::Task}} object to optimize on.}
 
-\item{ps}{\code{[ParamSet]} The \code{\link[ParamHelpers:makeParamSet]{ParamSet}} to optimize over.}
+\item{ps}{\code{[ParamSet]} The \code{\link[ParamHelpers:makeParamSet]{ParamSet}} to optimize over, only parameters of the
+actual learner.}
 
 \item{resampling}{\code{[ResampleDesc | ResampleInst | function]} The \code{\link[mlr:makeResampleDesc]{ResampleDesc}} or
 \code{\link[mlr:makeResampleInstance]{ResampleInst}} object to use. This may be a function
@@ -42,13 +43,13 @@ the data that \code{cpo} emits.}
 \code{function} an objective function for \code{\link[ecr:ecr]{ecr::ecr}}.
 }
 \description{
-Create an objective function that resamples \code{learner} on \code{task}
+Creates an objective function that resamples \code{learner} on \code{task}
 with \code{resampling} and measures \code{measure} (optional), together
 with the number of features selected.
 
-The \code{ParamSet} used to generate individuals for the ecr must include,
-besides parameters for \code{learner}, a parameter \code{selector.selection},
-a \code{logical} parameter with length equal \code{getTaskNFeats(task)}.
+The \code{ParamSet} used to generate individuals for the ecr must include
+parameters for \code{learner}, not a \code{logical} parameter with length equal
+to \code{getTaskNFeats(task)} for feature selection, as it is automatically added.
 
 \code{learner} must \emph{not} include a \code{cpoSelector()} applied to it, this
 happens automatically within \code{makeObjective}.

@@ -10,11 +10,11 @@ mutDoubleGeom(ind, p = 1, geomp = 0.9, lower, upper)
 mutDoubleGeomScaled(ind, p = 1, sdev = 0.05, lower, upper)
 }
 \arguments{
-\item{ind}{\code{[integer]} individual to mutate}
+\item{ind}{\code{[integer]} individual to mutate.}
 
-\item{p}{\code{[numeric(1)]} per-entry probability to perform mutation}
+\item{p}{\code{[numeric(1)]} per-entry probability to perform mutation.}
 
-\item{geomp}{\code{[numeric]} geometric distribution parameter}
+\item{geomp}{\code{[numeric]} geometric distribution parameter.}
 
 \item{lower}{\code{[integer]} lower bounds of \code{ind} values. May have same length as
 \code{ind} or may be a single number, if the lower bounds are the same for all
@@ -24,7 +24,7 @@ values.}
 \code{ind} or may be a single number, if the upper bounds are the same for all
 values.}
 
-\item{sdev}{\code{[numeric]} standard deviation, relative to \code{upper - lower}}
+\item{sdev}{\code{[numeric]} standard deviation, relative to \code{upper - lower}.}
 }
 \value{
 \code{\link{integer}}

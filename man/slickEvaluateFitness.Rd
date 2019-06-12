@@ -8,9 +8,9 @@ slickEvaluateFitness(ctrl, population, fidelity = NULL,
   previous.points = NULL)
 }
 \arguments{
-\item{ctrl}{ecr control object}
+\item{ctrl}{\code{[ecr_control]} control object.}
 
-\item{population}{\code{[list]} list of individuals to evaluate}
+\item{population}{\code{[list]} list of individuals to evaluate.}
 
 \item{fidelity}{\code{[numeric]} vector of fidelity, with one
 or two elements. If this has one element, it is directly
@@ -30,5 +30,5 @@ to if \code{fidelity} has two elements. Otherwise not used.}
 \description{
 Evaluates fitness with varying fidelity. Fidelity parameter
 is passed on to \code{fidelity} parameter of objective stored in
-\code{ctrl}
+\code{ctrl}.
 }

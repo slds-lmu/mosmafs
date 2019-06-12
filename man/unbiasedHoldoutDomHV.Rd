@@ -7,19 +7,19 @@
 unbiasedHoldoutDomHV(fitness, holdout, refpoint)
 }
 \arguments{
-\item{fitness}{\code{[matrix]} fitness matrix on training data}
+\item{fitness}{\code{[matrix]} fitness matrix on training data.}
 
-\item{holdout}{\code{[matrix]} fitness matrix on holdout data}
+\item{holdout}{\code{[matrix]} fitness matrix on holdout data.}
 
-\item{refpoint}{\code{numeric} reference point}
+\item{refpoint}{\code{[numeric]} reference point.}
 }
 \value{
 \code{numeric}
 }
 \description{
 Calculate dominated hypervolume on holdout data. The result is
-unbiased with respect to (uncorrelated w/r/t objectives) noise in holdout data
+unbiased with respect to (uncorrelated with respect to objectives) noise in holdout data
 performance, but it is \emph{not} an estimate of real "dominated hypervolume".
 
-Only works on 2-objective performance matrices
+Only works on two-objective performance matrices.
 }
