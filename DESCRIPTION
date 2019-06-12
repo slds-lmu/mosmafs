@@ -33,7 +33,8 @@ Suggests:
   rpart,
   parallel,
   praznik,
-  mlrMBO
+  mlrMBO,
+  emoa
 Remotes:
   jakobbossek/ecr2,
   mlr-org/mlr
