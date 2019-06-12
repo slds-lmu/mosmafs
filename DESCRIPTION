@@ -35,7 +35,8 @@ Suggests:
   praznik,
   mlrMBO,
   emoa,
-  DiceKriging
+  DiceKriging,
+  rgenoud
 Remotes:
   jakobbossek/ecr2,
   mlr-org/mlr
