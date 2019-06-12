@@ -115,8 +115,7 @@ lrn <- makeLearner("classif.rpart", maxsurrogate = 0)
 ps.simple <- pSS(
   maxdepth: integer[1, 30],
   minsplit: integer[2, 30],
-  cp: numeric[0.001, 0.999],
-  selector.selection: logical^getTaskNFeats(task))
+  cp: numeric[0.001, 0.999])
 
 fitness.fun.simple <- makeObjective(lrn, task, ps.simple, cv5,
   holdout.data = task.hout)
