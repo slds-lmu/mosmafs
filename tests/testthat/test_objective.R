@@ -165,29 +165,7 @@ test_that("makeBaselineObjective", {
   
   expect_equal(res[["propfeat"]], 0.5)
   expect_equal(attr(res, "extras")$fitness.holdout.propfeat, 0.5)
-  
-  ### with num.explicit.featsel
-  mbo.two <- makeBaselineObjective(lrn, task,
-    filters = filters,  measure = acc,
-    ps = ps, resampling = cv5, holdout.data = task.hout, 
-    num.explicit.featsel = 2)
-  args <- list(maxdepth = 1, minsplit = 2, cp = 0.5, 
-    mosmafs.nselect = 2,
-    mosmafs.iselect.1 = 0, 
-    mosmafs.iselect.2 = 0,
-    mosmafs.select.weights.1 = 1,
-    mosmafs.select.weights.2 = 0.0)
-  set.seed(1234)
-  val.1 <- mbo.two(args)[[1]]
-  
-  # Compare to acc computed by hand
-  args <- args[1:3]
-  learner <- setHyperPars(lrn, par.vals = args)
-  task.sub <- subsetTask(task, features = c(4,3))
-  set.seed(1234)
-  val.2 <- resample(learner, task.sub, cv5,
-    list(acc), show.info = FALSE)$aggr[[1]]
-  expect_equal(val.1, -val.2)
+
   
   ### with mbo 
   require("mlrMBO")
@@ -261,6 +239,10 @@ test_that("measure to be maximized, is multiplied by -1", {
   }
   
   fitness.fun.mos <- makeObjective(learner, task, ps.simple, nRes, 
+    measure = acc, worst.measure = -1)
+  expect_equal(attr(fitness.fun.mos, "ref.point")[[1]], 1)
+  
+  fitness.fun.mos <- makeObjective(learner, task, ps.simple, nRes, 
     measure = acc)
   expect_equal(attr(fitness.fun.mos, "ref.point")[[1]], 0)
   
@@ -285,5 +267,74 @@ test_that("measure to be maximized, is multiplied by -1", {
   
   
 })
+
+
+# TODO
+# nselect 2
+# iselect c(4, 4)
+# iselect c(2, 4)
+# nselect 3
+# iselect c(4, 4)
+# iselect c(3, 4)
+
+test_that("nr_explicit", {
+  seed <- 10
+  task.whole <- mlr::iris.task
+  set.seed(seed)
+  rows.whole <- sample(1:nrow(getTaskData(task.whole)))
+  task <- subsetTask(task.whole, rows.whole[1:139])
+  task.hout <- subsetTask(task.whole, rows.whole[140:150])
+  
+  lrn <- makeLearner("classif.randomForest")
+  
+  ps <- pSS(
+    ntree: integer[20, 100],
+    mtry: integer[1, 4])
+  filters <- c("praznik_JMI", "anova.test")
+  
+  ### with num.explicit.featsel
+  set.seed(1234)
+  mbo.obj <- makeBaselineObjective(lrn, task,
+    filters = filters,  measure = acc,
+    ps = ps, resampling = cv5, holdout.data = task.hout, 
+    num.explicit.featsel = 2)
+  
+  # nselect2 
+  # iselect c(4,4)
+  args1 <- list(ntree = 20,
+    mtry = 2, 
+    mosmafs.nselect = 2,
+    mosmafs.iselect.1 = 4, 
+    mosmafs.iselect.2 = 4,
+    mosmafs.select.weights.1 = 1,
+    mosmafs.select.weights.2 = 0.0)
+  args2 <- args1
+  args2$mosmafs.iselect.2 = 2
+  args3 <- args1
+  args3$mosmafs.nselect = 3
+  args4 <- args3
+  args4$mosmafs.iselect.2 = 3
+  
+  args = list(args1, args2, args3, args4)
+  val1 = unlist(lapply(args, function(x) {
+    set.seed(seed)
+    mbo.obj(x)[[1]]  
+  }))
+
+  # Compare to acc computed by hand
+  val2 <- unlist(mapply(function(a, b){
+    learner <- setHyperPars(lrn, par.vals = a[1:2])
+    task.sub <- subsetTask(task, features = b)
+    set.seed(seed)
+    resample(learner, task.sub, cv5,
+      list(acc), show.info = FALSE)$aggr[[1]]
+    }, args, list(c(2,4), c(1,2), c(1,2,4), c(2,3,4))))
+  expect_equal(val1, -val2)
+  
+})
+
+
+
+
 
 

@@ -414,7 +414,7 @@ test_that("maximization", {
   
   expect_error(slickEcr(fitness.fun = fitness.fun, lambda = lambda, population = initials, 
     mutator = mutator.simple, recombinator = crossover.simple, generations = 10), 
-    "failed: Must be TRUE.")
+    "maximization not supported yet")
   
   # maximization with negative objective
   fitness.fun.single <- smoof::makeSingleObjectiveFunction(

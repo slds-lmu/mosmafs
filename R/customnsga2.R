@@ -79,7 +79,9 @@ initEcr <- function(fitness.fun, population, fidelity = NULL, log.stats = NULL, 
   if (!smoof::isSmoofFunction(fitness.fun)) {
     stop("fitness.fun must be a SMOOF function")
   }
-  assertTRUE(all(attr(fitness.fun, "minimize")))
+  if(any(!attr(fitness.fun, "minimize"))) {
+    stop("maximization not supported yet")
+  }
   n.objectives <- smoof::getNumberOfObjectives(fitness.fun)
   if (is.null(log.stats)) {
     if (n.objectives == 1) {

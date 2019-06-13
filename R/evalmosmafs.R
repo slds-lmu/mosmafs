@@ -192,6 +192,26 @@ constructEvalSetting <- function(task, learner, ps, measure = getDefaultMeasure(
       xdigest <- digest::digest(x)
       simplepv <- x
       x <- valuesFromNames(mosmafs.params, x)
+      filters <- NULL
+      use.SHW <- NULL
+      use.SHW.init <- NULL
+      filter.strategy <- NULL
+      selector.strategy.p <- NULL
+      ops.mut.strategy <- NULL
+      ops.rec.nums <- NULL
+      ops.rec.strategy <- NULL
+      ops.mut.int <- NULL
+      ops.mut.numeric <- NULL
+      ops.tournament.k <- NULL
+      lambda <- NULL
+      ops.tournament.sorting <- NULL
+      mu <- NULL
+      init.distribution.constructor <- NULL
+      init.soften.iters <- NULL
+      generation.fid <- NULL
+      dominance.fid <- NULL
+      generation.fid.point <- NULL
+      
       for (n in names(x)) {
         assign(n, x[[n]])
       }
