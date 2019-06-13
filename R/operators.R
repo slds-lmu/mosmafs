@@ -1,3 +1,4 @@
+#' @include utils.R
 
 .tol <- sqrt(.Machine$double.eps) * 4
 
@@ -50,8 +51,8 @@ intifyRecombinator <- function(operator) {
     } # nocov start
   wrapChildren(as.integer(pmin(pmax(lower, round(children)), upper))) 
 },
-n.parents = ecr:::getNumberOfParentsNeededForMating.ecr_recombinator(operator),
-n.children = ecr:::getNumberOfChildren.ecr_recombinator(operator))} # nocov end
+n.parents = getNumberOfParentsNeededForMating(operator),
+n.children = getNumberOfChildren(operator))} # nocov end
 
 
 #' @title Integer Gaussian Mutator

@@ -139,7 +139,7 @@ initEcr <- function(fitness.fun, population, fidelity = NULL, log.stats = NULL, 
   updateLogger(log.newinds, population, fitness, n.evals = length(population),
     extras = list(size = length(population), population = "init"))
 
-  result <- ecr:::makeECRResult(ctrl, log, population,  fitness, list(message = "out of generations"))
+  result <- makeECRResult(ctrl, log, population,  fitness, list(message = "out of generations"))
   result$log.newinds <- log.newinds
   result$control <- ctrl
   result$fidelity <- fidelity
@@ -273,7 +273,7 @@ continueEcr <- function(ecr.object, generations, lambda = NULL, mutator = NULL, 
       extras = list(state = "generation"))
     gen <- gen + 1
   }
-  result <- ecr:::makeECRResult(ctrl, log, population,  fitness, termmsgs)
+  result <- makeECRResult(ctrl, log, population,  fitness, termmsgs)
   result$log.newinds <- log.newinds
   result$lambda <- lambda
   ctrl$p.recomb <- p.recomb
@@ -423,7 +423,7 @@ slickEvaluateFitness <- function(ctrl, population, fidelity = NULL, previous.poi
       attr(ind, "fitness.holdout") <- res$holdout
       ind
     }, population, results, SIMPLIFY = FALSE),
-    fitness = ecr:::makeFitnessMatrix(fitness, ctrl))
+    fitness = makeFitnessMatrix(fitness, ctrl))
 }
 
 

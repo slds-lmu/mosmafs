@@ -156,10 +156,10 @@ combine.operators <- function(param.set, ..., .binary.discrete.as.logical = TRUE
 
   #   - make sure operators agree in number of parents / children
   if ("ecr_recombinator" %in% whichop) {
-    if (length(unique(vnapply(args, ecr:::getNumberOfChildren.ecr_recombinator))) != 1) {
+    if (length(unique(vnapply(args, getNumberOfChildren))) != 1) {
       stop("Recombinator operators have differing number of children.")
     }
-    if (length(unique(vnapply(args, ecr:::getNumberOfParentsNeededForMating.ecr_recombinator))) != 1) {
+    if (length(unique(vnapply(args, getNumberOfParentsNeededForMating))) != 1) {
       stop("Recombinator operators need differing number of parents.")
     }
   }
@@ -323,8 +323,8 @@ unify.operators <- function(orig.param.set, operators, paramsets, paramtypes, op
       output.buildup(output.list)
     }),
     ecr_recombinator = makeRecombinator(supported = "custom",
-      n.parents = ecr:::getNumberOfParentsNeededForMating.ecr_recombinator(operators[[1]]),
-      n.children = ecr:::getNumberOfChildren.ecr_recombinator(operators[[1]]),
+      n.parents = getNumberOfParentsNeededForMating(operators[[1]]),
+      n.children = getNumberOfChildren(operators[[1]]),
       function(input) {
         input.list <- transpose.list(lapply(input, input.breakdown))
         output.list <- mapply(curried.operators, input.list, SIMPLIFY = FALSE, FUN = function(x, y) {

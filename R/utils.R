@@ -263,7 +263,7 @@ initSelector <- function(individuals, vector.name = "selector.selection", distri
   if (!is.null(soften.op)) {
     assertClass(soften.op, "ecr_mutator")
     assertTRUE("binary" %in%
-        ecr:::getSupportedRepresentations.ecr_operator(soften.op))
+        getSupportedRepresentations(soften.op))
     assertFunction(soften.op.strategy, null.ok = TRUE)
     assertInt(soften.op.repeat, lower = 0)
   }
@@ -445,4 +445,57 @@ fixDesignFactors <- function(df, ps) {
   }
   return(df)
 }
+
+
+getNumberOfChildren <- function(recombinator) {
+  attr(recombinator, "n.children")
+}
+
+getNumberOfParentsNeededForMating <- function(recombinator) {
+  attr(recombinator, "n.parents")
+}
+
+
+makeFitnessMatrix <- function(fitness, control) {
+  fitness <- addClasses(fitness, "ecr_fitness_matrix")
+  attr(fitness, "minimize") <- control$task$minimize
+  fitness
+}
+
+
+makeECRResult = function(control, log, population, fitness, stop.object, ...) {
+  n.obj <- control$task$n.objectives
+  if (n.obj == 1L) {
+    return(
+      makeS3Obj(
+        task = control$task,
+        best.x = log$env$best.x,
+        best.y = log$env$best.y,
+        log = log,
+        last.population = population,
+        last.fitness = as.numeric(fitness),
+        message = stop.object$message,
+        classes = c("ecr_single_objective_result", "ecr_result")
+        )
+    )
+  }
+  pareto.idx <- which.nondominated(fitness)
+  pareto.front <- as.data.frame(t(fitness[, pareto.idx, drop = FALSE]))
+  colnames(pareto.front) <- control$task$objective.names
+  mo.res <- makeS3Obj(
+    task = control$task,
+    log = log,
+    pareto.idx = pareto.idx,
+    pareto.front = pareto.front,
+    pareto.set = population[pareto.idx],
+    last.population = population,
+    message = stop.object$message,
+    classes = c("ecr_multi_objective_result", "ecr_result")
+  )
+  mo.res <- filterDuplicated(mo.res)
+}
+
+
+
+
 
