@@ -11,6 +11,8 @@
 #' The `ParamSet` used to generate individuals for the ecr must include 
 #' parameters for `learner`, not a `logical` parameter with length equal 
 #' to `getTaskNFeats(task)` for feature selection, as it is automatically added.
+#' It can be accessed via `getParamSet()` with object created by 
+#' `makeObjective()` as input.
 #'
 #' `learner` must *not* include a `cpoSelector()` applied to it, this
 #' happens automatically within `makeObjective`.
