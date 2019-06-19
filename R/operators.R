@@ -23,13 +23,13 @@ intifyMutator <- function(operator) {
     if (!((length(lower) %in% c(n, 1)) & (length(upper) %in% c(n, 1)))) {
       stopf("Length of lower and upper must have same length as individual or 1.")
     }
+    if(!missing(lower)) {}
     opargs <- names(formals(args(operator)))
     if ("..." %in% opargs || all(c("lower", "upper") %in% opargs)) {
       ind <- operator(as.numeric(ind), ..., lower = lower - 0.5, upper = upper + 0.5)
     } else {
       ind <- operator(as.numeric(ind), ...)
     } # nocov
-    ind <- operator(as.numeric(ind), ..., lower = lower - 0.5, upper = upper + 0.5)
     as.integer(pmin(pmax(lower, round(ind)), upper))
 }, supported = "custom")} # nocov
 
@@ -40,12 +40,12 @@ intifyRecombinator <- function(operator) {
   makeRecombinator(function(inds, ..., lower, upper) { # nocov
     assertList(inds, any.missing = FALSE, min.len = 2)
     lapply(inds, assertIntegerish)
+    assertIntegerish(lower, any.missing = FALSE, null.ok = TRUE)
+    assertIntegerish(upper, any.missing = FALSE, null.ok = TRUE)
+    n = length(inds[[1]])
     if (length(unique(lapply(inds, length))) != 1) {
       stop("Length of components of individuals must be the same.")
     } # nocov
-    assertIntegerish(lower, any.missing = FALSE)
-    assertIntegerish(upper, any.missing = FALSE)
-    n = length(inds[[1]])
     if (!((length(lower) %in% c(n, 1)) & (length(upper) %in% c(n, 1)))) {
       stopf("Length of lower and upper must have same length as one individual or 1.")
     }
@@ -57,9 +57,7 @@ intifyRecombinator <- function(operator) {
       children <- operator(list(as.numeric(inds[[1]]), as.numeric(inds[[2]])),
         ...)
     } # nocov
-    children <- operator(list(as.numeric(inds[[1]]), as.numeric(inds[[2]])),
-      ..., lower = lower - 0.5, upper = upper + 0.5)
-    if (attr(children, "multiple")) {
+    if (isTRUE(attr(children, "multiple"))) {
       return(do.call(wrapChildren, lapply(children, function(x)
         as.integer(pmin(pmax(lower, round(x)), upper)))))
     } # nocov start
@@ -92,6 +90,7 @@ mutGaussInt <- intifyMutator(mutGauss)
 #' decision space. Must have the same length as `ind`.
 #' @param upper `[integer]` vector of maximal values for each parameter of the 
 #' decision space. Must have the same length as `ind`.
+#' @param ...  other arguments passed on to the method.
 #' @family operators
 #' @export
 mutPolynomialInt <- intifyMutator(mutPolynomial)
@@ -133,6 +132,11 @@ recIntSBX <- intifyRecombinator(recSBX)
 #' 
 #' @param inds `[inds]` parents, i.e., list of exactly two integer vectors 
 #' of equal length.
+#' @param lower `[integer]` vector of minimal values for each parameter of the 
+#' decision space.
+#' @param upper `[integer]` vector of maximal values for each parameter of the 
+#' decision space.
+#' @param ...  other arguments passed on to the method.
 #' @family operators
 #' @export
 recIntIntermediate <- intifyRecombinator(recIntermediate)

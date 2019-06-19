@@ -19,8 +19,6 @@ test_that("intified operators", {
     "Length of lower and upper must have same length as individual or 1.")
   expect_error(mutGaussInt(c(1L, 2L), lower = c(1L, 3L, 4), upper = c(3, 4)), 
     "Length of lower and upper must have same length as individual or 1.")
-
-  
   
   expect_list(recIntSBX(list(c(1L, 2),c(3L, -3L)), lower = c(1L, -5L), 
     upper = c(5L, 6L)))
@@ -45,6 +43,15 @@ test_that("intified operators", {
     upper = c(5L, 6L, 7)), "Length of lower and upper must have same length as one individual or 1.")
   expect_error(recIntSBX(list(c(1L, 2),c(3L, -3L)), lower = c(1L, -5L), 
     upper = c(5L, 6L, 7)))
+
+  
+  exp = list(c(1L, 2),c(3L, -3L))
+  lower = c(1L, -5L)
+  upper = c(5L, 6L)
+  
+  # Check if correct output
+  expect_equal(recIntIntermediate(exp, lower = lower, upper = upper), 
+    c(2, 0))
 })
 
 test_that("mutators and recombinators", {
@@ -267,6 +274,7 @@ test_that("overallRankMO sorts as expected", {
 
   expect_error(overallRankMO(mat, "domhv", c(11, 12, 13)), "length 2.*but has length 3")
 })
+
 
 test_that("selTournamentMO works as expected", {
 
