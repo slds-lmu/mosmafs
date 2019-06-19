@@ -37,7 +37,8 @@ Suggests:
   emoa,
   DiceKriging,
   rgenoud,
-  randomForest
+  randomForest,
+  digest
 Remotes:
   jakobbossek/ecr2,
   mlr-org/mlr
