@@ -4,13 +4,10 @@ context("operators")
 
 test_that("intified operators", {
   
-  expect_integer(mutGaussInt(c(1L, 2L), lower = c(1L, 3L), upper = c(3, 2)))
+  expect_integer(mutGaussInt(c(1L, 2L), lower = c(1L, 3L), upper = c(3, 3L)), 
+    any.missing = FALSE)
   expect_error(intifyMutator(print), "Must inherit from class 'ecr_mutator'")
   expect_error(mutGaussInt(c(1.5, 2L)), "Must be of type 'integerish'")
-  expect_error(mutPolynomialInt(c(1L, 2L)), 
-    'argument "lower" is missing, with no default')
-  expect_error(mutUniformInt(c(1L, 2L), lower = c(1L, 2L)), 
-    'argument "upper" is missing, with no default')
   expect_error(mutGaussInt(c(1L, 2L), lower = c("a", 3.5), upper = c(1L, 2L)),
     "'lower' failed: Must be of type 'integerish'")
   expect_error(mutGaussInt(c(1L, 2L), lower = c(1L, 3L), upper = c("b", 2.5)),
@@ -20,9 +17,9 @@ test_that("intified operators", {
   expect_error(mutGaussInt(c(1L, 2L), lower = c(1L, 3L, 4), upper = c(3, 4)), 
     "Length of lower and upper must have same length as individual or 1.")
   
-  expect_list(recIntSBX(list(c(1L, 2),c(3L, -3L)), lower = c(1L, -5L), 
+  expect_list(recIntSBX(list(c(1L, 2L),c(3L, -3L)), lower = c(1L, -5L), 
     upper = c(5L, 6L)))
-  expect_error(recIntSBX(list(c(1L, 2, 3),c(3L, -3L)), lower = c(1L, -5L), 
+  expect_error(recIntSBX(list(c(1L, 2L, 3L),c(3L, -3L)), lower = c(1L, -5L), 
     upper = c(5L, 6L)), "Length of components of individuals must be the same.")
   expect_error(intifyRecombinator(print), "Must inherit from class 'ecr_recombinator'")
   expect_error(recIntSBX(list(c(1L, 2L))), "Must have length >= 2")
@@ -44,14 +41,43 @@ test_that("intified operators", {
   expect_error(recIntSBX(list(c(1L, 2),c(3L, -3L)), lower = c(1L, -5L), 
     upper = c(5L, 6L, 7)))
 
-  
-  exp = list(c(1L, 2),c(3L, -3L))
+  exp = list(c(1L, 2L),c(3L, -3L))
   lower = c(1L, -5L)
   upper = c(5L, 6L)
   
-  # Check if correct output
+  # recIntIntermediate
   expect_equal(recIntIntermediate(exp, lower = lower, upper = upper), 
-    c(2, 0))
+    c(2L, 0L))
+  expect_error(recIntIntermediate(exp, lower = c(1L, 3L), upper = c(1L, 2L)), 
+    "elements of 'lower' must be component-wise smaller or equal to elements of 'upper")
+  
+  # recPolynomialInt
+  set.seed(12230)
+  expect_true(all(mutPolynomialInt(c(1L, 2L), lower = c(1L, 3L), upper = c(3L, 3L)),
+    c(1L, 3L) %in% 1L:3L))
+  expect_equal(mutPolynomialInt(c(1L, 1L), lower = c(1L, 1L), upper = c(2L, 2L)),
+    c(1, 1))
+  expect_error(mutPolynomialInt(c(1L, 2L), lower = c(1L, 3L), upper = c(3L, 2L)), 
+    "elements of 'lower' must be component-wise smaller or equal to elements of 'upper")
+  expect_error(mutPolynomialInt(c(1L, 2L)), 
+    'argument "lower" is missing, with no default')
+  
+  # mutUniformInt
+  expect_error(mutUniformInt(c(1L, 2L), lower = c(1L, 2L)), 
+    'argument "upper" is missing, with no default')
+  m <- mutUniformInt(c(1L, 5L), lower = c(1L, 4L), 
+    upper = c(1L, 10L)) 
+  expect_identical(m[1], 1L)
+  expect_true(m[2] %in% 4L:10L)
+  
+  # intify Mutator for operator without lower and upper
+  mutTest <- makeMutator(mutator = function(ind){
+    return(ind)
+  }, supported = "float")
+  mutIntTest <- intifyMutator(mutTest)
+  expect_equal(mutIntTest(exp[[1]], lower = lower, upper = upper), 
+    exp[[1]])
+  
 })
 
 test_that("mutators and recombinators", {

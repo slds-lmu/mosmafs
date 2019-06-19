@@ -23,7 +23,9 @@ intifyMutator <- function(operator) {
     if (!((length(lower) %in% c(n, 1)) & (length(upper) %in% c(n, 1)))) {
       stopf("Length of lower and upper must have same length as individual or 1.")
     }
-    if(!missing(lower)) {}
+    if (!all(lower <= upper)) {
+      stop("elements of 'lower' must be component-wise smaller or equal to elements of 'upper'")
+    }
     opargs <- names(formals(args(operator)))
     if ("..." %in% opargs || all(c("lower", "upper") %in% opargs)) {
       ind <- operator(as.numeric(ind), ..., lower = lower - 0.5, upper = upper + 0.5)
@@ -48,12 +50,15 @@ intifyRecombinator <- function(operator) {
     } # nocov
     if (!((length(lower) %in% c(n, 1)) & (length(upper) %in% c(n, 1)))) {
       stopf("Length of lower and upper must have same length as one individual or 1.")
-    }
+    } # nocov
+    if (!all(lower <= upper)) {
+      stop("elements of 'lower' must be component-wise smaller or equal to elements of 'upper")
+    } # nocov
     opargs <- names(formals(args(operator)))
     if ("..." %in% opargs || all(c("lower", "upper") %in% opargs)) {
       children <- operator(list(as.numeric(inds[[1]]), as.numeric(inds[[2]])),
         ..., lower = lower - 0.5, upper = upper + 0.5)
-    } else {
+    } else { # nocov
       children <- operator(list(as.numeric(inds[[1]]), as.numeric(inds[[2]])),
         ...)
     } # nocov
@@ -74,7 +79,7 @@ n.children = getNumberOfChildren(operator))} # nocov end
 #' decision space. Must have the same length as `ind`.
 #' @param upper `[integer]` vector of maximal values for each parameter of the 
 #' decision space. Must have the same length as `ind`.
-#' @param ...  other arguments passed on to the method.
+#' @param ...  further arguments passed on to the method.
 #' @description
 #' See [ecr::mutGauss]
 #' @family operators
@@ -90,7 +95,7 @@ mutGaussInt <- intifyMutator(mutGauss)
 #' decision space. Must have the same length as `ind`.
 #' @param upper `[integer]` vector of maximal values for each parameter of the 
 #' decision space. Must have the same length as `ind`.
-#' @param ...  other arguments passed on to the method.
+#' @param ...  further arguments passed on to the method.
 #' @family operators
 #' @export
 mutPolynomialInt <- intifyMutator(mutPolynomial)
@@ -104,7 +109,7 @@ mutPolynomialInt <- intifyMutator(mutPolynomial)
 #' decision space. Must have the same length as `ind`.
 #' @param upper `[integer]` vector of maximal values for each parameter of the 
 #' decision space. Must have the same length as `ind`.
-#' @param ...  other arguments passed on to the method.
+#' @param ...  further arguments passed on to the method.
 #' @family operators
 #' @export
 mutUniformInt <- intifyMutator(mutUniform)
@@ -119,7 +124,7 @@ mutUniformInt <- intifyMutator(mutUniform)
 #' decision space.
 #' @param upper `[integer]` vector of maximal values for each parameter of the 
 #' decision space.
-#' @param ...  other arguments passed on to the method. 
+#' @param ...  further arguments passed on to the method. 
 #' @family operators
 #' @export
 recIntSBX <- intifyRecombinator(recSBX)
@@ -136,7 +141,7 @@ recIntSBX <- intifyRecombinator(recSBX)
 #' decision space.
 #' @param upper `[integer]` vector of maximal values for each parameter of the 
 #' decision space.
-#' @param ...  other arguments passed on to the method.
+#' @param ...  further arguments passed on to the method.
 #' @family operators
 #' @export
 recIntIntermediate <- intifyRecombinator(recIntermediate)
@@ -146,8 +151,8 @@ recIntIntermediate <- intifyRecombinator(recIntermediate)
 #' 
 #' @description
 #' Gaussian intermediate recombinator samples component-wise from a normal 
-#' distribution with mean as the component-wise mean  
-#' and standard deviation as halved componentswise absolute distance
+#' distribution with mean as the component-wise meanc  
+#' and standard deviation as halved components-wise absolute distance
 #' of the two given parents.
 #' It is applicable only for numeric representations.
 #' See also [ecr::recIntermediate].
@@ -285,7 +290,8 @@ mutDoubleGeomScaled <- makeMutator(function(ind, p = 1, sdev = 0.05, lower, uppe
 #'   values. 
 #' @param upper `[integer]` upper bounds of `ind` values. May have same length as
 #'  `ind` or may be a single number, if the upper bounds are the same for all 
-#'   values. 
+#'   values.
+#' @param ...  further arguments passed on to the method. 
 #' @export
 mutUniformParametric <- makeMutator(function(ind, p, lx, lower, upper) {
   assertNumeric(ind)
@@ -334,8 +340,8 @@ mutUniformParametricIntScaled <- intifyMutator(mutUniformParametricScaled)
 #' Crossover recombination operator that crosses over each position iid with prob. `p`
 #' and can also be used for non-binary operators.
 #' @param inds `[list of any]` list of two individuals to perform uniform crossover on
-#' @param p `[numeric(1)]` per-entry probability to perform crossover
-#' @param ...  other arguments passed on to the method.
+#' @param p `[numeric(1)]` per-entry probability to perform crossover.
+#' @param ...  further arguments passed on to the method.
 #' @return `[list of any]` The mutated individuals.
 #' @export
 recPCrossover <- makeRecombinator(function(inds, p = 0.1, ...) {
@@ -455,7 +461,7 @@ mutGaussScaled <- makeMutator(function(ind, p = 1, sdev = 0.05, lower, upper) {
 #' @param ind `[integer]` integer vector/individual to mutate.
 #' @param lower `[integer]` vector of minimal values for each parameter of the decision space. Must have the same length as `ind`.
 #' @param upper `[integer]` vector of maximal values for each parameter of the decision space. Must have the same length as `ind`.
-#' @param ...  other arguments passed on to the method. 
+#' @param ...  further arguments passed on to the method. 
 #' @family operators
 #' @export
 mutGaussIntScaled <- intifyMutator(mutGaussScaled)
@@ -578,7 +584,7 @@ overallRankMO <- function(fitness, sorting = "crowding", ref.point) {
 #' @param ind `[integer]` binary individual.
 #' @param p `[numeric]` average flip probability, must be between 0
 #'   and 0.5.
-#' @param ...  other arguments passed on to the method.
+#' @param ...  further arguments passed on to the method.
 #' @export
 mutBitflipCHW <- makeMutator(function(ind, p = 0.1, ...) {
   assertNumeric(p, lower = 0 - .tol, upper = 0.5)
@@ -613,7 +619,7 @@ mutBitflipCHW <- makeMutator(function(ind, p = 0.1, ...) {
 #' @param reset.dists `[matrix]` columns of probabilities, with `length(ind)` cols and
 #'   `length(reset.dist.weights)` rows.
 #' @param reset.dist.weights `[numeric]` weight vector to select among `reset.dist` columns.
-#' @param ...  Other arguments passed on to the method.
+#' @param ...  further arguments passed on to the method.
 #' @return `[integer]` the mutated individuum
 #' @export
 mutUniformResetSHW <- makeMutator(function(ind, p = 0.1, reset.dist, ...) {
