@@ -42,3 +42,16 @@ Remotes:
   jakobbossek/ecr2,
   mlr-org/mlr
 RoxygenNote: 6.1.1
+Collate: 
+    'customnsga2.R'
+    'datagen.R'
+    'ecrshims.R'
+    'evalmosmafs.R'
+    'filtermat.R'
+    'objective.R'
+    'utils.R'
+    'operators.R'
+    'plotting.R'
+    'selectorcpo.R'
+    'terminators.R'
+    'zzz.R'

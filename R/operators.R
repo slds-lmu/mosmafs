@@ -125,9 +125,14 @@ recIntIntermediate <- intifyRecombinator(recIntermediate)
 
 
 #' @title Gaussian Intermediate Recombinator
-#'
+#' 
 #' @description
-#' See [ecr::recIntermediate]
+#' Gaussian intermediate recombinator samples component-wise from a normal 
+#' distribution with mean as the component-wise mean  
+#' and standard deviation as halved componentswise absolute distance
+#' of the two given parents.
+#' It is applicable only for numeric representations.
+#' See also [ecr::recIntermediate].
 #' @param inds `[list]` list of two individuals to recombinate.
 #' @param lower `[integer]` lower bounds of `inds` values. May have same length as
 #'   one individual or may be a single number, if the lower bounds are the same for all 
