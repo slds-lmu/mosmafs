@@ -36,7 +36,8 @@ Suggests:
   mlrMBO,
   emoa,
   DiceKriging,
-  rgenoud
+  rgenoud,
+  randomForest
 Remotes:
   jakobbossek/ecr2,
   mlr-org/mlr
