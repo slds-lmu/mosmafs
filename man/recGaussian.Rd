@@ -18,7 +18,12 @@ one individual or may be a single number, if the upper bounds are the same for a
 values.}
 }
 \description{
-See \link[ecr:recIntermediate]{ecr::recIntermediate}
+Gaussian intermediate recombinator samples component-wise from a normal
+distribution with mean as the component-wise mean
+and standard deviation as halved componentswise absolute distance
+of the two given parents.
+It is applicable only for numeric representations.
+See also \link[ecr:recIntermediate]{ecr::recIntermediate}.
 }
 \seealso{
 Other operators: \code{\link{mutDoubleGeom}},

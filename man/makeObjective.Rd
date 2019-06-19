@@ -55,6 +55,8 @@ a minimization task.
 The \code{ParamSet} used to generate individuals for the ecr must include
 parameters for \code{learner}, not a \code{logical} parameter with length equal
 to \code{getTaskNFeats(task)} for feature selection, as it is automatically added.
+It can be accessed via \code{getParamSet()} with object created by
+\code{makeObjective()} as input.
 
 \code{learner} must \emph{not} include a \code{cpoSelector()} applied to it, this
 happens automatically within \code{makeObjective}.

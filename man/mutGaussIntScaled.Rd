@@ -13,7 +13,7 @@ mutGaussIntScaled(ind, ..., lower, upper)
 
 \item{lower}{\code{[integer]} vector of minimal values for each parameter of the decision space. Must have the same length as \code{ind}.}
 
-\item{uppper}{\code{[integer]} vector of maximal values for each parameter of the decision space. Must have the same length as \code{ind}.}
+\item{upper}{\code{[integer]} vector of maximal values for each parameter of the decision space. Must have the same length as \code{ind}.}
 }
 \description{
 See \link{mutGaussScaled}
