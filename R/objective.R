@@ -185,7 +185,7 @@ makeBaselineObjective <- function(learner, task, filters, ps, resampling, measur
   assertClass(task, "Task")
   assertClass(holdout.data, "Task", null.ok = TRUE)
   assertCharacter(filters, any.missing = FALSE, min.len = 1)
-  assertSubset(filters, names(mlr:::.FilterRegister))
+  assertSubset(filters, names(get(".FilterRegister", envir = getNamespace("mlr"))))
   assertInt(num.explicit.featsel, lower =  0)
   assertClass(ps, "ParamSet")
   assert(

@@ -197,31 +197,63 @@ test_that("makeBaselineObjective", {
 })
 
 
-# test_that("class in training data, not in test data ", {
-#   train_data <- data.frame(one = as.factor(
-#     sample(c("a", "b", "c"), size = 10, replace = TRUE)), 
-#     y = factor(sample(c(0, 1), size = 10, replace = TRUE)))
-#   test_data = data.frame(one = factor(sample(c("d", "e"), 
-#     size = 4, replace = TRUE)), 
-#     y = factor(sample(c(0, 1), size = 4, replace = TRUE)))
-#   
-#   example.task <- makeClassifTask(data = train_data, target = "y")
-#   hold.task <- makeClassifTask(data = test_data, target = "y")
-#   lrn <- makeLearner("classif.rpart")
-#   
-#   nRes <- function(n) {
-#     makeResampleDesc("Subsample", split = 0.9, iters = n)
-#   }
-#   
-#   ps = pSS(
-#     one = NA: discrete [c("a", "b", "c")]
-#   )
-#   
-#   exp.obj <- makeObjective(lrn, example.task, ps,  nRes, 
-#     holdout.data = hold.task)
-#   exp.obj(list(one = "10", selector.selection = FALSE), fidelity = 2)
-#   
-# })
+test_that("class in training data, not in test data ", {
+  train_data <- data.frame(one = factor(
+    sample(c("a", "b", "c"), size = 10, replace = TRUE), levels = c("a", "b", "c")),
+    y = factor(sample(c(0, 1), size = 10, replace = TRUE), levels = c(0, 1)))
+  test_data = data.frame(one = factor(sample(c("d", "e"),
+    size = 4, replace = TRUE), levels = c("d", "e")),
+    y = factor(sample(c(0, 1), size = 4, replace = TRUE), levels = c(0, 1)))
+
+  example.task <- makeClassifTask(data = train_data, target = "y")
+  hold.task <- makeClassifTask(data = test_data, target = "y")
+  lrn <- cpoFixFactors() %>>% makeLearner("classif.randomForest")
+  
+
+  nRes <- function(n) {
+    makeResampleDesc("Subsample", split = 0.9, iters = n)
+  }
+
+  ps = pSS(
+    one = NA: discrete [c("a", "b", "c")]
+  )
+  meas = mlr::acc
+  meas$worst = 100
+  
+  # makeobjective
+  exp.obj <- makeObjective(lrn, example.task, ps, measure = meas, nRes,
+    holdout.data = hold.task)
+  exp.obj(list(one = "10", selector.selection = TRUE), fidelity = 2)
+  perf_hold <- exp.obj(list(one = "10", selector.selection = TRUE), fidelity = 2, 
+    holdout = TRUE)
+  expect_numeric(perf_hold)
+  expect_equal(c(perf_hold[[1]], perf_hold[[2]]), c(100, 1))
+  
+  
+  # makeBaselineObjective 
+  train_data <- data.frame(one = factor(
+    sample(c("a", "b", "c"), size = 10, replace = TRUE), levels = c("a", "b", "c")),
+    two = factor(sample(1:10), levels = as.character(1:10)),
+    y = factor(sample(c(0, 1), size = 10, replace = TRUE), levels = c(0, 1)))
+  test_data <- data.frame(one = factor(sample(c("d", "e"),
+    size = 4, replace = TRUE), levels = c("d", "e")),
+    two = factor(sample(13:16), levels = as.character(13:16)),
+    y = factor(sample(c(0, 1), size = 4, replace = TRUE), levels = c(0, 1)))
+  example.task.base <- makeClassifTask(data = train_data, target = "y")
+  hold.task.base <- makeClassifTask(data = test_data, target = "y")
+  ps.simple <- pSS(
+    ntree: integer[1, 500])
+  exp.obj.base  <- makeBaselineObjective(lrn, example.task.base, 
+    filters = "praznik_JMI", ps.simple, measure = meas, resampling = hout, 
+    holdout.data = hold.task.base)
+  set.seed(1234)
+  perf_hold_base <- exp.obj.base(list(ntree = 5, mosmafs.nselect = 1))
+  expect_equal(c(perf_hold_base[[1]], perf_hold_base[[2]]), 
+    c(100, 0.5))
+  expect_equal(attr(perf_hold_base, "extras")$fitness.holdout.perf, 100)
+  expect_equal(attr(perf_hold_base, "extras")$fitness.holdout.propfeat, 0.5)
+  
+})
 
 
 test_that("measure to be maximized, is multiplied by -1", {
@@ -255,7 +287,7 @@ test_that("measure to be maximized, is multiplied by -1", {
   expect_true(res[[1]] < 0)
   
   fitness.fun.mos.baseline <- makeBaselineObjective(learner, task, 
-    filters = "anova.test", ps.obj, measure = acc, resampling = cv5)
+    filters = "anova.test", ps.simple, measure = acc, resampling = cv5)
   expect_equal(attr(fitness.fun.mos.baseline, "ref.point")[[1]], 0)
   
   res_baseline <- fitness.fun.mos.baseline(
