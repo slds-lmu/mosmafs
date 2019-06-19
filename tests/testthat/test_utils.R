@@ -209,6 +209,7 @@ test_that("popAggregate and availableAttributes", {
   expect_list(aggr.list, len = gen + 1) 
   expect_list(aggr.list[[1]], len = 10)
   
+  
   # expect_error
   expect_error(popAggregate(results$log, extract = "hoh"))
   expect_error(popAggregate(results, extract = "fitness"), 
@@ -220,8 +221,11 @@ test_that("popAggregate and availableAttributes", {
   expect_character(availableAttributes(results$log, check = TRUE), 
     len = 4, unique = TRUE, any.missing = FALSE)
   empty.pop <- results$log
-  empty.pop$env$pop <- NULL
+  empty.pop$env$pop[[1]]$population <- NULL
   expect_character(availableAttributes(empty.pop), len = 0)
+  empty.pop$env$pop[[3]]$population <- NULL
+  expect_error(availableAttributes(empty.pop, check = TRUE), 
+    "Some generations are empty.")
   
 }) 
 

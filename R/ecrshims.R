@@ -3,8 +3,6 @@
 #' @title Combine ECR-Operators
 #'
 #' @description
-#' TODO: This seriously needs better documentation.
-#'
 #' Combine operators to be applied to individuals that conform to parameter set `param.set`.
 #' Parameters are the `param.set`, and the names / types of params with the operator to use.
 #' Parameter groups that use a single operator can be defined using `.params.<groupname> = [character]`.

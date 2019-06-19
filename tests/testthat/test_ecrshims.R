@@ -14,7 +14,9 @@ test_that("ecrshims error messages", {
     d: discrete[a=exp, b=identity, c=`[`]^2)
   fullps <- c(param.set.numeric, param.set.integer,
     param.set.logical.extended, param.set.discrete)
-
+  param.set.requires = pSS(a: discrete[c("a", "b")], 
+    b: numeric[1,2][[requires = expression(a != "a")]])
+  
   expect_error(combine.operators(param.set.numeric, .params.x = c("a", "b"),
     x = mutGauss, x = mutGauss), "unique")
   expect_error(combine.operators(pSS(logical: logical), logical = mutBitflip),
@@ -70,6 +72,15 @@ test_that("ecrshims error messages", {
   expect_error(combop <- combine.operators(param.set.logical, al = mutGauss,
     bl = mutBitflip),
     " al must have only .* but has parameters ind,lower,upper")
+  
+  expect_error(combine.operators(param.set.requires, a = mutRandomChoice, 
+    b = mutGaussInt), "Parameters with requirements not currently supported.")
+  
+  expect_error(combine.operators(param.set.logical.extended, 
+    .params.ble = c("ble", "ale")), 
+    "nameclash with param.set or type names")
+
+  
 })
 # TODO: mixing types with discrete nonbinary must be forbidden
 test_that("ecrshims operation", {
@@ -181,4 +192,7 @@ test_that("ecrshims operation", {
   expect_output(op(list(param1 = "x", param2 = "b")))
 
 })
+
+
+
 
