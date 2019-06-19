@@ -10,16 +10,16 @@
 #' If it is not given, the instance will be chosen randomly. It corresponds to the
 #' resampling instance to use if `fixed.ri` is `TRUE`.
 #'
-#' @param task `[Task]` the task to optimize
-#' @param learner `[Learner]` the learner to optimize
-#' @param ps `[ParamSet]` the parameter set of the learner (and `cpo`) alone
-#' @param measure `[Measure]` measure to optimize
+#' @param task `[Task]` the task to optimize.
+#' @param learner `[Learner]` the learner to optimize.
+#' @param ps `[ParamSet]` the parameter set of the learner (and `cpo`) alone.
+#' @param measure `[Measure]` measure to optimize.
 #' @param worst.measure `[numeric(1)]` worst value for measure to consider,
 #'   for dominated hypervolume calculation. Will be extracted from the
 #'   given measure if not given, but will raise an error if the extracted
 #'   (or given) value is infinite.
-#' @param cpo `[CPO]` cpo to prepend feature selection
-#' @param nfeat `[integer(1)]` number of features
+#' @param cpo `[CPO]` cpo to prepend feature selection.
+#' @param nfeat `[integer(1)]` number of features.
 #' @param evals `[integer(1)]` number of evals to perform. Note this concerns fidelity
 #'   evaluations (i.e. single CV folds). When not using multifid the number of points
 #'   evaluated is 1/10th the `evals` value.

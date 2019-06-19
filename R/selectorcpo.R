@@ -4,7 +4,7 @@
 #' @param selection `[logical]`\cr
 #'   Logical vector indicating if a features 
 #'   was selected or not. Must have the same length as number of features.
-#' @inheritParams mlrCPO::CPOConstructor	
+#' @inheritParams mlrCPO::cpoTemplate
 #' @export
 cpoSelector <- makeCPO("selector", pSSLrn(selection: logical^NA),
   cpo.train = NULL,
