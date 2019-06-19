@@ -10,7 +10,7 @@ recIntIntermediate(inds, ..., lower, upper)
 \item{inds}{\code{[inds]} parents, i.e., list of exactly two integer vectors
 of equal length.}
 
-\item{...}{other arguments passed on to the method.}
+\item{...}{further arguments passed on to the method.}
 
 \item{lower}{\code{[integer]} vector of minimal values for each parameter of the
 decision space.}
