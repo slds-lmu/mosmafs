@@ -92,7 +92,7 @@ constructEvalSetting <- function(task, learner, ps, measure = getDefaultMeasure(
       selTournamentMO = selTournamentMO)],
     ops.tournament.k = NA: numeric[1, 5] [[trafo = function(x) round(2^x),
       requires = quote(ops.parentsel == "selTournamentMO" || ops.survsel == "selTournamentMO")]],
-    ops.tournament.sorting = NA: discrete[crowding, domhv]
+    ops.tournament.sorting = NA: discrete[c("crowding", "domhv")]
       [[requires = quote(ops.parentsel == "selTournamentMO" || ops.survsel == "selTournamentMO")]],
 
     ops.mut.int = NA: discrete[list(
@@ -201,6 +201,15 @@ constructEvalSetting <- function(task, learner, ps, measure = getDefaultMeasure(
       ops.rec.nums <- NULL
       ops.rec.strategy <- NULL
       ops.mut.int <- NULL
+      ops.mut.p <- NULL
+      ops.rec.crossover.p <- NULL
+      ops.rec.sbx.eta <- NULL
+      ops.rec.crossover.p <- NULL
+      selector.p <- NULL
+      fixed.ri <- NULL
+      p.recomb <- NULL
+      p.mut <- NULL
+      ops.mut.sdev <- NULL
       ops.mut.numeric <- NULL
       ops.tournament.k <- NULL
       lambda <- NULL
