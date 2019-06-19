@@ -8,15 +8,15 @@ create.linear.data(n, p, q = exp(-1), beta0 = 1, rho = 0,
   permute = TRUE)
 }
 \arguments{
-\item{n}{\code{[integer(1)]} number of rows to generate}
+\item{n}{\code{[integer(1)]} number of rows to generate.}
 
-\item{p}{\code{[integer(1)]} number of columns to generate}
+\item{p}{\code{[integer(1)]} number of columns to generate.}
 
-\item{q}{\code{[numeric(1)]} attenuation factor for beta coefficients}
+\item{q}{\code{[numeric(1)]} attenuation factor for beta coefficients.}
 
-\item{beta0}{\code{[numeric(1)]} size of first coefficient}
+\item{beta0}{\code{[numeric(1)]} size of first coefficient.}
 
-\item{rho}{\code{[numeric(1)]} parameter for correlation matrix}
+\item{rho}{\code{[numeric(1)]} parameter for correlation matrix.}
 
 \item{permute}{\code{[logical(1)]} whether to permute columns of \code{X} and coefficient
 vector (\code{beta}).}
@@ -26,8 +26,7 @@ vector (\code{beta}).}
 }
 \description{
 Create linear model data \code{Y = X * beta + epsilon} with
-\code{X = X^} if \code{[permute] == FALSE}, and \code{X = shuffle_columns(X^)}
-if \code{[permute] == TRUE} where \code{X^} is an \code{[n] * [p]} matrix of MVN distributed
+X as a \code{n * p} matrix of multivariate normal distributed
 rows with covariance matrix\preformatted{1     rho rho^2 rho^3 ... rho^p
 rho     1 rho   rho^2 ... rho^(p-1)
 rho^2 rho   1   rho ...   rho^(p-2)
@@ -35,12 +34,14 @@ rho^2 rho   1   rho ...   rho^(p-2)
 rho^p ...
 }
 
-\code{epsilon} is normally distributed with stdev 1.
+\code{epsilon} is standard normally distributed and
+\code{beta[i] = beta0 * q ^ (i - 1)} for \code{i = 1,..., p}.
 
-\code{beta = shuffle(beta^)} if \code{[permute] == TRUE} and \code{beta = beta^} otherwise,
-and \code{beta^[i] = beta0 * q ^ (i - 1)} for \code{i} = \code{1..p}
+If \code{permute == TRUE}, columns of \code{X} as well as \code{beta} are permuted before
+the linear model equation is evaluated to generate \code{Y}. These permuted
+values are also the ones returned in the result.
 
-\code{$orig.features} are the features with \code{beta > 1 / sqrt(n)}
+\code{$orig.features} are the features with \code{beta > 1 / sqrt(n)}.
 }
 \seealso{
 Other Artificial Datasets: \code{\link{clonetask}},

@@ -12,7 +12,8 @@ makeObjective(learner, task, ps, resampling, measure = NULL,
 
 \item{task}{\code{[Task]} The \code{\link[mlr:Task]{mlr::Task}} object to optimize on.}
 
-\item{ps}{\code{[ParamSet]} The \code{\link[ParamHelpers:makeParamSet]{ParamSet}} to optimize over.}
+\item{ps}{\code{[ParamSet]} The \code{\link[ParamHelpers:makeParamSet]{ParamSet}} to optimize over, only parameters of the
+actual learner.}
 
 \item{resampling}{\code{[ResampleDesc | ResampleInst | function]} The \code{\link[mlr:makeResampleDesc]{ResampleDesc}} or
 \code{\link[mlr:makeResampleInstance]{ResampleInst}} object to use. This may be a function
@@ -22,7 +23,9 @@ makes sense. For example, the function could map an integer to a corresponding n
 or repetitions.}
 
 \item{measure}{\code{[Measure | NULL]} The \code{\link[mlr:makeMeasure]{Measure}} to optimize for.
-The default is \code{NULL}, which uses the \code{task}'s default \code{Measure}.}
+The default is \code{NULL}, which uses the \code{task}'s default \code{Measure}.
+If measure needs to be maximized, the measure is multiplied
+by -1, to make it a minimization task.}
 
 \item{holdout.data}{\code{[Task]} Additional data on which to predict each
 configuration after training on \code{task}.}
@@ -30,7 +33,8 @@ configuration after training on \code{task}.}
 \item{worst.measure}{\code{[numeric(1)]} worst value for measure to consider,
 for dominated hypervolume calculation. Will be extracted from the
 given measure if not given, but will raise an error if the extracted
-(or given) value is infinite.}
+(or given) value is infinite. Measure is multiplied by -1, if measure needs
+to be maximized.}
 
 \item{cpo}{\code{[CPO]} CPO pipeline to apply before feature selection.
 (A CPO that should be applied \emph{after} feature selection should already be
@@ -42,13 +46,15 @@ the data that \code{cpo} emits.}
 \code{function} an objective function for \code{\link[ecr:ecr]{ecr::ecr}}.
 }
 \description{
-Create an objective function that resamples \code{learner} on \code{task}
+Creates an objective function that resamples \code{learner} on \code{task}
 with \code{resampling} and measures \code{measure} (optional), together
 with the number of features selected.
+If measure needs to be maximized, it is multiplied by -1 to make it
+a minimization task.
 
-The \code{ParamSet} used to generate individuals for the ecr must include,
-besides parameters for \code{learner}, a parameter \code{selector.selection},
-a \code{logical} parameter with length equal \code{getTaskNFeats(task)}.
+The \code{ParamSet} used to generate individuals for the ecr must include
+parameters for \code{learner}, not a \code{logical} parameter with length equal
+to \code{getTaskNFeats(task)} for feature selection, as it is automatically added.
 
 \code{learner} must \emph{not} include a \code{cpoSelector()} applied to it, this
 happens automatically within \code{makeObjective}.

@@ -5,10 +5,14 @@
 #' Creates an objective function that resamples `learner` on `task`
 #' with `resampling` and measures `measure` (optional), together
 #' with the number of features selected.
+#' If measure needs to be maximized, it is multiplied by -1 to make it 
+#' a minimization task. 
 #'
 #' The `ParamSet` used to generate individuals for the ecr must include 
 #' parameters for `learner`, not a `logical` parameter with length equal 
 #' to `getTaskNFeats(task)` for feature selection, as it is automatically added.
+#' It can be accessed via `getParamSet()` with object created by 
+#' `makeObjective()` as input.
 #'
 #' `learner` must *not* include a `cpoSelector()` applied to it, this
 #' happens automatically within `makeObjective`.
@@ -25,12 +29,15 @@
 #'   or repetitions.
 #' @param measure `[Measure | NULL]` The [`Measure`][mlr::makeMeasure] to optimize for.
 #'   The default is `NULL`, which uses the `task`'s default `Measure`.
+#'   If measure needs to be maximized, the measure is multiplied 
+#'   by -1, to make it a minimization task. 
 #' @param holdout.data `[Task]` Additional data on which to predict each
 #'   configuration after training on `task`.
 #' @param worst.measure `[numeric(1)]` worst value for measure to consider,
 #'   for dominated hypervolume calculation. Will be extracted from the
 #'   given measure if not given, but will raise an error if the extracted
-#'   (or given) value is infinite.
+#'   (or given) value is infinite. Measure is multiplied by -1, if measure needs
+#'   to be maximized. 
 #' @param cpo `[CPO]` CPO pipeline to apply before feature selection.
 #'   (A CPO that should be applied *after* feature selection should already be
 #'   part of `learner` when given). Care should be taken that the
@@ -156,7 +163,9 @@ valuesFromNames <- function(paramset, value) {
 #'   not include `selector.selection` etc., only parameters of the actual
 #'   learner.
 #' @param resampling `[ResampleDesc | ResampleInstance]` the resampling strategy to use.
-#' @param measure `[Measure]` the measure to evaluate.
+#' @param measure `[Measure]` the measure to evaluate. 
+#' If measure needs to be maximized, the measure is multiplied by -1, 
+#' to make it a minimization task. 
 #' @param num.explicit.featsel `[integer(1)]` additional number of parameters
 #'   to add for explicit feature selection.
 #' @param holdout.data `[Task | NULL]` the holdout data to consider.

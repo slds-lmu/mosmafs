@@ -7,9 +7,9 @@
 mutUniformMetaReset(ind, p = 0.1, reset.dists, reset.dist.weights)
 }
 \arguments{
-\item{ind}{\code{[integer]} binary individuum with values 0 or 1}
+\item{ind}{\code{[integer]} binary individuum with values 0 or 1.}
 
-\item{p}{\code{[numeric(1)]} entry-wise reset probability}
+\item{p}{\code{[numeric(1)]} entry-wise reset probability.}
 
 \item{reset.dists}{\code{[matrix]} columns of probabilities to draw 1-bit per entry, if reset is performed.
 Must have \code{length(ind)} rows and \code{length(reset.dist.weights)} columns.}
@@ -17,7 +17,7 @@ Must have \code{length(ind)} rows and \code{length(reset.dist.weights)} columns.
 \item{reset.dist.weights}{\code{[numeric]} weight vector to select among \code{reset.dists} columns.}
 }
 \value{
-\code{[integer]} the mutated individuum.
+\code{[integer]} the mutated individuum
 }
 \description{
 perform \code{\link{mutUniformReset}}, with \code{reset.dist = reset.dists \%*\% reset.dist.weights}.

@@ -7,10 +7,12 @@
 mutBitflipCHW(ind, p = 0.1, ...)
 }
 \arguments{
-\item{ind}{\code{[integer]} binary individual}
+\item{ind}{\code{[integer]} binary individual.}
 
 \item{p}{\code{[numeric]} average flip probability, must be between 0
 and 0.5.}
+
+\item{...}{other arguments passed on to the method.}
 }
 \description{
 If a given bitvector has \code{m} 1s and \code{n} 0s, then a bit is flipped from

@@ -7,9 +7,9 @@
 overallRankMO(fitness, sorting = "crowding", ref.point)
 }
 \arguments{
-\item{fitness}{\code{[matrix]} fitness matrix, one column per individuum}
+\item{fitness}{\code{[matrix]} fitness matrix, one column per individuum.}
 
-\item{sorting}{\code{[character(1)]} one of \code{"domhv"} or \code{"crowding"} (default)}
+\item{sorting}{\code{[character(1)]} one of \code{"domhv"} or \code{"crowding"} (default).}
 
 \item{ref.point}{\code{[numeric]} reference point for hypervolume, must be given
 if \code{sorting} is \code{"domhv"}.}

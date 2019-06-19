@@ -2,16 +2,16 @@
 % Please edit documentation in R/utils.R
 \name{setMosmafsVectorized}
 \alias{setMosmafsVectorized}
-\title{Set or change attribute \code{mosmafs.vectorize} in fitness function}
+\title{Set mosmafs.vectorize}
 \usage{
 setMosmafsVectorized(fn, vectorize = TRUE)
 }
 \arguments{
-\item{fn}{\code{smoof_multi_objective_function} fitness function}
+\item{fn}{\code{smoof_multi_objective_function} fitness function.}
 
 \item{vectorize}{\code{[logical(1)]} whether to force \code{slickEvaluateFitness} to
-pass candidates to fitness function as \code{data.frame} or not}
+pass candidates to fitness function as \code{data.frame} or not.}
 }
 \description{
-Set or change attribute \code{mosmafs.vectorize} in fitness function
+Set or change attribute \code{mosmafs.vectorized} in fitness function.
 }

@@ -2,10 +2,14 @@
 % Please edit documentation in R/utils.R
 \name{getPopulations}
 \alias{getPopulations}
-\title{Replace ecr::getPopulation because original is buggy}
+\title{Get Populations}
 \usage{
 getPopulations(log)
 }
+\arguments{
+\item{log}{\code{[ecr_logger]} ecr log object}
+}
 \description{
-Replace ecr::getPopulation because original is buggy
+Get populations from ecr_logger. Replaces ecr::getPopulation because
+original is buggy.
 }

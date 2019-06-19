@@ -1,3 +1,4 @@
+#' @include utils.R
 
 .tol <- sqrt(.Machine$double.eps) * 4
 
@@ -14,7 +15,7 @@
 #' @export
 intifyMutator <- function(operator) {
   assertClass(operator, c("ecr_mutator", "ecr_operator", "function"))
-  makeMutator(function(ind, ..., lower, upper) {
+  makeMutator(function(ind, ..., lower, upper) { # nocov
     assertIntegerish(ind)
     assertIntegerish(lower, any.missing = FALSE)
     assertIntegerish(upper, any.missing = FALSE)
@@ -27,20 +28,21 @@ intifyMutator <- function(operator) {
       ind <- operator(as.numeric(ind), ..., lower = lower - 0.5, upper = upper + 0.5)
     } else {
       ind <- operator(as.numeric(ind), ...)
-    }
+    } # nocov
+    ind <- operator(as.numeric(ind), ..., lower = lower - 0.5, upper = upper + 0.5)
     as.integer(pmin(pmax(lower, round(ind)), upper))
-}, supported = "custom")}
+}, supported = "custom")} # nocov
 
 #' @rdname intifyMutator
 #' @export
 intifyRecombinator <- function(operator) { 
   assertClass(operator, c("ecr_recombinator", "ecr_operator", "function"))
-  makeRecombinator(function(inds, ..., lower, upper) {
+  makeRecombinator(function(inds, ..., lower, upper) { # nocov
     assertList(inds, any.missing = FALSE, min.len = 2)
     lapply(inds, assertIntegerish)
     if (length(unique(lapply(inds, length))) != 1) {
       stop("Length of components of individuals must be the same.")
-    }
+    } # nocov
     assertIntegerish(lower, any.missing = FALSE)
     assertIntegerish(upper, any.missing = FALSE)
     n = length(inds[[1]])
@@ -54,15 +56,17 @@ intifyRecombinator <- function(operator) {
     } else {
       children <- operator(list(as.numeric(inds[[1]]), as.numeric(inds[[2]])),
         ...)
-    }
+    } # nocov
+    children <- operator(list(as.numeric(inds[[1]]), as.numeric(inds[[2]])),
+      ..., lower = lower - 0.5, upper = upper + 0.5)
     if (attr(children, "multiple")) {
       return(do.call(wrapChildren, lapply(children, function(x)
         as.integer(pmin(pmax(lower, round(x)), upper)))))
-    }
-  wrapChildren(as.integer(pmin(pmax(lower, round(children)), upper)))
+    } # nocov start
+  wrapChildren(as.integer(pmin(pmax(lower, round(children)), upper))) 
 },
-n.parents = ecr:::getNumberOfParentsNeededForMating.ecr_recombinator(operator),
-n.children = ecr:::getNumberOfChildren.ecr_recombinator(operator))}
+n.parents = getNumberOfParentsNeededForMating(operator),
+n.children = getNumberOfChildren(operator))} # nocov end
 
 
 #' @title Integer Gaussian Mutator
@@ -70,8 +74,9 @@ n.children = ecr:::getNumberOfChildren.ecr_recombinator(operator))}
 #' @param ind `[integer]` integer vector/individual to mutate.
 #' @param lower `[integer]` vector of minimal values for each parameter of the 
 #' decision space. Must have the same length as `ind`.
-#' @param uppper `[integer]` vector of maximal values for each parameter of the 
+#' @param upper `[integer]` vector of maximal values for each parameter of the 
 #' decision space. Must have the same length as `ind`.
+#' @param ...  other arguments passed on to the method.
 #' @description
 #' See [ecr::mutGauss]
 #' @family operators
@@ -85,7 +90,7 @@ mutGaussInt <- intifyMutator(mutGauss)
 #' @param ind `[integer]` integer vector/individual to mutate.
 #' @param lower `[integer]` vector of minimal values for each parameter of the 
 #' decision space. Must have the same length as `ind`.
-#' @param uppper `[integer]` vector of maximal values for each parameter of the 
+#' @param upper `[integer]` vector of maximal values for each parameter of the 
 #' decision space. Must have the same length as `ind`.
 #' @family operators
 #' @export
@@ -98,8 +103,9 @@ mutPolynomialInt <- intifyMutator(mutPolynomial)
 #' @param ind `[integer]` integer vector/individual to mutate.
 #' @param lower `[integer]` vector of minimal values for each parameter of the 
 #' decision space. Must have the same length as `ind`.
-#' @param uppper `[integer]` vector of maximal values for each parameter of the 
+#' @param upper `[integer]` vector of maximal values for each parameter of the 
 #' decision space. Must have the same length as `ind`.
+#' @param ...  other arguments passed on to the method.
 #' @family operators
 #' @export
 mutUniformInt <- intifyMutator(mutUniform)
@@ -133,9 +139,14 @@ recIntIntermediate <- intifyRecombinator(recIntermediate)
 
 
 #' @title Gaussian Intermediate Recombinator
-#'
+#' 
 #' @description
-#' See [ecr::recIntermediate]
+#' Gaussian intermediate recombinator samples component-wise from a normal 
+#' distribution with mean as the component-wise mean  
+#' and standard deviation as halved componentswise absolute distance
+#' of the two given parents.
+#' It is applicable only for numeric representations.
+#' See also [ecr::recIntermediate].
 #' @param inds `[list]` list of two individuals to recombinate.
 #' @param lower `[integer]` lower bounds of `inds` values. May have same length as
 #'   one individual or may be a single number, if the lower bounds are the same for all 
@@ -320,6 +331,7 @@ mutUniformParametricIntScaled <- intifyMutator(mutUniformParametricScaled)
 #' and can also be used for non-binary operators.
 #' @param inds `[list of any]` list of two individuals to perform uniform crossover on
 #' @param p `[numeric(1)]` per-entry probability to perform crossover
+#' @param ...  other arguments passed on to the method.
 #' @return `[list of any]` The mutated individuals.
 #' @export
 recPCrossover <- makeRecombinator(function(inds, p = 0.1, ...) {
@@ -438,7 +450,7 @@ mutGaussScaled <- makeMutator(function(ind, p = 1, sdev = 0.05, lower, upper) {
 #' See [mutGaussScaled]
 #' @param ind `[integer]` integer vector/individual to mutate.
 #' @param lower `[integer]` vector of minimal values for each parameter of the decision space. Must have the same length as `ind`.
-#' @param uppper `[integer]` vector of maximal values for each parameter of the decision space. Must have the same length as `ind`.
+#' @param upper `[integer]` vector of maximal values for each parameter of the decision space. Must have the same length as `ind`.
 #' @param ...  other arguments passed on to the method. 
 #' @family operators
 #' @export

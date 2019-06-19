@@ -7,12 +7,12 @@
 task.add.random.cols(task, num, dist = rnorm)
 }
 \arguments{
-\item{task}{\code{[Task]} the input task}
+\item{task}{\code{[Task]} the input task.}
 
-\item{num}{\code{[integer(1)]} number of noise features to add}
+\item{num}{\code{[integer(1)]} number of noise features to add.}
 
 \item{dist}{\code{[function]} function \code{n} -> \code{numeric(n)} that samples
-random noise features}
+random noise features.}
 }
 \value{
 \code{\link{Task}}

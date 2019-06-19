@@ -9,7 +9,7 @@ makeFilterMat(task, filters, expectfeatfrac = 0.5,
   maxprob = 1)
 }
 \arguments{
-\item{task}{\code{[Task]} The task to generate filter information for}
+\item{task}{\code{[Task]} The task to generate filter information for.}
 
 \item{filters}{\code{[character]} The filters to use. Special vilter \code{"DUMMY"}
 gives a constant column of \code{expectfeatfrac}.}
@@ -18,9 +18,9 @@ gives a constant column of \code{expectfeatfrac}.}
 
 \item{expectfeats}{\code{[numeric(1)]} The expected number of features to have in equilibrium.}
 
-\item{minprob}{\code{[numeric(1)]} The minimum probability for each feature}
+\item{minprob}{\code{[numeric(1)]} The minimum probability for each feature.}
 
-\item{maxprob}{\code{[numeric(1)]} The maximum probability for each feature}
+\item{maxprob}{\code{[numeric(1)]} The maximum probability for each feature.}
 }
 \value{
 \code{matrix}

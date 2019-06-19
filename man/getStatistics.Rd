@@ -2,10 +2,14 @@
 % Please edit documentation in R/utils.R
 \name{getStatistics}
 \alias{getStatistics}
-\title{Replace ecr::getStatistics because original is buggy}
+\title{Get Statistics}
 \usage{
 getStatistics(log)
 }
+\arguments{
+\item{log}{\code{[ecr_logger]} ecr log object}
+}
 \description{
-Replace ecr::getStatistics because original is buggy
+Get statistics from ecr_logger. Replaces ecr::getStatistics
+because original is buggy.
 }

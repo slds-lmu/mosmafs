@@ -79,6 +79,9 @@ initEcr <- function(fitness.fun, population, fidelity = NULL, log.stats = NULL, 
   if (!smoof::isSmoofFunction(fitness.fun)) {
     stop("fitness.fun must be a SMOOF function")
   }
+  if(any(!attr(fitness.fun, "minimize"))) {
+    stop("maximization not supported yet")
+  }
   n.objectives <- smoof::getNumberOfObjectives(fitness.fun)
   if (is.null(log.stats)) {
     if (n.objectives == 1) {
@@ -136,7 +139,7 @@ initEcr <- function(fitness.fun, population, fidelity = NULL, log.stats = NULL, 
   updateLogger(log.newinds, population, fitness, n.evals = length(population),
     extras = list(size = length(population), population = "init"))
 
-  result <- ecr:::makeECRResult(ctrl, log, population,  fitness, list(message = "out of generations"))
+  result <- makeECRResult(ctrl, log, population,  fitness, list(message = "out of generations"))
   result$log.newinds <- log.newinds
   result$control <- ctrl
   result$fidelity <- fidelity
@@ -270,7 +273,7 @@ continueEcr <- function(ecr.object, generations, lambda = NULL, mutator = NULL, 
       extras = list(state = "generation"))
     gen <- gen + 1
   }
-  result <- ecr:::makeECRResult(ctrl, log, population,  fitness, termmsgs)
+  result <- makeECRResult(ctrl, log, population,  fitness, termmsgs)
   result$log.newinds <- log.newinds
   result$lambda <- lambda
   ctrl$p.recomb <- p.recomb
@@ -287,9 +290,14 @@ continueEcr <- function(ecr.object, generations, lambda = NULL, mutator = NULL, 
 #' @title Compute the Fitness of Individuals
 #'
 #' @description
-#' Evaluates fitness with varying fidelity. Fidelity parameter
-#' is passed on to `fidelity` parameter of objective stored in
-#' `ctrl`.
+#' Takes a list of individuals `population` and evaluates the fitness
+#' with varying `fidelity`, if specified.
+#' 
+#' A list is returned with two elements, one being the list of individuals and 
+#' one being the matrix of fitness values. In the matrix each column represents 
+#' the fitness values of one individual. 
+#' For consistency, a matrix is also returned for single objective fitness function. 
+#' 
 #'
 #' @param ctrl `[ecr_control]` control object.
 #' @param population `[list]` list of individuals to evaluate.
@@ -415,7 +423,7 @@ slickEvaluateFitness <- function(ctrl, population, fidelity = NULL, previous.poi
       attr(ind, "fitness.holdout") <- res$holdout
       ind
     }, population, results, SIMPLIFY = FALSE),
-    fitness = ecr:::makeFitnessMatrix(fitness, ctrl))
+    fitness = makeFitnessMatrix(fitness, ctrl))
 }
 
 

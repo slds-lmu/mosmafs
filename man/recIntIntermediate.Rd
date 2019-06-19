@@ -6,6 +6,10 @@
 \usage{
 recIntIntermediate(inds, ..., lower, upper)
 }
+\arguments{
+\item{inds}{\code{[inds]} parents, i.e., list of exactly two integer vectors
+of equal length.}
+}
 \description{
 See \link[ecr:recIntermediate]{ecr::recIntermediate}
 }

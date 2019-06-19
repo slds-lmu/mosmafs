@@ -2,30 +2,19 @@
 % Please edit documentation in R/datagen.R
 \name{task.add.permuted.cols}
 \alias{task.add.permuted.cols}
-\title{Add Permuted Noise-Features to Task
-
-Adds \code{num} copies of the \code{task} with permuted rows.
-
-The feature names of the \code{i}th permuted copy have \code{PERM.i.} prepended to them.
-The returned task has a new member \code{$orig.features} which is a logical vector
-indicating the features that were originally in the task.
-
-If the \code{$orig.features} slot is already present in the input \code{task}, then the
-output will have added \code{FALSE} entries at appropriate positions.}
+\title{Add Permuted Noise-Features to Task}
 \usage{
 task.add.permuted.cols(task, num)
 }
 \arguments{
-\item{task}{\code{[Task]} the input task}
+\item{task}{\code{[Task]} the input task.}
 
-\item{num}{\code{[integer(1)]} Number of noise features to add}
+\item{num}{\code{[integer(1)]} Number of noise features to add.}
 }
 \value{
 \code{\link{Task}}
 }
 \description{
-Add Permuted Noise-Features to Task
-
 Adds \code{num} copies of the \code{task} with permuted rows.
 
 The feature names of the \code{i}th permuted copy have \code{PERM.i.} prepended to them.
