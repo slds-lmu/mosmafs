@@ -22,7 +22,12 @@ intifyMutator <- function(operator) {
     if (!((length(lower) %in% c(n, 1)) & (length(upper) %in% c(n, 1)))) {
       stopf("Length of lower and upper must have same length as individual or 1.")
     }
-    ind <- operator(as.numeric(ind), ..., lower = lower - 0.5, upper = upper + 0.5)
+    opargs <- names(formals(args(operator)))
+    if ("..." %in% opargs || all(c("lower", "upper") %in% opargs)) {
+      ind <- operator(as.numeric(ind), ..., lower = lower - 0.5, upper = upper + 0.5)
+    } else {
+      ind <- operator(as.numeric(ind), ...)
+    }
     as.integer(pmin(pmax(lower, round(ind)), upper))
 }, supported = "custom")}
 
@@ -42,8 +47,14 @@ intifyRecombinator <- function(operator) {
     if (!((length(lower) %in% c(n, 1)) & (length(upper) %in% c(n, 1)))) {
       stopf("Length of lower and upper must have same length as one individual or 1.")
     }
-    children <- operator(list(as.numeric(inds[[1]]), as.numeric(inds[[2]])),
-      ..., lower = lower - 0.5, upper = upper + 0.5)
+    opargs <- names(formals(args(operator)))
+    if ("..." %in% opargs || all(c("lower", "upper") %in% opargs)) {
+      children <- operator(list(as.numeric(inds[[1]]), as.numeric(inds[[2]])),
+        ..., lower = lower - 0.5, upper = upper + 0.5)
+    } else {
+      children <- operator(list(as.numeric(inds[[1]]), as.numeric(inds[[2]])),
+        ...)
+    }
     if (attr(children, "multiple")) {
       return(do.call(wrapChildren, lapply(children, function(x)
         as.integer(pmin(pmax(lower, round(x)), upper)))))
