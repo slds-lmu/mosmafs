@@ -38,6 +38,36 @@
 #' @param .binary.discrete.as.logical `[logical(1)]` whether to treat binary discrete parameters as `logical` parameters and
 #'   use bitwise operators.
 #' @return [`ecr_operator`][ecr::makeOperator] ecr operator.
+#' @examples
+#' library("mlr")
+#' library("rpart")
+#' 
+#' task.whole <- bh.task
+#' rows.whole <- sample(nrow(getTaskData(task.whole)))
+#' task <- subsetTask(task.whole, rows.whole[1:250])
+#' task.hout <- subsetTask(task.whole, rows.whole[251])
+#' lrn <- makeLearner("regr.rpart")
+#' 
+#' ps.simple <- mlrCPO::pSS(
+#'   maxdepth: integer[1, 30],
+#'   minsplit: integer[2, 30],
+#'   cp: numeric[0.001, 0.999])
+#'   nRes <- function(n) {
+#'   makeResampleDesc("Subsample", split = 0.9, iters = n)
+#' }
+#' 
+#' fitness.fun.mos <- makeObjective(lrn, task, ps.simple, nRes, 
+#'   measure = mse, 
+#'   holdout.data = task.hout, worst.measure = 100)
+#' 
+#' # extract param set from objective
+#' ps.obj  <- getParamSet(fitness.fun.mos)
+#' getParamIds(ps.obj) # automatically added parameter ' for selecting features
+#'  
+#' exp <- sampleValue(ps.obj)
+#' res <- fitness.fun.mos(exp, fidelity = 2, holdout = FALSE)
+#'
+#' 
 #' @export
 combine.operators <- function(param.set, ..., .binary.discrete.as.logical = TRUE) {
 
