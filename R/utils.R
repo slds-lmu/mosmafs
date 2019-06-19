@@ -80,10 +80,7 @@ availableAttributes <- function(log, check = FALSE) {
   pop <- getPopulations(log)
   if (length(pop) == 0) return(character(0))
   if (length(pop[[1]]$population) == 0) {
-    if (check && any(vlapply(pop, function(gen) length(gen$population) != 0))) {
-      stop("Some generations are empty.")
-    }
-    return(character(0))
+    stop("population of size 0 not allowed")
   }
   attrs <- names(attributes(pop[[1]]$population[[1]]))
   if (check) {

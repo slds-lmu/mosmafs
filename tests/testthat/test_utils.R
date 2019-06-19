@@ -222,10 +222,8 @@ test_that("popAggregate and availableAttributes", {
     len = 4, unique = TRUE, any.missing = FALSE)
   empty.pop <- results$log
   empty.pop$env$pop[[1]]$population <- NULL
-  expect_character(availableAttributes(empty.pop), len = 0)
-  empty.pop$env$pop[[3]]$population <- NULL
   expect_error(availableAttributes(empty.pop, check = TRUE), 
-    "Some generations are empty.")
+    "population of size 0 not allowed")
   
 }) 
 
