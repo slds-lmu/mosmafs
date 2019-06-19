@@ -9,6 +9,14 @@ recIntIntermediate(inds, ..., lower, upper)
 \arguments{
 \item{inds}{\code{[inds]} parents, i.e., list of exactly two integer vectors
 of equal length.}
+
+\item{...}{other arguments passed on to the method.}
+
+\item{lower}{\code{[integer]} vector of minimal values for each parameter of the
+decision space.}
+
+\item{upper}{\code{[integer]} vector of maximal values for each parameter of the
+decision space.}
 }
 \description{
 See \link[ecr:recIntermediate]{ecr::recIntermediate}
