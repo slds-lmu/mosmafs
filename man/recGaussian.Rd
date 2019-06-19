@@ -19,8 +19,8 @@ values.}
 }
 \description{
 Gaussian intermediate recombinator samples component-wise from a normal
-distribution with mean as the component-wise mean
-and standard deviation as halved componentswise absolute distance
+distribution with mean as the component-wise meanc
+and standard deviation as halved components-wise absolute distance
 of the two given parents.
 It is applicable only for numeric representations.
 See also \link[ecr:recIntermediate]{ecr::recIntermediate}.

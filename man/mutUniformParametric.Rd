@@ -31,6 +31,8 @@ values.}
 values.}
 
 \item{sdev}{\code{[numeric]} standard deviation, will be scaled to \code{upper - lower}.}
+
+\item{...}{further arguments passed on to the method.}
 }
 \description{
 Adds a variable \code{delta} to each component \code{ind[i]}

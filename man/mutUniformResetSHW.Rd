@@ -17,7 +17,7 @@ mutUniformMetaResetSHW(ind, p = 0.1, reset.dists, reset.dist.weights,
 
 \item{reset.dist}{\code{[numeric]} approximate probability to draw 1-bit per entry.}
 
-\item{...}{Other arguments passed on to the method.}
+\item{...}{further arguments passed on to the method.}
 
 \item{reset.dists}{\code{[matrix]} columns of probabilities, with \code{length(ind)} cols and
 \code{length(reset.dist.weights)} rows.}
