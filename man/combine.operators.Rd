@@ -18,8 +18,6 @@ use bitwise operators.}
 \code{\link[ecr:makeOperator]{ecr_operator}} ecr operator.
 }
 \description{
-TODO: This seriously needs better documentation.
-
 Combine operators to be applied to individuals that conform to parameter set \code{param.set}.
 Parameters are the \code{param.set}, and the names / types of params with the operator to use.
 Parameter groups that use a single operator can be defined using \code{.params.<groupname> = [character]}.
