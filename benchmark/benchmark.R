@@ -1,22 +1,30 @@
-library("batchtools")
-library("ecr")
-library("magrittr")
-library("ParamHelpers")
-library("parallelMap")
-library("mlr")
-library("mlrCPO")
-library("mlrMBO")
-library("mosmafs")
+# ---
+# BENCHMARK MOSMAFS
+# ---
 
+
+# ---
+# 0. Load libraries
+# ---
+
+# TODO: packrat
+
+packages = c("batchtools", "data.table", "ecr", "mlr", "mlrCPO", "mlrMBO", "mosmafs", 
+  "magrittr", "parallelMap", "ParamHelpers")
+
+lapply(packages, library, character.only = TRUE)
+
+
+# Testing infrastructure: yes / no? 
 
 TEST = FALSE
 
 if (TEST) {
   deffile = "def_test.R"
-  registry_name = "registry_temp2"
+  registry_name = "registry_temp"
 } else {
   deffile = "def.R"
-  registry_name = "registry2"
+  registry_name = "registry"
 }
 
 source(deffile)
