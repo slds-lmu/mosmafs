@@ -11,22 +11,22 @@ constructEvalSetting(task, learner, ps,
   stratify = TRUE), savedir = NULL)
 }
 \arguments{
-\item{task}{\code{[Task]} the task to optimize}
+\item{task}{\code{[Task]} the task to optimize.}
 
-\item{learner}{\code{[Learner]} the learner to optimize}
+\item{learner}{\code{[Learner]} the learner to optimize.}
 
-\item{ps}{\code{[ParamSet]} the parameter set of the learner (and \code{cpo}) alone}
+\item{ps}{\code{[ParamSet]} the parameter set of the learner (and \code{cpo}) alone.}
 
-\item{measure}{\code{[Measure]} measure to optimize}
+\item{measure}{\code{[Measure]} measure to optimize.}
 
 \item{worst.measure}{\code{[numeric(1)]} worst value for measure to consider,
 for dominated hypervolume calculation. Will be extracted from the
 given measure if not given, but will raise an error if the extracted
 (or given) value is infinite.}
 
-\item{cpo}{\code{[CPO]} cpo to prepend feature selection}
+\item{cpo}{\code{[CPO]} cpo to prepend feature selection.}
 
-\item{nfeat}{\code{[integer(1)]} number of features}
+\item{nfeat}{\code{[integer(1)]} number of features.}
 
 \item{evals}{\code{[integer(1)]} number of evals to perform. Note this concerns fidelity
 evaluations (i.e. single CV folds). When not using multifid the number of points
