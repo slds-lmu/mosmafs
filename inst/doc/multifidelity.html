@@ -308,8 +308,8 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 
 <div id="TOC">
 <ul>
-<li><a href="#preparation">Preparation</a></li>
 <li><a href="#multi-fidelity">Multi-Fidelity</a></li>
+<li><a href="#preparation">Preparation</a></li>
 <li><a href="#fidelity-argument">Fidelity Argument</a></li>
 <li><a href="#generation-wise-multi-fidelity">Generation-Wise Multi-Fidelity</a></li>
 <li><a href="#multi-fidelity-by-dominance">Multi-Fidelity by Dominance</a></li>
@@ -318,6 +318,10 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 </ul>
 </div>
 
+<div id="multi-fidelity" class="section level2">
+<h2>Multi-Fidelity</h2>
+<p>An introduction to multi-fidelity is given in J. E. Fieldsend and R. M. Everson, <a href="https://ieeexplore.ieee.org/document/6730915">The Rolling Tide Evolutionary Algorithm: A Multiobjective Optimizer for Noisy Optimization Problems</a>. In its current state, <code>mosmafs</code> supports two ways of performing multi-fidelity optimization: Selected by generation, and selected by dominance. Multi-fidelity by generation is simply performed by changing the fidelity of the objective function after a given number of generations. Multi-fidelity by dominance is performed by evaluating a point with low fidelity first, and then enabling high fidelity if the first evaluation suggests that the point is not dominated by any previous result.</p>
+</div>
 <div id="preparation" class="section level2">
 <h2>Preparation</h2>
 <p>This vignette starts where the previous vignette leaves off and expects the following preparation:</p>
@@ -360,10 +364,6 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <a class="sourceLine" id="cb2-29" data-line-number="29"></a>
 <a class="sourceLine" id="cb2-30" data-line-number="30">initials &lt;-<span class="st"> </span><span class="kw">sampleValues</span>(ps.objective, <span class="dv">32</span>, <span class="dt">discrete.names =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
 </div>
-<div id="multi-fidelity" class="section level2">
-<h2>Multi-Fidelity</h2>
-<p>In its current state, <code>mosmafs</code> supports two ways of performing multi-fidelity optimization: Selected by generation, and selected by dominance. Multi-fidelity by generation is simply performed by changing the fidelity of the objective function after a given number of generations. Multi-fidelity by dominance is performed by evaluating a point with low fidelity first, and then enabling high fidelity if the first evaluation suggests that the point is not dominated by any previous result.</p>
-</div>
 <div id="fidelity-argument" class="section level2">
 <h2>Fidelity Argument</h2>
 <p>An objective function optimized with <code>slickEcr()</code> may have a <code>fidelity</code> argument which should choose the fidelity at which the function is evaluated. It can take any numeric value chosen (at another point) by the user, but it should make sense to take a weighted mean of results by this fidelity:</p>
@@ -391,7 +391,12 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <p>The <code>slickEcr()</code> function accepts the <code>fidelity</code> argument, which must be a <code>data.frame</code> with two or three columns. For generation-wise multi-fidelity, we give it a <code>data.frame</code> with two columns, with the first column indicating the generation at which a certain fidelity should be used, and the second column containing the fidelity to use. To use fidelity <code>1</code> for the first five generations, then fidelity <code>3</code>, for another five generations, and finally <code>5</code> for the last five, the <code>data.frame</code> would be</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1">fidelity &lt;-<span class="st"> </span><span class="kw">data.frame</span>(</a>
 <a class="sourceLine" id="cb6-2" data-line-number="2">    <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">6</span>, <span class="dv">11</span>),</a>
-<a class="sourceLine" id="cb6-3" data-line-number="3">    <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">5</span>))</a></code></pre></div>
+<a class="sourceLine" id="cb6-3" data-line-number="3">    <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">5</span>))</a>
+<a class="sourceLine" id="cb6-4" data-line-number="4"><span class="kw">print</span>(fidelity)</a>
+<a class="sourceLine" id="cb6-5" data-line-number="5"><span class="co">#&gt;   c.1..6..11. c.1..3..5.</span></a>
+<a class="sourceLine" id="cb6-6" data-line-number="6"><span class="co">#&gt; 1           1          1</span></a>
+<a class="sourceLine" id="cb6-7" data-line-number="7"><span class="co">#&gt; 2           6          3</span></a>
+<a class="sourceLine" id="cb6-8" data-line-number="8"><span class="co">#&gt; 3          11          5</span></a></code></pre></div>
 <p>This is given to <code>slickEcr()</code>:</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1">run.gen.mufi &lt;-<span class="st"> </span><span class="kw">slickEcr</span>(</a>
 <a class="sourceLine" id="cb7-2" data-line-number="2">    <span class="dt">fitness.fun =</span> fitness.fun,</a>
@@ -470,8 +475,11 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 </div>
 <div id="multi-fidelity-by-dominance" class="section level2">
 <h2>Multi-Fidelity by Dominance</h2>
-<p>The <code>slickEcr()</code> <code>fidelity</code> argument accepts <code>data.frames</code> with three columns in the case that different fidelity should be used for points that lie on the pareto-front than those that, in a first evaluation, are dominated. This can be combined with generation-wise multi-fidelity, but our first example will only have one row. It evaluates simple holdout-resampling for each point, and, if the result seems to be better than previous evaluations with the same number of features, re-does the resampling with ten-times repeated holdout resampling.</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1">fidelity &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">10</span>)</a></code></pre></div>
+<p>The <code>slickEcr()</code> <code>fidelity</code> argument accepts <code>data.frames</code> with three columns in the case that different fidelity should be used for points that lie on the pareto-front than those that, in a first evaluation, are dominated. This can be combined with generation-wise multi-fidelity, but our first example will only have one row. It evaluates simple holdout-resampling for each point, and, if the result seems to be better than previous evaluations with the same number of features, re-does the resampling with ten-times repeated holdout resampling, which results in overall 11 evaluations for this point.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1">fidelity &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">10</span>)</a>
+<a class="sourceLine" id="cb11-2" data-line-number="2"><span class="kw">print</span>(fidelity)</a>
+<a class="sourceLine" id="cb11-3" data-line-number="3"><span class="co">#&gt;   X1 X1.1 X10</span></a>
+<a class="sourceLine" id="cb11-4" data-line-number="4"><span class="co">#&gt; 1  1    1  10</span></a></code></pre></div>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1">run.dom.mufi &lt;-<span class="st"> </span><span class="kw">slickEcr</span>(</a>
 <a class="sourceLine" id="cb12-2" data-line-number="2">    <span class="dt">fitness.fun =</span> fitness.fun,</a>
 <a class="sourceLine" id="cb12-3" data-line-number="3">    <span class="dt">lambda =</span> <span class="dv">16</span>,</a>
@@ -505,6 +513,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" data-line-number="1"><span class="kw">popAggregate</span>(run.dom.mufi<span class="op">$</span>log, <span class="st">&quot;fidelity&quot;</span>)[[<span class="dv">2</span>]]</a>
 <a class="sourceLine" id="cb15-2" data-line-number="2"><span class="co">#&gt;  [1] 11 11 11 11 11 11 11 11 11  1  1 11 11 11 11 11  1  1 11  1 11 11 11 11 11</span></a>
 <a class="sourceLine" id="cb15-3" data-line-number="3"><span class="co">#&gt; [26]  1 11 11 11  1 11  1</span></a></code></pre></div>
+<p>Note that, the fidelity is 11 for some candidates, as they were promising after one holdout resampling and were additionally reevaluated with ten-times repeated holdout resampling.</p>
 <p>Individual evaluation fidelity can be retrieved, again, from a logged individual’s attributes. The following plots the pareto-front of generation 3, and the individuals sampled for generation 4. All individuals sampled with high fidelity lie close to the pareto-front, but some may, after high-fidelity evaluation, have turned out to actually be dominated by the old generation.</p>
 <div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" data-line-number="1">gen.i &lt;-<span class="st"> </span><span class="dv">3</span></a>
 <a class="sourceLine" id="cb16-2" data-line-number="2">logobj &lt;-<span class="st"> </span>run.dom.mufi<span class="op">$</span>log.newinds</a>
@@ -534,11 +543,17 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 </div>
 <div id="all-of-the-above" class="section level2">
 <h2>All of the Above</h2>
-<p>The two approaches can, of course, be combined. It should be noted that the initial generation, as well as each generation after a fidelity-jump, is evaluated with the “high” fidelity column number. The following, for example, evaluates generation 1 with fidelity 10, generation 6 with fidelity 20, and generation 11 with fidelity 30. In between, new points are evaluated with low fidelity first and then re-evaluated on high-fidelity if they seem to not be dominated by the previous generation. Because of this, fidelity-jumps tend to be relatively computationally expensive and should be done sparingly if at all. If <code>unbiased.fidelity</code> is set (the default), only an upward step in total fidelity of pareto set elements (i.e. sum of 2nd and 3rd column if three columns are given, otherwise just value in 2nd column) leads to a re-evaluation of all fidelity. It should be set whenever the expectation value of evaluated fitness does not change with changing fidelity between generations (note that it is strongly recommended that evaluations with the two fidelities in each row have the same or very close expectation values).</p>
+<p>The two approaches can, of course, be combined. It should be noted that the initial generation, as well as each generation after a fidelity-jump, is evaluated with the “high” fidelity column number. The following, for example, evaluates generation 1 with fidelity 6, generation 6 with fidelity 11, and generation 11 with fidelity 15. In between, new points are evaluated with low fidelity first and then re-evaluated on high-fidelity if they seem to not be dominated by the previous generation. Because of this, fidelity-jumps tend to be relatively computationally expensive and should be done sparingly if at all. If <code>unbiased.fidelity</code> is set (the default), only an upward step in total fidelity of pareto set elements (i.e. sum of 2nd and 3rd column if three columns are given, otherwise just value in 2nd column) leads to a re-evaluation of all fidelity. It should be set whenever the expectation value of evaluated fitness does not change with changing fidelity between generations (note that it is strongly recommended that evaluations with the two fidelities in each row have the same or very close expectation values).</p>
 <div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" data-line-number="1">fidelity &lt;-<span class="st"> </span><span class="kw">data.frame</span>(</a>
 <a class="sourceLine" id="cb17-2" data-line-number="2">    <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">6</span>, <span class="dv">11</span>),</a>
 <a class="sourceLine" id="cb17-3" data-line-number="3">    <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">5</span>),</a>
-<a class="sourceLine" id="cb17-4" data-line-number="4">    <span class="kw">c</span>(<span class="dv">5</span>, <span class="dv">4</span>, <span class="dv">8</span>, <span class="dv">10</span>))</a></code></pre></div>
+<a class="sourceLine" id="cb17-4" data-line-number="4">    <span class="kw">c</span>(<span class="dv">5</span>, <span class="dv">4</span>, <span class="dv">8</span>, <span class="dv">10</span>))</a>
+<a class="sourceLine" id="cb17-5" data-line-number="5"><span class="kw">print</span>(fidelity)</a>
+<a class="sourceLine" id="cb17-6" data-line-number="6"><span class="co">#&gt;   c.1..3..6..11. c.1..2..3..5. c.5..4..8..10.</span></a>
+<a class="sourceLine" id="cb17-7" data-line-number="7"><span class="co">#&gt; 1              1             1              5</span></a>
+<a class="sourceLine" id="cb17-8" data-line-number="8"><span class="co">#&gt; 2              3             2              4</span></a>
+<a class="sourceLine" id="cb17-9" data-line-number="9"><span class="co">#&gt; 3              6             3              8</span></a>
+<a class="sourceLine" id="cb17-10" data-line-number="10"><span class="co">#&gt; 4             11             5             10</span></a></code></pre></div>
 <div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" data-line-number="1">run.all.mufi &lt;-<span class="st"> </span><span class="kw">slickEcr</span>(</a>
 <a class="sourceLine" id="cb18-2" data-line-number="2">    <span class="dt">fitness.fun =</span> fitness.fun,</a>
 <a class="sourceLine" id="cb18-3" data-line-number="3">    <span class="dt">lambda =</span> <span class="dv">16</span>,</a>
@@ -572,10 +587,16 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 </div>
 <div id="run-continuation" class="section level2">
 <h2>Run Continuation</h2>
-<p>When continuing finished runs using the <code>continueEcr()</code> functionality, it is possible to submit a new <code>fidelity</code> <code>data.frame</code> to change fidelity behaviour. Note that generations continue to count from where previous evaluations left off. Therefore, in the following example, the entry for generation 1 is ignored, the fidelity used for all new offspring is 12 and rises to 15.</p>
+<p>When continuing finished runs using the <code>continueEcr()</code> functionality, it is possible to submit a new <code>fidelity</code> <code>data.frame</code> to change fidelity behaviour. Note that generations continue to count from where previous evaluations left off. Therefore, in the following example, the entry for generation 1 is ignored, the fidelity used for all new offspring is 20 and rises to 25.</p>
 <div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" data-line-number="1">fidelity.new &lt;-<span class="st"> </span><span class="kw">data.frame</span>(</a>
 <a class="sourceLine" id="cb21-2" data-line-number="2">    <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">10</span>, <span class="dv">17</span>, <span class="dv">19</span>),</a>
-<a class="sourceLine" id="cb21-3" data-line-number="3">    <span class="kw">c</span>(<span class="dv">11</span>, <span class="dv">20</span>, <span class="dv">23</span>, <span class="dv">25</span>))</a></code></pre></div>
+<a class="sourceLine" id="cb21-3" data-line-number="3">    <span class="kw">c</span>(<span class="dv">11</span>, <span class="dv">20</span>, <span class="dv">23</span>, <span class="dv">25</span>))</a>
+<a class="sourceLine" id="cb21-4" data-line-number="4"><span class="kw">print</span>(fidelity.new)</a>
+<a class="sourceLine" id="cb21-5" data-line-number="5"><span class="co">#&gt;   c.1..10..17..19. c.11..20..23..25.</span></a>
+<a class="sourceLine" id="cb21-6" data-line-number="6"><span class="co">#&gt; 1                1                11</span></a>
+<a class="sourceLine" id="cb21-7" data-line-number="7"><span class="co">#&gt; 2               10                20</span></a>
+<a class="sourceLine" id="cb21-8" data-line-number="8"><span class="co">#&gt; 3               17                23</span></a>
+<a class="sourceLine" id="cb21-9" data-line-number="9"><span class="co">#&gt; 4               19                25</span></a></code></pre></div>
 <div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" data-line-number="1">run.all.mufi<span class="fl">.20</span> &lt;-<span class="st"> </span><span class="kw">continueEcr</span>(run.all.mufi, <span class="dv">5</span>,</a>
 <a class="sourceLine" id="cb22-2" data-line-number="2">  <span class="dt">lambda =</span> <span class="dv">8</span>, <span class="dt">fidelity =</span> fidelity.new)</a></code></pre></div>
 <div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" data-line-number="1"><span class="kw">getStatistics</span>(run.all.mufi<span class="fl">.20</span><span class="op">$</span>log.newinds)</a>
