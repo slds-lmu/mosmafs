@@ -15,33 +15,30 @@ cpoSelector(selection, id, export = "export.default",
 Logical vector indicating if a features
 was selected or not. Must have the same length as number of features.}
 
-\item{id}{[\code{character(1)} | \code{NULL}]\cr
-ID to use for the CPO. if \code{NULL} is given, this defaults to
-a name describing the action performed by the CPO, which can be retrieved using \code{\link{getCPOName}}.
-The ID is used to identify the CPO in print messages,
-and is prefixed to the CPO's hyperparameter names. This is can be used to avoid name clashes when composing
-a CPO with another CPO or \code{\link[mlr:makeLearner]{Learner}} with hyperparameters with clashing names. Default is \code{NULL}.}
+\item{id}{[\code{character(1)}]\cr
+id to use as prefix for the CPO's hyperparameters. this
+must be used to avoid name clashes when composing two
+CPOs of the same type, or with learners or other CPOS
+with hyperparameters with clashing names.}
 
 \item{export}{[\code{character}]\cr
-Which hyperparameters to export. This can be a character vector naming the
-hyperparameters to export (\emph{excluding} the ID), or a \code{character(1)} with one of the special values:
-\tabular{ll}{
-  \dQuote{export.all}            \tab  export all parameters                             \cr
-  \dQuote{export.default}        \tab  exp. params that are exp. by def                  \cr
-  \dQuote{export.set}            \tab  exp. params set in construct call                 \cr
-  \dQuote{export.default.set}    \tab  intersection of \dQuote{default} and \dQuote{set} \cr
-  \dQuote{export.unset}          \tab  params \emph{not} set in construct call           \cr
-  \dQuote{export.default.unset}  \tab  isct. of \dQuote{default} and \dQuote{unset}      \cr
-  \dQuote{export.all.plus}       \tab  not yet supported
-}
+Either a character vector indicating the parameters to
+export as hyperparameters, or one of the special values
+\dQuote{export.all} (export all parameters),
+\dQuote{export.default} (export all parameters that are exported by default),
+\dQuote{export.set} (export all parameters that were set during construction),
+\dQuote{export.default.set} (export the intersection of the \dQuote{default} and \dQuote{set} parameters),
+\dQuote{export.unset} (export all parameters that were \emph{not} set during construction) or
+\dQuote{export.default.unset} (export the intersection of the \dQuote{default} and \dQuote{unset} parameters).
 Default is \dQuote{export.default}.}
 
 \item{affect.type}{[\code{character} | \code{NULL}]\cr
-Type of columns to affect. May be a subset of \dQuote{numeric}, \dQuote{factor}, \dQuote{ordered}, \dQuote{other},
-or can be or \code{NULL} to match all columns. Default is \code{NULL}.}
+Type of columns to affect. A subset of \dQuote{numeric}, \dQuote{factor}, \dQuote{ordered}, \dQuote{other}, or \code{NULL}
+to not match by column type. Default is \code{NULL}.}
 
 \item{affect.index}{[\code{numeric}]\cr
-Indices of feature columns to affect. The order of indices given is respected. Default is \code{integer(0)}.}
+Indices of feature columns to affect. The order of indices given is respected. Target column indices are not counted
+(since target columns are always included). Default is \code{integer(0)}.}
 
 \item{affect.names}{[\code{character}]\cr
 Feature names of feature columns to affect. The order of names given is respected. Default is \code{character(0)}.}
@@ -50,19 +47,16 @@ Feature names of feature columns to affect. The order of names given is respecte
 \code{\link[base]{grep}} pattern to match feature names by. Default is \code{NULL} (no pattern matching)}
 
 \item{affect.invert}{[\code{logical(1)}]\cr
-Whether to affect all features \emph{not} matched by other \code{affect.*} parameters. Default is \code{FALSE}.}
+Whether to affect all features \emph{not} matched by other \code{affect.*} parameters.}
 
 \item{affect.pattern.ignore.case}{[\code{logical(1)}]\cr
-Ignore case when matching features with \code{affect.pattern}; see \code{\link[base]{grep}}. Has no effect when
-\code{affect.pattern} is \code{NULL}. Default is \code{FALSE}.}
+Ignore case when matching features with \code{affect.pattern}; see \code{\link[base]{grep}}. Default is \code{FALSE}.}
 
 \item{affect.pattern.perl}{[\code{logical(1)}]\cr
-Use Perl-style regular expressions for \code{affect.pattern}; see \code{\link[base]{grep}}. Has no effect when
-\code{affect.pattern} is \code{NULL}, or when \code{affect.pattern.fixed} is \code{TRUE}. Default is \code{FALSE}.}
+Use Perl-style regular expressions for \code{affect.pattern}; see \code{\link[base]{grep}}. Default is \code{FALSE}.}
 
 \item{affect.pattern.fixed}{[\code{logical(1)}]\cr
-Use fixed matching instead of regular expressions for \code{affect.pattern}; see \code{\link[base]{grep}}.
-Has no effect when \code{affect.pattern} is \code{NULL}. Default is \code{FALSE}.}
+Use fixed matching instead of regular expressions for \code{affect.pattern}; see \code{\link[base]{grep}}. Default is \code{FALSE}.}
 }
 \description{
 CPO that Selects Features
