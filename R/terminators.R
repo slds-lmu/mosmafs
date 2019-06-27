@@ -35,6 +35,8 @@ mosmafsTermEvals <- function(evals) {
   }
 }
 
+#' @export
+#' @rdname mosmafsTermEvals
 mosmafsTermGenerations <- function(generations) {
   assertInt(generations)
   function(result) {

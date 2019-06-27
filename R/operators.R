@@ -395,7 +395,7 @@ mutUniformReset <- makeMutator(function(ind, p = 0.1, reset.dist) {
 #' @title Parametrised Uniform Reset for Binary Parameters
 #'
 #' @description
-#' perform [`mutUniformReset`], with `reset.dist = reset.dists %*% reset.dist.weights`.
+#' Performs [`mutUniformReset`] with `reset.dist = reset.dists %*% reset.dist.weights`.
 #' @param ind `[integer]` binary individuum with values 0 or 1.
 #' @param p `[numeric(1)]` entry-wise reset probability.
 #' @param reset.dists `[matrix]` columns of probabilities to draw 1-bit per entry, if reset is performed.
@@ -458,7 +458,7 @@ mutGaussScaled <- makeMutator(function(ind, p = 1, sdev = 0.05, lower, upper) {
 #' @title Integer Scaled Gaussian Mutator
 #'
 #' @description
-#' See [mutGaussScaled]
+#' See [mutGaussScaled].
 #' @param ind `[integer]` integer vector/individual to mutate.
 #' @param lower `[integer]` vector of minimal values for each parameter of the decision space. Must have the same length as `ind`.
 #' @param upper `[integer]` vector of maximal values for each parameter of the decision space. Must have the same length as `ind`.

@@ -10,8 +10,9 @@
 #'
 #' The `ParamSet` used to generate individuals for the ecr must include 
 #' parameters for `learner`, not a `logical` parameter with length equal 
-#' to `getTaskNFeats(task)` for feature selection, as it is automatically added.
-#' It can be accessed via `getParamSet()` with object created by 
+#' to `getTaskNFeats(task)` for feature selection, as it is automatically added 
+#' named as `selector.selection`.
+#' It can be accessed via `getParamSet()` with the object created by 
 #' `makeObjective()` as input.
 #'
 #' `learner` must *not* include a `cpoSelector()` applied to it, this
@@ -44,6 +45,36 @@
 #'   `selector.selection` parameter in `ps` has the appropriate length of
 #'   the data that `cpo` emits.
 #' @return `function` an objective function for [`ecr::ecr`].
+#' @examples
+#' library("mlr")
+#' library("rpart")
+#' 
+#' task.whole <- bh.task
+#' rows.whole <- sample(nrow(getTaskData(task.whole)))
+#' task <- subsetTask(task.whole, rows.whole[1:250])
+#' task.hout <- subsetTask(task.whole, rows.whole[251])
+#' lrn <- makeLearner("regr.rpart")
+#' 
+#' ps.simple <- mlrCPO::pSS(
+#'   maxdepth: integer[1, 30],
+#'   minsplit: integer[2, 30],
+#'   cp: numeric[0.001, 0.999])
+#'   nRes <- function(n) {
+#'   makeResampleDesc("Subsample", split = 0.9, iters = n)
+#' }
+#' 
+#' fitness.fun.mos <- makeObjective(lrn, task, ps.simple, nRes, 
+#'   measure = mse, 
+#'   holdout.data = task.hout, worst.measure = 100)
+#' 
+#' # extract param set from objective
+#' ps.obj  <- getParamSet(fitness.fun.mos)
+#' getParamIds(ps.obj) # automatically added parameter ' for selecting features
+#'  
+#' exp <- sampleValue(ps.obj)
+#' res <- fitness.fun.mos(exp, fidelity = 2, holdout = FALSE)
+#'
+#' 
 #' @export
 makeObjective <- function(learner, task, ps, resampling, measure = NULL, holdout.data = NULL, worst.measure = NULL, cpo = NULLCPO) {
   if (is.null(measure)) {

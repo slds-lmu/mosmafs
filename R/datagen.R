@@ -91,7 +91,9 @@ create.hypersphere.data <- function(dim, n, dist = function(x) runif(x, -1, 1), 
 
 #' @title Linear Toy Data
 #'
-#' @description Linear toy data (Weston, Feature Selection for SVMs).
+#' @description 
+#' 
+#' Based on Weston (2000) Feature Selection for SVMs.
 #'
 #' Creates matrix `X` and vector `Y` with six dimensions out of 202 relevant and
 #' equal probability of `y` = 1 or -1.

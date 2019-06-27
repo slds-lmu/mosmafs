@@ -39,7 +39,7 @@ paretoEdges <- function(fitness, refpoint) {
 #' @title Extract Fitnesses from ECR Log
 #'
 #' @description
-#' Extract fitnesses for each generation from ECR log
+#' Extract fitnesses for each generation from ECR log.
 #'
 #' @param results `[ecr_multi_objective_result]` ecr run log.
 #' @param trafo `[function]` function `matrix`|`data.frame` -> `matrix`|`data.frame`

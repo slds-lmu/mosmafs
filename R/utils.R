@@ -73,7 +73,6 @@ popAggregate <- function(log, extract, simplify = TRUE, data.frame = FALSE) {
 #' attributes.
 #' @param log `[ecr_logger]` ecr log object.
 #' @param check `[logical(1)]` whether to check consistency.
-#'   This should almost never be useful.
 #' @return `[character]` attributes of individuals in population.
 #' @export
 availableAttributes <- function(log, check = FALSE) {
@@ -304,8 +303,8 @@ initSelector <- function(individuals, vector.name = "selector.selection", distri
 #' performance, but it is *not* an estimate of real "dominated hypervolume".
 #'
 #' Only works on two-objective performance matrices.
-#' @param fitness `[matrix]` fitness matrix on training data.
-#' @param holdout `[matrix]` fitness matrix on holdout data.
+#' @param fitness `[matrix]` fitness matrix of training data.
+#' @param holdout `[matrix]` fitness matrix of holdout data.
 #' @param refpoint `[numeric]` reference point.
 #' @return `numeric`
 #' @export
@@ -337,8 +336,8 @@ unbiasedHoldoutDomHV <- function(fitness, holdout, refpoint) {
 #' Calculate dominated hypervolume on holdout data. The result is
 #' biased depending on noise in holdout data performance.
 #'
-#' @param fitness `[matrix]` fitness matrix on training data.
-#' @param holdout `[matrix]` fitness matrix on holdout data.
+#' @param fitness `[matrix]` fitness matrix of training data.
+#' @param holdout `[matrix]` fitness matrix of holdout data.
 #' @param refpoint `[numeric]` reference point.
 #' @return `numeric`
 #' @export
@@ -351,9 +350,10 @@ naiveHoldoutDomHV <- function(fitness, holdout, refpoint) {
 
 #' @title Get Statistics 
 #' @description
-#' Get statistics from ecr_logger. Replaces ecr::getStatistics 
+#' Get statistics from [`ecr_logger`]. Replaces [`ecr::getStatistics`] 
 #' because original is buggy.
 #' @param log `[ecr_logger]` ecr log object
+#' @return `data.frame` of logged statistics.
 #' @export
 getStatistics <- function(log) {
   assertClass(log, "ecr_logger")
@@ -366,6 +366,7 @@ getStatistics <- function(log) {
 #' original is buggy.
 #' 
 #' @param log `[ecr_logger]` ecr log object
+#' @return `list` of populations. 
 #' @export
 getPopulations <- function(log) {
   assertClass(log, "ecr_logger")

@@ -11,8 +11,8 @@
 #'
 #' `continueEcr` continues a run for another number of `generations`. Only `ecr.object`
 #' (a result from a previous `initEcr`, `slickEcr`, or `continueEcr` call) and
-#' `generations` must be given, the other arguments are optional *if* they were set
-#' in a previous `slickEcr` or `continueEcr` call, in which case the values from the
+#' `generations` must be given, the other arguments are optional. *If* they were set
+#' in a previous `slickEcr` or `continueEcr` call, the values from the
 #' previous run are used. Otherwise it is possible to supply any combination of these values
 #' to set them to new values.
 #'
@@ -24,7 +24,7 @@
 #'
 #' @param fitness.fun `[smoof_multi_objective_function]` fitness function, must be a
 #'   "`smoof`" function.
-#' @param lambda `[integer(1)]` number of individuals to add each generation.
+#' @param lambda `[integer(1)]` number of individuals to add in each generation.
 #' @param population `[list]` list of individuals to start off from.
 #' @param mutator `[ecr_mutator]` mutation operator.
 #' @param recombinator `[ecr_recombinator]` recombination operator.
