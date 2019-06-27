@@ -40,7 +40,6 @@ Suggests:
   randomForest,
   digest
 Remotes:
-  jakobbossek/ecr2,
   mlr-org/mlr
 RoxygenNote: 6.1.1
 Collate: 
