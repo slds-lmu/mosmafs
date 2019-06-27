@@ -88,6 +88,11 @@ knitr::opts_chunk$set(
 )
 ```
 
+## Multi-Fidelity
+
+An introduction to multi-fidelity is given in J. E. Fieldsend and R. M. Everson, [The Rolling Tide Evolutionary Algorithm: A Multiobjective Optimizer for Noisy Optimization Problems](https://ieeexplore.ieee.org/document/6730915).
+In its current state, `mosmafs` supports two ways of performing multi-fidelity optimization: Selected by generation, and selected by dominance. Multi-fidelity by generation is simply performed by changing the fidelity of the objective function after a given number of generations. Multi-fidelity by dominance is performed by evaluating a point with low fidelity first, and then enabling high fidelity if the first evaluation suggests that the point is not dominated by any previous result.
+
 ## Preparation
 
 This vignette starts where the previous vignette leaves off and expects the following preparation:
@@ -135,9 +140,7 @@ crossover.simple <- combine.operators(ps.objective,
 initials <- sampleValues(ps.objective, 32, discrete.names = TRUE)
 ```
 
-## Multi-Fidelity
 
-In its current state, `mosmafs` supports two ways of performing multi-fidelity optimization: Selected by generation, and selected by dominance. Multi-fidelity by generation is simply performed by changing the fidelity of the objective function after a given number of generations. Multi-fidelity by dominance is performed by evaluating a point with low fidelity first, and then enabling high fidelity if the first evaluation suggests that the point is not dominated by any previous result.
 
 ## Fidelity Argument
 
@@ -169,6 +172,7 @@ The `slickEcr()` function accepts the `fidelity` argument, which must be a `data
 fidelity <- data.frame(
     c(1, 6, 11),
     c(1, 3, 5))
+print(fidelity)
 ```
 
 This is given to `slickEcr()`:
@@ -235,9 +239,10 @@ The "x" mark the points at which fidelity reevaluation occurred: There a jump do
 
 ## Multi-Fidelity by Dominance
 
-The `slickEcr()` `fidelity` argument accepts `data.frames` with three columns in the case that different fidelity should be used for points that lie on the pareto-front than those that, in a first evaluation, are dominated. This can be combined with generation-wise multi-fidelity, but our first example will only have one row. It evaluates simple holdout-resampling for each point, and, if the result seems to be better than previous evaluations with the same number of features, re-does the resampling with ten-times repeated holdout resampling.
+The `slickEcr()` `fidelity` argument accepts `data.frames` with three columns in the case that different fidelity should be used for points that lie on the pareto-front than those that, in a first evaluation, are dominated. This can be combined with generation-wise multi-fidelity, but our first example will only have one row. It evaluates simple holdout-resampling for each point, and, if the result seems to be better than previous evaluations with the same number of features, re-does the resampling with ten-times repeated holdout resampling, which results in overall 11 evaluations for this point. 
 ```{r}
 fidelity <- data.frame(1, 1, 10)
+print(fidelity)
 ```
 
 ```{r, include = FALSE}
@@ -268,7 +273,8 @@ Use the `popAggregate()` function to get collected information about fidelity in
 ```{r}
 popAggregate(run.dom.mufi$log, "fidelity")[[2]]
 ```
-
+Note that, the fidelity is 11 for some candidates, as they were promising after one holdout resampling and 
+were additionally reevaluated with ten-times repeated holdout resampling. 
 
 Individual evaluation fidelity can be retrieved, again, from a logged individual's attributes. The following plots the pareto-front of generation 3, and the individuals sampled for generation 4. All individuals sampled with high fidelity lie close to the pareto-front, but some may, after high-fidelity evaluation, have turned out to actually be dominated by the old generation.
 
@@ -302,13 +308,14 @@ ggplot() +
 
 ## All of the Above
 
-The two approaches can, of course, be combined. It should be noted that the initial generation, as well as each generation after a fidelity-jump, is evaluated with the "high" fidelity column number. The following, for example, evaluates generation 1 with fidelity 10, generation 6 with fidelity 20, and generation 11 with fidelity 30. In between, new points are evaluated with low fidelity first and then re-evaluated on high-fidelity if they seem to not be dominated by the previous generation. Because of this, fidelity-jumps tend to be relatively computationally expensive and should be done sparingly if at all. If `unbiased.fidelity` is set (the default), only an upward step in total fidelity of pareto set elements (i.e. sum of 2nd and 3rd column if three columns are given, otherwise just value in 2nd column)  leads to a re-evaluation of all fidelity. It should be set whenever the expectation value of evaluated fitness does not change with changing fidelity between generations (note that it is strongly recommended that evaluations with the two fidelities in each row have the same or very close expectation values).
+The two approaches can, of course, be combined. It should be noted that the initial generation, as well as each generation after a fidelity-jump, is evaluated with the "high" fidelity column number. The following, for example, evaluates generation 1 with fidelity 6, generation 6 with fidelity 11, and generation 11 with fidelity 15. In between, new points are evaluated with low fidelity first and then re-evaluated on high-fidelity if they seem to not be dominated by the previous generation. Because of this, fidelity-jumps tend to be relatively computationally expensive and should be done sparingly if at all. If `unbiased.fidelity` is set (the default), only an upward step in total fidelity of pareto set elements (i.e. sum of 2nd and 3rd column if three columns are given, otherwise just value in 2nd column)  leads to a re-evaluation of all fidelity. It should be set whenever the expectation value of evaluated fitness does not change with changing fidelity between generations (note that it is strongly recommended that evaluations with the two fidelities in each row have the same or very close expectation values).
 
 ```{r}
 fidelity <- data.frame(
     c(1, 3, 6, 11),
     c(1, 2, 3, 5),
     c(5, 4, 8, 10))
+print(fidelity)
 ```
 
 ```{r, include = FALSE}
@@ -333,12 +340,13 @@ plot_fronts(run.all.mufi)
 
 ## Run Continuation
 
-When continuing finished runs using the `continueEcr()` functionality, it is possible to submit a new `fidelity` `data.frame` to change fidelity behaviour. Note that generations continue to count from where previous evaluations left off. Therefore, in the following example, the entry for generation 1 is ignored, the fidelity used for all new offspring is 12 and rises to 15.
+When continuing finished runs using the `continueEcr()` functionality, it is possible to submit a new `fidelity` `data.frame` to change fidelity behaviour. Note that generations continue to count from where previous evaluations left off. Therefore, in the following example, the entry for generation 1 is ignored, the fidelity used for all new offspring is 20 and rises to 25.
 
 ```{r}
 fidelity.new <- data.frame(
     c(1, 10, 17, 19),
     c(11, 20, 23, 25))
+print(fidelity.new)
 ```
 ```{r, include = FALSE}
 set.seed(2)
