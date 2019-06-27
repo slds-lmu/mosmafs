@@ -29,7 +29,7 @@ continueEcr(ecr.object, generations, lambda = NULL, mutator = NULL,
 \item{fitness.fun}{\code{[smoof_multi_objective_function]} fitness function, must be a
 "\code{smoof}" function.}
 
-\item{lambda}{\code{[integer(1)]} number of individuals to add each generation.}
+\item{lambda}{\code{[integer(1)]} number of individuals to add in each generation.}
 
 \item{population}{\code{[list]} list of individuals to start off from.}
 
@@ -91,8 +91,8 @@ mutation or selection.
 
 \code{continueEcr} continues a run for another number of \code{generations}. Only \code{ecr.object}
 (a result from a previous \code{initEcr}, \code{slickEcr}, or \code{continueEcr} call) and
-\code{generations} must be given, the other arguments are optional \emph{if} they were set
-in a previous \code{slickEcr} or \code{continueEcr} call, in which case the values from the
+\code{generations} must be given, the other arguments are optional. \emph{If} they were set
+in a previous \code{slickEcr} or \code{continueEcr} call, the values from the
 previous run are used. Otherwise it is possible to supply any combination of these values
 to set them to new values.
 

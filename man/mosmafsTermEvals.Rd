@@ -2,6 +2,7 @@
 % Please edit documentation in R/terminators.R
 \name{mosmafsTermEvals}
 \alias{mosmafsTermEvals}
+\alias{mosmafsTermGenerations}
 \alias{mosmafsTermTime}
 \alias{mosmafsTermFidelity}
 \alias{mosmafsTermStagnationHV}
@@ -9,6 +10,8 @@
 \title{Termination Function Creator}
 \usage{
 mosmafsTermEvals(evals)
+
+mosmafsTermGenerations(generations)
 
 mosmafsTermTime(time)
 
@@ -21,6 +24,9 @@ mosmafsTermStagnationObjStatistic(stag, stag.index = "generations",
 }
 \arguments{
 \item{evals}{\code{[integer(1)]} limit evals.}
+
+\item{generations}{\code{[integer(1)]} limit generations. Initial population does
+not count.}
 
 \item{time}{\code{[numeric(1)]} limit evaluation time (which does not count
 holdout fitting time.}
@@ -39,9 +45,6 @@ One of "min", "mean", "max". Default "mean".}
 
 \item{objective.index}{\code{[integer | logical]} index of objective(s) to consider. Terminates
 if all the objectives listed here stagnate. \code{TRUE} for all objectives. Default \code{TRUE}.}
-
-\item{generations}{\code{[integer(1)]} limit generations. Initial population does
-not count.}
 }
 \value{
 \code{function} a terminator function

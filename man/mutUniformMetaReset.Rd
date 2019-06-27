@@ -20,5 +20,5 @@ Must have \code{length(ind)} rows and \code{length(reset.dist.weights)} columns.
 \code{[integer]} the mutated individuum
 }
 \description{
-perform \code{\link{mutUniformReset}}, with \code{reset.dist = reset.dists \%*\% reset.dist.weights}.
+Performs \code{\link{mutUniformReset}} with \code{reset.dist = reset.dists \%*\% reset.dist.weights}.
 }

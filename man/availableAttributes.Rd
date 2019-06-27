@@ -9,8 +9,7 @@ availableAttributes(log, check = FALSE)
 \arguments{
 \item{log}{\code{[ecr_logger]} ecr log object.}
 
-\item{check}{\code{[logical(1)]} whether to check consistency.
-This should almost never be useful.}
+\item{check}{\code{[logical(1)]} whether to check consistency.}
 }
 \value{
 \code{[character]} attributes of individuals in population.

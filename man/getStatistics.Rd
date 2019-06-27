@@ -9,7 +9,10 @@ getStatistics(log)
 \arguments{
 \item{log}{\code{[ecr_logger]} ecr log object}
 }
+\value{
+\code{data.frame} of logged statistics.
+}
 \description{
-Get statistics from ecr_logger. Replaces ecr::getStatistics
+Get statistics from \code{\link{ecr_logger}}. Replaces \code{\link[ecr:getStatistics]{ecr::getStatistics}}
 because original is buggy.
 }

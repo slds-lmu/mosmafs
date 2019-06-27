@@ -13,7 +13,7 @@ create.linear.toy.data(n)
 \code{list(X = [Matrix], Y = [vector], orig.features = logical)}
 }
 \description{
-Linear toy data (Weston, Feature Selection for SVMs).
+Based on Weston (2000) Feature Selection for SVMs.
 
 Creates matrix \code{X} and vector \code{Y} with six dimensions out of 202 relevant and
 equal probability of \code{y} = 1 or -1.
