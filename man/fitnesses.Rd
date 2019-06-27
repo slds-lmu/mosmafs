@@ -16,7 +16,7 @@ to transforms individual generation matrices.}
 \code{data.frame} of fitnesses from ecr run log, with extra column \code{iter}.
 }
 \description{
-Extract fitnesses for each generation from ECR log
+Extract fitnesses for each generation from ECR log.
 }
 \seealso{
 Other Utility Functions: \code{\link{paretoEdges}}

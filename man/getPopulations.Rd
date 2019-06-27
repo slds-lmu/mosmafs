@@ -9,6 +9,9 @@ getPopulations(log)
 \arguments{
 \item{log}{\code{[ecr_logger]} ecr log object}
 }
+\value{
+\code{list} of populations.
+}
 \description{
 Get populations from ecr_logger. Replaces ecr::getPopulation because
 original is buggy.

@@ -16,7 +16,7 @@ mutGaussIntScaled(ind, ..., lower, upper)
 \item{upper}{\code{[integer]} vector of maximal values for each parameter of the decision space. Must have the same length as \code{ind}.}
 }
 \description{
-See \link{mutGaussScaled}
+See \link{mutGaussScaled}.
 }
 \seealso{
 Other operators: \code{\link{mutDoubleGeom}},
