@@ -13,6 +13,6 @@ getStatistics(log)
 \code{data.frame} of logged statistics.
 }
 \description{
-Get statistics from \code{\link{ecr_logger}}. Replaces \code{\link[ecr:getStatistics]{ecr::getStatistics}}
+Get statistics from ecr_logger. Replaces \code{\link[ecr:getStatistics]{ecr::getStatistics}}
 because original is buggy.
 }
