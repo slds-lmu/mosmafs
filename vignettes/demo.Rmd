@@ -155,7 +155,7 @@ mutReverse(c(1, 2, 3))
 
 ### Example Datasets
 
-The `mosmafs` package comes with a few functions that generate synthetic datasets that can be used for feature selection. The following creates three columns of randomly sampled points in the `[-1, 1]^3` cube and a target column indicating whether each point is a distance greater than 1 away from the origin. Then ten more copies of that task are added, but with permuted rows---effectively giving 30 noise columns. (The piping operator `%>%` from the `magrittr` package is used for parsimonity).
+The `mosmafs` package comes with a few functions that generate synthetic datasets that can be used for feature selection. The following creates three columns of randomly sampled points in the `[-1, 1]^3` cube and a target column indicating whether each point is a distance greater than 1 away from the origin. Then ten more copies of that task are added, but with permuted rows---effectively giving 30 noise columns (the piping operator `%>%` from the `magrittr` package is used for parsimonity).
 
 To show the holdout prediction functionality, we will retain a part of the task as a "holdout" set.
 
@@ -170,7 +170,7 @@ task.hout <- subsetTask(task.whole, rows.whole[501:2000])
 
 ## Mixed Operators
 
-The heart of this package is the `comibine.operators()` function that can be used to apply different operators to different parts of the search space; in particular, to different types of search space dimensions. It works by accepting a `ParamSet` (from the [`ParamHelpers`](https://github.com/berndbischl/ParamHelpers) package) that defines the search-space, and operators that define the operators to use on individual parameters.
+The heart of this package is the `combine.operators()` function that can be used to apply different operators to different parts of the search space; in particular, to different types of search space dimensions. It works by accepting a `ParamSet` (from the [`ParamHelpers`](https://github.com/berndbischl/ParamHelpers) package) that defines the search-space, and operators that define the operators to use on individual parameters.
 
 ### Operators for each Parameter
 
@@ -258,7 +258,7 @@ Because of this, it is **usually a bad idea** to combine parameters of different
 
 ### Strategy Parameters
 
-A further extension offered by the `combine.operators()` function is the ability to use "strategy parameters". These make it is possible to have the effect of an operator be dependent on the individuals involved. To do this, a `.strategy.<PARAMETER/GROUPNAME>` value must be given, which should be a function that gets the individuum as input, and returns a named list of function parameters as output. This named list is added to the configuration of the operator associated with `<PARAMETER>` or `<GROUPNAME>`.
+A further extension offered by the `combine.operators()` function is the ability to use "strategy parameters". They make it possible to have the effect of an operator be dependent on the individuals involved. To do this, a `.strategy.<PARAMETER/GROUPNAME>` value must be given, which should be a function that gets the individuum as input, and returns a named list of function parameters as output. This named list is added to the configuration of the operator associated with `<PARAMETER>` or `<GROUPNAME>`.
   
 One could, for example, make the `summand` parameter of the `mutPlus` operation dependent on the `bin2` value: If it is `"yes"`, it adds a value, if it is `"no"` it subtracts a value.
 
@@ -440,7 +440,7 @@ colnames(collectResult(run.simple))
 
 ### Filter Values as Strategy Parameters
 
-It is possible to use "Feature Filter" values from `mlr` feature filters to heuristically guide mutation of the `selector.selection` bitvector. For this, the filter matrix can be generated using the `makeFilterMat()` function, with a few features we choose. (The github-version of `mlr` needs to be installed for this: `devtools::install_github("mlr-org/mlr")`). For demonstration purposes, this contains the useless-in-this-case `"variance"` Filter that just measures each feature's variance. (To use the relatively good `"praznik_JMI"` filter it is necessary to install the github-version of `mlr`, e.g. by using `devtools::install_github("mlr-org/mlr")`). The `"DUMMY"` filter does not exist in `mlr`, it instructs `makeFilterMat()` to create a constant heuristic. It gives the strategy parameter another degree of freedom with which it can de-emphasize the heuristic in case it performs badly.
+It is possible to use "Feature Filter" values from `mlr` feature filters to heuristically guide mutation of the `selector.selection` bitvector. For this, the filter matrix can be generated using the `makeFilterMat()` function, with a few features we choose (the github-version of `mlr` needs to be installed for this: `devtools::install_github("mlr-org/mlr")`). For demonstration purposes, this contains the useless-in-this-case `"variance"` Filter that just measures each feature's variance (to use the relatively good `"praznik_JMI"` filter it is necessary to install the github-version of `mlr`, e.g. by using `devtools::install_github("mlr-org/mlr")`). The `"DUMMY"` filter does not exist in `mlr`, it instructs `makeFilterMat()` to create a constant heuristic. It gives the strategy parameter another degree of freedom with which it can de-emphasize the heuristic in case it performs badly.
 
 ```{r}
 filters <- c("praznik_JMI", "auc", "anova.test", "variance", "DUMMY")
@@ -480,7 +480,7 @@ crossover.strat <- combine.operators(ps.strat.obj,
   selector.selection = recPCrossover)
 ```
 
-The initial population we sample again using the `ParamHelpers` function `sampleValues()`. We are then sampling the `$selector.selection` part again using `initSelector()`, which makes the number of 0s and 1s uniformly distributed, and applies the equilibrium-distribution of `mutUniformMetaResetSHW()`:
+We sample the initial population again using the `ParamHelpers` function `sampleValues()` and resample the `$selector.selection` part using `initSelector()`. `initSelector` makes the number of 0s and 1s uniformly distributed, and applies the equilibrium-distribution of `mutUniformMetaResetSHW()`:
 
 ```{r}
 initials.strat <- sampleValues(ps.strat.obj, 32, discrete.names = TRUE) %>%
@@ -489,7 +489,7 @@ initials.strat <- sampleValues(ps.strat.obj, 32, discrete.names = TRUE) %>%
     soften.op.strategy = makeFilterStrategy(fima, "filterweights"))
 ```
 
-These are all preparations needed for a heuristic-backed NSGA2 fun for feature-selection:
+These are all preparations needed for a heuristic-backed NSGA2 for feature-selection:
 ```{r, include = FALSE}
 set.seed(2)
 ```
@@ -510,7 +510,7 @@ plot_fronts(run.strat)
 
 ### Run Continuation
 
-The results returned by `slickEcr()` contain all information to continue an optimization for more generations. To continue a run, use the `continueEcr()` function. It is possible to change a few settings compared to the previous invocation of `slickEcr()`. (It is in fact possible to just create a result object without any generations using `initEcr()`, and then call `continueEcr()` at a later point on it).
+The results returned by `slickEcr()` contain all information to continue an optimization for more generations. To continue a run, use the `continueEcr()` function. It is possible to change a few settings compared to the previous invocation of `slickEcr()` (it is in fact possible to just create a result object without any generations using `initEcr()`, and then call `continueEcr()` at a later point on it).
 
 ```{r, include = FALSE}
 set.seed(2)
@@ -533,13 +533,13 @@ plot_fronts(run.strat.20)
 
 These operators are supplied by the `mosmafs` package:
 
-* **`mutGaussInt()`, `mutPolynomialInt()`, `mutUniformInt()`, `recIntSBX()`**: mutation with rounding, for integer individuals. This is achieved through trivial application of `intifyMutator()`.
-* **`mutDoubleGeom()`**: geometric distribution mutation, for integer individuals.
-* **`mutRandomChoice()`**: mutation for discrete individuals.
-* **`recPCrossover()`**: crossover recombination operator for individuals of any type.
-* **`mutBitflipCHW()`**: bitflip that approximately conserves hamming weight (sum of digits) of binary individuals in expectation. This is useful for the `selector.selection` vector because it does not bias mutation away from the extremes (very few features selected, or very many features selected) as strongly.
-* **`mutUniformReset()`**: extension of the `mutBitflip()` operator that draws new values from a distribution `reset.dist`.
-* **`mutUniformMetaReset()`**: extension of the `mutBitflip()` operator that draws new values from a set of distribution `reset.dists`, weighted by another parameter `reset.dist.weights`.
+* **`mutGaussInt()`, `mutPolynomialInt()`, `mutUniformInt()`, `recIntSBX()`**: Mutation with rounding, for integer individuals. This is achieved through trivial application of `intifyMutator()`.
+* **`mutDoubleGeom()`**: Geometric distribution mutation, for integer individuals.
+* **`mutRandomChoice()`**: Mutation for discrete individuals.
+* **`recPCrossover()`**: Crossover recombination operator for individuals of any type.
+* **`mutBitflipCHW()`**: Bitflip that approximately conserves hamming weight (sum of digits) of binary individuals in expectation. This is useful for the `selector.selection` vector because it does not bias mutation away from the extremes (very few features selected, or very many features selected) as strongly.
+* **`mutUniformReset()`**: Extension of the `mutBitflip()` operator that draws new values from a distribution `reset.dist`.
+* **`mutUniformMetaReset()`**: Extension of the `mutBitflip()` operator that draws new values from a set of distribution `reset.dists`, weighted by another parameter `reset.dist.weights`.
 * **`mutGaussScaled()`, `mutGaussIntScaled()`**: Gaussian mutation with standard deviation scaled to the range of possible values.
 * **`selTournamentMO()`**: Multi-Objective k-tournament selection with individual rankging by nondominated sorting and secondarily either crowding distance or contribution to dominated hypervolume.
 * **`mutBitflipCHW()`, `mutUniformResetSHW()`, `mutUniformMetaResetSHW()`**: Binary operators that emulate `mutBitflip()`, `mutUniformReset()`, and `mutUniformMetaReset()` but keep the fraction of ones in the result more constant.

@@ -164,7 +164,7 @@ formals(fitness.fun)
 
 ## Generation-Wise Multi-Fidelity
 
-The `slickEcr()` function accepts the `fidelity` argument, which must a `data.frame` with two or three columns. For generation-wise multi-fidelity, we give it a `data.frame` with two columns, with the first column indicating the generation at which a certain fidelity should be used, and the second column containing the fidelity to use. To use fidelity `1` for the first five generations, then fidelity `3`, for another five generations, and finally `5` for the last five, the `data.frame` would be
+The `slickEcr()` function accepts the `fidelity` argument, which must be a `data.frame` with two or three columns. For generation-wise multi-fidelity, we give it a `data.frame` with two columns, with the first column indicating the generation at which a certain fidelity should be used, and the second column containing the fidelity to use. To use fidelity `1` for the first five generations, then fidelity `3`, for another five generations, and finally `5` for the last five, the `data.frame` would be
 ```{r}
 fidelity <- data.frame(
     c(1, 6, 11),
@@ -186,7 +186,7 @@ run.gen.mufi <- slickEcr(
     fidelity = fidelity)
 ```
 
-The plot of resulting pareto-fronts notably has later generation's pareto fronts seemingly dominated by individuals from earlier generations. This is because in the log-object, the fitness of the first generations was evaluated using the low fidelity of these generations. In later generations, these points were re-evaluated using the larer fidelity.
+The plot of resulting pareto-fronts notably has later generation's pareto fronts seemingly dominated by individuals from earlier generations. This is because in the log-object, the fitness of the first generations was evaluated using the low fidelity of these generations. In later generations, these points were re-evaluated using the larger fidelity.
 ```{r, fig.width = 6, fig.height = 5}
 plot_fronts <- function(run) {
   fronts <- fitnesses(run, function(x) paretoEdges(x, c(1, 1)))
@@ -302,7 +302,7 @@ ggplot() +
 
 ## All of the Above
 
-The two approaches can, of course, be combined. It should be noted that the initial generation, as well as each generation after a fidelity-jump, is evaluated with the "high" fidelity column number. The following, for example, evaluates generation 1 with fidelity 10, generation 6 with fidelity 20, and generation 11 with fidelity 30. In between, new points are evaluated with low fidelity first and then re-evaluated on high-fidelity if they seem to not be dominated by the previous generation. Because of this, fidelity-jumps tend to be relatively computationally expensive and should be done sparingly if at all. If `unbiased.fidelity` is set (the default), only an upward step in total fidelity of pareto set elements (i.e. sum of 2nd and 3rd column if three columns are given, otherwise just value in 2nd column)  leads to a re-evaluation of all fidelity. It should be set whenever the expectation value of evaluated fitness does not change with changing fidelity between generations. (Note that it is strongly recommended that evaluations with the two fidelities in each row have the same or very close expectation values).
+The two approaches can, of course, be combined. It should be noted that the initial generation, as well as each generation after a fidelity-jump, is evaluated with the "high" fidelity column number. The following, for example, evaluates generation 1 with fidelity 10, generation 6 with fidelity 20, and generation 11 with fidelity 30. In between, new points are evaluated with low fidelity first and then re-evaluated on high-fidelity if they seem to not be dominated by the previous generation. Because of this, fidelity-jumps tend to be relatively computationally expensive and should be done sparingly if at all. If `unbiased.fidelity` is set (the default), only an upward step in total fidelity of pareto set elements (i.e. sum of 2nd and 3rd column if three columns are given, otherwise just value in 2nd column)  leads to a re-evaluation of all fidelity. It should be set whenever the expectation value of evaluated fitness does not change with changing fidelity between generations (note that it is strongly recommended that evaluations with the two fidelities in each row have the same or very close expectation values).
 
 ```{r}
 fidelity <- data.frame(
