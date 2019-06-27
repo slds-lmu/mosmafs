@@ -350,7 +350,7 @@ naiveHoldoutDomHV <- function(fitness, holdout, refpoint) {
 
 #' @title Get Statistics 
 #' @description
-#' Get statistics from [`ecr_logger`]. Replaces [`ecr::getStatistics`] 
+#' Get statistics from `ecr_logger`. Replaces [`ecr::getStatistics`] 
 #' because original is buggy.
 #' @param log `[ecr_logger]` ecr log object
 #' @return `data.frame` of logged statistics.
