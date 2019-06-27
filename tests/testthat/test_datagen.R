@@ -49,7 +49,7 @@ test_that("hypersphere data", {
 test_that("create.linear.toy.data", {
   expect_error(create.linear.toy.data("a"), 
     "'n' failed: Must be of type 'single integerish value'")
-  df = create.linear.toy.data(10)
+  df <- create.linear.toy.data(10)
   expect_list(df, len = 3)
   expect_logical(df$orig.features, len = 202)
   expect_true(all(df$Y %in% c(-1, 1)))
@@ -57,8 +57,8 @@ test_that("create.linear.toy.data", {
 })
 
 test_that("create task and clone task", {
-  df = create.linear.toy.data(10)
-  df2 = create.linear.toy.data(10)
+  df <- create.linear.toy.data(10)
+  df2 <- create.linear.toy.data(10)
   
   # regr.task
   regrtask <- create.regr.task("toy", data = df)

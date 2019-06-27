@@ -5,16 +5,16 @@ context("ecrshims")
 
 test_that("ecrshims error messages", {
 
-  param.set.numeric = pSS(a: numeric[1, 3]^2, b: numeric[0, 1])
-  param.set.integer = pSS(ai: integer[1, 3]^2, bi: integer[0, 1])
-  param.set.logical = pSS(al: logical^2, bl: logical)
+  param.set.numeric <- pSS(a: numeric[1, 3]^2, b: numeric[0, 1])
+  param.set.integer <- pSS(ai: integer[1, 3]^2, bi: integer[0, 1])
+  param.set.logical <- pSS(al: logical^2, bl: logical)
   param.set.logical.extended = pSS(ale: logical^2, ble: logical,
     cle: discrete[l="m", n=10], dle: discrete[a=exp, b=identity]^2)
-  param.set.discrete = pSS(cd: discrete[l="m", n=10, o=NULL],
+  param.set.discrete <- pSS(cd: discrete[l="m", n=10, o=NULL],
     d: discrete[a=exp, b=identity, c=`[`]^2)
   fullps <- c(param.set.numeric, param.set.integer,
     param.set.logical.extended, param.set.discrete)
-  param.set.requires = pSS(a: discrete[c("a", "b")], 
+  param.set.requires <- pSS(a: discrete[c("a", "b")], 
     b: numeric[1,2][[requires = expression(a != "a")]])
   
   expect_error(combine.operators(param.set.numeric, .params.x = c("a", "b"),
@@ -85,12 +85,12 @@ test_that("ecrshims error messages", {
 # TODO: mixing types with discrete nonbinary must be forbidden
 test_that("ecrshims operation", {
 
-  param.set.numeric = pSS(a: numeric[1, 3]^2, b: numeric[0, 1])
-  param.set.integer = pSS(ai: integer[1, 3]^2, bi: integer[0, 1])
-  param.set.logical = pSS(al: logical^2, bl: logical)
+  param.set.numeric <- pSS(a: numeric[1, 3]^2, b: numeric[0, 1])
+  param.set.integer <- pSS(ai: integer[1, 3]^2, bi: integer[0, 1])
+  param.set.logical <- pSS(al: logical^2, bl: logical)
   param.set.logical.extended = pSS(ale: logical^2, ble: logical,
     cle: discrete[l="m", n=10], dle: discrete[a=exp, b=identity]^2)
-  param.set.discrete = pSS(cd: discrete[l="m", n=10, o=NULL],
+  param.set.discrete <- pSS(cd: discrete[l="m", n=10, o=NULL],
     d: discrete[a=exp, b=identity, c=`[`]^2)
   fullps <- c(param.set.numeric, param.set.integer,
     param.set.logical.extended, param.set.discrete)

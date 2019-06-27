@@ -314,18 +314,20 @@ test_that("selTournamentMO works as expected", {
 
   expect_set_equal(selTournamentMO(mat, 2, k = 1000, return.unique = TRUE), c(1, 9))
 
-  x <- replicate(30, expect_set_equal(selTournamentMO(mat, 2, k = 8, return.unique = TRUE), c(1, 9)))
+  x <- replicate(30, expect_set_equal(selTournamentMO(mat, 2, k = 8, 
+    return.unique = TRUE), c(1, 9)))
 
-  y <- replicate(30, expect_set_equal(selTournamentMO(mat, 4, k = 6, return.unique = TRUE), c(1, 9, 3, 7)))
+  y <- replicate(30, expect_set_equal(selTournamentMO(mat, 4, k = 6, 
+    return.unique = TRUE), c(1, 9, 3, 7)))
 
   expect_equal(selTournamentMO(mat, 10, "domhv", c(11, 10), k = 9), rep(7, 10))
-
-  expect_equal(replicate(100, length(intersect(2, selTournamentMO(mat, 10, "domhv", c(11, 10), k = 2)))), rep(0, 100))
-
-  expect_equal(replicate(100, length(intersect(2, selTournamentMO(mat, 10, "crowding", c(11, 10), k = 2)))), rep(0, 100))
-
-  expect_equal(replicate(100, length(intersect(c(2, 8, 4), selTournamentMO(mat, 10, "domhv", c(11, 10), k = 4)))), rep(0, 100))
-
-  expect_equal(replicate(100, length(intersect(c(2, 6, 4, 8), selTournamentMO(mat, 10, "crowding", c(11, 10), k = 5)))), rep(0, 100))
+  expect_equal(replicate(100, length(intersect(2, selTournamentMO(mat, 10, 
+    "domhv", c(11, 10), k = 2)))), rep(0, 100))
+  expect_equal(replicate(100, length(intersect(2, selTournamentMO(mat, 10,
+    "crowding", c(11, 10), k = 2)))), rep(0, 100))
+  expect_equal(replicate(100, length(intersect(c(2, 8, 4), selTournamentMO(mat, 
+    10, "domhv", c(11, 10), k = 4)))), rep(0, 100))
+  expect_equal(replicate(100, length(intersect(c(2, 6, 4, 8), selTournamentMO(mat,
+    10, "crowding", c(11, 10), k = 5)))), rep(0, 100))
 
 })

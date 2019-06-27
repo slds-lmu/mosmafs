@@ -174,7 +174,7 @@ test_that("termination with fidelity", {
     numeric = recPCrossover,
     selector.selection = recPCrossover)
   
-  gen = 10
+  gen <- 10
   
   max.fidelity <- 42
   

@@ -3,7 +3,7 @@ context("utils")
 test_that("listToDf", {
   
   temp <- c("a", "b", "c")
-  charToFactor<- function(levels){
+  charToFactor <- function(levels){
     sapply(as.character(levels), function(x)
       factor(x, levels=levels),
       simplify = FALSE)
@@ -224,7 +224,9 @@ test_that("popAggregate and availableAttributes", {
   empty.pop$env$pop[[1]]$population <- NULL
   expect_error(availableAttributes(empty.pop, check = TRUE), 
     "population of size 0 not allowed")
-  
+  missing.pop <- results$log
+  missing.pop$env$pop <- NULL
+  expect_character(availableAttributes(missing.pop), len = 0)
 }) 
 
 

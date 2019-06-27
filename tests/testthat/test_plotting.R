@@ -1,7 +1,7 @@
 context("plotting")
 
 test_that("paretoEdges", {
-  fitness = matrix(
+  fitness <- matrix(
     c(0.7, 2, 1, 
     1, 3, 0.5,
     1, 3, 2), byrow = TRUE,
@@ -17,7 +17,7 @@ test_that("paretoEdges", {
   expect_equal(as.numeric(edges[2, 1:2]), fitness[1, 1:2])
   expect_equal(edges[, 3], c(FALSE, TRUE, FALSE))
   
-  fitness = matrix(
+  fitness <- matrix(
     c(0.7, 2, 
       1.5, 1, 
       1, 2,

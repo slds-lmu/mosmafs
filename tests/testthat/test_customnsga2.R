@@ -283,7 +283,7 @@ test_that("survival.strategy as function works", {
   
   generations <- 10
   lambda <- 10
-  expect_class(results <- results <- slickEcr(fitness.fun = fitness.fun, lambda = lambda, 
+  expect_class(results <- slickEcr(fitness.fun = fitness.fun, lambda = lambda, 
     population = initials, 
     mutator = mutator.simple, recombinator = crossover.simple, 
     survival.strategy = survival.strategy, generations = generations), 
@@ -332,6 +332,28 @@ test_that("vectorized fitness evaluation", {
   expect_true(all(diff(stats$eval.obj.2.min) <= 0))
   expect_numeric(diff(stats$eval.domHV), lower = 0-1e-5)
   expect_list(results$pareto.set, min.len = 1)
+  
+  
+  # only one objective
+  fitness.fun <- smoof::makeMultiObjectiveFunction(
+    sprintf("simple test"),
+    has.simple.signature = FALSE, par.set = ps.simple, n.objectives = 1, 
+    noisy = TRUE,
+    ref.point = c(1),
+    fn = function(args, fidelity = NULL) {
+      propfeat <- rowMeans(args[, grepl("selector.selection", names(args))])
+    })
+  fitness.fun <- setMosmafsVectorized(fitness.fun)
+  
+  generations <- 10
+  lambda <- 10
+  expect_class(results <- results <- slickEcr(fitness.fun = fitness.fun, lambda = lambda, 
+    population = initials, survival.selector = selGreedy,
+    mutator = mutator.simple, recombinator = crossover.simple, generations = generations), 
+    "MosmafsResult")
+  stats <- collectResult(results)
+  expect_true(all(diff(stats$eval.min)<= 0))
+  expect_data_frame(stats, nrows = 11)
   
 })
 
