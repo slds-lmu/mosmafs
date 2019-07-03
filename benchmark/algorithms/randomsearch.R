@@ -14,7 +14,6 @@ randomsearch = function(data, job, instance, learner, maxeval, filter, initializ
     inner = makeResampleDesc("CV", iters = cv.iters, stratify = TRUE)
 
     ps = PAR.SETS[[learner]] # paramset
-    ps = c(ps, pSS(selector.selection: logical^getTaskNFeats(train.task)))
 
     # ---
     # 1. eventually setup parallel environemnt
@@ -37,6 +36,10 @@ randomsearch = function(data, job, instance, learner, maxeval, filter, initializ
         filter.strat = makeFilterStrategy(fima, "filterweights")
     }
 
+    fitness.fun = makeObjective(learner = lrn, task = train.task, ps = ps, resampling = inner, holdout.data = test.task)
+    
+    ps = getParamSet(fitness.fun)
+    
     initials = sampleValues(ps, maxeval, discrete.names = TRUE)
 
     # --- initialization according to a distribution
@@ -50,8 +53,6 @@ randomsearch = function(data, job, instance, learner, maxeval, filter, initializ
     else  
       initials = initSelector(initials, distribution = distribution, soften.op = ecr::setup(mutUniformMetaResetSHW, p = 1), soften.op.strategy = filter.strat) 
   
-  fitness.fun = makeObjective(learner = lrn, task = train.task, ps = ps, resampling = inner, holdout.data = test.task)
-
   time = proc.time()
 
   # --- fitness function --- 

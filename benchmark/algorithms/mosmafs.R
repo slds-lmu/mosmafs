@@ -17,7 +17,6 @@ mosmafs = function(data, job, instance, learner, maxeval, filter, initialization
   ps = PAR.SETS[[learner]] # paramset
   num.discrete = sum(BBmisc::viapply(ps$pars[sapply(ps$pars, isDiscrete)], getParamLengths))
   num.numeric = sum(BBmisc::viapply(ps$pars[sapply(ps$pars, isNumeric)], getParamLengths))
-  ps = c(ps, pSS(selector.selection: logical^getTaskNFeats(train.task)))
 
   # ---
   # 1. eventually setup parallel environemnt
@@ -30,7 +29,7 @@ mosmafs = function(data, job, instance, learner, maxeval, filter, initialization
   # ---
   # 2. Mosmafs initialization 
   # --- 
-
+  
 
   # --- initialization of of filter matrix ---
   fima = NULL
@@ -69,7 +68,6 @@ mosmafs = function(data, job, instance, learner, maxeval, filter, initialization
     }
   }
 
-
   Ttrafo <- function(x, a, b) {
     if (a >= b) {
       return(b)
@@ -91,10 +89,16 @@ mosmafs = function(data, job, instance, learner, maxeval, filter, initialization
     Ttrafo(p, 1 / num.discrete, 0.5)
   }, supported = "float")
 
+  
   # --- strategy parameters for mutation ---
   ps = c(ps,  pSS(stratparm.numeric: numeric[, ], # no bounds here
                   stratparm.discrete: numeric[0, 1]))
-
+  
+  # --- create objective ---
+  fitness.fun = makeObjective(learner = lrn, task = train.task, ps = ps, resampling = inner, holdout.data = test.task)
+  
+  ps = getParamSet(fitness.fun)
+  
   # --- mutation and recombination operators ---
   mutator = combine.operators(ps,
       numeric = mutGaussScaled,
@@ -130,7 +134,7 @@ mosmafs = function(data, job, instance, learner, maxeval, filter, initialization
   ps.init$pars$stratparm.discrete$upper = 0.1
 
   # ---
-  # 2. population initialization
+  # 3. population initialization
   # --- 
 
   initials = sampleValues(ps.init, mu, discrete.names = TRUE)
@@ -145,13 +149,9 @@ mosmafs = function(data, job, instance, learner, maxeval, filter, initialization
   else  
     initials = initSelector(initials, distribution = distribution, soften.op = ecr::setup(mutUniformMetaResetSHW, p = 1), soften.op.strategy = getFilterStrat(TRUE)) 
 
+  
   # ---
-  # 4. Objective 
-  # --- 
-  fitness.fun = makeObjective(learner = lrn, task = train.task, ps = ps, resampling = inner, holdout.data = test.task)
-
-  # ---
-  # 5. Run 
+  # 4. Run 
   # --- 
 
   time = proc.time()
