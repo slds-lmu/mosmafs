@@ -1,4 +1,5 @@
 ^benchmark$
+^experiments$
 ^docs$
 ^\.gitattributes$
 ^\.gitignore$
