@@ -240,19 +240,19 @@ makeBaselineObjective <- function(learner, task, filters, ps, resampling, measur
   argnames <- getParamIds(getParamSet(learner))
 
   assertSubset(getParamIds(ps), argnames)
-  ps <- c(ps, pSS(mosmafs.nselect = NA: integer[0, numfeats]),
+  ps <- c(ps, pSS(mosmafs.nselect = NA: integer[0L, numfeats]),
     makeParamSet(params = lapply(seq_len(num.explicit.featsel), function(idx) {
       # not using vector parameters here because mlrMBO probably
       # sucks at handling them.
       makeIntegerParam(sprintf("mosmafs.iselect.%s", idx),
-        lower = 1, upper = numfeats)
+        lower = 1L, upper = numfeats)
     })),
     if (length(filters) > 1) {
       makeParamSet(params = lapply(seq_along(filters), function(idx) {
         # not using vector parameters here because mlrMBO probably
         # sucks at handling them.
         makeIntegerParam(sprintf("mosmafs.select.weights.%s", idx),
-          lower = 1, upper = numfeats)
+          lower = 1L, upper = numfeats)
       }))
     }
   )
