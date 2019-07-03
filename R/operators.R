@@ -28,11 +28,11 @@ intifyMutator <- function(operator) {
     }
     opargs <- names(formals(args(operator)))
     if ("..." %in% opargs || all(c("lower", "upper") %in% opargs)) {
-      ind <- list(as.numeric(ind), ..., lower = lower - 0.5, upper = upper + 0.5)
+      indcall <- alist(as.numeric(ind), ..., lower = lower - 0.5, upper = upper + 0.5)
     } else {
-      ind <- list(as.numeric(ind), ...)
+      indcall <- alist(as.numeric(ind), ...)
     } # nocov
-    ind <- do.call(operator, ind)
+    ind <- do.call(operator, indcall)
     as.integer(pmin(pmax(lower, round(ind)), upper))
 }, supported = "custom")} # nocov
 
@@ -57,12 +57,13 @@ intifyRecombinator <- function(operator) {
     } # nocov
     opargs <- names(formals(args(operator)))
     if ("..." %in% opargs || all(c("lower", "upper") %in% opargs)) {
-      children <- operator(list(as.numeric(inds[[1]]), as.numeric(inds[[2]])),
+      childrencall <- alist(list(as.numeric(inds[[1]]), as.numeric(inds[[2]])),
         ..., lower = lower - 0.5, upper = upper + 0.5)
     } else { # nocov
-      children <- operator(list(as.numeric(inds[[1]]), as.numeric(inds[[2]])),
+      childrencall <- alist(list(as.numeric(inds[[1]]), as.numeric(inds[[2]])),
         ...)
     } # nocov
+    children <- do.call(operator, childrencall)
     if (isTRUE(attr(children, "multiple"))) {
       return(do.call(wrapChildren, lapply(children, function(x)
         as.integer(pmin(pmax(lower, round(x)), upper)))))
