@@ -2,7 +2,6 @@ packages = c("batchtools", "ecr", "magrittr", "mosmafs", "ParamHelpers", "mlr", 
 
 # source the prob design
 source("probdesign.R")
-source("../R/objective.R")
 
 datafolder = "data"
 
