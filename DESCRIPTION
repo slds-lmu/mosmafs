@@ -1,7 +1,10 @@
 Package: mosmafs
 Title: Multi-Objective Simultaneous Model and Feature Selection
-Description: Using the ecr-package to perform simultaneous feature selection
-  and hyperparameter optimization.
+Description: Tools for performing simultaneous hyperparameter tuning and
+  feature selection through both single-objective and multi-objective
+  optimization. Uses the 'ecr'-package as basis but adds mixed integer
+  evolutionary strategies and multi-fidelity functionality as well as operators
+  specific for the problem of feature selection.
 Authors@R: c(
   person("Martin", "Binder", email = "developer.mb706@mb706.com", role = c("aut", "cre")),
   person("Susanne", "Dandl", email = "dandl.susanne@googlemail.com", role = "aut"),
