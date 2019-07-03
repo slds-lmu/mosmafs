@@ -1,35 +1,36 @@
 mosmafs = function(data, job, instance, learner, maxeval, filter, initialization,
-  lambda, mu, parent.sel, chw.bitflip, adaptive.filter.weights, filter.during.run) {
+  lambda, mu, parent.sel, chw.bitflip, adaptive.filter.weights, filter.during.run, cv.iters) {
 
-  PARALLELIZE = TRUE
+  PARALLELIZE = FALSE
 
-  id = strsplit(data, "/")[[1]][2]
+  # ---
+  # 0. Define task, learner, paramset, and inner resampling
+  # ---
 
-  # --- task and learner ---
-  train.data = readRDS(file.path(data, "train.arff.rds"))
-  task.train = makeClassifTask(id = id, data = train.data, target = "class")
-  test.data = readRDS(file.path(data, "test.arff.rds"))  
-  task.test = makeClassifTask(id = id, data = test.data, target = "class")
- 
-  time = proc.time()
+  lrn = LEARNERS[[learner]] # learner 
 
-  # --- learner ---  
-  lrn = LEARNERS[[learner]]
+  train.task = instance$train.task # training
+  test.task = instance$test.task # for outer evaluation
+
+  inner = makeResampleDesc("CV", iters = cv.iters, stratify = TRUE)
+
+  ps = PAR.SETS[[learner]] # paramset
+  num.discrete = sum(BBmisc::viapply(ps$pars[sapply(ps$pars, isDiscrete)], getParamLengths))
+  num.numeric = sum(BBmisc::viapply(ps$pars[sapply(ps$pars, isNumeric)], getParamLengths))
+  ps = c(ps, pSS(selector.selection: logical^getTaskNFeats(train.task)))
+
+  # ---
+  # 1. eventually setup parallel environemnt
+  # --- 
   
-  # --- inner resampling ---
-  stratcv10 = makeResampleDesc("CV", iters = 10, stratify = TRUE)
+  if (PARALLELIZE)
+    parallelMap::parallelStartMulticore(cpus = 10L)
+ 
 
-  # --- parameter set w/ feature vector---
-  ps = PAR.SETS[[learner]]
+  # ---
+  # 2. Mosmafs initialization 
+  # --- 
 
-  num.discrete <- sum(BBmisc::viapply(ps$pars[sapply(ps$pars, isDiscrete)], getParamLengths))
-  num.numeric <- sum(BBmisc::viapply(ps$pars[sapply(ps$pars, isNumeric)], getParamLengths))
-
-  ps = c(ps, pSS(selector.selection: logical^getTaskNFeats(task.train)))
-
-  # --- strategy parameters for mutation ---
-  ps = c(ps,  pSS(stratparm.numeric: numeric[, ], # no bounds here
-                  stratparm.discrete: numeric[0, 1]))
 
   # --- initialization of of filter matrix ---
   fima = NULL
@@ -50,7 +51,7 @@ mosmafs = function(data, job, instance, learner, maxeval, filter, initialization
   }
 
   if (filter != "none") {
-    fima = makeFilterMat(task.train, filters = FILTER[[filter]])
+    fima = makeFilterMat(train.task, filters = FILTER[[filter]])
     ps = c(ps, pSS(filterweights: numeric[0, ~1]^length(FILTER[[filter]])))
   }
   if (filter != "none" && filter.during.run) {
@@ -67,7 +68,6 @@ mosmafs = function(data, job, instance, learner, maxeval, filter, initialization
       sbitflip = mutBitflip
     }
   }
-
 
 
   Ttrafo <- function(x, a, b) {
@@ -90,6 +90,10 @@ mosmafs = function(data, job, instance, learner, maxeval, filter, initialization
     p <- 1 / (1 + (1 - p) / p * exp(- learningrate.discrete * rnorm(length(p))))
     Ttrafo(p, 1 / num.discrete, 0.5)
   }, supported = "float")
+
+  # --- strategy parameters for mutation ---
+  ps = c(ps,  pSS(stratparm.numeric: numeric[, ], # no bounds here
+                  stratparm.discrete: numeric[0, 1]))
 
   # --- mutation and recombination operators ---
   mutator = combine.operators(ps,
@@ -125,6 +129,10 @@ mosmafs = function(data, job, instance, learner, maxeval, filter, initialization
   ps.init$pars$stratparm.discrete$lower = 0.1
   ps.init$pars$stratparm.discrete$upper = 0.1
 
+  # ---
+  # 2. population initialization
+  # --- 
+
   initials = sampleValues(ps.init, mu, discrete.names = TRUE)
 
   if (initialization == "unif") 
@@ -137,12 +145,16 @@ mosmafs = function(data, job, instance, learner, maxeval, filter, initialization
   else  
     initials = initSelector(initials, distribution = distribution, soften.op = ecr::setup(mutUniformMetaResetSHW, p = 1), soften.op.strategy = getFilterStrat(TRUE)) 
 
-  # --- fitness function --- 
-  fitness.fun = makeObjective(learner = lrn, task = task.train, ps = ps, resampling = stratcv10, holdout.data = task.test)
+  # ---
+  # 4. Objective 
+  # --- 
+  fitness.fun = makeObjective(learner = lrn, task = train.task, ps = ps, resampling = inner, holdout.data = test.task)
 
-  if (PARALLELIZE) {
-    parallelStartMulticore(cpus = 15L)
-  }
+  # ---
+  # 5. Run 
+  # --- 
+
+  time = proc.time()
 
   result = slickEcr(
     fitness.fun = fitness.fun,
@@ -159,6 +171,6 @@ mosmafs = function(data, job, instance, learner, maxeval, filter, initialization
 
   runtime = proc.time() - time
 
-  return(list(result = result, task.test = task.test, task.train = task.train, runtime = runtime, ps = ps, filtermat = fima))
+  return(list(result = result, test.task = test.task, train.task = train.task, runtime = runtime, ps = ps, filtermat = fima))
 } 
 

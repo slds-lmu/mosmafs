@@ -54,10 +54,6 @@ randomsearch = function(data, job, instance, learner, maxeval, filter, initializ
 
   time = proc.time()
 
-  if (PARALLELIZE) {
-    parallelStartMulticore(cpus = 80L)
-  }
-
   # --- fitness function --- 
   result = initEcr(
     fitness.fun = fitness.fun,
