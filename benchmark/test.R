@@ -1,5 +1,5 @@
 # --- TESTS IF BENCHMARK IS CONFIGURED CORRECTLY
-library(testthat)
+
 library(batchtools)
 
 reg = loadRegistry("registry_temp", writeable = TRUE)
@@ -14,6 +14,7 @@ tab = tab[problem %in% testdata, ]
 
 
 # --- TEST RANDOMSEARCH
+
 tosubmit = tab[algorithm %in% "randomsearch", ]
 
 # uniform vs. non-uniform 
