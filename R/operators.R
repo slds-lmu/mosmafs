@@ -28,10 +28,11 @@ intifyMutator <- function(operator) {
     }
     opargs <- names(formals(args(operator)))
     if ("..." %in% opargs || all(c("lower", "upper") %in% opargs)) {
-      ind <- operator(as.numeric(ind), ..., lower = lower - 0.5, upper = upper + 0.5)
+      ind <- quote(operator(as.numeric(ind), ..., lower = lower - 0.5, upper = upper + 0.5))
     } else {
-      ind <- operator(as.numeric(ind), ...)
+      ind <- quote(operator(as.numeric(ind), ...))
     } # nocov
+    ind <- eval(ind)
     as.integer(pmin(pmax(lower, round(ind)), upper))
 }, supported = "custom")} # nocov
 
