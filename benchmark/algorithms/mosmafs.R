@@ -132,7 +132,10 @@ mosmafs = function(data, job, instance, learner, maxeval, filter, initialization
   ps.init$pars$stratparm.numeric$upper = log(0.1)
   ps.init$pars$stratparm.discrete$lower = 0.1
   ps.init$pars$stratparm.discrete$upper = 0.1
-
+  
+  # --- parent selector ---
+  par.sel = PARENTSEL[[parent.sel]]
+  
   # ---
   # 3. population initialization
   # --- 
@@ -153,13 +156,14 @@ mosmafs = function(data, job, instance, learner, maxeval, filter, initialization
   # ---
   # 4. Run 
   # --- 
-
+  
   time = proc.time()
 
   result = slickEcr(
     fitness.fun = fitness.fun,
     lambda = lambda,
     population = initials,
+    parent.selector = par.sel,
     mutator = mutator,
     recombinator = crossover,
     generations = ceiling((maxeval - mu) / lambda)

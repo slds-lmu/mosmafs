@@ -18,7 +18,7 @@ MAXTIME = 3600L * 30L
 CVITERS = 3L
 
 # Parent Selections
-PARENTSEL = list("selSimple" = ecr::setup(selSimple), "selNondom" = ecr::setup(selNondom), "selBinaryTournament" = ecr::setup(selTournamentMO))
+PARENTSEL = list("selSimple" = ecr::setup(selSimple), "selNondom" = ecr::setup(selNondom), "selTournamentMO" = ecr::setup(selTournamentMO))
 
 FEATURE_MUT = list("mutBitflipCHW" = ecr::setup(mutBitflipCHW), "mutBitflip" = mutBitflip, "mutUniformMetaResetSHW" = mutUniformMetaResetSHW)
 
