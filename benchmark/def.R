@@ -4,8 +4,6 @@ packages = c("batchtools", "ecr", "magrittr", "mosmafs", "ParamHelpers", "mlr", 
 source("probdesign.R")
 source("../R/objective.R")
 
-OVERWRITE = FALSE
-
 datafolder = "data"
 
 # do not overwrite registry
@@ -15,7 +13,7 @@ OVERWRITE = FALSE
 MAXEVAL = 4000L
 
 # Parent SelectionS
-PARENTSEL = list("selSimple" = ecr::setup(selSimple), "selNondom" = ecr::setup(selNondom), "selBinaryTournament" = ecr::setup(selTournamentMO, ref.point = c(1, 1)))
+PARENTSEL = list("selSimple" = ecr::setup(selSimple), "selNondom" = ecr::setup(selNondom), "selBinaryTournament" = ecr::setup(selTournamentMO))
 
 
 FEATURE_MUT = list("mutBitflipCHW" = ecr::setup(mutBitflipCHW), "mutBitflip" = mutBitflip, "mutUniformMetaResetSHW" = mutUniformMetaResetSHW)

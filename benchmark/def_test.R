@@ -1,10 +1,8 @@
-packages = c("batchtools", "ecr", "magrittr", "mosmafs", "ParamHelpers", "mlr", "mlrCPO", "parallelMap", "RWeka", "mlrMBO", "doParallel")
+packages = c("batchtools", "ecr", "magrittr", "mosmafs", "ParamHelpers", "mlr", "mlrCPO", "parallelMap", "mlrMBO", "doParallel")
 
 # source the prob design
 source("probdesign.R")
 source("../R/objective.R")
-
-OVERWRITE = FALSE
 
 datafolder = "data"
 
@@ -20,8 +18,8 @@ MAXTIME = 3600L * 30L
 # number of inner cross-validation iterations
 CVITERS = 3L
 
-# Parent SelectionS
-PARENTSEL = list("selSimple" = ecr::setup(selSimple), "selNondom" = ecr::setup(selNondom), "selBinaryTournament" = ecr::setup(selTournamentMO, ref.point = c(1, 1)))
+# Parent Selections
+PARENTSEL = list("selSimple" = ecr::setup(selSimple), "selNondom" = ecr::setup(selNondom), "selBinaryTournament" = ecr::setup(selTournamentMO))
 
 FEATURE_MUT = list("mutBitflipCHW" = ecr::setup(mutBitflipCHW), "mutBitflip" = mutBitflip, "mutUniformMetaResetSHW" = mutUniformMetaResetSHW)
 
