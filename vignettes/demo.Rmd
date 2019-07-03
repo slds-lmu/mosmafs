@@ -26,7 +26,6 @@ library("ggplot2")
 set.seed(8008135)
 
 options(width = 80)
-data.table::setDTthreads(1)
 
 cores <- parallel::detectCores()
 if (Sys.getenv("FASTVIGNETTE") != "true") {
