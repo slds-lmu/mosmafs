@@ -32,3 +32,6 @@ res = testJob(6)
 sapply(res$result$last.population, function (x) mean(x$selector.selection))
 mean(sapply(res$result$last.population, function (x) x$selector.selection[1]))
 
+# --- TEST MBO?! 
+tosubmit = tab[algorithm %in% "no_feature_sel", ]
+res = testJob(tosubmit[1, ])
