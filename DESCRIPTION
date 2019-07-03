@@ -1,6 +1,6 @@
 Package: mosmafs
 Title: Multi-Objective Simultaneous Model and Feature Selection
-Description: Using the ecr2-package to perform simultaneous feature selection
+Description: Using the ecr-package to perform simultaneous feature selection
   and hyperparameter optimization.
 Authors@R: c(
   person("Martin", "Binder", email = "developer.mb706@mb706.com", role = c("aut", "cre")),
