@@ -493,7 +493,11 @@ makeECRResult = function(control, log, population, fitness, stop.object, ...) {
   mo.res <- filterDuplicated(mo.res)
 }
 
-
-
+filterDuplicated <- function(result, ...) {
+  id.dup = duplicated(result$pareto.front)
+  result$pareto.front = result$pareto.front[!id.dup, , drop = FALSE]
+  result$pareto.set = result$pareto.set[!id.dup]
+  return(result)
+}
 
 
