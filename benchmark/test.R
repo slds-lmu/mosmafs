@@ -2,7 +2,7 @@
 
 library(batchtools)
 
-reg = loadRegistry("registry_temp", writeable = TRUE)
+reg = loadRegistry("registry_temp2", writeable = TRUE)
 
 testdata = "sonar"
 
@@ -25,7 +25,8 @@ sapply(binom$result$last.population, function (x) mean(x$selector.selection))
 sapply(unif$result$last.population, function (x) mean(x$selector.selection))
 	
 # filter initialization
-res = testJob(5)
+res = testJob(5) # filter 
+# expect 1
 mean(sapply(res$result$last.population, function (x) x$selector.selection[1]))
 
 # filter + nonuniform initialization 

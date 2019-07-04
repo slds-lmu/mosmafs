@@ -59,4 +59,4 @@ ades.mosmafs = CJ(learner = c("xgboost"),
 			filter.during.run = c(FALSE, TRUE),
 			sorted = FALSE)
 
-REPLICATIONS = 10L
+REPLICATIONS = 1L

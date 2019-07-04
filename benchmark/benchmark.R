@@ -10,7 +10,7 @@
 # TODO: packrat
 
 packages = c("batchtools", "data.table", "ecr", "mlr", "mlrCPO", "mlrMBO", "mosmafs", 
-  "magrittr", "parallelMap", "ParamHelpers")
+  "magrittr", "parallelMap", "ParamHelpers", "packrat")
 
 lapply(packages, library, character.only = TRUE)
 
@@ -23,7 +23,7 @@ TEST = TRUE
 
 if (TEST) {
   deffile = "def_test.R"
-  registry_name = "registry_temp"
+  registry_name = "registry_temp2"
 } else {
   deffile = "def.R"
   registry_name = "registry"

@@ -1,0 +1,13 @@
+### [bt]: This is batchtools v0.9.11
+### [bt]: Starting calculation of 1 jobs
+### [bt]: Setting working directory to 'C:/Users/PC0YEMXU/Documents/Repos/mosmafs/benchmark'
+Warning in makeParam(id = id, type = "numeric", learner.param = TRUE, lower = lower,  :
+  NA used as a default value for learner parameter missing.
+ParamHelpers uses NA as a special value for dependent parameters.
+### [bt]: Memory measurement disabled
+### [bt]: Starting job [batchtools job.id=1]
+### [bt]: Generating problem instance for problem 'sonar' ...
+### [bt]: Applying algorithm 'randomsearch' on problem 'sonar' for job 1 (seed = 124) ...
+
+### [bt]: Job terminated successfully [batchtools job.id=1]
+### [bt]: Calculation finished!
