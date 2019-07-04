@@ -5,8 +5,8 @@ source("probdesign.R")
 
 datafolder = "data"
 
-# do not overwrite registry
-OVERWRITE = FALSE
+# test registry should be overwritten
+OVERWRITE = TRUE
 
 # Maximum number of evaluations allowed
 MAXEVAL = 10L
