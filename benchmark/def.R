@@ -3,7 +3,7 @@ packages = c("batchtools", "ecr", "magrittr", "mosmafs", "ParamHelpers", "mlr", 
 
 # --- source the prob design
 source("probdesign.R")
-pdes = lapply(datasets, function(x) data.table(rinst.iter = 1:2))
+pdes = lapply(datasets, function(x) data.table(rinst.iter = 1:10))
 names(pdes) = datasets
 
 # --- data folder 
