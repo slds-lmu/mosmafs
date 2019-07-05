@@ -45,18 +45,35 @@ ades.random = CJ(learner = c("SVM", "kknn", "xgboost"),
 			maxeval = MAXEVAL, 
 			filter = c("none", "custom"),
 			initialization = c("none", "unif"), 
+			cv.iters = CVITERS,
 			sorted = FALSE)
 
-ades.mosmafs = CJ(learner = c("xgboost"), 
+ades.mbo = CJ(learner = c("SVM", "kknn", "xgboost"), 
 			maxeval = MAXEVAL, 
-			filter = c("none", "custom"),
+			filter = c("custom"),
+			infill = c("cb"),
+			surrogate = c("randomForest"),
+			MBMOmethod = c("parego"),
+			propose.points = c(2L),
+			maxtime = MAXTIME, 
+			sorted = FALSE)
+
+ades.mosmafs = CJ(learner = c("SVM", "kknn", "xgboost"), 
+			maxeval = MAXEVAL, 
+			filter = c("none"), # "custom"),
+			cv.iters = CVITERS,
 			initialization = c("none", "unif"), 
-			lambda = 15L,
-			mu = 80,
+			lambda = 2L,
+			mu = 3L,
 			parent.sel = c("selTournamentMO"),
 			chw.bitflip = c(FALSE, TRUE),
-			adaptive.filter.weights = c(FALSE, TRUE),
-			filter.during.run = c(FALSE, TRUE),
+			adaptive.filter.weights = c(FALSE), # TRUE),
+			filter.during.run = c(FALSE),# TRUE),
 			sorted = FALSE)
 
+ades.no_feature_sel = CJ(learner = c("SVM", "kknn", "xgboost"), 
+			maxeval = MAXEVAL, 
+			maxtime = MAXTIME,
+			cv.iters = CVITERS,
+			sorted = FALSE)
 REPLICATIONS = 1L
