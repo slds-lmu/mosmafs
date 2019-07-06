@@ -53,7 +53,7 @@ tosubmit$chunk = rep(1:nchunks, each = chunk.size)
 
 # done = ijoin(tosubmit, findDone())
 
-# submitJobs(tosubmit, resources = resources.serial)
+submitJobs(tosubmit, resources = resources.serial)
 
 # df = done[, replication := 1:length(job.id), by = c("learner", "problem")]
 
