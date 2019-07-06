@@ -4,7 +4,7 @@ library(dplyr)
 
 resources.serial = list(
 	walltime = 3600L * 48L, memory = 1024L * 2L,
-	clusters = "serial", max.concurrent.jobs = 300L # get name from lrz homepage)
+	clusters = "serial", max.concurrent.jobs = 250L # get name from lrz homepage)
 )
 
 
