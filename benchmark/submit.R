@@ -3,8 +3,8 @@ library(stringi)
 library(dplyr)
 
 resources.serial = list(
-	walltime = 3600L * 48L, memory = 1024L * 4L,
-	clusters = "serial", max.concurrent.jobs = 1200L # get name from lrz homepage)
+	walltime = 3600L * 48L, memory = 1024L * 2L,
+	clusters = "serial", max.concurrent.jobs = 300L # get name from lrz homepage)
 )
 
 
@@ -41,15 +41,25 @@ problems.serial = c("wdbc", "ionosphere", "sonar", "hill-valley", "clean1",
 # --- RS 
 # --- RSI
 # --- RSIF
-experiment = "RS"
+experiment = "RSIF"
 tosubmit = ijoin(tab, experiments[[experiment]], by = names(experiments[[experiment]]))
+tosubmit = ijoin(tosubmit, findNotDone())
 tosubmit = tosubmit[problem %in% problems.serial, ]
-# done = ijoin(tosubmit, findDone())
-df = done[, replication := 1:length(job.id), by = c("learner", "problem")]
+tosubmit = tosubmit[- which(job.id %in% findOnSystem()$job.id), ]
+chunk.size = 3L
+tosubmit$chunk = 1
+nchunks = nrow(tosubmit) / chunk.size
+tosubmit$chunk = rep(1:nchunks, each = chunk.size)
 
-status_finished = df[, max(replication), by = c("problem", "learner")]
-status_finished = status_finished[, sum(V1), by = c("problem", "learner")]
-status_finished
+# done = ijoin(tosubmit, findDone())
+
+# submitJobs(tosubmit, resources = resources.serial)
+
+# df = done[, replication := 1:length(job.id), by = c("learner", "problem")]
+
+# status_finished = df[, max(replication), by = c("problem", "learner")]
+# status_finished = status_finished[, sum(V1), by = c("problem", "learner")]
+# status_finished
 
 
 
@@ -72,37 +82,3 @@ status_finished
 # 	clusters = "mpp2") # get name from lrz homepage))
 
 
-# --- LRZ ---  
-
-# O done
-# OI done
-# OIFi submitted
-# OIFiFm submitted
-# OIFiFmS submitted
-# OIH done
-# RS done
-# RSI done
-# RSIF submitted
-# tosubmit = tosubmit[, chunk := chunk(job.id, chunk.size = 10)
-# nchunks = nrow(tosubmit) / chunk.size
-tosubmit = ijoin(tosubmit, findNotDone())
-ijoin(tosubmit, findOnSystem())
-tosubmit = tosubmit[- which(job.id %in% findOnSystem()$job.id), ]
-submitJobs(tosubmit, resources = resources.serial)
-
-# --- LRZ ivymuc ---  
-
-# run on ivymuc: 
-# USPS, clean1, 
-
-lrn = "xgboost"
-tosubmit = tab[learner %in% lrn, ]
-tosubmit = tosubmit[problem %in% problems.serial, ]
-tosubmit = ijoin(experiments2, tosubmit)
-
-chunk.size = 2L
-tosubmit$chunk = 1
-nchunks = nrow(tosubmit) / chunk.size
-tosubmit$chunk = rep(1:nchunks, each = chunk.size)
-
-submitJobs(tosubmit[1001:1200, ], resources = resources.serial)
