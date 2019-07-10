@@ -1,4 +1,5 @@
-no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.iters, filter) {
+no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.iters, filter, 
+  filter.during.run) {
 
     PARALLELIZE = FALSE
 
@@ -14,6 +15,14 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
     inner = makeResampleDesc("CV", iters = cv.iters, stratify = TRUE)
 
     ps = PAR.SETS[[learner]] # paramset
+    
+    filters = FILTER[[filter]]
+    
+    if (filter.during.run) {
+      ps = c(ps, pSS(
+        filter: discrete[filters], 
+        perc: numeric[0, 1]))
+    }
 
     # ---
     # 1. eventually setup parallel environemnt
@@ -25,7 +34,7 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
     # ---
     # 2. Initial design 
     # --- 
-
+  
     # no specification --> default is maximin Latin Hypercube with 4 * nparams
 
     # ---
@@ -35,16 +44,26 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
     ctrl = setMBOControlTermination(ctrl, max.evals = maxeval, exec.time.budget = maxtime)
     ctrl = setMBOControlInfill(ctrl, crit = makeMBOInfillCritEI())
     
-
     # ---
     # 4. Objective 
     # --- 
 
     tuneobj = makeSingleObjectiveFunction(name = "svm.tuning",
-     fn = function(x, perc = 1, filter = NULL) {
+     fn = function(x) {
+        
+        if (!is.null(x$filter)) {
+          filter = x$filter
+          x$filter = NULL
+        }
+        
+        if (!is.null(x$perc)) {
+          perc = x$perc
+          x$perc = NULL
+        }
+        
         lrn2 = setHyperPars2(lrn, par.vals = x)
         
-        if (perc < 1) {
+        if (!is.null(filter)) {
           filtered.train.task = filterFeatures(train.task, method = filter, perc = perc)
           filtered.test.task = filterFeatures(train.task, method = filter, perc = perc) 
         } else {
@@ -72,7 +91,9 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
     parallelStartMulticore(cpus = 80L)
   }
 
-  # --- fitness function --- 
+  # ---
+  # 5. Run experiment 
+  # ---
   result = mbo(tuneobj, control = ctrl)
 
   if (PARALLELIZE) {
@@ -80,12 +101,15 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
   }
   
   # ---
-  # 5. Rank features by filter 
+  # 6. Receive a Pareto front by subsetting features using filter
   # ---
   seq.perc = seq(0.1, 0.9, 0.15)    
   path = trafoOptPath(result$opt.path)$env$path
   best = as.list(tail(path, 1)[, !names(path) %in% "y"])
-  filters = FILTER[[filter]]
+  # If filter was already tuned, take tuned filter 
+  if (!is.null(best$filter)) {
+    filters = best$filter
+  }
   
   result.pf = as.data.frame(matrix(NA, nrow = length(seq.perc), ncol = length(filters)))
   rownames(result.pf) = seq.perc
@@ -93,7 +117,9 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
   
   for (fil in filters) {
     for (s.perc in seq.perc) {
-      perf = tuneobj(best, s.perc, fil)
+      best$filter = fil
+      best$perc = s.perc
+      perf = tuneobj(best)
       result.pf[as.character(s.perc), fil] = attr(perf, "extras")$fitness.holdout.perf
     }
   }
@@ -106,6 +132,6 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
   
   runtime = proc.time() - time
     
-  return(list(result = result, result.pf = result.sub[, col.id, drop = FALSE], test.task = test.task, train.task = train.task, runtime = runtime, ps = ps))
+  return(list(result = result, result.pf = result.pf[, col.id, drop = FALSE], test.task = test.task, train.task = train.task, runtime = runtime, ps = ps))
 } 
 
