@@ -14,8 +14,6 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
     inner = makeResampleDesc("CV", iters = cv.iters, stratify = TRUE)
 
     ps = PAR.SETS[[learner]] # paramset
-    
-    if ()
 
     # ---
     # 1. eventually setup parallel environemnt
