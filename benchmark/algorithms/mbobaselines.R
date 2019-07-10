@@ -23,6 +23,9 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
         filter: discrete[filters], 
         perc: numeric[0, 1]))
     }
+    
+    filtermat = makeFilterMat(task = train.task, filters = filters)
+    p = getTaskNFeats(train.task)
 
     # ---
     # 1. eventually setup parallel environemnt
@@ -60,8 +63,11 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
         if (!is.null(x$filter)) {
           filter = x$filter
           x$filter = NULL
-          filtered.train.task = filterFeatures(train.task, method = filter, perc = perc)
-          filtered.test.task = filterFeatures(test.task, method = filter, perc = perc) 
+          ind.features = order(filtermat[,filter, drop = FALSE], decreasing = TRUE)[1:ceiling(perc*p)]
+          filtered.train.task = subsetTask(train.task, features = ind.features)
+          filtered.test.task = subsetTask(test.task, features = ind.features) 
+          # filtered.train.task = filterFeatures(train.task, method = filter, perc = perc)
+          # filtered.test.task = filterFeatures(test.task, method = filter, perc = perc) 
         } else {
           filtered.train.task = train.task
           filtered.test.task = test.task
