@@ -51,32 +51,30 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
     tuneobj = makeSingleObjectiveFunction(name = "svm.tuning",
      fn = function(x) {
         
+       
+       if (!is.null(x$perc)) {
+         perc = x$perc
+         x$perc = NULL
+       }
+        
         if (!is.null(x$filter)) {
           filter = x$filter
           x$filter = NULL
-        }
-        
-        if (!is.null(x$perc)) {
-          perc = x$perc
-          x$perc = NULL
-        }
-        
-        lrn2 = setHyperPars2(lrn, par.vals = x)
-        
-        if (!is.null(filter)) {
           filtered.train.task = filterFeatures(train.task, method = filter, perc = perc)
-          filtered.test.task = filterFeatures(train.task, method = filter, perc = perc) 
+          filtered.test.task = filterFeatures(test.task, method = filter, perc = perc) 
         } else {
           filtered.train.task = train.task
           filtered.test.task = test.task
         }
+        
+        lrn2 = setHyperPars2(lrn, par.vals = x)
         
         model = train(lrn, filtered.train.task)
         prd = predict(model, filtered.test.task)
         val = performance(prd, mmce, test.task, model)[1]
         
         res = resample(lrn, train.task, inner, show.info = FALSE)$aggr
-        attr(res, "extras") = list(fitness.holdout.perf = val, fitness.holdout.propfeat = 1)
+        attr(res, "extras") = list(fitness.holdout.perf = val, fitness.holdout.propfeat = perc)
         res
       },
       par.set = ps,
@@ -120,7 +118,7 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
       best$filter = fil
       best$perc = s.perc
       perf = tuneobj(best)
-      result.pf[as.character(s.perc), fil] = attr(perf, "extras")$fitness.holdout.perf
+      result.pf[as.character(s.perc), fil] = perf
     }
   }
   
