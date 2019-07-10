@@ -1,4 +1,4 @@
-no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.iters) {
+no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.iters, filter) {
 
     PARALLELIZE = FALSE
 
@@ -14,6 +14,8 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
     inner = makeResampleDesc("CV", iters = cv.iters, stratify = TRUE)
 
     ps = PAR.SETS[[learner]] # paramset
+    
+    if ()
 
     # ---
     # 1. eventually setup parallel environemnt
@@ -34,17 +36,26 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
     ctrl = makeMBOControl()
     ctrl = setMBOControlTermination(ctrl, max.evals = maxeval, exec.time.budget = maxtime)
     ctrl = setMBOControlInfill(ctrl, crit = makeMBOInfillCritEI())
+    
 
     # ---
     # 4. Objective 
     # --- 
 
     tuneobj = makeSingleObjectiveFunction(name = "svm.tuning",
-     fn = function(x) {
+     fn = function(x, perc = 1, filter = NULL) {
         lrn2 = setHyperPars2(lrn, par.vals = x)
-
-        model = train(lrn, train.task)
-        prd = predict(model, test.task)
+        
+        if (perc < 1) {
+          filtered.train.task = filterFeatures(train.task, method = filter, perc = perc)
+          filtered.test.task = filterFeatures(train.task, method = filter, perc = perc) 
+        } else {
+          filtered.train.task = train.task
+          filtered.test.task = test.task
+        }
+        
+        model = train(lrn, filtered.train.task)
+        prd = predict(model, filtered.test.task)
         val = performance(prd, mmce, test.task, model)[1]
         
         res = resample(lrn, train.task, inner, show.info = FALSE)$aggr
@@ -69,9 +80,34 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
   if (PARALLELIZE) {
     parallelStop()
   }
-
+  
+  # ---
+  # 5. Rank features by filter 
+  # ---
+  seq.perc = seq(0.1, 0.9, 0.15)    
+  path = trafoOptPath(result$opt.path)$env$path
+  best = as.list(tail(path, 1)[, !names(path) %in% "y"])
+  filters = FILTER[[filter]]
+  
+  result.pf = as.data.frame(matrix(NA, nrow = length(seq.perc), ncol = length(filters)))
+  rownames(result.pf) = seq.perc
+  colnames(result.pf) = filters
+  
+  for (fil in filters) {
+    for (s.perc in seq.perc) {
+      perf = tuneobj(best, s.perc, fil)
+      result.pf[as.character(s.perc), fil] = attr(perf, "extras")$fitness.holdout.perf
+    }
+  }
+  
+  if (ncol(result.pf) > 1) {
+    col.id = which.max(rowSums(apply(result.pf, 1, rank)))
+  } else {
+    col.id = 1
+  }
+  
   runtime = proc.time() - time
-
-  return(list(result = result, test.task = test.task, train.task = train.task, runtime = runtime, ps = ps))
+    
+  return(list(result = result, result.pf = result.sub[, col.id, drop = FALSE], test.task = test.task, train.task = train.task, runtime = runtime, ps = ps))
 } 
 

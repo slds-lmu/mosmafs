@@ -2,7 +2,7 @@
 
 library(batchtools)
 
-reg = loadRegistry("registry_temp2", writeable = TRUE)
+reg = loadRegistry("registry_temp", writeable = TRUE)
 
 testdata = "sonar"
 
@@ -42,5 +42,9 @@ res = testJob(tosubmit[1, ])
 tosubmit = tab[algorithm %in% "mosmafs", ]
 
 # uniform vs. non-uniform 
-res = testJob(43)
+binom = testJob(43)
+sapply(binom$result$last.population, function (x) mean(x$selector.selection))
+
+unif = testJob(45)
+sapply(unif$result$last.population, function (x) mean(x$selector.selection))
 
