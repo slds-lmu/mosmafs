@@ -3,7 +3,7 @@ library(stringi)
 library(dplyr)
 
 resources.serial = list(
-	walltime = 3600L * 48L, memory = 1024L * 2L,
+	walltime = 3600L * 48L, memory = 1024L * 4L,
 	clusters = "serial", max.concurrent.jobs = 250L # get name from lrz homepage)
 )
 
@@ -55,13 +55,15 @@ tosubmit$chunk = rep(1:nchunks, each = chunk.size)
 
 submitJobs(tosubmit, resources = resources.serial)
 
-# df = done[, replication := 1:length(job.id), by = c("learner", "problem")]
-
-# status_finished = df[, max(replication), by = c("problem", "learner")]
-# status_finished = status_finished[, sum(V1), by = c("problem", "learner")]
-# status_finished
-
-
+done = ijoin(tab, findDone())
+done = done[- which(job.id == 1463), ]
+done = done[- which(job.id == 1467), ]
+done = done[- which(job.id == 1621), ]
+res = reduceResultsDataTable(done, function(x) x$runtime[3])
+runtime = ijoin(done, res)
+runtime$result = unlist(runtime$result)
+runtime$result.min = runtime$result / 60
+runtime$result.hr = runtime$result.min / 60
 
 
 # resources.ivymuc = list(ncpus = 15L, 

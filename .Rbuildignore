@@ -1,8 +1,0 @@
-^benchmark$
-^docs$
-^\.gitattributes$
-^\.gitignore$
-^todo-files$
-^notes$
-^pkgdown$
-^\.travis\.yml$
