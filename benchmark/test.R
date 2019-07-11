@@ -39,8 +39,9 @@ mean(sapply(res$result$last.population, function (x) x$selector.selection[1]))
 # pure MBO without feature selection
 tosubmit = tab[algorithm %in% "no_feature_sel", ]
 res = testJob(tosubmit[3, ])
-res$result$x		
-paretoEdges(res$)
+res = testJob(tosubmit[4, ])
+
+res = testJob(tosubmit[2, ])
 
 
 # --- TEST MOSMAFS
