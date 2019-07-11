@@ -3,7 +3,7 @@ library(stringi)
 library(dplyr)
 
 resources.serial = list(
-	walltime = 3600L * 48L, memory = 1024L * 4L,
+	walltime = 3600L * 48L, memory = 1024L * 2L,
 	clusters = "serial", max.concurrent.jobs = 250L # get name from lrz homepage)
 )
 
@@ -41,7 +41,7 @@ problems.serial = c("wdbc", "ionosphere", "sonar", "hill-valley", "clean1",
 # --- RS 
 # --- RSI
 # --- RSIF
-experiment = "RSIF"
+experiment = "O"
 tosubmit = ijoin(tab, experiments[[experiment]], by = names(experiments[[experiment]]))
 tosubmit = ijoin(tosubmit, findNotDone())
 tosubmit = tosubmit[problem %in% problems.serial, ]
