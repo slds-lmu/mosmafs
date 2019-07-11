@@ -2,7 +2,7 @@
 
 library(batchtools)
 
-reg = loadRegistry("registry_temp", writeable = TRUE)
+reg = loadRegistry("registry_temp2", writeable = TRUE)
 
 testdata = "sonar"
 
@@ -18,33 +18,38 @@ tab = tab[problem %in% testdata, ]
 tosubmit = tab[algorithm %in% "randomsearch", ]
 
 # uniform vs. non-uniform 
-binom = testJob(1)
-unif = testJob(2)
+binom = testJob(tosubmit[1, ])
+unif = testJob(tosubmit[2, ])
 
 sapply(binom$result$last.population, function (x) mean(x$selector.selection))
 sapply(unif$result$last.population, function (x) mean(x$selector.selection))
 	
 # filter initialization
-res = testJob(5) # filter 
-# expect 1
+res = testJob(tosubmit[5, ]) # filter 
+# expect 1 for sonar task
 mean(sapply(res$result$last.population, function (x) x$selector.selection[1]))
 
 # filter + nonuniform initialization 
-res = testJob(6)
+res = testJob(tosubmit[6, ])
 sapply(res$result$last.population, function (x) mean(x$selector.selection))
 mean(sapply(res$result$last.population, function (x) x$selector.selection[1]))
 
 # --- TEST MBO?! 
+
+# pure MBO without feature selection
 tosubmit = tab[algorithm %in% "no_feature_sel", ]
-res = testJob(tosubmit[1, ])
+res = testJob(tosubmit[3, ])
+res$result$x		
+paretoEdges(res$)
+
 
 # --- TEST MOSMAFS
 tosubmit = tab[algorithm %in% "mosmafs", ]
 
 # uniform vs. non-uniform 
-binom = testJob(43)
+binom = testJob(61)
 sapply(binom$result$last.population, function (x) mean(x$selector.selection))
 
-unif = testJob(45)
+unif = testJob(63)
 sapply(unif$result$last.population, function (x) mean(x$selector.selection))
 

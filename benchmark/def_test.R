@@ -91,7 +91,7 @@ ades.no_feature_sel = CJ(learner = c("SVM", "kknn", "xgboost"),
 			maxtime = MAXTIME,
 			cv.iters = CVITERS,
 			filter = c("testfilter", "custom"), 
-      		filter.during.run = c(TRUE), 
+      		filter.during.run = c(FALSE, TRUE), 
       		sorted = FALSE)
 
 REPLICATIONS = 1L

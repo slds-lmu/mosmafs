@@ -4,7 +4,7 @@ datafolder = "data"
 # --- problem design ---
 datasets = c("sonar", "ionosphere", "madelon", 
 	"madeline", "hill-valley", "wdbc", "tecator",
-	"lsvt", "isolet", "cnae-9", "clean1", "USPS")
+	"lsvt", "isolet", "cnae-9", "clean1", "semeion") #"USPS")
 
 # --- specify learners ---
 # Machine learning algorithms to be benchmarked
