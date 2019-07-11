@@ -17,7 +17,7 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
     ps = PAR.SETS[[learner]] # paramset
     
     filters = FILTER[[filter]]
-    
+
     if (filter.during.run) {
       ps = c(ps, pSS(
         filter: discrete[filters], 
@@ -43,6 +43,7 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
     # ---
     # 3. Control 
     # --- 
+    
     ctrl = makeMBOControl()
     ctrl = setMBOControlTermination(ctrl, max.evals = maxeval, exec.time.budget = maxtime)
     ctrl = setMBOControlInfill(ctrl, crit = makeMBOInfillCritEI())
@@ -51,13 +52,14 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
     # 4. Objective 
     # --- 
 
-    tuneobj = makeSingleObjectiveFunction(name = "svm.tuning",
+    tuneobj = makeSingleObjectiveFunction(name = "tuning",
      fn = function(x) {
         
-       
        if (!is.null(x$perc)) {
          perc = x$perc
          x$perc = NULL
+       } else {
+          perc = 1
        }
         
         if (!is.null(x$filter)) {
@@ -75,7 +77,7 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
         
         lrn2 = setHyperPars2(lrn, par.vals = x)
         
-        model = train(lrn, filtered.train.task)
+        model = train(lrn2, filtered.train.task)
         prd = predict(model, filtered.test.task)
         val = performance(prd, mmce, test.task, model)[1]
         
@@ -100,6 +102,9 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
   # ---
   result = mbo(tuneobj, control = ctrl)
 
+  runtime = proc.time() - time
+
+
   if (PARALLELIZE) {
     parallelStop()
   }
@@ -107,17 +112,28 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
   # ---
   # 6. Receive a Pareto front by subsetting features using filter
   # ---
-  seq.perc = seq(0.1, 0.9, 0.15)    
+
+  time = proc.time()
+
+  # if the number of features is too high, we just construct the paretofront with less features 
+  # if (p < 400)
+  #   seq.perc = seq(1, p) / p
+  # else 
+  #   seq.perc = seq(1, p, by = 2) / p
+
   path = trafoOptPath(result$opt.path)$env$path
   best = as.list(tail(path, 1)[, !names(path) %in% "y"])
+
   # If filter was already tuned, take tuned filter 
   if (!is.null(best$filter)) {
     filters = best$filter
   }
   
+  # result dataframe: one for inner evaluation, one for outer evaluation on test set
   result.pf = as.data.frame(matrix(NA, nrow = length(seq.perc), ncol = length(filters)))
   rownames(result.pf) = seq.perc
   colnames(result.pf) = filters
+  result.pf.test = result.pf
   
   for (fil in filters) {
     for (s.perc in seq.perc) {
@@ -125,6 +141,7 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
       best$perc = s.perc
       perf = tuneobj(best)
       result.pf[as.character(s.perc), fil] = perf
+      result.pf.test[as.character(s.perc), fil] = attr(perf, "extras")$fitness.holdout.perf
     }
   }
   
@@ -133,9 +150,13 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
   } else {
     col.id = 1
   }
+
+  result.pf = setDT(result.pf[, col.id, drop = FALSE], keep.rownames = TRUE)[]
+  result.pf.test = setDT(result.pf.test[, col.id, drop = FALSE], keep.rownames = TRUE)[]
   
-  runtime = proc.time() - time
+  pareto.time = proc.time() - time
     
-  return(list(result = result, result.pf = result.pf[, col.id, drop = FALSE], test.task = test.task, train.task = train.task, runtime = runtime, ps = ps))
+  return(list(result = result, result.pf = result.pf, result.pf.test = result.pf.test, test.task = test.task, train.task = train.task, runtime = runtime, pareto.time = pareto.time, ps = ps))
+
 } 
 
