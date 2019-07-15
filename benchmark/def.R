@@ -48,15 +48,15 @@ ades.random = CJ(learner = c("SVM", "kknn", "xgboost"),
 			cv.iters = CVITERS,
 			sorted = FALSE)
 
-ades.mbo = CJ(learner = c("SVM", "kknn", "xgboost"), 
-			maxeval = MAXEVAL, 
-			filter = c("custom"),
-			infill = c("cb"),
-			surrogate = c("randomForest"),
-			MBMOmethod = c("parego"),
-			propose.points = c(2L),
-			maxtime = MAXTIME, 
-			sorted = FALSE)
+# ades.mbo = CJ(learner = c("SVM", "kknn", "xgboost"), 
+# 			maxeval = MAXEVAL, 
+# 			filter = c("custom"),
+# 			infill = c("cb"),
+# 			surrogate = c("randomForest"),
+# 			MBMOmethod = c("parego"),
+# 			propose.points = c(2L),
+# 			maxtime = MAXTIME, 
+# 			sorted = FALSE)
 
 ades.mosmafs = CJ(learner = c("SVM", "kknn", "xgboost"), 
 			maxeval = MAXEVAL, 
@@ -75,5 +75,12 @@ ades.no_feature_sel = CJ(learner = c("SVM", "kknn", "xgboost"),
 			maxeval = MAXEVAL, 
 			maxtime = MAXTIME,
 			cv.iters = CVITERS,
-			sorted = FALSE)
+			filter = c("custom"), 
+			surrogate = c("randomForest"), # "km.nugget"),
+			infill = c("cb"),
+      		filter.during.run = c(FALSE, TRUE), 
+      		propose.points = 10L, 
+      		sorted = FALSE)
+
+
 REPLICATIONS = 1L

@@ -1,5 +1,5 @@
 no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.iters, filter, 
-  filter.during.run) {
+  surrogate, infill, filter.during.run, propose.points) {
 
     PARALLELIZE = FALSE
 
@@ -44,10 +44,10 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
     # 3. Control 
     # --- 
     
-    ctrl = makeMBOControl()
+    ctrl = makeMBOControl(propose.points = 10L)
     ctrl = setMBOControlTermination(ctrl, max.evals = maxeval, exec.time.budget = maxtime)
-    ctrl = setMBOControlInfill(ctrl, crit = makeMBOInfillCritEI())
-    
+    ctrl = setMBOControlInfill(ctrl, crit = INFILL[[infill]])
+
     # ---
     # 4. Objective 
     # --- 
@@ -81,7 +81,7 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
         prd = predict(model, filtered.test.task)
         val = performance(prd, mmce, test.task, model)[1]
         
-        res = resample(lrn, train.task, inner, show.info = FALSE)$aggr
+        res = resample(lrn2, train.task, inner, show.info = FALSE)$aggr
         attr(res, "extras") = list(fitness.holdout.perf = val, fitness.holdout.propfeat = perc)
         res
       },
@@ -100,7 +100,7 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
   # ---
   # 5. Run experiment 
   # ---
-  result = mbo(tuneobj, control = ctrl)
+  result = mbo(tuneobj, learner = SURROGATE[[surrogate]], control = ctrl)
 
   runtime = proc.time() - time
 
@@ -116,10 +116,7 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
   time = proc.time()
 
   # if the number of features is too high, we just construct the paretofront with less features 
-  # if (p < 400)
-  #   seq.perc = seq(1, p) / p
-  # else 
-  #   seq.perc = seq(1, p, by = 2) / p
+  seq.perc = seq(1, p) / p
 
   path = trafoOptPath(result$opt.path)$env$path
   best = as.list(tail(path, 1)[, !names(path) %in% "y"])
@@ -145,14 +142,17 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
     }
   }
   
-  if (ncol(result.pf) > 1) {
-    col.id = which.max(rowSums(apply(result.pf, 1, rank)))
-  } else {
-    col.id = 1
-  }
+  # if (ncol(result.pf) > 1) {
+  #   col.id = which.max(rowSums(apply(result.pf, 1, rank)))
+  # } else {
+  #   col.id = 1
+  # }
 
-  result.pf = setDT(result.pf[, col.id, drop = FALSE], keep.rownames = TRUE)[]
-  result.pf.test = setDT(result.pf.test[, col.id, drop = FALSE], keep.rownames = TRUE)[]
+  # result.pf = setDT(result.pf[, col.id, drop = FALSE], keep.rownames = TRUE)[]
+  # result.pf.test = setDT(result.pf.test[, col.id, drop = FALSE], keep.rownames = TRUE)[]
+
+  result.pf = setDT(result.pf, keep.rownames = TRUE)[]
+  result.pf.test = setDT(result.pf.test, keep.rownames = TRUE)[]
   
   pareto.time = proc.time() - time
     

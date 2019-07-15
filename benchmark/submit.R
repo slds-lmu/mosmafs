@@ -16,12 +16,12 @@ tab = summarizeExperiments(
 source("probdesign.R")
 
 resources.serial = list(
-	walltime = 3600L * 48L, memory = 1024L * 2L,
+	walltime = 3600L * 60L, memory = 1024L * 2L,
 	clusters = "serial", max.concurrent.jobs = 250L # get name from lrz homepage)
 )
 
 resources.serial.doublemem = list(
-	walltime = 3600L * 48L, memory = 1024L * 4L,
+	walltime = 3600L * 60L, memory = 1024L * 4L,
 	clusters = "serial", max.concurrent.jobs = 250L # get name from lrz homepage)
 )
 
@@ -47,13 +47,18 @@ problems.serial = c("wdbc", "ionosphere", "sonar", "hill-valley", "clean1",
 	"tecator", "semeion", "lsvt", "isolet", "cnae-9")
 
 # --- SUBMITTING STATUS
-# --- RS      |   doing 	 |  290 / 300 DONE 
-# --- RSI     |   doing    	 |  290 / 300 DONE 
-# --- RSIF    |   doing    	 |  290 / 300 DONE 
-# --- O       |   doing      |    0 / 300 DONE 
-# --- OI      |   doing      |    0 / 300 DONE 
+# --- RS      |   doing 	 |  300 / 300 DONE 
+# --- RSI     |   doing    	 |  300 / 300 DONE 
+# --- RSIF    |   doing    	 |  300 / 300 DONE 
+# --- O       |   doing      |  296 / 300 DONE 
+# --- OI      |   doing      |  300 / 300 DONE 
+# --- OIFi    |   doing      |  300 / 300 DONE 
+# --- OIFiFm  |   doing      |  300 / 300 DONE 
+# --- OIFiFmS |   doing      |  298 / 300 DONE 
+# --- OIH     |   doing      |  293 / 300 DONE 
+# --- OIHFiFmS|   doing      |  300 / 300 DONE 
 
-experiment = "OIFi"
+experiment = "O"
 tosubmit = ijoin(tab, experiments[[experiment]], by = names(experiments[[experiment]]))
 tosubmit = ijoin(tosubmit, findNotDone())
 tosubmit = tosubmit[problem %in% problems.serial, ]
@@ -64,7 +69,7 @@ tosubmit$chunk = 1
 nchunks = nrow(tosubmit) / chunk.size
 tosubmit$chunk = rep(1:nchunks, each = chunk.size)
 
-submitJobs(tosubmit, resources = resources.serial)
+submitJobs(tosubmit, resources = resources.serial.doublemem)
 
 
 # done = ijoin(tab, findDone())

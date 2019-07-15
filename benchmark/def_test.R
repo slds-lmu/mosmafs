@@ -12,7 +12,7 @@ OVERWRITE = TRUE
 MAXEVAL = 30L
 
 # Maximum runtime
-MAXTIME = 3600L * 30L
+MAXTIME = 3600L * 40L
 
 # number of inner cross-validation iterations
 CVITERS = 3L
@@ -90,8 +90,11 @@ ades.no_feature_sel = CJ(learner = c("SVM", "kknn", "xgboost"),
 			maxeval = MAXEVAL, 
 			maxtime = MAXTIME,
 			cv.iters = CVITERS,
-			filter = c("testfilter", "custom"), 
+			filter = c("custom"), 
+			surrogate = c("randomForest"),
+			infill = c("cb"),
       		filter.during.run = c(FALSE, TRUE), 
+      		propose.points = 10L, 
       		sorted = FALSE)
 
 REPLICATIONS = 1L
