@@ -10,7 +10,7 @@ library(dplyr)
 reg = loadRegistry("registry", writeable = TRUE)
 tab = summarizeExperiments(
 	by = c("job.id", "algorithm", "problem", "learner", "maxeval", "cv.iters", "filter", "initialization", 
-	"lambda", "mu", "parent.sel", "chw.bitflip", "adaptive.filter.weights", "filter.during.run")
+	"lambda", "mu", "parent.sel", "chw.bitflip", "adaptive.filter.weights", "filter.during.run", "surrogate", "infill")
 	)
 
 source("probdesign.R")
@@ -39,7 +39,9 @@ experiments = list(
 	OIHFiFmS = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE),
 	RS = data.table(algorithm = "randomsearch", initialization = "none", filter = "none", chw.bitflip = NA, adaptive.filter.weights = NA, filter.during.run = NA),
 	RSI = data.table(algorithm = "randomsearch", initialization = "unif", filter = "none", chw.bitflip = NA, adaptive.filter.weights = NA, filter.during.run = NA),
-	RSIF = data.table(algorithm = "randomsearch", initialization = "unif", filter = "custom", chw.bitflip = NA, adaptive.filter.weights = NA, filter.during.run = NA)
+	RSIF = data.table(algorithm = "randomsearch", initialization = "unif", filter = "custom", chw.bitflip = NA, adaptive.filter.weights = NA, filter.during.run = NA),
+	BS1RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = FALSE, surrogate = "randomForest", infill = "cb"),
+	BS2RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = TRUE, surrogate = "randomForest", infill = "cb")
 	)
 
 # b) Datasets
@@ -47,27 +49,30 @@ problems.serial = c("wdbc", "ionosphere", "sonar", "hill-valley", "clean1",
 	"tecator", "semeion", "lsvt", "isolet", "cnae-9")
 
 # --- SUBMITTING STATUS
-# --- RS      |   doing 	 |  300 / 300 DONE 
-# --- RSI     |   doing    	 |  300 / 300 DONE 
-# --- RSIF    |   doing    	 |  300 / 300 DONE 
-# --- O       |   doing      |  296 / 300 DONE 
-# --- OI      |   doing      |  300 / 300 DONE 
-# --- OIFi    |   doing      |  300 / 300 DONE 
-# --- OIFiFm  |   doing      |  300 / 300 DONE 
-# --- OIFiFmS |   doing      |  298 / 300 DONE 
-# --- OIH     |   doing      |  293 / 300 DONE 
-# --- OIHFiFmS|   doing      |  300 / 300 DONE 
+# --- RS        |   DONE 	   |  300 / 300 DONE 
+# --- RSI       |   DONE       |  300 / 300 DONE 
+# --- RSIF      |   DONE       |  300 / 300 DONE 
+# --- O         |   doing      |  296 / 300 DONE 
+# --- OI        |   DONE       |  300 / 300 DONE 
+# --- OIFi      |   DONE       |  300 / 300 DONE 
+# --- OIFiFm    |   DONE       |  300 / 300 DONE 
+# --- OIFiFmS   |   doing      |  299 / 300 DONE 
+# --- OIH       |   doing      |  295 / 300 DONE 
+# --- OIHFiFmS  |   DONE       |  300 / 300 DONE 
+# --- OIHFiFmS  |   DONE       |  300 / 300 DONE 
+# --- BS1RF     |   doine      |    0 / 300 DONE
 
-experiment = "O"
+
+experiment = "BS1RF"
 tosubmit = ijoin(tab, experiments[[experiment]], by = names(experiments[[experiment]]))
 tosubmit = ijoin(tosubmit, findNotDone())
 tosubmit = tosubmit[problem %in% problems.serial, ]
-tosubmit = tosubmit[mu != 3, ]
+# tosubmit = tosubmit[mu != 3, ]
 tosubmit = tosubmit[- which(job.id %in% findOnSystem()$job.id), ]
-chunk.size = 5L
-tosubmit$chunk = 1
-nchunks = nrow(tosubmit) / chunk.size
-tosubmit$chunk = rep(1:nchunks, each = chunk.size)
+# chunk.size = 5L
+# tosubmit$chunk = 1
+# nchunks = nrow(tosubmit) / chunk.size
+# tosubmit$chunk = rep(1:nchunks, each = chunk.size)
 
 submitJobs(tosubmit, resources = resources.serial.doublemem)
 
