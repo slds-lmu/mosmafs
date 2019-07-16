@@ -52,15 +52,15 @@ problems.serial = c("wdbc", "ionosphere", "sonar", "hill-valley", "clean1",
 # --- RS        |   DONE 	   |  300 / 300 DONE 
 # --- RSI       |   DONE       |  300 / 300 DONE 
 # --- RSIF      |   DONE       |  300 / 300 DONE 
-# --- O         |   doing      |  296 / 300 DONE 
+# --- O         |   doing      |  297 / 300 DONE 
 # --- OI        |   DONE       |  300 / 300 DONE 
 # --- OIFi      |   DONE       |  300 / 300 DONE 
 # --- OIFiFm    |   DONE       |  300 / 300 DONE 
-# --- OIFiFmS   |   doing      |  299 / 300 DONE 
-# --- OIH       |   doing      |  295 / 300 DONE 
+# --- OIFiFmS   |   doing      |  300 / 300 DONE 
+# --- OIH       |   doing      |  298 / 300 DONE 
 # --- OIHFiFmS  |   DONE       |  300 / 300 DONE 
 # --- OIHFiFmS  |   DONE       |  300 / 300 DONE 
-# --- BS1RF     |   doine      |    0 / 300 DONE
+# --- BS1RF     |   doing      |    0 / 300 DONE
 
 
 experiment = "BS1RF"
@@ -74,7 +74,7 @@ tosubmit = tosubmit[- which(job.id %in% findOnSystem()$job.id), ]
 # nchunks = nrow(tosubmit) / chunk.size
 # tosubmit$chunk = rep(1:nchunks, each = chunk.size)
 
-submitJobs(tosubmit, resources = resources.serial.doublemem)
+submitJobs(tosubmit, resources = resources.serial)
 
 
 # done = ijoin(tab, findDone())
