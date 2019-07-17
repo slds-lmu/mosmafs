@@ -7,7 +7,7 @@ library(stringi)
 library(dplyr)
 
 # --- 1. Load Registry and Metadata
-reg = loadRegistry("registry", writeable = TRUE)
+reg = loadRegistry("registry_temp2", writeable = TRUE)
 tab = summarizeExperiments(
 	by = c("job.id", "algorithm", "problem", "learner", "maxeval", "cv.iters", "filter", "initialization", 
 	"lambda", "mu", "parent.sel", "chw.bitflip", "adaptive.filter.weights", "filter.during.run", "surrogate", "infill")
@@ -21,9 +21,13 @@ resources.serial = list(
 )
 
 resources.serial.doublemem = list(
-	walltime = 3600L * 60L, memory = 1024L * 4L,
+	walltime = 3600L * 60L, memory = 1024L * 10L,
 	clusters = "serial", max.concurrent.jobs = 250L # get name from lrz homepage)
 )
+
+resources.mpp2 = list(ncpus = 15L,
+	walltime = 3600L * 48L, memory = 1024L * 4L,
+	clusters = "mpp2") # get name from lrz homepage))
 
 
 # --- 2. Experiments that will be run 
@@ -52,12 +56,12 @@ problems.serial = c("wdbc", "ionosphere", "sonar", "hill-valley", "clean1",
 # --- RS        |   DONE 	   |  300 / 300 DONE 
 # --- RSI       |   DONE       |  300 / 300 DONE 
 # --- RSIF      |   DONE       |  300 / 300 DONE 
-# --- O         |   doing      |  297 / 300 DONE 
+# --- O         |   DONE       |  300 / 300 DONE 
 # --- OI        |   DONE       |  300 / 300 DONE 
 # --- OIFi      |   DONE       |  300 / 300 DONE 
 # --- OIFiFm    |   DONE       |  300 / 300 DONE 
-# --- OIFiFmS   |   doing      |  300 / 300 DONE 
-# --- OIH       |   doing      |  298 / 300 DONE 
+# --- OIFiFmS   |   DONE       |  300 / 300 DONE 
+# --- OIH       |   DONE       |  300 / 300 DONE 
 # --- OIHFiFmS  |   DONE       |  300 / 300 DONE 
 # --- OIHFiFmS  |   DONE       |  300 / 300 DONE 
 # --- BS1RF     |   doing      |    0 / 300 DONE

@@ -206,9 +206,9 @@ collectBenchmarkResults = function(path, experiments, tab) {
     toreduce = ijoin(tab, experiments[[experiment]], by = names(experiments[[experiment]]))
     toreduce = ijoin(toreduce, findDone(), by = "job.id")
 
-    # dir = as.numeric(sapply(list.files("registry/results/"), function(x) strsplit(x, ".rds")[[1]][1]))
-    # dir = data.frame(job.id = dir)
-    # toreduce = ijoin(toreduce, dir)
+    dir = as.numeric(sapply(list.files("registry/results/"), function(x) strsplit(x, ".rds")[[1]][1]))
+    dir = data.frame(job.id = dir)
+    toreduce = ijoin(toreduce, dir)
 
     res = reduceResultsDataTable(toreduce, function(x) collectResult(x$result))
     res = ijoin(tab, res, by = "job.id")
