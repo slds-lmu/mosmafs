@@ -133,6 +133,7 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
     filters = final$filter
   }
   
+  # Create lists of results: one for inner evaluation, one for outer evaluation on test set
   result.pf.list = list()
   result.pf.test.list = list()
   
@@ -163,7 +164,6 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
   # } else {
   #   col.id = 1
   # }
-
   # result.pf = setDT(result.pf[, col.id, drop = FALSE], keep.rownames = TRUE)[]
   # result.pf.test = setDT(result.pf.test[, col.id, drop = FALSE], keep.rownames = TRUE)[]
     
