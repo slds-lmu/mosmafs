@@ -584,11 +584,13 @@ g_legend<-function(a.gplot){
   legend <- tmp$grobs[[leg]]
   return(legend)}
 
-calculateEvalsToRandomsearch = function(res, path) {
+calculateEvalsToRandomsearch = function(res, path, runtime = FALSE) {
 
     # naive.hout.domHV
-    df = extractFromSummary(res, c("evals", "naive.hout.domHV"))
+    df = extractFromSummary(res, c("evals", "naive.hout.domHV", "runtime"))
     df$gen = (df$evals - 80) / 15
+    df$runtime.gen = (df$runtime/df$maxeval)*df$evals ##
+    
     df = df[, replication := 1:length(job.id), by = c("learner", "variant", "problem", "gen")]
     df = df[evals < 4000, ]
 
@@ -602,6 +604,10 @@ calculateEvalsToRandomsearch = function(res, path) {
     res2$RS.beat = 0
     res2$RSI.beat = 0
     res2$RSIF.beat = 0
+    
+    res2$RS.beat.time = 0
+    res2$RSI.beat.time = 0
+    res2$RSIF.beat.time = 0
 
     for (repl in 1:10) {
       for (prob in unique(dfm$problem)) {
@@ -609,13 +615,16 @@ calculateEvalsToRandomsearch = function(res, path) {
           for (myvariant in unique(dfm$variant)) {
             vals = dfm[replication == repl & problem == prob & learner == lrn & variant == myvariant , ]
 
-            RS = mean(dfr[replication == repl & problem == prob & learner == lrn & variant == "RS" & evals == 3095, ]$naive.hout.domHV, na.rm = TRUE)
-            RSI = mean(dfr[replication == repl & problem == prob & learner == lrn & variant == "RSI" & evals == 3095, ]$naive.hout.domHV, na.rm = TRUE)
-            RSIF = mean(dfr[replication == repl & problem == prob & learner == lrn & variant == "RSIF" & evals == 3095, ]$naive.hout.domHV, na.rm = TRUE)
+            RS = mean(dfr[replication == repl & problem == prob & learner == lrn & variant == "RS" & evals == 3995, ]$naive.hout.domHV, na.rm = TRUE)
+            RSI = mean(dfr[replication == repl & problem == prob & learner == lrn & variant == "RSI" & evals == 3995, ]$naive.hout.domHV, na.rm = TRUE)
+            RSIF = mean(dfr[replication == repl & problem == prob & learner == lrn & variant == "RSIF" & evals == 3995, ]$naive.hout.domHV, na.rm = TRUE)
      
             res2[replication == repl & replication == repl & replication == repl & learner == lrn & problem == prob & variant == myvariant, ]$RS.beat = vals[naive.hout.domHV >= RS, ][1, ]$evals
+            res2[replication == repl & replication == repl & replication == repl & learner == lrn & problem == prob & variant == myvariant, ]$RS.beat.time = vals[naive.hout.domHV >= RS, ][1, ]$runtime.gen #SD
             res2[replication == repl & replication == repl & learner == lrn & problem == prob & variant == myvariant, ]$RSI.beat = vals[naive.hout.domHV >= RSI, ][1, ]$evals
+            res2[replication == repl & replication == repl & learner == lrn & problem == prob & variant == myvariant, ]$RSI.beat.time = vals[naive.hout.domHV >= RSI, ][1, ]$runtime.gen # SD
             res2[replication == repl & learner == lrn & problem == prob & variant == myvariant, ]$RSIF.beat = vals[naive.hout.domHV >= RSIF, ][1, ]$evals
+            res2[replication == repl & learner == lrn & problem == prob & variant == myvariant, ]$RSIF.beat.time = vals[naive.hout.domHV >= RSIF, ][1, ]$runtime.gen # SD
           }
         }
       }      
@@ -623,8 +632,8 @@ calculateEvalsToRandomsearch = function(res, path) {
     
     saveRDS(res2, file.path(path, "beat_randomsearch_complete.rds"))
   
-    # --- imputation
-    res3 = res2[, .(RS.beat = mean(RS.beat, na.rm = TRUE),
+    # --- imputation evals
+    res3 = res2[, .(RS.beat = mean(RS.beat, na.rm = TRUE), 
                     RS.sd = sd(RS.beat, na.rm = TRUE) / sqrt(360), 
                     RS.nas = mean(is.na(RS.beat)) * 100,
                     RSI.beat = mean(RSI.beat, na.rm = TRUE), 
@@ -648,7 +657,38 @@ calculateEvalsToRandomsearch = function(res, path) {
 
     names(res3) = c(" ", "RS", "RS.sd", "NC.1", "RS+UI", "RSI.sd", "NC.2", "RS+UI+IF", "RSUIIF.sd", "NC.3", "test")
 
-    print(xtable::xtable(res3[, c(" ", "RS", "NC.1", "RS+UI", "NC.2", "RS+UI+IF", "NC.3")], type = "latex", include.rownames=FALSE), file = paste("latex_temp/beatRS_with_nas_average_after.tex", sep = ""))
+    print(xtable::xtable(res3[, c(" ", "RS", "NC.1", "RS+UI", "NC.2", "RS+UI+IF", "NC.3")], 
+      type = "latex", include.rownames=FALSE), file = paste("latex_temp/beatRS_evals_with_nas_average_after.tex", sep = ""))
+    
+    
+    # --- imputation runtime
+    res4 = res2[, .(RS.beat= mean(RS.beat.time, na.rm = TRUE), 
+      RS.sd = sd(RS.beat.time, na.rm = TRUE) / sqrt(360), 
+      RS.nas = mean(is.na(RS.beat.time)) * 100,
+      RSI.beat = mean(RSI.beat.time, na.rm = TRUE), 
+      RSI.sd = sd(RSI.beat.time, na.rm = TRUE) / sqrt(360),                     
+      RSI.nas = mean(is.na(RSI.beat.time)) * 100,
+      RSIF.beat = mean(RSIF.beat.time, na.rm = TRUE),
+      RSIF.sd = sd(RSIF.beat.time, na.rm = TRUE) / sqrt(360),
+      RSIF.nas = mean(is.na(RSIF.beat.time)) * 100,
+      test = length(RS.beat.time)), by = c("variant")]
+    
+    res4$RS.beat = paste(round(res4$RS.beat), " (", round(res4$RS.sd), ")", sep = "")
+    res4$RSI.beat = paste(round(res4$RSI.beat), " (", round(res4$RSI.sd), ")", sep = "")
+    res4$RSIF.beat = paste(round(res4$RSIF.beat), " (", round(res4$RSIF.sd), ")", sep = "")
+    res4$RS.nas = round(res4$RS.nas, digits = 1)
+    res4$RSI.nas = round(res4$RSI.nas, digits = 1)
+    res4$RSIF.nas = round(res4$RSIF.nas, digits = 1)
+    
+    res4$variant = revalue(res4$variant, 
+      c("O" = "NSGA-II", "OI" = "+UI", "OIFi" = "+UI+FI", "OIFiFm" = "+UI+FI+FM", 
+        "OIFiFmS" = "+UI+FI+FM (s.a.)", "OIH" = "+UI+HP", "OIHFiFmS" = "+UI+FI+HP+FM (s.a.)"))
+    
+    names(res4) = c(" ", "RS", "RS.sd", "NC.1", "RS+UI", "RSI.sd", "NC.2", "RS+UI+IF", "RSUIIF.sd", "NC.3", "test")
+    
+    print(xtable::xtable(res4[, c(" ", "RS", "NC.1", "RS+UI", "NC.2", "RS+UI+IF", "NC.3")], 
+      type = "latex", include.rownames=FALSE), file = paste("latex_temp/beatRS_runtime_with_nas_average_after.tex", sep = ""))
+    
 }
 
 
