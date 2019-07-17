@@ -2,6 +2,7 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
   surrogate, infill, filter.during.run, propose.points) {
 
     PARALLELIZE = FALSE
+    LENGTH.OUT = 10
 
     # ---
     # 0. Define task, learner, paramset, and inner resampling
@@ -68,8 +69,6 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
           ind.features = order(filtermat[,filter, drop = FALSE], decreasing = TRUE)[1:ceiling(perc*p)]
           filtered.train.task = subsetTask(train.task, features = ind.features)
           filtered.test.task = subsetTask(test.task, features = ind.features) 
-          # filtered.train.task = filterFeatures(train.task, method = filter, perc = perc)
-          # filtered.test.task = filterFeatures(test.task, method = filter, perc = perc) 
         } else {
           filtered.train.task = train.task
           filtered.test.task = test.task
@@ -119,29 +118,40 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
   seq.perc = seq(1, p) / p
 
   path = trafoOptPath(result$opt.path)$env$path
-  best = as.list(tail(path, 1)[, !names(path) %in% "y"])
-
-  # If filter was already tuned, take tuned filter 
-  if (!is.null(best$filter)) {
-    filters = best$filter
-  }
+  seq.path = round(seq(from = 1, to = nrow(path), length.out = LENGTH.OUT))
   
-  # result dataframe: one for inner evaluation, one for outer evaluation on test set
-  result.pf = as.data.frame(matrix(NA, nrow = length(seq.perc), ncol = length(filters)))
+  # result dataframe : one for inner evaluation, one for outer evaluation on test set
+  result.pf= data.table(matrix(NA, nrow = length(seq.perc), ncol = length(seq.path)))
   rownames(result.pf) = seq.perc
-  colnames(result.pf) = filters
+  colnames(result.pf) = as.character(seq.path)
   result.pf.test = result.pf
   
-  for (fil in filters) {
-    for (s.perc in seq.perc) {
-      best$filter = fil
-      best$perc = s.perc
-      perf = tuneobj(best)
-      result.pf[as.character(s.perc), fil] = perf
-      result.pf.test[as.character(s.perc), fil] = attr(perf, "extras")$fitness.holdout.perf
-    }
-  }
   
+  for (row.nr in seq.path) {
+    best = as.list(path[row.nr,][, !names(path) %in% c("y", "perc")])
+  
+  #best = as.list(tail(path, 1)[, !names(path) %in% "y"])
+
+  # If filter was already tuned, take tuned filter 
+    if (!is.null(best$filter)) {
+      filters = best$filter
+    }
+  
+    # temporary result dataframe: one for inner evaluation, one for outer evaluation on test set
+    result.pf.temp = as.data.frame(matrix(NA, nrow = length(seq.perc), ncol = length(filters)))
+    rownames(result.pf.temp) = seq.perc
+    colnames(result.pf.temp) = filters
+    result.pf.test.temp = result.pf.temp
+    
+    for (fil in filters) {
+      for (s.perc in seq.perc) {
+        best$filter = fil
+        best$perc = s.perc
+        perf = tuneobj(best)
+        result.pf.temp[as.character(s.perc), fil] = perf
+        result.pf.test.temp[as.character(s.perc), fil] = attr(perf, "extras")$fitness.holdout.perf
+      }
+    }
   # if (ncol(result.pf) > 1) {
   #   col.id = which.max(rowSums(apply(result.pf, 1, rank)))
   # } else {
@@ -150,10 +160,13 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
 
   # result.pf = setDT(result.pf[, col.id, drop = FALSE], keep.rownames = TRUE)[]
   # result.pf.test = setDT(result.pf.test[, col.id, drop = FALSE], keep.rownames = TRUE)[]
-
-  result.pf = setDT(result.pf, keep.rownames = TRUE)[]
-  result.pf.test = setDT(result.pf.test, keep.rownames = TRUE)[]
-  
+    
+    # result.pf.temp = setDT(result.pf.temp, keep.rownames = TRUE)[]
+    # result.pf.test.temp = setDT(result.pf.test.temp, keep.rownames = TRUE)[]
+    
+    result.pf[, as.character(row.nr)] = result.pf.temp[, 1]
+    result.pf.test[, as.character(row.nr)] = result.pf.test.temp[,1]
+  }
   pareto.time = proc.time() - time
     
   return(list(result = result, result.pf = result.pf, result.pf.test = result.pf.test, test.task = test.task, train.task = train.task, runtime = runtime, pareto.time = pareto.time, ps = ps))
