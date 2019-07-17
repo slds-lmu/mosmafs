@@ -119,7 +119,7 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
   seq.perc = seq(1, p) / p
 
   path = trafoOptPath(result$opt.path)$env$path
-  seq.path = round(seq(from = 1, to = nrow(path), length.out = LENGTH.OUT))
+  seq.path = round(seq(from = maxeval/LENGTH.OUT, to = maxeval, length.out = LENGTH.OUT))
   
   # result dataframe : one for inner evaluation, one for outer evaluation on test set
   # result.pf= data.table(matrix(NA, nrow = length(seq.perc), ncol = length(seq.path)))
@@ -138,7 +138,8 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
   result.pf.test.list = list()
   
   for (row.nr in seq.path) {
-    best = as.list(path[row.nr,][, !names(path) %in% c("y")])
+    best_id = which.min(path[1:row.nr,]$y)
+    best = as.list(path[best_id,][, !names(path) %in% c("y")])
   
     # if (!is.null(path)) {
     #   filters = best$filter
