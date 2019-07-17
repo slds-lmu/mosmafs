@@ -100,7 +100,8 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
   # 5. Run experiment 
   # ---
   result = mbo(tuneobj, learner = SURROGATE[[surrogate]], control = ctrl)
-
+  
+  
   runtime = proc.time() - time
 
 
@@ -121,35 +122,40 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
   seq.path = round(seq(from = 1, to = nrow(path), length.out = LENGTH.OUT))
   
   # result dataframe : one for inner evaluation, one for outer evaluation on test set
-  result.pf= data.table(matrix(NA, nrow = length(seq.perc), ncol = length(seq.path)))
-  rownames(result.pf) = seq.perc
-  colnames(result.pf) = as.character(seq.path)
-  result.pf.test = result.pf
-  
-  
-  for (row.nr in seq.path) {
-    best = as.list(path[row.nr,][, !names(path) %in% c("y", "perc")])
-  
-  #best = as.list(tail(path, 1)[, !names(path) %in% "y"])
+  # result.pf= data.table(matrix(NA, nrow = length(seq.perc), ncol = length(seq.path)))
+  # rownames(result.pf) = seq.perc
+  # colnames(result.pf) = as.character(seq.path)
+  # result.pf.test = result.pf
 
   # If filter was already tuned, take tuned filter 
-    if (!is.null(best$filter)) {
-      filters = best$filter
-    }
+  final = tail(path, 1)
+  if (!is.null(final$filter)) {
+    filters = final$filter
+  }
+  
+  result.pf.list = list()
+  result.pf.test.list = list()
+  
+  for (row.nr in seq.path) {
+    best = as.list(path[row.nr,][, !names(path) %in% c("y")])
+  
+    # if (!is.null(path)) {
+    #   filters = best$filter
+    # }
   
     # temporary result dataframe: one for inner evaluation, one for outer evaluation on test set
-    result.pf.temp = as.data.frame(matrix(NA, nrow = length(seq.perc), ncol = length(filters)))
-    rownames(result.pf.temp) = seq.perc
-    colnames(result.pf.temp) = filters
-    result.pf.test.temp = result.pf.temp
+    result.pf = as.data.frame(matrix(NA, nrow = length(seq.perc), ncol = length(filters)))
+    rownames(result.pf) = seq.perc
+    colnames(result.pf) = filters
+    result.pf.test = result.pf
     
     for (fil in filters) {
       for (s.perc in seq.perc) {
         best$filter = fil
         best$perc = s.perc
         perf = tuneobj(best)
-        result.pf.temp[as.character(s.perc), fil] = perf
-        result.pf.test.temp[as.character(s.perc), fil] = attr(perf, "extras")$fitness.holdout.perf
+        result.pf[as.character(s.perc), fil] = perf
+        result.pf.test[as.character(s.perc), fil] = attr(perf, "extras")$fitness.holdout.perf
       }
     }
   # if (ncol(result.pf) > 1) {
@@ -161,15 +167,14 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
   # result.pf = setDT(result.pf[, col.id, drop = FALSE], keep.rownames = TRUE)[]
   # result.pf.test = setDT(result.pf.test[, col.id, drop = FALSE], keep.rownames = TRUE)[]
     
-    # result.pf.temp = setDT(result.pf.temp, keep.rownames = TRUE)[]
-    # result.pf.test.temp = setDT(result.pf.test.temp, keep.rownames = TRUE)[]
-    
-    result.pf[, as.character(row.nr)] = result.pf.temp[, 1]
-    result.pf.test[, as.character(row.nr)] = result.pf.test.temp[,1]
+    result.pf = setDT(result.pf, keep.rownames = TRUE)[]
+    result.pf.test = setDT(result.pf.test, keep.rownames = TRUE)[]
+    result.pf.list[[as.character(row.nr)]] = result.pf
+    result.pf.test.list[[as.character(row.nr)]] = result.pf.test
+
   }
   pareto.time = proc.time() - time
     
-  return(list(result = result, result.pf = result.pf, result.pf.test = result.pf.test, test.task = test.task, train.task = train.task, runtime = runtime, pareto.time = pareto.time, ps = ps))
-
+  return(list(result = result, result.pf = result.pf.list, result.pf.test = result.pf.test.list, test.task = test.task, train.task = train.task, runtime = runtime, pareto.time = pareto.time, ps = ps))
 } 
 
