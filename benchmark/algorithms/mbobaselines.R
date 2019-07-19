@@ -2,7 +2,7 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
   surrogate, infill, filter.during.run, propose.points) {
 
     PARALLELIZE = FALSE
-    LENGTH.OUT = 10
+    LENGTH.OUT = 16
 
     # ---
     # 0. Define task, learner, paramset, and inner resampling
@@ -116,7 +116,8 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
   time = proc.time()
 
   # if the number of features is too high, we just construct the paretofront with less features 
-  seq.perc = seq(1, p) / p
+  pind = pmin(p, 100)
+  seq.perc = seq(1, pind) / p
 
   path = trafoOptPath(result$opt.path)$env$path
   seq.path = round(seq(from = maxeval/LENGTH.OUT, to = maxeval, length.out = LENGTH.OUT))
