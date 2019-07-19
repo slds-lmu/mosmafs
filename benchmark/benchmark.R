@@ -23,7 +23,7 @@ TEST = FALSE
 
 if (TEST) {
   deffile = "def_test.R"
-  registry_name = "registry_temp2"
+  registry_name = "registry_temp"
 } else {
   deffile = "def.R"
   registry_name = "registry"

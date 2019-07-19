@@ -41,6 +41,5 @@ problems = c("wdbc", "ionosphere", "sonar", "hill-valley", "clean1",
 	"tecator", "semeion", "lsvt", "isolet", "cnae-9")
 
 
-
 collectBenchmarkResults(path, experiments, tab)
 collectParetofront(path, experiments = experiments[c("O", "OIHFiFmS", "RS", "RSI", "RSIF")], tab, problems, learners = c("xgboost"))
