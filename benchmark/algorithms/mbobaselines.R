@@ -2,7 +2,7 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
   surrogate, infill, filter.during.run, propose.points) {
 
     PARALLELIZE = FALSE
-    LENGTH.OUT = 16
+    LENGTH.OUT = 80
 
     # ---
     # 0. Define task, learner, paramset, and inner resampling
@@ -45,7 +45,7 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
     # 3. Control 
     # --- 
     
-    ctrl = makeMBOControl(propose.points = 10L)
+    ctrl = makeMBOControl(propose.points = propose.points)
     ctrl = setMBOControlTermination(ctrl, max.evals = maxeval, exec.time.budget = maxtime)
     ctrl = setMBOControlInfill(ctrl, crit = INFILL[[infill]])
 
@@ -120,8 +120,9 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
   seq.perc = seq(1, pind) / p
 
   path = trafoOptPath(result$opt.path)$env$path
-  seq.path = round(seq(from = maxeval/LENGTH.OUT, to = maxeval, length.out = LENGTH.OUT))
-  
+  seq.path = round(seq(from = maxeval / LENGTH.OUT, to = maxeval, length.out = LENGTH.OUT))
+  seq.path = c(4 * sum(getParamLengths(ps)), seq.path)
+
   # result dataframe : one for inner evaluation, one for outer evaluation on test set
   # result.pf= data.table(matrix(NA, nrow = length(seq.perc), ncol = length(seq.path)))
   # rownames(result.pf) = seq.perc
