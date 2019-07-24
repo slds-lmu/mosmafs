@@ -111,7 +111,7 @@ makeObjective <- function(learner, task, ps, resampling, measure = NULL, holdout
 
   argnames <- getParamIds(getParamSet(learner))
   smoof::makeMultiObjectiveFunction(
-    messagef("mosmafs_%s_%s", learner$id, task$task.desc$id),
+    sprintf("mosmafs_%s_%s", learner$id, task$task.desc$id),
     has.simple.signature = FALSE, par.set = ps, n.objectives = 2, noisy = TRUE,
     ref.point = c(worst.measure, 1),
     fn = function(args, fidelity = NULL, holdout = FALSE) {
@@ -244,14 +244,14 @@ makeBaselineObjective <- function(learner, task, filters, ps, resampling, measur
     makeParamSet(params = lapply(seq_len(num.explicit.featsel), function(idx) {
       # not using vector parameters here because mlrMBO probably
       # sucks at handling them.
-      makeIntegerParam(messagef("mosmafs.iselect.%s", idx),
+      makeIntegerParam(sprintf("mosmafs.iselect.%s", idx),
         lower = 1L, upper = numfeats)
     })),
     if (length(filters) > 1) {
       makeParamSet(params = lapply(seq_along(filters), function(idx) {
         # not using vector parameters here because mlrMBO probably
         # sucks at handling them.
-        makeIntegerParam(messagef("mosmafs.select.weights.%s", idx),
+        makeIntegerParam(sprintf("mosmafs.select.weights.%s", idx),
           lower = 1L, upper = numfeats)
       }))
     }
@@ -261,7 +261,7 @@ makeBaselineObjective <- function(learner, task, filters, ps, resampling, measur
   assertMatrix(fmat, nrows = numfeats)
 
   smoof::makeMultiObjectiveFunction(
-    messagef("mosmafs_baseline_%s_%s", learner$id, task$task.desc$id),
+    sprintf("mosmafs_baseline_%s_%s", learner$id, task$task.desc$id),
     has.simple.signature = FALSE, par.set = ps, n.objectives = 2, noisy = TRUE,
     ref.point = c(worst.measure, 1),
     fn = function(x) {
@@ -270,16 +270,16 @@ makeBaselineObjective <- function(learner, task, filters, ps, resampling, measur
       args <- x
       dif.names <- getParamIds(ps)[!getParamIds(ps) %in% names(args)]
       if (length(dif.names) > 0) {
-        stop(messagef("%s must be an element in list 'x'", dif.names))
+        stop(sprintf("%s must be an element in list 'x'", dif.names))
       }
       
       # trafo not necessary in mlrMBO
 
       # set up `selector.selection` from nselect, iselect, select.weights and fmat
       nselect <- args$mosmafs.nselect
-      iselect <- args[messagef("mosmafs.iselect.%s", seq_len(num.explicit.featsel))]
+      iselect <- args[sprintf("mosmafs.iselect.%s", seq_len(num.explicit.featsel))]
       if (length(filters) > 1) {
-        select.weights <- unlist(args[messagef("mosmafs.select.weights.%s",
+        select.weights <- unlist(args[sprintf("mosmafs.select.weights.%s",
           seq_along(filters))])
         fvals <- c(fmat %*% select.weights)
       } else {
