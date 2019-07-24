@@ -13,6 +13,15 @@
 #' @param minprob `[numeric(1)]` The minimum probability for each feature.
 #' @param maxprob `[numeric(1)]` The maximum probability for each feature.
 #' @return `matrix`
+#' @examples 
+#' library("mlr")
+#' 
+#' # Example for iris task
+#' tasks <- iris.task
+#' filters <- c("praznik_JMI", "anova.test", "variance", "DUMMY")
+#' fima <- makeFilterMat(task, filters = filters)
+#' print(fima)
+#' 
 #' @export
 makeFilterMat <- function(task, filters, expectfeatfrac = 0.5, expectfeats = getTaskNFeats(task) * expectfeatfrac, minprob = 0, maxprob = 1) {
   assertNumber(expectfeats / getTaskNFeats(task), lower = minprob, upper = maxprob)

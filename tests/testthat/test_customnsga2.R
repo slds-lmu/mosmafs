@@ -323,7 +323,7 @@ test_that("vectorized fitness evaluation", {
 
   generations <- 10
   lambda <- 10
-  expect_class(results <- results <- slickEcr(fitness.fun = fitness.fun, lambda = lambda, 
+  expect_class(results <- slickEcr(fitness.fun = fitness.fun, lambda = lambda, 
     population = initials, 
     mutator = mutator.simple, recombinator = crossover.simple, generations = generations), 
     "MosmafsResult")
@@ -347,7 +347,7 @@ test_that("vectorized fitness evaluation", {
   
   generations <- 10
   lambda <- 10
-  expect_class(results <- results <- slickEcr(fitness.fun = fitness.fun, lambda = lambda, 
+  expect_class(results <- slickEcr(fitness.fun = fitness.fun, lambda = lambda, 
     population = initials, survival.selector = selGreedy,
     mutator = mutator.simple, recombinator = crossover.simple, generations = generations), 
     "MosmafsResult")

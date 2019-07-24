@@ -112,6 +112,51 @@ availableAttributes <- function(log, check = FALSE) {
 #'   correlation between objective and holdout. Must take two `numeric`
 #'   arguments and return a `numeric(1)`.
 #' @return `data.frame` 
+#' @examples
+#' 
+#' # Setup of optimization problem 
+#' ps.simple <- pSS(
+#'  a: numeric [0, 10],
+#'  selector.selection: logical^10)
+#'  
+#' mutator.simple <- combine.operators(ps.simple,
+#'  a = mutGauss,
+#'  selector.selection = mutBitflipCHW)
+#'  
+#' crossover.simple <- combine.operators(ps.simple,
+#'  a = recSBX,
+#'  selector.selection = recPCrossover)
+#'
+#' initials <- sampleValues(ps.simple, 30, discrete.names = TRUE)
+#' 
+#' fitness.fun <- smoof::makeMultiObjectiveFunction(
+#'  sprintf("simple test"),
+#'  has.simple.signature = FALSE, par.set = ps.simple, n.objectives = 2, 
+#'  noisy = TRUE,
+#'  ref.point = c(10, 1),
+#'  fn = function(args, fidelity = NULL, holdout = FALSE) {
+#'    pfeat <- mean(args$selector.selection)
+#'    c(perform = args$a, pfeat = pfeat)
+#'  })
+
+#' fitness.fun.single <- smoof::makeMultiObjectiveFunction(
+#'  sprintf("simple test"),
+#'  has.simple.signature = FALSE, par.set = ps.simple, n.objectives = 1, 
+#'  noisy = TRUE,
+#'  ref.point = c(10),
+#'  fn = function(args, fidelity = NULL, holdout = FALSE) {
+#'    propfeat <- mean(args$selector.selection)
+#'    c(propfeat = propfeat)
+#'  })
+#'
+#' # Run NSGA-II
+#' results <- slickEcr(fitness.fun = fitness.fun, lambda = 10, population = initials, 
+#'  mutator = mutator.simple, recombinator = crossover.simple, generations = 10)
+#'
+#' # Collect results
+#' colres <- collectResult(results)
+#' print(colres)
+#'  
 #' @export
 collectResult <- function(ecr.object, aggregate.perresult = list(domHV = function(x) computeHV(x, ref.point)), aggregate.perobjective = list("min", "mean", "max"), ref.point = smoof::getRefPoint(ecr.object$control$task$fitness.fun), cor.fun = cor) {
   assertClass(ecr.object, "MosmafsResult")
@@ -246,6 +291,22 @@ collectResult <- function(ecr.object, aggregate.perresult = list(domHV = functio
 #' to newly generated values of `vector.name`. If set to NULL, no rejection is done. 
 #' @return `list of named lists` the individuals with initialized
 #'   `[[vector.name]]`.
+#' @examples
+#' 
+#' # Initialize parameter set and sample candidates
+#' ps <- pSS(
+#'  maxdepth: integer[1, 30],
+#'  minsplit: integer[2, 30],
+#'  cp: numeric[0.001, 0.999], 
+#'  selector.selection: logical^5)
+#' 
+#' initials <- sampleValues(ps, 15, discrete.names = TRUE)
+#' 
+#' # Resample logical vector selector.selection of initials 
+#' # with binomial distribution 
+#' initSelector(initials, distribution = function() rbinom(n = 5, size = 5, 
+#'  prob = 0.5))
+#' 
 #' @export
 initSelector <- function(individuals, vector.name = "selector.selection", distribution = function() floor(runif(1, 0, length(individuals[[1]][[vector.name]]) + 1)), soften.op = NULL, soften.op.strategy = NULL, soften.op.repeat = 1, reject.condition = function(x) !any(x)) {
   
@@ -411,6 +472,18 @@ setMosmafsVectorized <- function(fn, vectorize = TRUE) {
 #' by parameter ids.
 #' @param par.set `[ParamSet]` parameter set.
 #' @return `[data.frame]`
+#' @examples 
+#' temp <- c("a", "b", "c")
+#' ps.simple <- pSS(
+#'  num: numeric [0, 10],
+#'  int: integer[0, 10] [[trafo = function(x) x / 10]],
+#'  char: discrete [temp], 
+#'  selector.selection: logical^10)
+#'  
+#' init.list <- sampleValues(ps.simple, 5, discrete.names = TRUE)
+#' result <- listToDf(init.list, ps.simple)
+#' result
+#' 
 #' @export
 listToDf = function(list.object, par.set) {
   assertList(list.object)
