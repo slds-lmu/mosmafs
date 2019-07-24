@@ -64,7 +64,8 @@ problems.serial = c("wdbc", "ionosphere", "sonar", "hill-valley", "clean1",
 # --- OIH       |   DONE       |  300 / 300 DONE 
 # --- OIHFiFmS  |   DONE       |  300 / 300 DONE 
 # --- OIHFiFmS  |   DONE       |  300 / 300 DONE 
-# --- BS1RF     |   doing      |  143 / 300 DONE
+# --- BS1RF     |   doing      |  180 / 300 DONE (first 157 have false structure)
+# --- BS2RF     |   doing      |  57 / 300 DONE
 
 
 experiment = "BS2RF"
