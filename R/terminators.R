@@ -30,7 +30,7 @@ mosmafsTermEvals <- function(evals) {
   function(result) {
     state <- max(c(result$evals, 0))
     if (state >= evals) {
-      messagef("Number of total evaluations %s reached limit %s", state, evals)
+      sprintf("Number of total evaluations %s reached limit %s", state, evals)
     }
   }
 }
@@ -42,7 +42,7 @@ mosmafsTermGenerations <- function(generations) {
   function(result) {
     state <- max(c(result$gen, 0))
     if (state >= generations) {
-      messagef("Number of total generations %s reached limit %s", state, generations)
+      sprintf("Number of total generations %s reached limit %s", state, generations)
     }
   }
 }
@@ -54,7 +54,7 @@ mosmafsTermTime <- function(time) {
   function(result) {
     state <- max(c(result$runtime, 0))
     if (state >= time) {
-      messagef("Total runtime %s reached limit %s", state, time)
+      sprintf("Total runtime %s reached limit %s", state, time)
     }
   }
 }
@@ -66,7 +66,7 @@ mosmafsTermFidelity <- function(fidelity) {
   function(result) {
     state <- max(c(result$cum.fid, 0))
     if (state >= fidelity) {
-      messagef("Total fidelity %s reached limit %s", state, fidelity)
+      sprintf("Total fidelity %s reached limit %s", state, fidelity)
     }
   }
 }
