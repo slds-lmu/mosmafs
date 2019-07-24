@@ -453,6 +453,27 @@ plotPerformanceHout = function(res, plotspath) {
 }
 
 
+plotHvOverRuntime = function(res, plotspath, metric = "naive.hout.domHV", heights = 7, width = 7) {
+  df = extractFromSummary(res, c("evals", "runtime", metric))
+  df = df[evals < 4000, ]
+  df$gen = (df$evals - 80) / 15
+  df$runtime.gen = (df$runtime/df$maxeval)*df$evals
+  df = df[, replication := 1:length(job.id), by = c("learner", "variant", "problem", "gen")]
+  df = renameAndRevalue(df)
+  names(df)[17] = "metric"
+  
+  for (lrn in unique(df$learner)) {
+    for (prob in unique(df$problem)) {
+      df.sub = df[problem == prob & learner == lrn, ]
+      df.sub$time.interval = cut(df.sub$runtime.gen, breaks = 10)
+      dfm = df.sub[, meanhv := mean(metric), by = c("time.interval")]
+    }
+  }
+  
+  dfr = df[, mean_hv := mean(metric), by = c("learner", "problem", "evals", "replication")]
+  
+}
+
 plotRanks = function(res, plotspath, logscale = FALSE, metric = "naive.hout.domHV", limits = c(0.37, 1), height = 10, width = 7) {
     
     # --- naive.hout.domHV
@@ -589,7 +610,7 @@ calculateEvalsToRandomsearch = function(res, path, runtime = FALSE) {
     # naive.hout.domHV
     df = extractFromSummary(res, c("evals", "naive.hout.domHV", "runtime"))
     df$gen = (df$evals - 80) / 15
-    df$runtime.gen = (df$runtime/df$maxeval)*df$evals ##
+    df$runtime.gen = (df$runtime/df$maxeval)*df$evals # SD
     
     df = df[, replication := 1:length(job.id), by = c("learner", "variant", "problem", "gen")]
     df = df[evals < 4000, ]
