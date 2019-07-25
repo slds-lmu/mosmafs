@@ -16,7 +16,7 @@ tab = summarizeExperiments(
 source("probdesign.R")
 
 resources.serial = list(
-	walltime = 3600L * 60L, memory = 1024L * 2L,
+	walltime = 3600L * 80L, memory = 1024L * 2L,
 	clusters = "serial", max.concurrent.jobs = 1000L # get name from lrz homepage)
 )
 

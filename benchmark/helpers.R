@@ -67,6 +67,77 @@ calculateRanks = function(dfr, nevals) {
   return(dfr)
 }
 
+makeSingleObjectiveFeatsel <- function(learner, task, ps, resampling, measure = NULL, holdout.data = NULL, worst.measure = NULL, cpo = NULLCPO) {
+  if (is.null(measure)) {
+    measure <- getDefaultMeasure(task)
+  }
+  assertClass(learner, "Learner")
+  assertClass(cpo, "CPO")
+  assertClass(task, "Task")
+  assertClass(holdout.data, "Task", null.ok = TRUE)
+  assertClass(ps, "ParamSet")
+  assert(
+      checkClass(resampling, "ResampleInstance"),
+      checkClass(resampling, "ResampleDesc"),
+      checkFunction(resampling, nargs = 1)
+  )
+  assertClass(measure, "Measure")
+  if (is.null(worst.measure)) {
+    worst.measure <- measure$worst
+  }
+  assertNumber(worst.measure, finite = TRUE)
+
+  obj.factor <- if (measure$minimize) 1 else -1
+
+  worst.measure <- worst.measure * obj.factor
+
+  # error if selector.selection already in ps, will be automatically added
+  if ("selector.selection" %in% ParamHelpers::getParamIds(ps)) {
+    stop("selector.selection is not allowed to be part of 'ps' as it is automatically added")
+  }
+  ps = c(ps, pSS(selector.selection = NA: logical^getTaskNFeats(task)))
+  
+  learner <- cpoSelector() %>>% checkLearner(learner, type = getTaskType(task))
+  learner %<<<% cpo
+
+  argnames <- getParamIds(getParamSet(learner))
+  smoof::makeSingleObjectiveFunction(
+    sprintf("mosmafs_%s_%s", learner$id, task$task.desc$id),
+    has.simple.signature = FALSE, par.set = ps, noisy = TRUE,
+    fn = function(args, fidelity = NULL, holdout = FALSE) {
+      if (holdout && is.null(holdout.data)) {
+        return(c(perf = Inf, propfeat = Inf))
+      }
+      if (!missing(fidelity) && identical(fidelity, 0)) {
+        return(c(perf = 0, propfeat = 0))
+      }
+      # filter out strategy parameters
+      args <- args[intersect(names(args), argnames)]
+      learner <- setHyperPars(learner, par.vals = args)
+      if (holdout) {
+        model <- train(learner, task)
+        prd <- predict(model, holdout.data)
+        val <- performance(prd, list(measure), task, model)[1]
+      } else {
+        if (is.function(resampling)) {
+          assertNumber(fidelity)
+          res <- resampling(fidelity)
+        } else {
+          res <- resampling
+        }
+
+        val <- resample(learner, task, res,
+          list(measure), show.info = FALSE)$aggr
+      }
+      if (is.na(val)) {
+        val <- worst.measure
+      }
+      propfeat <- mean(args$selector.selection)
+      c(perf = unname(val * obj.factor))
+  })
+}
+
+
 
 # datapath = "data"
 # dirs = list.dirs(datapath)

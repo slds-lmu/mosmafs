@@ -7,6 +7,8 @@ source("probdesign.R")
 pdes = lapply(datasets, function(x) data.table(rinst.iter = 1:10))
 names(pdes) = datasets
 
+source("helpers.R")
+
 # --- data folder 
 datafolder = "data"
 
@@ -23,7 +25,7 @@ MAXTIME = 3600L * 40L
 CVITERS = 10L
 
 # --- Parent SelectionS
-PARENTSEL = list("selSimple" = ecr::setup(selSimple), "selNondom" = ecr::setup(selNondom), "selTournamentMO" = ecr::setup(selTournamentMO))
+PARENTSEL = list("selSimple" = ecr::setup(selSimple), "selNondom" = ecr::setup(selNondom), "selTournamentMO" = ecr::setup(selTournamentMO), "selTournament" = ecr::setup(selTournament))
 
 # --- Feature mutation 
 FEATURE_MUT = list("mutBitflipCHW" = ecr::setup(mutBitflipCHW), "mutBitflip" = mutBitflip, "mutUniformMetaResetSHW" = mutUniformMetaResetSHW)

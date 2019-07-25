@@ -1,2 +1,6 @@
 packrat/lib*/
 packrat/src/
+
+*.png
+registry/
+registry_temp/

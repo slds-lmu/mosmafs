@@ -9,7 +9,8 @@ testdata = "sonar"
 tab = summarizeExperiments(by = c("job.id", "algorithm", 
 	"problem", "learner", "maxeval", "filter", "initialization", 
 	"lambda", "mu", "parent.sel", "chw.bitflip", "adaptive.filter.weights",
-	"filter.during.run", "surrogate", "infill", "propose.points", "maxtime"))
+	"filter.during.run", "surrogate", "infill", "propose.points", "maxtime", 
+  "multi.objective"))
 tab = tab[problem %in% testdata, ]
 
 
@@ -55,32 +56,6 @@ unif = testJob(63)
 sapply(unif$result$last.population, function (x) mean(x$selector.selection))
 
 
-
-# --- reproduce error 
-library(mlrMBO)
-ps = makeParamSet(makeNumericParam("C", lower = 1 - 10^(-8), 1 + 10^(-8)))
-
-control = makeMBOControl()
-control = setMBOControlTermination(control, max.evals = 20L)
-control = setMBOControlInfill(control, crit = crit.cb)
-
-lrn = makeLearner("classif.ksvm")
-
-tuneobj = makeSingleObjectiveFunction(name = "tuning",
- fn = function(x) {
-    lrn2 = setHyperPars2(lrn, par.vals = x)
-    res = resample(lrn2, iris.task, cv3, show.info = FALSE)$aggr
-    res
-  },
-  par.set = ps,
-  noisy = TRUE,
-  has.simple.signature = FALSE,
-  minimize = TRUE
-)
-# 
-set.seed(1234)
-
-result = mbo(tuneobj, control = control)
-
-
-
+# --- test single objective
+tosubmit = tab[multi.objective == FALSE & parent.sel == "selTournament", ]
+res = testJob(tosubmit[1, ])

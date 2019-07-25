@@ -2,6 +2,7 @@ packages = c("batchtools", "ecr", "magrittr", "mosmafs", "ParamHelpers", "mlr", 
 
 # source the prob design
 source("probdesign.R")
+source("helpers.R")
 
 datafolder = "data"
 
@@ -18,7 +19,7 @@ MAXTIME = 3600L * 40L
 CVITERS = 3L
 
 # Parent Selections
-PARENTSEL = list("selSimple" = ecr::setup(selSimple), "selNondom" = ecr::setup(selNondom), "selTournamentMO" = ecr::setup(selTournamentMO))
+PARENTSEL = list("selSimple" = ecr::setup(selSimple), "selNondom" = ecr::setup(selNondom), "selTournamentMO" = ecr::setup(selTournamentMO), "selTournament" = ecr::setup(selTournament))
 
 FEATURE_MUT = list("mutBitflipCHW" = ecr::setup(mutBitflipCHW), "mutBitflip" = mutBitflip, "mutUniformMetaResetSHW" = mutUniformMetaResetSHW)
 
@@ -80,10 +81,11 @@ ades.mosmafs = CJ(learner = c("SVM", "kknn", "xgboost"),
 			initialization = c("none", "unif"), 
 			lambda = 2L,
 			mu = 3L,
-			parent.sel = c("selTournamentMO"),
+			parent.sel = c("selTournamentMO", "selTournament"),
 			chw.bitflip = c(FALSE, TRUE),
 			adaptive.filter.weights = c(FALSE), # TRUE),
 			filter.during.run = c(FALSE),# TRUE),
+			multi.objective = c(FALSE),
 			sorted = FALSE)
 
 ades.no_feature_sel = CJ(learner = c("SVM", "kknn", "xgboost"), 
