@@ -198,6 +198,61 @@ collectResult <- function(ecr.object, aggregate.perresult = list(domHV = functio
   resdf
 }
 
+collectResultMBO = function(object, ecr.object, aggregate.perresult = list(domHV = function(x) computeHV(x, ref.point)), aggregate.perobjective = list("min", "mean", "max"), ref.point = smoof::getRefPoint(ecr.object$control$task$fitness.fun), cor.fun = cor) {
+  opt.path <- data.frame(object$result$opt.path)
+  resdf <- data.table()
+  resdf$gen <- 0:(length(object$result.pf)-1)
+  evals <- as.integer(names(object$result.pf))
+  resdf$runtime <- cumsum(rowSums(opt.path[evals, c("train.time",  "propose.time", "exec.time")], na.rm = TRUE))
+  resdf$evals <- evals
+  resdf
+  
+  multi.fun <- function(x) {
+    c(min = min(x), mean = mean(x, na.rm = TRUE), max = max(x))
+  }
+  
+  receive.perf <- function(x, names) {
+      agg <- as.vector(apply(x, 2, multi.fun))
+      hv <- ecr::computeHV(t(as.matrix(x)), ref.point = c(1, 1))
+      agg <- c(agg, hv)
+      names(agg) = names
+      return(agg)
+  }
+  
+  perflist <- mapply(FUN = function(train, hold) {
+    
+    # Get summaries performance training data
+    train$rn <- as.numeric(train$rn)
+    train <- train[, c(2, 1)]
+    train.perf <- receive.perf(train, c("eval.perf.min", "eval.perf.mean", 
+      "eval.perf.max", "eval.propfeat.min", 
+      "eval.propfeat.mean", "eval.propfeat.max", "eval.domHV"))
+    
+    # Get summaries performance holdout data
+    hold$rn <- as.numeric(hold$rn)
+    hold <- hold[, c(2, 1)]
+    test.perf <- receive.perf(hold, c("hout.perf.min", 
+      "hout.perf.mean", "hout.perf.max", "hout.propfeat.min", "hout.propfeat.mean", 
+      "hout.propfeat.max",  "hout.domHV"))
+    
+    # Unbiased and naive domHV 
+    true.hout.domHV <- unbiasedHoldoutDomHV(t(as.matrix(train)), t(as.matrix(hold)), refpoint = c(1,1))
+    names(true.hout.domHV) <- "true.hout.domHV"
+    naive.hout.domHV <- as.vector(naiveHoldoutDomHV(t(as.matrix(train)), t(as.matrix(hold)), refpoint = c(1,1)))
+    names(naive.hout.domHV) <- "naive.hout.domHV"
+    c(train.perf, test.perf, true.hout.domHV, naive.hout.domHV)
+    
+  }, object$result.pf, object$result.pf.test, SIMPLIFY = FALSE)
+  
+  perfdf = do.call(rbind, perflist)
+  resdf = cbind(resdf, perfdf)
+  
+  # Cor not needed
+  resdf$cor.perf = NA
+  resdf$cor.propfeat = NA
+  
+  return(resdf)
+}
 
 # CollectResults
 collectBenchmarkResults = function(path, experiments, tab) {
@@ -453,26 +508,26 @@ plotPerformanceHout = function(res, plotspath) {
 }
 
 
-plotHvOverRuntime = function(res, plotspath, metric = "naive.hout.domHV", heights = 7, width = 7) {
-  df = extractFromSummary(res, c("evals", "runtime", metric))
-  df = df[evals < 4000, ]
-  df$gen = (df$evals - 80) / 15
-  df$runtime.gen = (df$runtime/df$maxeval)*df$evals
-  df = df[, replication := 1:length(job.id), by = c("learner", "variant", "problem", "gen")]
-  df = renameAndRevalue(df)
-  names(df)[17] = "metric"
-  
-  for (lrn in unique(df$learner)) {
-    for (prob in unique(df$problem)) {
-      df.sub = df[problem == prob & learner == lrn, ]
-      df.sub$time.interval = cut(df.sub$runtime.gen, breaks = 10)
-      dfm = df.sub[, meanhv := mean(metric), by = c("time.interval")]
-    }
-  }
-  
-  dfr = df[, mean_hv := mean(metric), by = c("learner", "problem", "evals", "replication")]
-  
-}
+# plotHvOverRuntime = function(res, plotspath, metric = "naive.hout.domHV", heights = 7, width = 7) {
+#   df = extractFromSummary(res, c("evals", "runtime", metric))
+#   df = df[evals < 4000, ]
+#   df$gen = (df$evals - 80) / 15
+#   df$runtime.gen = (df$runtime/df$maxeval)*df$evals
+#   df = df[, replication := 1:length(job.id), by = c("learner", "variant", "problem", "gen")]
+#   df = renameAndRevalue(df)
+#   names(df)[17] = "metric"
+#   
+#   for (lrn in unique(df$learner)) {
+#     for (prob in unique(df$problem)) {
+#       df.sub = df[problem == prob & learner == lrn, ]
+#       df.sub$time.interval = cut(df.sub$runtime.gen, breaks = 10)
+#       dfm = df.sub[, meanhv := mean(metric), by = c("time.interval")]
+#     }
+#   }
+#   
+#   dfr = df[, mean_hv := mean(metric), by = c("learner", "problem", "evals", "replication")]
+#   
+# }
 
 plotRanks = function(res, plotspath, logscale = FALSE, metric = "naive.hout.domHV", limits = c(0.37, 1), height = 10, width = 7) {
     
