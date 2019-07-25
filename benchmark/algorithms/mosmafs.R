@@ -1,5 +1,5 @@
 mosmafs = function(data, job, instance, learner, maxeval, filter, initialization,
-  lambda, mu, parent.sel, chw.bitflip, adaptive.filter.weights, filter.during.run, cv.iters) {
+  lambda, mu, parent.sel, chw.bitflip, adaptive.filter.weights, filter.during.run, cv.iters, multi.objective) {
 
   PARALLELIZE = FALSE
 
@@ -53,6 +53,7 @@ mosmafs = function(data, job, instance, learner, maxeval, filter, initialization
     fima = makeFilterMat(train.task, filters = FILTER[[filter]])
     ps = c(ps, pSS(filterweights: numeric[0, ~1]^length(FILTER[[filter]])))
   }
+ 
   if (filter != "none" && filter.during.run) {
     # create paramset for filterweights
     if (chw.bitflip) {
@@ -95,7 +96,11 @@ mosmafs = function(data, job, instance, learner, maxeval, filter, initialization
                   stratparm.discrete: numeric[0, 1]))
   
   # --- create objective ---
-  fitness.fun = makeObjective(learner = lrn, task = train.task, ps = ps, resampling = inner, holdout.data = test.task)
+  if (multi.objective) {
+      fitness.fun = makeObjective(learner = lrn, task = train.task, ps = ps, resampling = inner, holdout.data = test.task)
+  } else {
+      fitness.fun = makeSingleObjectiveFeatsel(learner = lrn, task = train.task, ps = ps, resampling = inner, holdout.data = test.task)
+  }
   
   ps = getParamSet(fitness.fun)
   
@@ -134,8 +139,13 @@ mosmafs = function(data, job, instance, learner, maxeval, filter, initialization
   ps.init$pars$stratparm.discrete$upper = 0.1
   
   # --- parent selector ---
-  par.sel = PARENTSEL[[parent.sel]]
-  
+  par.sel = PARENTSEL[[parent.sel]] 
+
+  # --- survival selector ---
+  sur.sel = setup(selGreedy)
+  if (multi.objective)
+    sur.sel = setup(selNondom)
+
   # ---
   # 3. population initialization
   # --- 
@@ -164,6 +174,7 @@ mosmafs = function(data, job, instance, learner, maxeval, filter, initialization
     lambda = lambda,
     population = initials,
     parent.selector = par.sel,
+    survival.selector = sur.sel, 
     mutator = mutator,
     recombinator = crossover,
     generations = ceiling((maxeval - mu) / lambda)
