@@ -110,4 +110,23 @@ submitJobs(tosubmit, resources = resources.serial)
 # 	walltime = 3600L * 48L, memory = 1000L * 50L,
 # 	clusters = "mpp2") # get name from lrz homepage))
 
+library(data.table)
+library(reshape)
+library(ggplot2)
 
+res = readRDS("../../../../Desktop/resMBO.rds")
+x = res[[1]]$result
+
+df = data.frame(x$opt.path)
+dfp = setDT(df)
+dfp = dfp[, .(exec.time = sum(exec.time), 
+			  train.time = sum(train.time, na.rm = TRUE), 
+			  propose.time = mean(propose.time, na.rm = TRUE)), by = dob]
+
+dfp = melt(dfp, id.vars = "dob")
+
+p = ggplot(data = dfp, aes(x = dob, y = value, color = variable)) + geom_line()
+p
+
+ggsave("plot_sonar_mbo.png", p)
+ggsave("plot_sonar_mbo_normlized.png", p)
