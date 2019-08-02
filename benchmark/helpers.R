@@ -276,7 +276,6 @@ collectResultMBO = function(object, ecr.object, aggregate.perresult = list(domHV
   evals <- as.integer(names(object$result.pf))
   resdf$runtime <- cumsum(rowSums(opt.path[evals, c("train.time",  "propose.time", "exec.time")], na.rm = TRUE))
   resdf$evals <- evals
-  resdf
   
   multi.fun <- function(x) {
     c(min = min(x), mean = mean(x, na.rm = TRUE), max = max(x))
@@ -326,7 +325,7 @@ collectResultMBO = function(object, ecr.object, aggregate.perresult = list(domHV
 }
 
 # CollectResults
-collectBenchmarkResults = function(path, experiments, tab) {
+collectBenchmarkResults = function(path, experiments, tab, mbo = FALSE) {
   
   for (experiment in names(experiments)) {
     toreduce = ijoin(tab, experiments[[experiment]], by = names(experiments[[experiment]]))
@@ -336,7 +335,11 @@ collectBenchmarkResults = function(path, experiments, tab) {
     dir = data.frame(job.id = dir)
     toreduce = ijoin(toreduce, dir)
 
-    res = reduceResultsDataTable(toreduce, function(x) collectResult(x$result))
+    if (mbo) {
+      res = reduceResultsDataTable(toreduce, function(x) collectResultMBO(x))   
+    } else {
+      res = reduceResultsDataTable(toreduce, function(x) collectResult(x$result))
+    }
     res = ijoin(tab, res, by = "job.id")
     res$variant = experiment
 
@@ -608,11 +611,13 @@ plotRanks = function(res, plotspath, logscale = FALSE, metric = "naive.hout.domH
     df$gen = (df$evals - 80) / 15
     df = df[, replication := 1:length(job.id), by = c("learner", "variant", "problem", "gen")]
     df = renameAndRevalue(df)
-    names(df)[17] = "metric"
+    names(df)[22] = "metric"
+    df$gen = floor(df$gen)
 
     # --- calculate ranks within learner, problem and replication ---
-    dfr = df[, rank_variant := rank(- metric), by = c("learner", "problem", "evals", "replication")]
-    
+    dfr = df[, `:=` (rank_variant = rank(- metric), count = .N), by = c("learner", "problem", "evals", "replication")]
+    dfr = dfr[count > 8, ]
+
     # --- average domHV and ranks across replications
     dfr = dfr[, .(mean(metric), mean(rank_variant)), by = c("algorithm", "learner", "problem", "evals", "variant")]
     dfr$V2 = (dfr$V2 / 10)
@@ -663,12 +668,12 @@ renameAndRevalue = function(df) {
     
     # --- reordering of factors for plots
     library(forcats)
-    ord_ages_class = c("O", "OI", "OIFi", "OIFiFm", "OIFiFmS", "OIH", "OIHFiFmS")
+    ord_ages_class = c("O", "OI", "OIFi", "OIFiFm", "OIFiFmS", "OIH", "OIHFiFmS", "BS1RF", "BS2RF")
     df$variant = factor(df$variant, levels = ord_ages_class)
     df$variant = revalue(df$variant, 
       c("O" = "base version", "OI" = "+UI", "OIFi" = "+UI+FI", "OIFiFm" = "+UI+FI+FM", 
-        "OIFiFmS" = "+UI+FI+FM (s.a.)", "OIH" = "+UI+HP", "OIHFiFmS" = "+UI+FI+HP+FM (s.a.)"))
-    df$algorithm = revalue(df$algorithm, c("mosmafs" = "NSGA-II", "randomsearch" = "Random Search"))
+        "OIFiFmS" = "+UI+FI+FM (s.a.)", "OIH" = "+UI+HP", "OIHFiFmS" = "+UI+FI+HP+FM (s.a.)", "BS1RF" = "BS1RF", "BS2RF" = "BS2RF"))
+    df$algorithm = revalue(df$algorithm, c("mosmafs" = "NSGA-II", "randomsearch" = "Random Search", "no_feature_sel" = "MBO"))
 
     return(df)
 }

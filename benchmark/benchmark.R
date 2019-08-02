@@ -89,6 +89,9 @@ addAlgorithm(name = "no_feature_sel", reg = reg, fun = no_feature_sel)
 source("algorithms/mosmafs.R")
 addAlgorithm(name = "mosmafs", reg = reg, fun = mosmafs)
 
+source("algorithms/mbo_multicrit.R")
+addAlgorithm(name = "mbo_multicrit", reg = reg, fun = mbo_multicrit)
+
 
 # ---
 # 4. Add Experiments
@@ -99,5 +102,6 @@ addExperiments(reg = reg,
   algo.designs = list(
   randomsearch = ades.random, 
   no_feature_sel = ades.no_feature_sel,
-  mosmafs = ades.mosmafs), 
+  mosmafs = ades.mosmafs, 
+  mbo_multicrit = ades.mbo_multicrit), 
   repls = REPLICATIONS)

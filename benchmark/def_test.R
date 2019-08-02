@@ -99,4 +99,16 @@ ades.no_feature_sel = CJ(learner = c("SVM", "kknn", "xgboost"),
       		propose.points = 10L, 
       		sorted = FALSE)
 
+
+ades.mbo_multicrit = CJ(learner = c("SVM", "kknn", "xgboost"), 
+			maxeval = MAXEVAL, 
+			maxtime = MAXTIME,
+			cv.iters = CVITERS,
+			filter = c("custom"), 
+			surrogate = c("randomForest"), # "km.nugget"),
+			infill = c("cb"),
+      		propose.points = 15L, 
+      		sorted = FALSE)
+
+
 REPLICATIONS = 1L
