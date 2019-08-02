@@ -59,3 +59,10 @@ sapply(unif$result$last.population, function (x) mean(x$selector.selection))
 # --- test single objective
 tosubmit = tab[multi.objective == FALSE & parent.sel == "selTournament", ]
 res = testJob(tosubmit[1, ])
+
+
+# --- test mbo multicrit
+tosubmit = tab[algorithm == "mbo_multicrit", ]
+res = testJob(tosubmit[1, ])
+
+
