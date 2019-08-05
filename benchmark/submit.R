@@ -46,7 +46,8 @@ experiments = list(
 	RSIF = data.table(algorithm = "randomsearch", initialization = "unif", filter = "custom", chw.bitflip = NA, adaptive.filter.weights = NA, filter.during.run = NA),
 	BS1RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = FALSE, surrogate = "randomForest", infill = "cb", propose.points = 15L),
 	BS2RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = TRUE, surrogate = "randomForest", infill = "cb", propose.points = 15L),
-	BS5SO = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, multi.objective = FALSE, parent.sel = "selTournament")
+	BS5SO = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, multi.objective = FALSE, parent.sel = "selTournament"),
+	BSMO = data.table(algorithm = "mbo_multicrit", filter = "custom", surrogate = "randomForest", infill = "cb", propose.points = 15L)
 	)
 
 # b) Datasets
@@ -65,9 +66,10 @@ problems.serial = c("wdbc", "ionosphere", "sonar", "hill-valley", "clean1",
 # --- OIH       |   DONE       |  300 / 300 DONE 
 # --- OIHFiFmS  |   DONE       |  300 / 300 DONE 
 # --- OIHFiFmS  |   DONE       |  300 / 300 DONE 
-# --- BS1RF     |   doing      |  221 / 300 DONE (first 157 have false structure)
-# --- BS2RF     |   doing      |  277 / 300 DONE
+# --- BS1RF     |   doing      |  225 / 300 DONE 
+# --- BS2RF     |   doing      |  279 / 300 DONE
 # --- BS5SO     |   doing      |  300 / 300 DONE
+# --- BSMO      |   doing      |  265 / 300 DONE
 
 
 experiment = "BS1RF"
@@ -75,7 +77,7 @@ tosubmit = ijoin(tab, experiments[[experiment]], by = names(experiments[[experim
 tosubmit = ijoin(tosubmit, findNotDone())
 tosubmit = tosubmit[problem %in% problems.serial, ]
 # tosubmit = tosubmit[mu != 3, ]
-tosubmit = tosubmit[- which(job.id %in% findOnSystem()$job.id), ]
+tosubmit = tosubmit[- which(job.id %in% findRunning()$job.id), ]
 # chunk.size = 5L
 # tosubmit$chunk = 1
 # nchunks = nrow(tosubmit) / chunk.size

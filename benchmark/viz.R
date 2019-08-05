@@ -24,7 +24,7 @@ data_path = "results_raw"
 # --- 2. Experiments that have been run 
 
 # a) Algorithm versions
-experiments = list(
+experiments_list = list(
 	O = data.table(algorithm = "mosmafs", filter = "none", initialization = "none", chw.bitflip = FALSE, adaptive.filter.weights = FALSE, filter.during.run = FALSE, multi.objective = NA, parent.sel = "selTournamentMO"),
 	OI = data.table(algorithm = "mosmafs", filter = "none", initialization = "unif", chw.bitflip = FALSE, adaptive.filter.weights = FALSE, filter.during.run = FALSE, multi.objective = NA, parent.sel = "selTournamentMO"),
 	OIFi = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = FALSE, adaptive.filter.weights = FALSE, filter.during.run = FALSE, multi.objective = NA, parent.sel = "selTournamentMO"),
@@ -36,7 +36,12 @@ experiments = list(
 	RSI = data.table(algorithm = "randomsearch", initialization = "unif", filter = "none", chw.bitflip = NA, adaptive.filter.weights = NA, filter.during.run = NA),
 	RSIF = data.table(algorithm = "randomsearch", initialization = "unif", filter = "custom", chw.bitflip = NA, adaptive.filter.weights = NA, filter.during.run = NA),
 	BS1RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = FALSE, surrogate = "randomForest", infill = "cb", propose.points = 15L),
-	BS2RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = TRUE, surrogate = "randomForest", infill = "cb", propose.points = 15L)	)
+	BS2RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = TRUE, surrogate = "randomForest", infill = "cb", propose.points = 15L), 
+	BSMO = data.table(algorithm = "mbo_multicrit", filter = "custom", surrogate = "randomForest", infill = "cb", propose.points = 15L)
+)
+
+experiments = rbindlist(experiments_list, fill = TRUE)
+experiments$variant = names(experiments_list)
 
 # b) Datasets
 problems = data.table(problem = c(
@@ -52,16 +57,70 @@ problems = problems[order(problems$p), ]
 
 # --- 3. Create Visualizations
 
-# a) Read the raw data
 files_loc = list.files(data_path, recursive = TRUE, full.names = TRUE)
 files = lapply(files_loc, readRDS)
-res = do.call(rbind, files)
+res = rbindlist(files, fill = TRUE)
 
-res = readRDS(paste(data_path, "/res.rds", sep = ""))
-parfrnt = readRDS(paste(data_path, "pareto_examples/paretofront.rds", sep = ""), )
 
+# --- Analyze mosmafs
+
+limits = list(c(0.5, 1), c(0.8, 1), c(0.85, 0.95))
+
+
+# --- a) inner evaluation
+for (lim in limits) {
+	plotRanks(res = res, plotspath = plotspath, 
+	experiments = experiments[algorithm == "mosmafs", ], 
+	metric =  "eval.domHV", prompt = c("mosmafs"), limits = lim)#, height = 8, width = 7)
+}
+
+# --- b) outer evaluation
+for (lim in limits) {
+	plotRanks(res = res, plotspath = plotspath, 
+	experiments = experiments[algorithm == "mosmafs", ], 
+	metric =  "naive.hout.domHV", prompt = c("mosmafs"), limits = lim)#, height = 8, width = 7)
+}
+
+
+# --- Analyze the best 2 of mosmafs against baselines 
+
+# --- a) inner evaluation
+for (lim in limits) {
+	plotRanks(res = res, plotspath = plotspath, 
+	experiments = experiments[variant %in% c("OIH", "OIHFiFmS", "RS", "RSI", "RSIF", "BS1RF", "BS2RF"), ], 
+	metric =  "eval.domHV", prompt = c("baselines"), limits = lim)#, height = 8, width = 7)
+}
+
+# --- b) outer evaluation
+for (lim in limits) {
+	plotRanks(res = res, plotspath = plotspath, 
+	experiments = experiments[variant %in% c("OIH", "OIHFiFmS", "RS", "RSI", "RSIF", "BS1RF", "BS2RF"), ], 
+	metric =  "naive.hout.domHV", prompt = c("baselines"), limits = lim)#, height = 8, width = 7)
+}
+
+
+
+
+
+
+# res = readRDS(paste(data_path, "/res.rds", sep = ""))
+# parfrnt = readRDS(paste(data_path, "pareto_examples/paretofront.rds", sep = ""), )
 
 # b) Create rank plots 
+
+# --- mosmafs 
+res_fil = res[algorithm == "mosmafs", ]
+plotRanks(res_fil, plotspath, experiments_dt = experiments_dt[algorithm == "mosmafs", ], metric =  "eval.domHV", prompt = c("mosmafs"), limits = c(0.2, 1))#, height = 8, width = 7)
+
+
+# ---. best vs baselines
+
+
+
+
+
+
+
 
 # Show what performed best
 res_mbo = res[algorithm == "no_feature_sel", ]

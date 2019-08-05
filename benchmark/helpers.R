@@ -212,7 +212,6 @@ collectResult <- function(ecr.object, aggregate.perresult = list(domHV = functio
   if (length(fitnesses) == 1L) # ugly fix for calculating traces for randomsearch
       fitnesses = lapply(c(seq(80, 4000, by = 15), 4000), function(i) fitnesses[[1]][, 1:i])
 
-
   stats <- getStatistics(ecr.object$log)
   stats.newinds <- getStatistics(ecr.object$log.newinds)
 
@@ -244,6 +243,11 @@ collectResult <- function(ecr.object, aggregate.perresult = list(domHV = functio
   if (length(hofitnesses) == 1L) # ugly fix for calculating traces for randomsearch
       hofitnesses = lapply(c(seq(80, 4000, by = 15), 4000), function(i) hofitnesses[[1]][, 1:i])
 
+  if (ecr.object$task$n.objectives == 1) {
+      fitnesses = lapply(fitnesses, function(x) matrix(x, nrow = 1))
+      hofitnesses = lapply(hofitnesses, function(x) matrix(x, nrow = 1))
+  }
+
   if (any(vlapply(hofitnesses, function(x) any(is.finite(x))))) {
 
     corcols <- lapply(seq_len(ecr.object$task$n.objectives), function(idx) {
@@ -251,20 +255,22 @@ collectResult <- function(ecr.object, aggregate.perresult = list(domHV = functio
         suppressWarnings(cor.fun(eval.fit[idx, ], hout.fit[idx, ]))
       }, fitnesses, hofitnesses)
     })
-    names(corcols) <- rownames(fitnesses[[1]]) %??% paste0("obj.", seq_len(corcols))
+    names(corcols) <- rownames(fitnesses[[1]]) %??% paste0("obj.", 1:length(corcols))
 
-
-    true.hout.domHV <- mapply(function(eval.fit, hout.fit) {
-      unbiasedHoldoutDomHV(eval.fit, hout.fit, ref.point)
-    }, fitnesses, hofitnesses)
-
-    naive.hout.domHV <- mapply(function(eval.fit, hout.fit) {
-      naiveHoldoutDomHV(eval.fit, hout.fit, ref.point)
-    }, fitnesses, hofitnesses)
-
-    resdf <- cbind(resdf, hout = aggregate.fitness(hofitnesses),
+    if (ecr.object$task$n.objectives > 1){
+        true.hout.domHV <- mapply(function(eval.fit, hout.fit) {
+          unbiasedHoldoutDomHV(eval.fit, hout.fit, ref.point)
+        }, fitnesses, hofitnesses)
+    
+        naive.hout.domHV <- mapply(function(eval.fit, hout.fit) {
+          naiveHoldoutDomHV(eval.fit, hout.fit, ref.point)
+        }, fitnesses, hofitnesses)
+      resdf <- cbind(resdf, hout = aggregate.fitness(hofitnesses),
       true.hout.domHV, naive.hout.domHV,
       cor = corcols)
+    } else {
+      resdf <- cbind(resdf, hout = aggregate.fitness(hofitnesses), cor = corcols)
+    }
   }
   resdf
 }
@@ -272,10 +278,34 @@ collectResult <- function(ecr.object, aggregate.perresult = list(domHV = functio
 collectResultMBO = function(object, ecr.object, aggregate.perresult = list(domHV = function(x) computeHV(x, ref.point)), aggregate.perobjective = list("min", "mean", "max"), ref.point = smoof::getRefPoint(ecr.object$control$task$fitness.fun), cor.fun = cor) {
   opt.path <- data.frame(object$result$opt.path)
   resdf <- data.table()
-  resdf$gen <- 0:(length(object$result.pf)-1)
-  evals <- as.integer(names(object$result.pf))
-  resdf$runtime <- cumsum(rowSums(opt.path[evals, c("train.time",  "propose.time", "exec.time")], na.rm = TRUE))
-  resdf$evals <- evals
+
+  if (object$result$control$n.objectives > 1) {
+    resdf = as.data.table(opt.path)
+    resdf$evals = 1:nrow(resdf)
+    resdf$gen <- pmax(ceiling((resdf$evals - 80) / 15), 0)
+    resdf$runtime <- cumsum(rowSums(resdf[, c("train.time",  "propose.time", "exec.time")], na.rm = TRUE))
+
+    object$result.pf = lapply(unique(resdf$gen), function(x) {
+      x_filt = resdf[gen <= x, ]
+      names(x_filt)[5:6] = c("perf", "propfeat")
+      x_filt[, c("propfeat", "perf")]
+    })
+
+    object$result.pf.test = lapply(unique(resdf$gen), function(x) {
+      x_filt = resdf[gen <= x, ]
+      names(x_filt)[5:6] = c("perf", "propfeat")
+      x_filt[, c("propfeat", "fitness.holdout.perf")]
+    })
+
+    resdf = resdf[, .(runtime = max(runtime), evals = max(evals)), by = c("gen")]
+
+  } else {
+    resdf$gen <- 0:(length(object$result.pf)-1)
+    evals <- as.integer(names(object$result.pf))
+    resdf$runtime <- cumsum(rowSums(opt.path[evals, c("train.time",  "propose.time", "exec.time")], na.rm = TRUE))
+    resdf$evals <- evals
+  }
+
   
   multi.fun <- function(x) {
     c(min = min(x), mean = mean(x, na.rm = TRUE), max = max(x))
@@ -293,7 +323,7 @@ collectResultMBO = function(object, ecr.object, aggregate.perresult = list(domHV
     
     # Get summaries performance training data
     train$rn <- as.numeric(train$rn)
-    train <- train[, c(2, 1)]
+    train <- train[, c(2, 1)] # ATTENTION HERE !!!
     train.perf <- receive.perf(train, c("eval.perf.min", "eval.perf.mean", 
       "eval.perf.max", "eval.propfeat.min", 
       "eval.propfeat.mean", "eval.propfeat.max", "eval.domHV"))
@@ -338,7 +368,10 @@ collectBenchmarkResults = function(path, experiments, tab, mbo = FALSE) {
     if (mbo) {
       res = reduceResultsDataTable(toreduce, function(x) collectResultMBO(x))   
     } else {
-      res = reduceResultsDataTable(toreduce, function(x) collectResult(x$result))
+      if (!experiments[[experiment]]$multi.objective)
+        res = reduceResultsDataTable(toreduce, function(x) collectResult(x$result, ref.point = c(1)))
+      else 
+        res = reduceResultsDataTable(toreduce, function(x) collectResult(x$result))
     }
     res = ijoin(tab, res, by = "job.id")
     res$variant = experiment
@@ -603,58 +636,84 @@ plotPerformanceHout = function(res, plotspath) {
 #   
 # }
 
-plotRanks = function(res, plotspath, logscale = FALSE, metric = "naive.hout.domHV", limits = c(0.37, 1), height = 10, width = 7) {
-    
-    # --- naive.hout.domHV
-    df = extractFromSummary(res, c("evals", metric))
+plotRanks = function(res, plotspath, experiments, logscale = FALSE, metric = "naive.hout.domHV", prompt, limits = c(0.5, 1), height = 10, width = 7) {
+    # PUT GENERATIONS HERE 
+    # 1) Pepare the dataset for plotting 
+    df = res[variant %in% experiments$variant, ]
+    df = extractFromSummary(df, c("evals", "runtime", metric))
     df = df[evals < 4000, ]
     df$gen = (df$evals - 80) / 15
+    df$gen = floor(df$gen) # is floor okay?
     df = df[, replication := 1:length(job.id), by = c("learner", "variant", "problem", "gen")]
+
+    if ("no_feature_sel" %in% unique(df$algorithm)) {
+      df = df[, count := .N, by = c("problem", "learner", "gen", "replication")]
+      df = df[count == nrow(experiments), ]
+      df$count = NULL
+    }
+
     df = renameAndRevalue(df)
-    names(df)[22] = "metric"
-    df$gen = floor(df$gen)
+    names(df)[ncol(df) - 2] = "metric"
 
     # --- calculate ranks within learner, problem and replication ---
     dfr = df[, `:=` (rank_variant = rank(- metric), count = .N), by = c("learner", "problem", "evals", "replication")]
-    dfr = dfr[count > 8, ]
+    dfr = dfr[, .(mean(metric), mean(rank_variant)), by = c("algorithm", "learner", "problem", "evals", "variant")]
+    res_ovr = dfr[, .(mean.domHV = mean(V1), mean.rank = mean(V2)), by = c("gen", "variant", "algorithm")]
+    res_ovr_pl = dfr[, .(mean.domHV = mean(V1), mean.rank = mean(V2)), by = c("evals", "variant", "algorithm", "learner")]
 
     # --- average domHV and ranks across replications
-    dfr = dfr[, .(mean(metric), mean(rank_variant)), by = c("algorithm", "learner", "problem", "evals", "variant")]
-    dfr$V2 = (dfr$V2 / 10)
 
     # --- average across problems
-    res_ovr = dfr[, .(mean.domHV = mean(V1), mean.rank = mean(V2)), by = c("evals", "variant", "algorithm")]
-    res_ovr = melt(res_ovr, id.vars = c("evals", "variant", "algorithm"))    
-    res_ovr$variable = revalue(res_ovr$variable, c("mean.domHV" = "Mean DomHV", "mean.rank" = "Mean Ranks"))
 
-    res_ovr_pl = dfr[, .(mean.domHV = mean(V1), mean.rank = mean(V2)), by = c("evals", "variant", "algorithm", "learner")]
-    res_ovr_pl = melt(res_ovr_pl, id.vars = c("evals", "variant", "algorithm", "learner"))
-    res_ovr_pl$variable = revalue(res_ovr_pl$variable, c("mean.domHV" = "Mean DomHV", "mean.rank" = "Mean Ranks"))
+    ylab_names = data.table(name = c(expression(DomHV[test]), expression(DomHV[valid])), 
+                          mymetric = c("naive.hout.domHV", "eval.domHV"))
+    mynames = ylab_names[metric %in% mymetric, ]
 
     # --- plot stuff over all learners first
-    p = ggplot()
-    p = p + geom_line(data = res_ovr, aes(x = evals, y = value, lty = algorithm, colour = variant), size = 0.6)
-    p = p + scale_colour_Publication() + theme_Publication() 
-    p = p + facet_grid(. ~ variable, scales = 'free') + labs(y="value_label_1") 
-    p = p + ylab("Value") + labs(colour = "Variant", lty = "Algorithm") 
-    p = p + scale_y_continuous(limits = limits, sec.axis = sec_axis(~.*10))
-    p = p + theme(legend.direction = "horizontal", legend.position = "top", legend.box = "vertical", legend.box.just = "left")
-    p = p + guides(lty = guide_legend(order = 1), colour = guide_legend(order = 2))
-    p = p + xlab("Evaluations")
-   
-    ggsave(file.path(plotspath, paste(gsub("\\.", "", metric), "ranks.pdf", sep = "_")), p, width = 9, height = 6, device = "pdf")
+    p1 = ggplot()
+    p1 = p1 + geom_line(data = res_ovr, aes(x = evals, y = mean.domHV, lty = algorithm, colour = variant), size = 0.6)
+    p1 = p1 + scale_colour_Publication() + theme_Publication() 
+    p1 = p1 + ylab("Value") + labs(colour = "Variant", lty = "Algorithm") 
+    p1 = p1 + theme(legend.direction = "horizontal", legend.position = "top", legend.box = "vertical", legend.box.just = "left")
+    p1 = p1 + guides(lty = guide_legend(order = 1), colour = guide_legend(order = 2))
+    p1 = p1 + xlab("Evaluations") + ylim(limits) + ylab(mynames$name)
 
-    p = ggplot()
-    p = p + geom_line(data = res_ovr_pl, aes(x = evals, y = value, lty = algorithm, colour = variant), size = 0.6)
-    p = p + scale_colour_Publication() + theme_Publication() 
-    p = p + facet_grid(learner ~ variable) 
-    p = p + ylab("Value") + labs(colour = "Variant", lty = "Algorithm") 
-    p = p + scale_y_continuous(limits = limits, sec.axis = sec_axis(~.*10))
-    p = p + theme(legend.direction = "horizontal", legend.position = "top", legend.box = "vertical", legend.box.just = "left")
-    p = p + guides(lty = guide_legend(order = 1), colour = guide_legend(order = 2))
-    p = p + xlab("Evaluations")
-      
-    ggsave(file.path(plotspath, paste(gsub("\\.", "", metric), "ranks_perLearner.pdf", sep = "_")), p, width = 7, height = 10)
+    p2 = ggplot()
+    p2 = p2 + geom_line(data = res_ovr, aes(x = evals, y = mean.rank, lty = algorithm, colour = variant), size = 0.6)
+    p2 = p2 + scale_colour_Publication() + theme_Publication() 
+    p2 = p2 + ylab("Value") + labs(colour = "Variant", lty = "Algorithm") 
+    p2 = p2 + theme(legend.direction = "horizontal", legend.position = "top", legend.box = "vertical", legend.box.just = "left")
+    p2 = p2 + guides(lty = guide_legend(order = 1), colour = guide_legend(order = 2))
+    p2 = p2 + xlab("Evaluations") + ylab("Rank")
+   
+    p = ggarrange(p1, p2, ncol=2, nrow=1, common.legend = TRUE, legend = "top")
+
+    dir.create(file.path(plotspath, prompt))
+    dir.create(file.path(plotspath, prompt, gsub("\\.", "", metric)))
+
+    ggsave(file.path(plotspath, prompt, gsub("\\.", "", metric), paste("ranks_", limits[1], "_", limits[2], ".pdf", sep = "")), p, width = 9, height = 6, device = "pdf")
+
+    # --- plot stuff over all learners first
+    p1 = ggplot()
+    p1 = p1 + geom_line(data = res_ovr_pl, aes(x = evals, y = mean.domHV, lty = algorithm, colour = variant), size = 0.6)
+    p1 = p1 + scale_colour_Publication() + theme_Publication() 
+    p1 = p1 + ylab("Value") + labs(colour = "Variant", lty = "Algorithm") 
+    p1 = p1 + theme(legend.direction = "horizontal", legend.position = "top", legend.box = "vertical", legend.box.just = "left")
+    p1 = p1 + guides(lty = guide_legend(order = 1), colour = guide_legend(order = 2))
+    p1 = p1 + xlab("Evaluations") + ylim(limits) + ylab(mynames$name)
+    p1 = p1 + facet_grid(learner ~ .) 
+
+    p2 = ggplot()
+    p2 = p2 + geom_line(data = res_ovr_pl, aes(x = evals, y = mean.rank, lty = algorithm, colour = variant), size = 0.6)
+    p2 = p2 + scale_colour_Publication() + theme_Publication() 
+    p2 = p2 + ylab("Value") + labs(colour = "Variant", lty = "Algorithm") 
+    p2 = p2 + theme(legend.direction = "horizontal", legend.position = "top", legend.box = "vertical", legend.box.just = "left")
+    p2 = p2 + guides(lty = guide_legend(order = 1), colour = guide_legend(order = 2))
+    p2 = p2 + xlab("Evaluations") + ylab("Rank")
+    p2 = p2 + facet_grid(learner ~ .) 
+
+    p = ggarrange(p1, p2, ncol = 2, nrow = 1, common.legend = TRUE, legend = "top")
+    ggsave(file.path(plotspath, prompt, gsub("\\.", "", metric), paste("ranksPerLearner_", limits[1], "_", limits[2], ".pdf", sep = "")), p, width = 9, height = 11, device = "pdf")
 }
 
 # --- this is not a general function
@@ -880,3 +939,16 @@ plotFrontPerProblem = function(path, parfront) {
 }
 
 }
+
+
+
+
+# --- FOR LATER
+
+
+    # if (!x_runtime) {
+    # } else {
+    #     df$runtime = df$runtime / 60 # minutes
+    #     df$runtime_binned = floor(df$runtime / 5) # FLOOR OR ROUND?
+    #     dfr = df[, max(metric), by = c("algorithm", "variant", "learner", "problem", "replication", "runtime_binned")]
+    # }
