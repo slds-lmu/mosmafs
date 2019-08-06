@@ -54,7 +54,7 @@ problems = data.table(problem = c(
 # problems madelon and madeline did not run through
 problems = problems[- which(problem %in% c("madeline", "madelon", "USPS"))]
 problems = problems[order(problems$p), ]
-
+problems = problems[p <= 100, ]
 
 # --- 3. Create Visualizations
 
@@ -64,9 +64,7 @@ res = rbindlist(files, fill = TRUE)
 
 
 # --- Analyze mosmafs
-
 limits = list(c(0.5, 1), c(0.8, 1), c(0.85, 0.95))
-
 
 # --- a) inner evaluation
 for (lim in limits) {
@@ -100,20 +98,20 @@ for (lim in limits) {
 }
 
 
-# --- Analyze the best 2 of mosmafs against baselines SO
+# --- Analyze the best 2 of mosmafs against baselines MBO
 
 # --- a) inner evaluation
 for (lim in limits) {
 	plotRanks(res = res, plotspath = plotspath, 
-	experiments = experiments[variant %in% c("OIH", "OIHFiFmS", "RS", "RSI", "RSIF", "BS1RF", "BS2RF"), ], 
-	metric =  "eval.domHV", prompt = c("baselines"), limits = lim)#, height = 8, width = 7)
+	experiments = experiments[variant %in% c("OIH", "OIHFiFmS", "BS1RF", "BS2RF", "BSMO"), ], 
+	metric =  "eval.domHV", prompt = c("baselines_mbo"), limits = lim)#, height = 8, width = 7)
 }
 
 # --- b) outer evaluation
 for (lim in limits) {
 	plotRanks(res = res, plotspath = plotspath, 
 	experiments = experiments[variant %in% c("OIH", "OIHFiFmS", "RS", "RSI", "RSIF", "BS1RF", "BS2RF"), ], 
-	metric =  "naive.hout.domHV", prompt = c("baselines"), limits = lim)#, height = 8, width = 7)
+	metric =  "naive.hout.domHV", prompt = c("baselines_mbo"), limits = lim)#, height = 8, width = 7)
 }
 
 

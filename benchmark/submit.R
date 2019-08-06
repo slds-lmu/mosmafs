@@ -66,13 +66,13 @@ problems.serial = c("wdbc", "ionosphere", "sonar", "hill-valley", "clean1",
 # --- OIH       |   DONE       |  300 / 300 DONE 
 # --- OIHFiFmS  |   DONE       |  300 / 300 DONE 
 # --- OIHFiFmS  |   DONE       |  300 / 300 DONE 
-# --- BS1RF     |   doing      |  225 / 300 DONE 
-# --- BS2RF     |   doing      |  279 / 300 DONE
+# --- BS1RF     |   doing      |  0 / 300 DONE 
+# --- BS2RF     |   doing      |  0 / 300 DONE
 # --- BS5SO     |   doing      |  300 / 300 DONE
 # --- BSMO      |   doing      |  265 / 300 DONE  / XGBOOST TAKES SOME WHILE
 
 
-experiment = "BSMO"
+experiment = "BS2RF"
 tosubmit = ijoin(tab, experiments[[experiment]], by = names(experiments[[experiment]]))
 tosubmit = ijoin(tosubmit, findNotDone())
 tosubmit = tosubmit[problem %in% problems.serial, ]
@@ -82,7 +82,6 @@ tosubmit = tosubmit[- which(job.id %in% findOnSystem()$job.id), ]
 # tosubmit$chunk = 1
 # nchunks = nrow(tosubmit) / chunk.size
 # tosubmit$chunk = rep(1:nchunks, each = chunk.size)
-
 submitJobs(tosubmit, resources = resources.serial)
 
 
@@ -113,24 +112,3 @@ submitJobs(tosubmit, resources = resources.serial)
 # resources.mpp2 = list(ncpus = 15L,
 # 	walltime = 3600L * 48L, memory = 1000L * 50L,
 # 	clusters = "mpp2") # get name from lrz homepage))
-
-library(data.table)
-library(reshape)
-library(ggplot2)
-
-res = readRDS("../../../../Desktop/resMBO.rds")
-x = res[[1]]$result
-
-df = data.frame(x$opt.path)
-dfp = setDT(df)
-dfp = dfp[, .(exec.time = sum(exec.time), 
-			  train.time = sum(train.time, na.rm = TRUE), 
-			  propose.time = mean(propose.time, na.rm = TRUE)), by = dob]
-
-dfp = melt(dfp, id.vars = "dob")
-
-p = ggplot(data = dfp, aes(x = dob, y = value, color = variable)) + geom_line()
-p
-
-ggsave("plot_sonar_mbo.png", p)
-ggsave("plot_sonar_mbo_normlized.png", p)

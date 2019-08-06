@@ -275,7 +275,7 @@ collectResult <- function(ecr.object, aggregate.perresult = list(domHV = functio
   resdf
 }
 
-collectResultMBO = function(object, ecr.object, aggregate.perresult = list(domHV = function(x) computeHV(x, ref.point)), aggregate.perobjective = list("min", "mean", "max"), ref.point = smoof::getRefPoint(ecr.object$control$task$fitness.fun), cor.fun = cor) {
+collectResultMBO = function(object, aggregate.perresult = list(domHV = function(x) computeHV(x, ref.point)), aggregate.perobjective = list("min", "mean", "max"), ref.point = smoof::getRefPoint(ecr.object$control$task$fitness.fun), cor.fun = cor) {
   opt.path <- data.frame(object$result$opt.path)
   resdf <- data.table()
 
@@ -287,14 +287,14 @@ collectResultMBO = function(object, ecr.object, aggregate.perresult = list(domHV
 
     object$result.pf = lapply(unique(resdf$gen), function(x) {
       x_filt = resdf[gen <= x, ]
-      names(x_filt)[5:6] = c("perf", "propfeat")
-      x_filt[, c("propfeat", "perf")]
+      names(x_filt)[5:6] = c("perf", "rn")
+      x_filt[, c("rn", "perf")]
     })
 
     object$result.pf.test = lapply(unique(resdf$gen), function(x) {
       x_filt = resdf[gen <= x, ]
-      names(x_filt)[5:6] = c("perf", "propfeat")
-      x_filt[, c("propfeat", "fitness.holdout.perf")]
+      names(x_filt)[5:6] = c("perf", "rn")
+      x_filt[, c("rn", "fitness.holdout.perf")]
     })
 
     resdf = resdf[, .(runtime = max(runtime), evals = max(evals)), by = c("gen")]
@@ -641,9 +641,9 @@ plotRanks = function(res, plotspath, experiments, logscale = FALSE, metric = "na
     # 1) Pepare the dataset for plotting 
     df = res[variant %in% experiments$variant, ]
     df = extractFromSummary(df, c("evals", "runtime", metric))
-    df = df[evals < 4000, ]
-    df$gen = (df$evals - 80) / 15
-    df$gen = floor(df$gen) # is floor okay?
+    df = df[evals <= 4000, ]
+    df$gen = floor((df$evals - 80) / 15) # floor will slightly favour MBO, which is ok
+    df = df[gen >= 0, ]
     df = df[, replication := 1:length(job.id), by = c("learner", "variant", "problem", "gen")]
 
     if ("no_feature_sel" %in% unique(df$algorithm)) {
@@ -654,8 +654,6 @@ plotRanks = function(res, plotspath, experiments, logscale = FALSE, metric = "na
 
     df = renameAndRevalue(df)
     names(df)[ncol(df) - 2] = "metric"
-
-    df$evals = 80 + 15 * df$gen
 
     # --- calculate ranks within learner, problem and replication ---
     dfr = df[, `:=` (rank_variant = rank(- metric), count = .N), by = c("learner", "problem", "evals", "replication")]
@@ -729,12 +727,12 @@ renameAndRevalue = function(df) {
     
     # --- reordering of factors for plots
     library(forcats)
-    ord_ages_class = c("O", "OI", "OIFi", "OIFiFm", "OIFiFmS", "OIH", "OIHFiFmS", "BS1RF", "BS2RF")
+    ord_ages_class = c("O", "OI", "OIFi", "OIFiFm", "OIFiFmS", "OIH", "OIHFiFmS", "BS1RF", "BS2RF", "BSMO")
     df$variant = factor(df$variant, levels = ord_ages_class)
     df$variant = revalue(df$variant, 
       c("O" = "base version", "OI" = "+UI", "OIFi" = "+UI+FI", "OIFiFm" = "+UI+FI+FM", 
-        "OIFiFmS" = "+UI+FI+FM (s.a.)", "OIH" = "+UI+HP", "OIHFiFmS" = "+UI+FI+HP+FM (s.a.)", "BS1RF" = "BS1RF", "BS2RF" = "BS2RF"))
-    df$algorithm = revalue(df$algorithm, c("mosmafs" = "NSGA-II", "randomsearch" = "Random Search", "no_feature_sel" = "MBO"))
+        "OIFiFmS" = "+UI+FI+FM (s.a.)", "OIH" = "+UI+HP", "OIHFiFmS" = "+UI+FI+HP+FM (s.a.)", "BS1RF" = "BS1RF", "BS2RF" = "BS2RF", "BSMO" = "BSMO"))
+    df$algorithm = revalue(df$algorithm, c("mosmafs" = "NSGA-II", "randomsearch" = "Random Search", "no_feature_sel" = "MBO", "no_feature_sel" = "MBO"))
 
     return(df)
 }
