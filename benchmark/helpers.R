@@ -655,10 +655,12 @@ plotRanks = function(res, plotspath, experiments, logscale = FALSE, metric = "na
     df = renameAndRevalue(df)
     names(df)[ncol(df) - 2] = "metric"
 
+    df$evals = 80 + 15 * df$gen
+
     # --- calculate ranks within learner, problem and replication ---
     dfr = df[, `:=` (rank_variant = rank(- metric), count = .N), by = c("learner", "problem", "evals", "replication")]
     dfr = dfr[, .(mean(metric), mean(rank_variant)), by = c("algorithm", "learner", "problem", "evals", "variant")]
-    res_ovr = dfr[, .(mean.domHV = mean(V1), mean.rank = mean(V2)), by = c("gen", "variant", "algorithm")]
+    res_ovr = dfr[, .(mean.domHV = mean(V1), mean.rank = mean(V2)), by = c("evals", "variant", "algorithm")]
     res_ovr_pl = dfr[, .(mean.domHV = mean(V1), mean.rank = mean(V2)), by = c("evals", "variant", "algorithm", "learner")]
 
     # --- average domHV and ranks across replications

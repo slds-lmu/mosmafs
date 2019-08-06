@@ -69,15 +69,15 @@ problems.serial = c("wdbc", "ionosphere", "sonar", "hill-valley", "clean1",
 # --- BS1RF     |   doing      |  225 / 300 DONE 
 # --- BS2RF     |   doing      |  279 / 300 DONE
 # --- BS5SO     |   doing      |  300 / 300 DONE
-# --- BSMO      |   doing      |  265 / 300 DONE
+# --- BSMO      |   doing      |  265 / 300 DONE  / XGBOOST TAKES SOME WHILE
 
 
-experiment = "BS1RF"
+experiment = "BSMO"
 tosubmit = ijoin(tab, experiments[[experiment]], by = names(experiments[[experiment]]))
 tosubmit = ijoin(tosubmit, findNotDone())
 tosubmit = tosubmit[problem %in% problems.serial, ]
 # tosubmit = tosubmit[mu != 3, ]
-tosubmit = tosubmit[- which(job.id %in% findRunning()$job.id), ]
+tosubmit = tosubmit[- which(job.id %in% findOnSystem()$job.id), ]
 # chunk.size = 5L
 # tosubmit$chunk = 1
 # nchunks = nrow(tosubmit) / chunk.size

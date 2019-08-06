@@ -6,6 +6,7 @@ library(gridExtra)
 library(Hmisc)
 library(dplyr)
 library(plyr)
+library(ggpubr)
 
 source("helpers.R")
 
@@ -87,6 +88,23 @@ for (lim in limits) {
 # --- a) inner evaluation
 for (lim in limits) {
 	plotRanks(res = res, plotspath = plotspath, 
+	experiments = experiments[variant %in% c("OIH", "OIHFiFmS", "RS", "RSI", "RSIF", "BS1RF", "BS2RF", "BSMO"), ], 
+	metric =  "eval.domHV", prompt = c("baselines"), limits = lim)#, height = 8, width = 7)
+}
+
+# --- b) outer evaluation
+for (lim in limits) {
+	plotRanks(res = res, plotspath = plotspath, 
+	experiments = experiments[variant %in% c("OIH", "OIHFiFmS", "RS", "RSI", "RSIF", "BS1RF", "BS2RF", "BSMO"), ], 
+	metric =  "naive.hout.domHV", prompt = c("baselines"), limits = lim)#, height = 8, width = 7)
+}
+
+
+# --- Analyze the best 2 of mosmafs against baselines SO
+
+# --- a) inner evaluation
+for (lim in limits) {
+	plotRanks(res = res, plotspath = plotspath, 
 	experiments = experiments[variant %in% c("OIH", "OIHFiFmS", "RS", "RSI", "RSIF", "BS1RF", "BS2RF"), ], 
 	metric =  "eval.domHV", prompt = c("baselines"), limits = lim)#, height = 8, width = 7)
 }
@@ -97,8 +115,6 @@ for (lim in limits) {
 	experiments = experiments[variant %in% c("OIH", "OIHFiFmS", "RS", "RSI", "RSIF", "BS1RF", "BS2RF"), ], 
 	metric =  "naive.hout.domHV", prompt = c("baselines"), limits = lim)#, height = 8, width = 7)
 }
-
-
 
 
 

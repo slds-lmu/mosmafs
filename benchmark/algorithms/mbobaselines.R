@@ -2,7 +2,8 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
   surrogate, infill, filter.during.run, propose.points) {
 
     PARALLELIZE = FALSE
-    LENGTH.OUT = 80
+    STEPS = 120L
+    START = 80L
 
     # ---
     # 0. Define task, learner, paramset, and inner resampling
@@ -38,7 +39,6 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
     # ---
     # 2. Initial design 
     # --- 
-  
     # no specification --> default is maximin Latin Hypercube with 4 * nparams
 
     # ---
@@ -116,20 +116,16 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
   time = proc.time()
 
   # if the number of features is too high, we just construct the paretofront with less features 
-  pind = pmin(p, 100)
-  seq.perc = seq(1, pind) / p
+  pind = pmin(p, 20L)
+  seq.perc = seq(1, p, length.out = pind) / p
 
   path = trafoOptPath(result$opt.path)$env$path
-  seq.path = round(seq(from = maxeval / LENGTH.OUT, to = maxeval, length.out = LENGTH.OUT))
-  seq.path = c(4 * sum(getParamLengths(ps)), seq.path)
+  n.steps = floor((maxeval - START) / STEPS)
+  seq.path = c(START, START + 1:n.steps * STEPS)
+  seq.path = sort(c(4 * sum(getParamLengths(ps)), seq.path)) # add first evaluation
 
-  # result dataframe : one for inner evaluation, one for outer evaluation on test set
-  # result.pf= data.table(matrix(NA, nrow = length(seq.perc), ncol = length(seq.path)))
-  # rownames(result.pf) = seq.perc
-  # colnames(result.pf) = as.character(seq.path)
-  # result.pf.test = result.pf
-
-  # If filter was already tuned, take tuned filter 
+  # If filter was already tuned, take tuned filter
+  filters = filters[- which(filters == "DUMMY")]
   final = tail(path, 1)
   if (!is.null(final$filter)) {
     filters = final$filter
@@ -174,6 +170,8 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
     result.pf.test = setDT(result.pf.test, keep.rownames = TRUE)[]
     result.pf.list[[as.character(row.nr)]] = result.pf
     result.pf.test.list[[as.character(row.nr)]] = result.pf.test
+
+    print(paste("Reconstructing Pareto Front Iteration: ", row.nr, " / ", max(seq.path)))
 
   }
   pareto.time = proc.time() - time
