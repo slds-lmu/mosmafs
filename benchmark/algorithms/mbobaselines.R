@@ -78,7 +78,7 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
         
         model = train(lrn2, filtered.train.task)
         prd = predict(model, filtered.test.task)
-        val = performance(prd, mmce, test.task, model)[1]
+        val = performance(prd, mmce)[1]
         
         res = resample(lrn2, filtered.train.task, inner, show.info = FALSE)$aggr
         attr(res, "extras") = list(fitness.holdout.perf = val, fitness.holdout.propfeat = perc)
