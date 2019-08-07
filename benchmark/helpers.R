@@ -640,11 +640,12 @@ plotRanks = function(res, plotspath, experiments, logscale = FALSE, metric = "na
     # PUT GENERATIONS HERE 
     # 1) Pepare the dataset for plotting 
     df = res[variant %in% experiments$variant, ]
-    df = extractFromSummary(df, c("evals", "runtime", metric))
+    df = extractFromSummary(df, c("evals", metric))
     df = df[evals <= 4000, ]
     df$gen = floor((df$evals - 80) / 15) # floor will slightly favour MBO, which is ok
     df = df[gen >= 0, ]
     df = df[, replication := 1:length(job.id), by = c("learner", "variant", "problem", "gen")]
+    df = df[replication == 10, ]
 
     if ("no_feature_sel" %in% unique(df$algorithm)) {
       df = df[, count := .N, by = c("problem", "learner", "gen", "replication")]
@@ -656,18 +657,20 @@ plotRanks = function(res, plotspath, experiments, logscale = FALSE, metric = "na
     names(df)[ncol(df) - 2] = "metric"
 
     # --- calculate ranks within learner, problem and replication ---
-    dfr = df[, `:=` (rank_variant = rank(- metric), count = .N), by = c("learner", "problem", "evals", "replication")]
-    dfr = dfr[, .(mean(metric), mean(rank_variant)), by = c("algorithm", "learner", "problem", "evals", "variant")]
-    res_ovr = dfr[, .(mean.domHV = mean(V1), mean.rank = mean(V2)), by = c("evals", "variant", "algorithm")]
-    res_ovr_pl = dfr[, .(mean.domHV = mean(V1), mean.rank = mean(V2)), by = c("evals", "variant", "algorithm", "learner")]
+    dfr = df[, `:=` (rank_variant = rank(- metric), count = .N), by = c("learner", "problem", "gen", "replication")]
+    dfr = dfr[, .(mean(metric), mean(rank_variant)), by = c("algorithm", "learner", "problem", "gen", "variant")]
+    res_ovr = dfr[, .(mean.domHV = mean(V1), mean.rank = mean(V2)), by = c("gen", "variant", "algorithm")]
+    res_ovr_pl = dfr[, .(mean.domHV = mean(V1), mean.rank = mean(V2)), by = c("gen", "variant", "algorithm", "learner")]
 
+    res_ovr$evals = 80 + 15 * res_ovr$gen
+    res_ovr_pl$evals = 80 + 15 * res_ovr_pl$gen
     # --- average domHV and ranks across replications
 
     # --- average across problems
 
-    ylab_names = data.table(name = c(expression(DomHV[test]), expression(DomHV[valid])), 
-                          mymetric = c("naive.hout.domHV", "eval.domHV"))
-    mynames = ylab_names[metric %in% mymetric, ]
+    ylab_names = data.table(name = c("DomHV[test]", "DomHV[valid]", "trueDomHV[test]"), 
+                          mymetric = c("naive.hout.domHV", "eval.domHV", "true.hout.domHV"))
+    myname = ylab_names[mymetric == metric, ]$name
 
     # --- plot stuff over all learners first
     p1 = ggplot()
@@ -676,7 +679,7 @@ plotRanks = function(res, plotspath, experiments, logscale = FALSE, metric = "na
     p1 = p1 + ylab("Value") + labs(colour = "Variant", lty = "Algorithm") 
     p1 = p1 + theme(legend.direction = "horizontal", legend.position = "top", legend.box = "vertical", legend.box.just = "left")
     p1 = p1 + guides(lty = guide_legend(order = 1), colour = guide_legend(order = 2))
-    p1 = p1 + xlab("Evaluations") + ylim(limits) + ylab(mynames$name)
+    p1 = p1 + xlab("Evaluations") + ylim(limits) + ylab(myname)
 
     p2 = ggplot()
     p2 = p2 + geom_line(data = res_ovr, aes(x = evals, y = mean.rank, lty = algorithm, colour = variant), size = 0.6)
@@ -700,7 +703,7 @@ plotRanks = function(res, plotspath, experiments, logscale = FALSE, metric = "na
     p1 = p1 + ylab("Value") + labs(colour = "Variant", lty = "Algorithm") 
     p1 = p1 + theme(legend.direction = "horizontal", legend.position = "top", legend.box = "vertical", legend.box.just = "left")
     p1 = p1 + guides(lty = guide_legend(order = 1), colour = guide_legend(order = 2))
-    p1 = p1 + xlab("Evaluations") + ylim(limits) + ylab(mynames$name)
+    p1 = p1 + xlab("Evaluations") + ylim(limits) + ylab(myname)
     p1 = p1 + facet_grid(learner ~ .) 
 
     p2 = ggplot()
@@ -713,6 +716,66 @@ plotRanks = function(res, plotspath, experiments, logscale = FALSE, metric = "na
     p2 = p2 + facet_grid(learner ~ .) 
 
     p = ggarrange(p1, p2, ncol = 2, nrow = 1, common.legend = TRUE, legend = "top")
+    ggsave(file.path(plotspath, prompt, gsub("\\.", "", metric), paste("ranksPerLearner_", limits[1], "_", limits[2], ".pdf", sep = "")), p, width = 9, height = 11, device = "pdf")
+}
+
+plotSOperformance = function(res, plotspath, experiments, logscale = FALSE, prompt, limits = c(0.5, 1), height = 10, width = 7) {
+    # PUT GENERATIONS HERE 
+    # 1) Pepare the dataset for plotting 
+    metrics = paste("eval.perf", c(".min", ".mean", ".max"), sep = "")
+    metrics = c(metrics, paste("hout.perf", c(".min", ".mean", ".max"), sep = ""))
+
+    df = res[variant %in% experiments$variant, ]
+    df = extractFromSummary(df, c("evals", "runtime", metrics))
+
+    df = df[evals <= 4000, ]
+    df = df[, replication := 1:length(job.id), by = c("learner", "variant", "problem", "evals")]
+
+    df = renameAndRevalue(df)
+
+    # --- calculate ranks within learner, problem and replication ---
+    choseby = c("evals", "variant", "algorithm", "problem", metrics)
+    df = df[,  ..choseby]
+    res_ovr = df[, lapply(.SD, mean), by = c("evals", "variant", "algorithm", "problem")]
+
+    # --- average across problems
+
+    # ylab_names = data.table(name = c(expression(DomHV[test]), expression(DomHV[valid])), 
+    #                       mymetric = c("naive.hout.domHV", "eval.domHV"))
+    # mynames = ylab_names[metric %in% mymetric, ]
+
+    # --- plot stuff over all learners first
+    names(res_ovr)[5:10] = c("min", "mean", "max", "min", "mean", "max")
+    res_ovr = rbind(cbind(type = "eval", res_ovr[, 1:7]), cbind(type = "hout", res_ovr[, c(1:4, 8, 9, 10)]))
+
+    dir.create(file.path(plotspath, prompt))
+    dir.create(file.path(plotspath, prompt, gsub("\\.", "", metric)))
+
+    # --- plot stuff over all learners first
+    for (prob in unique(res_ovr$problem)) {
+
+        res_prob = res_ovr[problem == prob, ]
+
+        p1 = ggplot()
+        p1 = p1 + geom_line(data = res_prob[type == "eval", ], aes(x = evals, y = mean, lty = algorithm, colour = variant), size = 0.6)
+        p1 = p1 + scale_colour_Publication() + theme_Publication() 
+        p1 = p1 + ylab("Value") + labs(colour = "Variant", lty = "Algorithm") 
+        p1 = p1 + theme(legend.direction = "horizontal", legend.position = "top", legend.box = "vertical", legend.box.just = "left")
+        p1 = p1 + guides(lty = guide_legend(order = 1), colour = guide_legend(order = 2))
+        p1 = p1 + xlab("Evaluations") + ylab(expression(mmce[valid]))
+
+        p2 = ggplot()
+        p2 = p2 + geom_line(data = res_prob[type == "hout", ], aes(x = evals, y = mean, lty = algorithm, colour = variant), size = 0.6)
+        p2 = p2 + scale_colour_Publication() + theme_Publication() 
+        p2 = p2 + ylab("Value") + labs(colour = "Variant", lty = "Algorithm") 
+        p2 = p2 + theme(legend.direction = "horizontal", legend.position = "top", legend.box = "vertical", legend.box.just = "left")
+        p2 = p2 + guides(lty = guide_legend(order = 1), colour = guide_legend(order = 2))
+        p2 = p2 + xlab("Evaluations") + ylab(expression(mmce[test]))
+      p = ggarrange(p1, p2, ncol = 2, nrow = 1, common.legend = TRUE, legend = "top")
+
+
+      }
+
     ggsave(file.path(plotspath, prompt, gsub("\\.", "", metric), paste("ranksPerLearner_", limits[1], "_", limits[2], ".pdf", sep = "")), p, width = 9, height = 11, device = "pdf")
 }
 
@@ -732,7 +795,7 @@ renameAndRevalue = function(df) {
     df$variant = revalue(df$variant, 
       c("O" = "base version", "OI" = "+UI", "OIFi" = "+UI+FI", "OIFiFm" = "+UI+FI+FM", 
         "OIFiFmS" = "+UI+FI+FM (s.a.)", "OIH" = "+UI+HP", "OIHFiFmS" = "+UI+FI+HP+FM (s.a.)", "BS1RF" = "BS1RF", "BS2RF" = "BS2RF", "BSMO" = "BSMO"))
-    df$algorithm = revalue(df$algorithm, c("mosmafs" = "NSGA-II", "randomsearch" = "Random Search", "no_feature_sel" = "MBO", "no_feature_sel" = "MBO"))
+    df$algorithm = revalue(df$algorithm, c("mosmafs" = "NSGA-II", "randomsearch" = "Random Search", "no_feature_sel" = "MBO", "mbo_multicrit" = "MBO"))
 
     return(df)
 }

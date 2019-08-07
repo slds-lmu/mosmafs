@@ -66,3 +66,32 @@ tosubmit = tab[algorithm == "mbo_multicrit", ]
 res = testJob(tosubmit[1, ])
 
 
+
+
+
+
+bla = lapply(object$result.pf, function(x) {
+    res = doNondominatedSorting(t(as.matrix(x)))
+    which(res$ranks == 1)
+}
+)
+
+
+  
+  perflist <- mapply(FUN = function(train, hold) {
+    res = doNondominatedSorting(t(as.matrix(train)))
+    idx = which(res$ranks == 1)
+
+    res = cbind(train[idx, ], hold[idx, 2])
+    res$diff = res[, 3] - res[, 2]
+    res
+
+    
+  }, object$result.pf, object$result.pf.test, SIMPLIFY = FALSE)
+
+sapply(perflist, function(x) mean(x$diff))
+
+
+# how does something like that look like for NSGA-II? 
+
+
