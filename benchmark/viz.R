@@ -36,8 +36,8 @@ experiments_list = list(
 	RS = data.table(algorithm = "randomsearch", initialization = "none", filter = "none", chw.bitflip = NA, adaptive.filter.weights = NA, filter.during.run = NA),
 	RSI = data.table(algorithm = "randomsearch", initialization = "unif", filter = "none", chw.bitflip = NA, adaptive.filter.weights = NA, filter.during.run = NA),
 	RSIF = data.table(algorithm = "randomsearch", initialization = "unif", filter = "custom", chw.bitflip = NA, adaptive.filter.weights = NA, filter.during.run = NA),
-	BS1RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = FALSE, surrogate = "randomForest", infill = "cb", propose.points = 15L),
-	BS2RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = TRUE, surrogate = "randomForest", infill = "cb", propose.points = 15L), 
+	# BS1RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = FALSE, surrogate = "randomForest", infill = "cb", propose.points = 15L),
+	# BS2RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = TRUE, surrogate = "randomForest", infill = "cb", propose.points = 15L), 
 	BSMO = data.table(algorithm = "mbo_multicrit", filter = "custom", surrogate = "randomForest", infill = "cb", propose.points = 15L)
 )
 
@@ -59,13 +59,7 @@ problems = problems[order(problems$p), ]
 
 files_loc = list.files(data_path, recursive = TRUE, full.names = TRUE)
 files = lapply(files_loc, readRDS)
-res_full = rbindlist(files, fill = TRUE)
-
-# --- Filtering, as not all experiments are completed yet
-res = res_full[learner != "xgboost", ]
-res = res[variant %in% experiments$variant, ]
-res = res[, count := .N, by = c("problem")]
-res = res[count == 260, ]
+res = rbindlist(files, fill = TRUE)
 
 # --- Analyze mosmafs
 limits = list(c(0, 1), c(0.5, 1), c(0.8, 1), c(0.85, 0.95))
@@ -120,27 +114,27 @@ for (lim in limits) {
 # --- a) inner evaluation
 for (lim in limits) {
 	plotRanks(res = res, plotspath = plotspath, 
-	experiments = experiments[variant %in% c("O", "OIH", "OIHFiFmS", "BS1RF", "BS2RF", "BSMO"), ], 
+	experiments = experiments[variant %in% c("O", "OIH", "OIHFiFmS", "BSMO"), ], 
 	metric =  "eval.domHV", prompt = c("baselines_mbo"), limits = lim)#, height = 8, width = 7)
 }
 
 # --- b) outer evaluation
 for (lim in limits) {
 	plotRanks(res = res, plotspath = plotspath, 
-	experiments = experiments[variant %in% c("O", "OIH", "OIHFiFmS", "BS1RF", "BS2RF", "BSMO"), ], 
+	experiments = experiments[variant %in% c("O", "OIH", "OIHFiFmS", "BSMO"), ], 
 	metric =  "naive.hout.domHV", prompt = c("baselines_mbo"), limits = lim)#, height = 8, width = 7)
 }
 
 # --- c) outer evaluation (true hout domHV)
 for (lim in limits) {
 	plotRanks(res = res, plotspath = plotspath, 
-	experiments =  experiments[variant %in% c("O", "OIH", "OIHFiFmS", "BS1RF", "BS2RF", "BSMO"), ], 
+	experiments =  experiments[variant %in% c("O", "OIH", "OIHFiFmS", "BSMO"), ], 
 	metric =  "true.hout.domHV", prompt = c("baselines_mbo"), limits = lim)#, height = 8, width = 7)
 }
 
 
 # --- 4. Debugging: Visualize single results
-res = readRDS(file.path(data_path, "single_experiments_hill-valley.rds"))
+res = readRDS(file.path(data_path, "single_experiments_sonar.rds"))
 
 # get the first 100 points 
 
@@ -201,7 +195,7 @@ for (maxgen in c(0, 100, 200, 250)){
 	maxevals = maxgen * 15 + 80
 
 	# FOR MOSMAFS, ONLY PLOT CURRENT GENERATION 
-	dfp = df[evals <= maxevals & exp == 2, ]
+	dfp = df[evals <= maxevals & exp == 3, ]
 	dfp = dfp[variant == "mbo" | (variant == "mosmafs" & gen == maxgen)]
 	dfp$id = paste(dfp$variant, "_", dfp$exp, sep = "")
 
@@ -224,7 +218,6 @@ for (maxgen in c(0, 100, 200, 250)){
 
 p = do.call(grid.arrange, c(plist, ncol = 2, nrow = 2))
 
-sapply(1:1000, mean(df[evals < mx, by = ]))
 
 # p = ggplot() + geom_point(data = df, aes(x = evals, y = eval.perf), color = "orange")
 # p = p + geom_point(data = df, aes(x = evals, y = hout.perf), color = "green")
@@ -335,3 +328,8 @@ plotFrontPerProblem(plotspath, parfrnt)
 # --- TODO
 # h) Create a table for runtime evaluation (see Table 3)
 # "runtime to randomsearch "
+
+
+
+p = ggplot(data = op) + geom_point(aes(x = y_1, y = y_2, col = filter))
+p

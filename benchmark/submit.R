@@ -66,13 +66,13 @@ problems.serial = c("wdbc", "ionosphere", "sonar", "hill-valley", "clean1",
 # --- OIH       |   DONE       |  300 / 300 DONE 
 # --- OIHFiFmS  |   DONE       |  300 / 300 DONE 
 # --- OIHFiFmS  |   DONE       |  300 / 300 DONE 
-# --- BS1RF     |   doing      |  190 / 300 DONE 
-# --- BS2RF     |   doing      |  181 / 300 DONE
+# --- BS1RF     |   doing      |  285 / 300 DONE 
+# --- BS2RF     |   doing      |  287 / 300 DONE
 # --- BS5SO     |   doing      |  300 / 300 DONE
-# --- BSMO      |   doing      |  265 / 300 DONE  / XGBOOST TAKES SOME WHILE
+# --- BSMO      |   doing      |  300 / 300 DONE  / XGBOOST TAKES SOME WHILE
 
 
-experiment = "BSMO"
+experiment = "BS2RF"
 tosubmit = ijoin(tab, experiments[[experiment]], by = names(experiments[[experiment]]))
 tosubmit = ijoin(tosubmit, findNotDone())
 tosubmit = tosubmit[problem %in% problems.serial, ]

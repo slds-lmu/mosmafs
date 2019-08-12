@@ -33,8 +33,8 @@ experiments = list(
 	# RSI = data.table(algorithm = "randomsearch", initialization = "unif", filter = "none", chw.bitflip = NA, adaptive.filter.weights = NA, filter.during.run = NA),
 	# RSIF = data.table(algorithm = "randomsearch", initialization = "unif", filter = "custom", chw.bitflip = NA, adaptive.filter.weights = NA, filter.during.run = NA)
 	# BS5SO = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, multi.objective = FALSE, parent.sel = "selTournament")#,
-	BS1RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = FALSE, surrogate = "randomForest", infill = "cb", propose.points = 15),
-	BS2RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = TRUE, surrogate = "randomForest", infill = "cb", propose.points = 15),
+	# BS1RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = FALSE, surrogate = "randomForest", infill = "cb", propose.points = 15),
+	# BS2RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = TRUE, surrogate = "randomForest", infill = "cb", propose.points = 15),
 	BSMO = data.table(algorithm = "mbo_multicrit", filter = "custom", surrogate = "randomForest", infill = "cb", propose.points = 15L)
 	)
 
@@ -49,11 +49,11 @@ collectParetofront(path, experiments = experiments[c("O", "OIHFiFmS", "RS", "RSI
 collectBenchmarkResults(path, experiments, tab, mbo = TRUE)
 
 # Reduce single results for MBO and for O
-toreduce = tab[problem == "hill-valley" & learner == "SVM", ]
+toreduce = tab[problem == "sonar" & learner == "xgboost", ]
 toreduce = toreduce[algorithm %in% c("mbo_multicrit", "mosmafs"), ]
 toreduce = toreduce[algorithm %in% "mbo_multicrit" | (adaptive.filter.weights & filter.during.run & chw.bitflip & parent.sel == "selTournamentMO"), ]
 toreduce = ijoin(toreduce, findDone())
 toreduce = toreduce[c(1:3, 11:13), ]
 
 res = reduceResultsDataTable(toreduce)
-saveRDS(res, file.path(path, "single_experiments_hill-valley.rds"))
+saveRDS(res, file.path(path, "single_experiments_sonar.rds"))

@@ -281,19 +281,21 @@ collectResultMBO = function(object, aggregate.perresult = list(domHV = function(
 
   if (object$result$control$n.objectives > 1) {
     resdf = as.data.table(opt.path)
-    resdf$evals = 1:nrow(resdf)
+    resdf$evals = seq_len(nrow(resdf))
     resdf$gen <- pmax(ceiling((resdf$evals - 80) / 15), 0)
     resdf$runtime <- cumsum(rowSums(resdf[, c("train.time",  "propose.time", "exec.time")], na.rm = TRUE))
 
     object$result.pf = lapply(unique(resdf$gen), function(x) {
       x_filt = resdf[gen <= x, ]
-      names(x_filt)[5:6] = c("perf", "rn")
+      cols = which(names(x_filt) %in% c("y_1", "y_2"))
+      names(x_filt)[cols] = c("perf", "rn")
       x_filt[, c("rn", "perf")]
     })
 
     object$result.pf.test = lapply(unique(resdf$gen), function(x) {
       x_filt = resdf[gen <= x, ]
-      names(x_filt)[5:6] = c("perf", "rn")
+      cols = which(names(x_filt) %in% c("y_1", "y_2"))
+      names(x_filt)[cols] = c("perf", "rn")
       x_filt[, c("rn", "fitness.holdout.perf")]
     })
 
