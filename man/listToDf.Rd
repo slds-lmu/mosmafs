@@ -25,3 +25,20 @@ factors, only characters are accepted and factors are returned.
 Returned \code{data.frame} has column names equal to parameter ids. In case
 of vector parameters column names will be numbered.
 }
+\examples{
+library(mlrCPO)
+
+# Create parameter set
+temp <- c("a", "b", "c")
+ps.simple <- pSS(
+ num: numeric [0, 10],
+ int: integer[0, 10] [[trafo = function(x) x / 10]],
+ char: discrete [temp], 
+ selector.selection: logical^10)
+ 
+# Sample values as list and convert list to data frame
+init.list <- sampleValues(ps.simple, 5, discrete.names = TRUE)
+result <- listToDf(init.list, ps.simple)
+result
+
+}

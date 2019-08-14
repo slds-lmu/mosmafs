@@ -102,3 +102,62 @@ a \code{fidelity} with first column values \code{c(1, 8)}, then the fidelity giv
 first row is applied for 2 generations, after which the fidelity given in the
 second row applies.
 }
+\examples{
+library("mlr")
+library("magrittr")
+library("mlrCPO")
+
+# Define tasks
+task.whole <- create.hypersphere.data(3, 2000) \%>\%
+create.classif.task(id = "sphere") \%>\%
+task.add.permuted.cols(10)
+rows.whole <- sample(2000)
+task <- subsetTask(task.whole, rows.whole[1:500])
+task.hout <- subsetTask(task.whole, rows.whole[501:2000])
+
+# Create learner
+lrn <- makeLearner("classif.rpart", maxsurrogate = 0)
+
+# Create parameter set to optimize over
+ps <- pSS(
+ maxdepth: integer[1, 30],
+ minsplit: integer[2, 30],
+ cp: numeric[0.001, 0.999])
+
+# Create fitness function
+fitness.fun <- makeObjective(lrn, task, ps, cv5,
+ holdout.data = task.hout)
+ 
+#  Receive parameter set from fitness function
+ps.objective <- getParamSet(fitness.fun)
+
+# Define mutators and recombinators
+mutator <- combine.operators(ps.objective,
+ numeric = ecr::setup(mutGauss, sdev = 0.1),
+ integer = ecr::setup(mutGaussInt, sdev = 3),
+ selector.selection = mutBitflipCHW)
+crossover <- combine.operators(ps.objective,
+ numeric = recPCrossover,
+ integer = recPCrossover,
+ selector.selection = recPCrossover)
+
+# Initialize population and evaluate it
+initials <- sampleValues(ps.objective, 32, discrete.names = TRUE)
+run.init <- initEcr(fitness.fun = fitness.fun, population = initials)
+
+# Run NSGA-II for 5 generations with run.init as input
+run.gen <- continueEcr(run.init, generations = 5, lambda = 5, mutator = mutator, 
+ recombinator = crossover, parent.selector = selSimple, 
+ survival.selector = selNondom, 
+ p.recomb = 0.7, p.mut = 0.3, survival.strategy = "plus")
+ 
+# Or instead of initEcr and continueEcr use the shortcut function slickEcr
+run.simple <- slickEcr(
+ fitness.fun = fitness.fun, lambda = 5, population = initials,
+ mutator = mutator,
+ recombinator = crossover,
+ generations = 5)
+ 
+print(run.simple)
+  
+}

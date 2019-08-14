@@ -39,3 +39,49 @@ Merge both \code{log} and \code{log.newinds} data for a complete \code{data.fram
 with information about progress (both on training data and on
 holdout data) and ressource usage.
 }
+\examples{
+library(mlrCPO)
+
+# Setup of optimization problem 
+ps.simple <- pSS(
+ a: numeric [0, 10],
+ selector.selection: logical^10)
+ 
+mutator.simple <- combine.operators(ps.simple,
+ a = mutGauss,
+ selector.selection = mutBitflipCHW)
+ 
+crossover.simple <- combine.operators(ps.simple,
+ a = recSBX,
+ selector.selection = recPCrossover)
+
+initials <- sampleValues(ps.simple, 30, discrete.names = TRUE)
+
+fitness.fun <- smoof::makeMultiObjectiveFunction(
+ sprintf("simple test"),
+ has.simple.signature = FALSE, par.set = ps.simple, n.objectives = 2, 
+ noisy = TRUE,
+ ref.point = c(10, 1),
+ fn = function(args, fidelity = NULL, holdout = FALSE) {
+   pfeat <- mean(args$selector.selection)
+   c(perform = args$a, pfeat = pfeat)
+ })
+fitness.fun.single <- smoof::makeMultiObjectiveFunction(
+ sprintf("simple test"),
+ has.simple.signature = FALSE, par.set = ps.simple, n.objectives = 1, 
+ noisy = TRUE,
+ ref.point = c(10),
+ fn = function(args, fidelity = NULL, holdout = FALSE) {
+   propfeat <- mean(args$selector.selection)
+   c(propfeat = propfeat)
+ })
+
+# Run NSGA-II
+results <- slickEcr(fitness.fun = fitness.fun, lambda = 10, population = initials, 
+ mutator = mutator.simple, recombinator = crossover.simple, generations = 10)
+
+# Collect results
+colres <- collectResult(results)
+print(colres)
+ 
+}

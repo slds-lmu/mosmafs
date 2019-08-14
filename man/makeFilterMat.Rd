@@ -29,3 +29,12 @@ gives a constant column of \code{expectfeatfrac}.}
 A Filter-Matrix can be used in combination with \code{\link{mutUniformMetaReset}} for
 heuristic-supported biased mutation.
 }
+\examples{
+library("mlr")
+
+# Example for iris task
+filters <- c("praznik_JMI", "anova.test", "variance", "DUMMY")
+fima <- makeFilterMat(iris.task, filters = filters)
+print(fima)
+
+}

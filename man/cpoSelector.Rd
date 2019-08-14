@@ -61,3 +61,15 @@ Use fixed matching instead of regular expressions for \code{affect.pattern}; see
 \description{
 CPO that Selects Features
 }
+\examples{
+library("mlr")
+library("mlrCPO")
+
+# Dataset has originally four features
+iris.task$task.desc$n.feat
+
+iris.task.subset = iris.task \%>>\% cpoSelector(c(TRUE, TRUE, FALSE, FALSE))
+
+# Now only two were selected
+iris.task.subset$task.desc$n.feat
+}

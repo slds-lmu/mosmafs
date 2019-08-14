@@ -41,3 +41,21 @@ to newly generated values of \code{vector.name}. If set to NULL, no rejection is
 Sample the \code{vector.name} variable such that the number of ones
 has a given distribution.
 }
+\examples{
+library(mlrCPO)
+
+# Initialize parameter set and sample candidates
+ps <- pSS(
+ maxdepth: integer[1, 30],
+ minsplit: integer[2, 30],
+ cp: numeric[0.001, 0.999], 
+ selector.selection: logical^5)
+
+initials <- sampleValues(ps, 15, discrete.names = TRUE)
+
+# Resample logical vector selector.selection of initials 
+# with binomial distribution 
+initSelector(initials, distribution = function() rbinom(n = 5, size = 5, 
+ prob = 0.5))
+
+}
