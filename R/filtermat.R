@@ -28,7 +28,14 @@ makeFilterMat <- function(task, filters, expectfeatfrac = 0.5, expectfeats = get
   do.dummy <- "DUMMY" %in% filters
   filters <- setdiff(filters, "DUMMY")
   filtervals <- generateFilterValuesData(task, method = filters)
-  filtervals <- filtervals$data[-(1:2)]
+  if (!is.numeric(filtervals$data[[3]])) {
+    colnam <- colnames(filtervals$data)
+    filtervals <- reshape(filtervals$data, direction = "wide", idvar = colnam[1], timevar = colnam[3], drop = colnam[2])
+    filtervals <- filtervals[match(getTaskFeatureNames(task), filtervals[[1]]), ]
+    filtervals <- filtervals[-1]
+  } else {
+    filtervals <- filtervals$data[-(1:2)]
+  }
   if (do.dummy) {
     filtervals$DUMMY <- 0.5
   }

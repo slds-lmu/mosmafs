@@ -113,6 +113,7 @@ availableAttributes <- function(log, check = FALSE) {
 #'   arguments and return a `numeric(1)`.
 #' @return `data.frame` 
 #' @examples
+#' library(mlrCPO)
 #' 
 #' # Setup of optimization problem 
 #' ps.simple <- pSS(
@@ -138,7 +139,6 @@ availableAttributes <- function(log, check = FALSE) {
 #'    pfeat <- mean(args$selector.selection)
 #'    c(perform = args$a, pfeat = pfeat)
 #'  })
-
 #' fitness.fun.single <- smoof::makeMultiObjectiveFunction(
 #'  sprintf("simple test"),
 #'  has.simple.signature = FALSE, par.set = ps.simple, n.objectives = 1, 
