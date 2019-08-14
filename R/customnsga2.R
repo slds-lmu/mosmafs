@@ -62,6 +62,7 @@
 #' @examples 
 #' library("mlr")
 #' library("magrittr")
+#' library("mlrCPO")
 #' 
 #' # Define tasks
 #' task.whole <- create.hypersphere.data(3, 2000) %>%
