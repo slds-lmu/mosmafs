@@ -404,7 +404,7 @@ constructEvalSetting <- function(task, learner, ps, measure = getDefaultMeasure(
             inst$desc$train.inds <- inst$desc$train.inds[2:10]
             inst$desc$test.inds <- inst$desc$test.inds[2:10]
           } else if (n != 10) {
-            stop(messagef("Invalid fidelity %s", n))
+            stopf("Invalid fidelity %s", n)
           }
           inst
         }
@@ -437,7 +437,7 @@ constructEvalSetting <- function(task, learner, ps, measure = getDefaultMeasure(
               paste0("MOSMAFS_RUN_",
                 xdigest,
                 filesuffix,
-                messagef("_%s.rds", houtiter))))
+                sprintf("_%s.rds", houtiter))))
         }
         res <- collectResult(run)
         res$cum.fid <- pmin(res$cum.fid, evals)
