@@ -292,6 +292,7 @@ collectResult <- function(ecr.object, aggregate.perresult = list(domHV = functio
 #' @return `list of named lists` the individuals with initialized
 #'   `[[vector.name]]`.
 #' @examples
+#' library(mlrCPO)
 #' 
 #' # Initialize parameter set and sample candidates
 #' ps <- pSS(
