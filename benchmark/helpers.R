@@ -207,13 +207,13 @@ collectResult <- function(ecr.object, aggregate.perresult = list(domHV = functio
   }
 
   fitnesses <- popAggregate(ecr.object$log, "fitness")
-  if (ecr.object$task$n.objectives == 1) {
-    propfeats <- lapply(getPopulations(ecr.object$log), function(x) {
-        y = unlist(lapply(x$population, function(x) sum(x$selector.selection) / length(x$selector.selection)))
-      })
-    }
-    fitnesses = mapply(rbind, fitnesses, propfeats, SIMPLIFY = FALSE)
-  }
+  # if (ecr.object$task$n.objectives == 1) {
+  #   propfeats <- lapply(getPopulations(ecr.object$log), function(x) {
+  #       y = unlist(lapply(x$population, function(x) sum(x$selector.selection) / length(x$selector.selection)))
+  #     })
+  #   }
+  #   fitnesses = mapply(rbind, fitnesses, propfeats, SIMPLIFY = FALSE)
+  # }
 
   if (length(fitnesses) == 1L) # ugly fix for calculating traces for randomsearch
       fitnesses = lapply(c(seq(80, 4000, by = 15), 4000), function(i) fitnesses[[1]][, 1:i])
@@ -278,6 +278,7 @@ collectResult <- function(ecr.object, aggregate.perresult = list(domHV = functio
       resdf <- cbind(resdf, hout = aggregate.fitness(hofitnesses), cor = corcols)
     }
   }
+  
   resdf
 }
 
