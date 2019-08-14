@@ -474,6 +474,9 @@ setMosmafsVectorized <- function(fn, vectorize = TRUE) {
 #' @param par.set `[ParamSet]` parameter set.
 #' @return `[data.frame]`
 #' @examples 
+#' library(mlrCPO)
+#' 
+#' # Create parameter set
 #' temp <- c("a", "b", "c")
 #' ps.simple <- pSS(
 #'  num: numeric [0, 10],
@@ -481,6 +484,7 @@ setMosmafsVectorized <- function(fn, vectorize = TRUE) {
 #'  char: discrete [temp], 
 #'  selector.selection: logical^10)
 #'  
+#' # Sample values as list and convert list to data frame
 #' init.list <- sampleValues(ps.simple, 5, discrete.names = TRUE)
 #' result <- listToDf(init.list, ps.simple)
 #' result
