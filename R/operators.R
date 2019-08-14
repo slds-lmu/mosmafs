@@ -1,4 +1,10 @@
-#' @include utils.R
+#' @inclu#' recSBXInt <- intifyRecombinator(recSBX)
+#' 
+#' combo.rec.int <- combine.operators(ps, 
+#' numeric = recSBX, 
+#' int = recSBXInt)
+#' 
+#' combo.rec.int(list(list(numb = 1.5, int = 3), list(numb = 3, int = 0))) de utils.R
 
 .tol <- sqrt(.Machine$double.eps) * 4
 
@@ -12,6 +18,32 @@
 #' @param operator `[ecr_operator]` [`ecr_operator`][ecr::makeOperator] that supports continuous
 #'   variables.
 #' @return [`ecr_operator`][ecr::makeOperator] operator that operates on integers.
+#' @examples 
+#' library(mlrCPO)
+#' 
+#' # Create parameter set 
+#' ps <- pSS(
+#' numb: numeric[1, 10], 
+#' int: integer[0, 5])
+#' 
+#' # Define mutator
+#' # If Gaussian mutator is applied to integer parameter, 
+#' # it does not return an integer
+#' combo.mut <- combine.operators(ps, 
+#' numeric = mutGauss, 
+#' int = mutGauss)
+#' 
+#' combo.mut(list(numb = 1.5, int = 3))
+#' 
+#' # Turn continuous-space operator mutGauss into integer-space operator
+#' mutGaussInt <- intifyMutator(mutGauss)
+#' 
+#' combo.mut.int <- combine.operators(ps, 
+#' numeric = mutGauss, 
+#' int = mutGaussInt)
+#' 
+#' combo.mut.int(list(numb = 1.5, int = 3))
+#' 
 #' @export
 intifyMutator <- function(operator) {
   assertClass(operator, c("ecr_mutator", "ecr_operator", "function"))
