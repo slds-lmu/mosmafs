@@ -17,9 +17,8 @@
 #' library("mlr")
 #' 
 #' # Example for iris task
-#' tasks <- iris.task
 #' filters <- c("praznik_JMI", "anova.test", "variance", "DUMMY")
-#' fima <- makeFilterMat(task, filters = filters)
+#' fima <- makeFilterMat(iris.task, filters = filters)
 #' print(fima)
 #' 
 #' @export
