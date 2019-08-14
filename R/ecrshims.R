@@ -36,6 +36,53 @@
 #' @param .binary.discrete.as.logical `[logical(1)]` whether to treat binary discrete parameters as `logical` parameters and
 #'   use bitwise operators.
 #' @return [`ecr_operator`][ecr::makeOperator] ecr operator.
+#' @examples 
+#' library(mlrCPO)
+#' 
+#' ## Create parameter set 
+#' ps <- pSS(
+#' logi: logical, 
+#' disc: discrete[yes, no], 
+#' discvec: discrete[letters]^3, 
+#' numer: numeric[0, 10])
+#' 
+#' ## Define mutators for groups of parameters 
+#' combo.mut <- combine.operators(ps, 
+#' .params.group1 = c("logi", "disc"), # define group for which same mutator is used
+#' group1 = ecr::setup(mutBitflip, p = 1), # set probability for mutation to 1
+#' discrete = mutRandomChoice, # define operator for all other discrete parameters
+#' numer = mutGauss) # specific operator for parameter numer
+#' 
+#' combo.mut(list(logi = FALSE, disc = "yes", discvec = c("a", "x", "y"), 
+#' numer = 2.5))
+#' 
+#' ## Define mutator with strategy parameter
+#' combo.strategy <- combine.operators(ps,
+#' logical = ecr::setup(mutBitflip, p = 0),
+#' discrete = mutRandomChoice,
+#' numeric = mutGauss, 
+#' .strategy.numeric = function(ind) {
+#' if (ind$disc == "yes") {
+#' return(list(p = 1L))
+#' } else {
+#' return(list(p = 0L))
+#' }
+#' })
+#' 
+#' combo.strategy(list(logi = FALSE, disc = "no", discvec = c("a", "x", "y"), 
+#' numer = 2.5))
+#' 
+#' ## Define recombinators for groups of parameters
+#' combo.rec <- combine.operators(ps, 
+#' .params.group1 = c("logi", "disc"), # define group for which same mutator is used
+#' group1 = recPCrossover, 
+#' discrete = recPCrossover,
+#' numer = recGaussian)
+#' 
+#' combo.rec(list(list(logi = FALSE, disc = "no", discvec = c("a", "x", "y"), 
+#' numer = 2.5), list(logi = TRUE, disc = "yes", discvec = c("c", "e", "g"), 
+#' numer = 7.5)))
+#' 
 #' @export
 combine.operators <- function(param.set, ..., .binary.discrete.as.logical = TRUE) {
 
