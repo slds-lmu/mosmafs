@@ -61,6 +61,7 @@
 #'   `initEcr`, `slickEcr`, or `continueEcr`
 #' @examples 
 #' library("mlr")
+#' library("magrittr")
 #' 
 #' # Define tasks
 #' task.whole <- create.hypersphere.data(3, 2000) %>%
