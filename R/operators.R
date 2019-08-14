@@ -32,17 +32,21 @@
 #' combo.mut <- combine.operators(ps, 
 #' numeric = mutGauss, 
 #' int = mutGauss)
-#' 
 #' combo.mut(list(numb = 1.5, int = 3))
 #' 
 #' # Turn continuous-space operator mutGauss into integer-space operator
 #' mutGaussInt <- intifyMutator(mutGauss)
-#' 
 #' combo.mut.int <- combine.operators(ps, 
 #' numeric = mutGauss, 
 #' int = mutGaussInt)
-#' 
 #' combo.mut.int(list(numb = 1.5, int = 3))
+#' 
+#' # Turn continuous-space operator recSBX into integer-space operator
+#' recSBXInt <- intifyRecombinator(recSBX)
+#' combo.rec.int <- combine.operators(ps, 
+#' numeric = recSBX, 
+#' int = recSBXInt)
+#' combo.rec.int(list(list(numb = 1.5, int = 3), list(numb = 3, int = 0)))
 #' 
 #' @export
 intifyMutator <- function(operator) {

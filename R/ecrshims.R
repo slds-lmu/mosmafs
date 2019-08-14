@@ -39,14 +39,14 @@
 #' @examples 
 #' library(mlrCPO)
 #' 
-#' ## Create parameter set 
+#' # Create parameter set 
 #' ps <- pSS(
 #' logi: logical, 
 #' disc: discrete[yes, no], 
 #' discvec: discrete[letters]^3, 
 #' numer: numeric[0, 10])
 #' 
-#' ## Define mutators for groups of parameters 
+#' # Define mutators for groups of parameters 
 #' combo.mut <- combine.operators(ps, 
 #' .params.group1 = c("logi", "disc"), # define group for which same mutator is used
 #' group1 = ecr::setup(mutBitflip, p = 1), # set probability for mutation to 1
@@ -56,7 +56,7 @@
 #' combo.mut(list(logi = FALSE, disc = "yes", discvec = c("a", "x", "y"), 
 #' numer = 2.5))
 #' 
-#' ## Define mutator with strategy parameter
+#' # Define mutator with strategy parameter
 #' combo.strategy <- combine.operators(ps,
 #' logical = ecr::setup(mutBitflip, p = 0),
 #' discrete = mutRandomChoice,
@@ -72,7 +72,7 @@
 #' combo.strategy(list(logi = FALSE, disc = "no", discvec = c("a", "x", "y"), 
 #' numer = 2.5))
 #' 
-#' ## Define recombinators for groups of parameters
+#' # Define recombinators for groups of parameters
 #' combo.rec <- combine.operators(ps, 
 #' .params.group1 = c("logi", "disc"), # define group for which same mutator is used
 #' group1 = recPCrossover, 
