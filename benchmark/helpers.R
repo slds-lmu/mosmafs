@@ -185,8 +185,6 @@ collectResult <- function(ecr.object, aggregate.perresult = list(domHV = functio
   aggregate.perresult <- normalize.funlist(aggregate.perresult)
   aggregate.perobjective <- normalize.funlist(aggregate.perobjective)
 
-  assertNumeric(ref.point, any.missing = FALSE, finite = TRUE,
-    len = ecr.object$task$n.objectives)
   assertFunction(cor.fun)
 
   aggregate.fitness <- function(fitness) {
@@ -209,6 +207,14 @@ collectResult <- function(ecr.object, aggregate.perresult = list(domHV = functio
   }
 
   fitnesses <- popAggregate(ecr.object$log, "fitness")
+  if (ecr.object$task$n.objectives == 1) {
+    propfeats <- lapply(getPopulations(ecr.object$log), function(x) {
+        y = unlist(lapply(x$population, function(x) sum(x$selector.selection) / length(x$selector.selection)))
+      })
+    }
+    fitnesses = mapply(rbind, fitnesses, propfeats, SIMPLIFY = FALSE)
+  }
+
   if (length(fitnesses) == 1L) # ugly fix for calculating traces for randomsearch
       fitnesses = lapply(c(seq(80, 4000, by = 15), 4000), function(i) fitnesses[[1]][, 1:i])
 
@@ -278,6 +284,7 @@ collectResult <- function(ecr.object, aggregate.perresult = list(domHV = functio
 collectResultMBO = function(object, aggregate.perresult = list(domHV = function(x) computeHV(x, ref.point)), aggregate.perobjective = list("min", "mean", "max"), ref.point = smoof::getRefPoint(ecr.object$control$task$fitness.fun), cor.fun = cor) {
   opt.path <- data.frame(object$result$opt.path)
   resdf <- data.table()
+  task.p <- getTaskNFeats(object$train.task)
 
   if (object$result$control$n.objectives > 1) {
     resdf = as.data.table(opt.path)
@@ -289,6 +296,7 @@ collectResultMBO = function(object, aggregate.perresult = list(domHV = function(
       x_filt = resdf[gen <= x, ]
       cols = which(names(x_filt) %in% c("y_1", "y_2"))
       names(x_filt)[cols] = c("perf", "rn")
+      x_filt$rn <- ceiling(task.p * x_filt$rn) / task.p
       x_filt[, c("rn", "perf")]
     })
 
@@ -296,6 +304,7 @@ collectResultMBO = function(object, aggregate.perresult = list(domHV = function(
       x_filt = resdf[gen <= x, ]
       cols = which(names(x_filt) %in% c("y_1", "y_2"))
       names(x_filt)[cols] = c("perf", "rn")
+      x_filt$rn <- ceiling(task.p * x_filt$rn) / task.p
       x_filt[, c("rn", "fitness.holdout.perf")]
     })
 
@@ -517,208 +526,173 @@ scale_colour_spec <- function(...){
 }
 
 
-plotOptPathHypervol = function(res, plotspath) {
-  df = extractFromSummary(res, c("evals", "eval.domHV"))
-  df = df[- which(problem %in% c("hypersphere.200.50", "hypersphere.200.200")), ] 
-  df = df[, replication := 1:length(job.id), by = c("learner", "variant", "problem", "evals")]
- 
-  status_finished = df[, max(replication), by = c("variant", "problem", "learner")]
-  status_finished = status_finished[, sum(V1), by = c("problem", "learner")]
-  status_finished = status_finished[V1 == 100, ]
-  df = ijoin(df, status_finished, by = c("problem", "learner")) 
-
-  dfp = df[, .(mean.domHV = mean(eval.domHV)), by = c("algorithm", "evals", "problem", "learner", "variant")]
-  dfp = dfp[evals != 8000, ]
-  dfp = dfp[variant %in% c("RS", "RSI", "RSIF", "O", "OIHFiFmS"), ]
-  dfp = dfp[evals <= 4000, ]
-  dfp$variant = revalue(dfp$variant, c("RS" = "RS", "RSI" = "RSU", "RSIF" = "RSUF", "O" = "NSGA-II", "OIHFiFmS" = "MOSMAFS"))
-
-  for (lrn in unique(status_finished$learner)) {
-    plist = list()
-    for (prob in unique(dfp$problem)) {
-      plist[[prob]] = ggplot()
-      plist[[prob]] = plist[[prob]] + geom_line(data = dfp[algorithm == "mosmafs" & learner == lrn & problem == prob, ], aes(x = evals, y = mean.domHV, colour = variant))
-      plist[[prob]] = plist[[prob]] + geom_hline(data = dfp[algorithm == "randomsearch"  & learner == lrn & problem == prob, ], aes(yintercept = mean.domHV, lty = variant))
-      plist[[prob]] = plist[[prob]] + theme_bw() + labs(colour = "") + labs(lty = "") + ggtitle(prob)
-      plist[[prob]] = plist[[prob]] + xlab("evaluations") + ylab("domHV (inner)")
-      plist[[prob]] = plist[[prob]] + scale_colour_Publication() + theme_Publication()
-      mylegend = g_legend(plist[[prob]])
-      plist[[prob]] = plist[[prob]] + theme(legend.position = "none")
-    }
-    p3 = do.call("grid.arrange", c(plist, nrow = 2))
-    p3 = grid.arrange(arrangeGrob(p3),
-             mylegend, nrow = 2, heights =c(10, 1))
-  ggsave(file.path(plotspath, "eval.domHV", paste(lrn, "all.png", sep = "_")), p3, width = 8, height = 6)
-  }
-
-  ggsave(file.path(plotspath, "eval.domHV", "all.png"), width = 10, height = 10)
-
-  for (prob in unique(dfp$problem)) {
-    for (lrn in unique(dfp$learner)) {
-      p = ggplot()
-      p = p + geom_line(data = dfp[algorithm == "mosmafs" & learner == lrn & problem == prob, ], aes(x = evals, y = mean.domHV, colour = variant))
-      p = p + geom_hline(data = dfp[algorithm == "randomsearch" & learner == lrn & problem == prob, ], aes(yintercept = mean.domHV, lty = variant))
-      p = p + theme_Publication()
-      p = p + scale_colour_Publication()
-      ggsave(file.path(plotspath, "eval.domHV", paste(lrn, prob, "png", sep = ".")))
-    }
-  }
-
-}
-
-
-plotPerformanceEval = function(res, plotspath) {
-  df = extractFromSummary(res, c("evals", "eval.perf.min", "eval.perf.mean", "eval.perf.max"))
-  df = df[- which(problem %in% c("hypersphere.200.50", "hypersphere.200.200")), ] 
-  df = df[, replication := 1:length(job.id), by = c("learner", "variant", "problem", "evals")]
- 
-  dfp = df[, .(min.perf = mean(eval.perf.min), mean.perf = mean(eval.perf.mean), max.perf = mean(eval.perf.max)), by = c("algorithm", "evals", "problem", "learner", "variant")]
-  dfp = dfp[evals != 8000, ]
-
-  p = ggplot()
-  p = p + geom_line(data = dfp[algorithm == "mosmafs", ], aes(x = evals, y = mean.domHV, colour = variant))
-  p = p + geom_hline(data = dfp[algorithm == "randomsearch", ], aes(yintercept = mean.domHV, colour = variant))
-  p = p + facet_grid(learner ~ problem) + theme_bw()
-  p = p + scale_colour_Publication() + theme_Publication()
-
-  ggsave(file.path(plotspath, "eval.domHV", "all.png"), width = 10, height = 10)
-
-  for (prob in unique(dfp$problem)) {
-    for (lrn in unique(dfp$learner)) {
-      p = ggplot()
-      p = p + geom_line(data = dfp[algorithm == "mosmafs" & learner == lrn & problem == prob, ], aes(x = evals, y = min.perf, colour = variant))
-      p = p + geom_hline(data = dfp[algorithm == "randomsearch" & learner == lrn & problem == prob, ], aes(yintercept = min.perf, colour = variant))
-      p = p + theme_Publication()
-      p = p + scale_colour_Publication()
-      ggsave(file.path(plotspath, "performance", paste(lrn, prob, "png", sep = ".")), width = 5, height = 5)
-    }
-  }
-
-}
-
-
-plotPerformanceHout = function(res, plotspath) {
-  df = extractFromSummary(res, c("evals", "hout.perf.min", "hout.perf.mean", "hout.perf.max"))
-  df = df[- which(problem %in% c("hypersphere.200.50", "hypersphere.200.200")), ] 
-  dfp = df[, .(min.perf = mean(hout.perf.min), mean.perf = mean(hout.perf.mean), max.perf = mean(max)), by = c("algorithm", "evals", "problem", "learner", "variant")]
-  dfp = dfp[evals != 8000, ]
-
-  for (prob in unique(dfp$problem)) {
-    for (lrn in unique(dfp$learner)) {
-      p = ggplot()
-      p = p + geom_line(data = dfp[algorithm == "mosmafs" & learner == lrn & problem == prob, ], aes(x = evals, y = min.perf, colour = variant))
-      p = p + geom_hline(data = dfp[algorithm == "randomsearch" & learner == lrn & problem == prob, ], aes(yintercept = min.perf, colour = variant))
-      p = p + theme_Publication()
-      p = p + scale_colour_Publication()
-      ggsave(file.path(plotspath, "performance_hout", paste(lrn, prob, "png", sep = ".")), width = 5, height = 5)
-    }
-  }
-
-}
-
-
-# plotHvOverRuntime = function(res, plotspath, metric = "naive.hout.domHV", heights = 7, width = 7) {
-#   df = extractFromSummary(res, c("evals", "runtime", metric))
-#   df = df[evals < 4000, ]
-#   df$gen = (df$evals - 80) / 15
-#   df$runtime.gen = (df$runtime/df$maxeval)*df$evals
-#   df = df[, replication := 1:length(job.id), by = c("learner", "variant", "problem", "gen")]
-#   df = renameAndRevalue(df)
-#   names(df)[17] = "metric"
-#   
-#   for (lrn in unique(df$learner)) {
-#     for (prob in unique(df$problem)) {
-#       df.sub = df[problem == prob & learner == lrn, ]
-#       df.sub$time.interval = cut(df.sub$runtime.gen, breaks = 10)
-#       dfm = df.sub[, meanhv := mean(metric), by = c("time.interval")]
-#     }
-#   }
-#   
-#   dfr = df[, mean_hv := mean(metric), by = c("learner", "problem", "evals", "replication")]
-#   
-# }
-
-plotRanks = function(res, plotspath, experiments, logscale = FALSE, metric = "naive.hout.domHV", prompt, limits = c(0.5, 1), height = 10, width = 7) {
-    # PUT GENERATIONS HERE 
-    # 1) Pepare the dataset for plotting 
+plotMosmafsOptResult = function(res, plotspath, experiments, 
+  logscale = FALSE, metric = "naive.hout.domHV", 
+  plot.sd = FALSE, prompt, limits = c(0.5, 1), 
+  height = 10, width = 7, plotRanks = TRUE) {
+    
+    # --- 0. PREPARATION 
+    # prepare the dataset for plotting 
     df = res[variant %in% experiments$variant, ]
-    df = extractFromSummary(df, c("evals", metric))
-    df = df[evals <= 4000, ]
-    df$gen = floor((df$evals - 80) / 15) # floor will slightly favour MBO, which is ok
-    df = df[gen >= 0, ]
-    df = df[, replication := 1:length(job.id), by = c("learner", "variant", "problem", "gen")]
-    df = df[replication == 10, ]
 
-    if ("no_feature_sel" %in% unique(df$algorithm)) {
-      df = df[, count := .N, by = c("problem", "learner", "gen", "replication")]
-      df = df[count == nrow(experiments), ]
-      df$count = NULL
+    df = extractFromSummary(df, c("evals", "runtime", metric))
+    df$gen = (df$evals - 80) / 15
+    df = df[gen >= 0, ]
+    df = df[evals <= 4000, ] # budget is limited by 4000
+
+    # indicate the replication 
+    df = df[, replication := 1:length(job.id), by = c("learner", "variant", "problem", "gen")]
+    assert(all(df$replication <= 10 & df$replication > 0)) # we made always 10 replications
+    # just do some renaming for better plotting
+    df = renameAndRevalue(df)
+    names(df)[which(names(df) == metric)] = "metric"
+
+    # --- 1. AGGREGATION 
+    # per learner, problem, replication and evaluation: calculate Rank
+    df = df[, `:=` (rank_variant = rank(- metric)), by = c("learner", "problem", "evals", "replication")]
+    assert(all(dfr$rank_variant <= length(experiments) & dfr$rank_variant >= 1)) # we made always 10 replications
+
+    # aggregate over all replications 
+    dfr = df[, .(mean(metric), mean(rank_variant)), by = c("algorithm", "learner", "problem", "evals", "variant")]
+
+    # --- 2. CREATE PLOTS
+    # --- a) Overall results (all experiments compared)
+    res_ovr = dfr[, .(mean.domHV = mean(V1), mean.rank = mean(V2), sd.domHV = sd(V1) / sqrt(length(V1))), by = c("evals", "variant", "algorithm")]
+    if (plotRanks) {
+      outpath = file.path(plotspath, prompt, gsub("\\.", "", metric), paste("ranks.pdf", sep = ""))
+      plotRanks(data = res_ovr, outpath = outpath, metric = metric, limits = limits)
+    }
+    outpath = file.path(plotspath, prompt, gsub("\\.", "", metric), paste("performance_", limits[1], "_", limits[2], ".pdf", sep = ""))
+    plotAbsPerformance(data = res_ovr, outpath = outpath, metric = metric, plot.sd = plot.sd, limits = limits)
+
+    # --- b) Overall results (all experiments compared)
+    res_ovr = dfr[, .(mean.domHV = mean(V1), sd.domHV = sd(V1) / sqrt(length(V1)), mean.rank = mean(V2)), by = c("evals", "variant", "algorithm", "learner")]
+    for (lrn in unique(res_ovr$learner)) {
+        if (plotRanks) {        
+          outpath = file.path(plotspath, prompt, gsub("\\.", "", metric), paste("ranks_", lrn, "_", limits[1], "_", limits[2], ".pdf", sep = ""))
+          plotRanks(data = res_ovr[learner == lrn, ], outpath = outpath, metric = metric, limits = limits)
+        }        
+        outpath = file.path(plotspath, prompt, gsub("\\.", "", metric), paste("performance_", lrn, "_", limits[1], "_", limits[2], ".pdf", sep = ""))
+        plotAbsPerformance(data = res_ovr[learner == lrn, ], outpath = outpath, metric = metric, plot.sd = plot.sd, limits = limits)
     }
 
-    df = renameAndRevalue(df)
-    names(df)[ncol(df) - 2] = "metric"
+    # Plot ranks per problem
+    res_ovr = dfr[, .(mean.domHV = mean(V1), mean.rank = mean(V2), sd.domHV = sd(V1) / sqrt(length(V1))), by = c("evals", "variant", "algorithm", "learner", "problem")]
+    res_ovr_perprob = dfr[, .(mean.domHV = mean(V1), mean.rank = mean(V2), sd.domHV = sd(V1) / sqrt(length(V1))), by = c("evals", "variant", "algorithm", "problem")]
 
-    # --- calculate ranks within learner, problem and replication ---
-    dfr = df[, `:=` (rank_variant = rank(- metric), count = .N), by = c("learner", "problem", "gen", "replication")]
-    dfr = dfr[, .(mean(metric), mean(rank_variant)), by = c("algorithm", "learner", "problem", "gen", "variant")]
-    res_ovr = dfr[, .(mean.domHV = mean(V1), mean.rank = mean(V2)), by = c("gen", "variant", "algorithm")]
-    res_ovr_pl = dfr[, .(mean.domHV = mean(V1), mean.rank = mean(V2)), by = c("gen", "variant", "algorithm", "learner")]
+    for (prob in unique(res_ovr$problem)) {
+        outpath = file.path(plotspath, prompt, gsub("\\.", "", metric), prob)
+        dir.create(outpath)
+        for (lrn in unique(res_ovr$learner)) {
+            if (plotRanks) {
+            plotRanks(data = res_ovr[learner == lrn & problem == prob, ], outpath = file.path(outpath, paste("ranks_", lrn, ".pdf", sep = "")), metric = metric, limits = limits)
+            }
+            plotAbsPerformance(data = res_ovr[learner == lrn & problem == prob, ], outpath = file.path(outpath, paste("performance_", lrn, "_", limits[1], "_", limits[2], ".pdf", sep = "")), metric = metric, plot.sd = plot.sd, limits = limits)
+            plotPerformanceVsRuntime(data = df[learner == lrn & problem == prob, ], outpath = file.path(outpath, paste("performance_vs_runtime_", lrn, "_", limits[1], "_", limits[2], ".pdf", sep = "")), metric_name = metric, limits = limits)
+        }
+        if (plotRanks) {
+          plotRanks(data = res_ovr_perprob[problem == prob, ], outpath = file.path(outpath, paste("ranks.pdf", sep = "")), metric = metric, limits = limits)   
+        }
+        plotAbsPerformance(data = res_ovr_perprob[problem == prob, ], outpath = file.path(outpath, paste("performance_", limits[1], "_", limits[2], ".pdf", sep = "")), metric = metric, plot.sd = plot.sd, limits = limits)
+    }
+}
 
-    res_ovr$evals = 80 + 15 * res_ovr$gen
-    res_ovr_pl$evals = 80 + 15 * res_ovr_pl$gen
-    # --- average domHV and ranks across replications
 
-    # --- average across problems
-
+plotAbsPerformance = function(data, outpath, metric, plot.sd, limits) {
+    # rankdata: gives for each version a rank
     ylab_names = data.table(name = c("DomHV[test]", "DomHV[valid]", "trueDomHV[test]"), 
                           mymetric = c("naive.hout.domHV", "eval.domHV", "true.hout.domHV"))
     myname = ylab_names[mymetric == metric, ]$name
 
     # --- plot stuff over all learners first
     p1 = ggplot()
-    p1 = p1 + geom_line(data = res_ovr, aes(x = evals, y = mean.domHV, lty = algorithm, colour = variant), size = 0.6)
-    p1 = p1 + scale_colour_Publication() + theme_Publication() 
+    p1 = p1 + geom_line(data = data, aes(x = evals, y = mean.domHV, lty = algorithm, colour = variant), size = 0.6)
+    p1 = p1 + scale_colour_Publication() + theme_Publication() + scale_fill_Publication()
+    p1 = p1 + ylab("Value") + labs(colour = "Variant", lty = "Algorithm") 
+    p1 = p1 + theme(legend.direction = "horizontal", legend.position = "top", legend.box = "vertical", legend.box.just = "left")
+    p1 = p1 + guides(lty = guide_legend(order = 1), colour = guide_legend(order = 2))
+    p1 = p1 + xlab("Evaluations") + ylim(limits) + ylab(myname)
+    if (plot.sd) {
+      p1 = p1 + geom_ribbon(data = data, aes(x = evals, ymin = mean.domHV - sd.domHV, ymax = mean.domHV + sd.domHV, lty = algorithm, fill = variant), alpha = 0.2)
+    }
+
+
+    ggsave(outpath, p1, width = 9, height = 6, device = "pdf")
+}
+
+plotPerformanceVsRuntime = function(data, outpath, metric_name, limits) {
+    # rankdata: gives for each version a rank
+    ylab_names = data.table(name = c("DomHV[test]", "DomHV[valid]", "trueDomHV[test]"), 
+                          mymetric = c("naive.hout.domHV", "eval.domHV", "true.hout.domHV"))
+    myname = ylab_names[mymetric == metric, ]$name
+    data$id = paste(data$algorithm, data$variant, data$replication, sep = "_")
+    data$runtime = log(data$runtime)
+    # --- plot stuff over all learners first
+    p1 = ggplot()
+    p1 = p1 + geom_line(data = data, aes(x = runtime, y = metric, lty = algorithm, colour = variant, group = id), size = 0.6)
+    p1 = p1 + scale_colour_Publication() + theme_Publication() + scale_fill_Publication()
     p1 = p1 + ylab("Value") + labs(colour = "Variant", lty = "Algorithm") 
     p1 = p1 + theme(legend.direction = "horizontal", legend.position = "top", legend.box = "vertical", legend.box.just = "left")
     p1 = p1 + guides(lty = guide_legend(order = 1), colour = guide_legend(order = 2))
     p1 = p1 + xlab("Evaluations") + ylim(limits) + ylab(myname)
 
-    p2 = ggplot()
-    p2 = p2 + geom_line(data = res_ovr, aes(x = evals, y = mean.rank, lty = algorithm, colour = variant), size = 0.6)
-    p2 = p2 + scale_colour_Publication() + theme_Publication() 
-    p2 = p2 + ylab("Value") + labs(colour = "Variant", lty = "Algorithm") 
-    p2 = p2 + theme(legend.direction = "horizontal", legend.position = "top", legend.box = "vertical", legend.box.just = "left")
-    p2 = p2 + guides(lty = guide_legend(order = 1), colour = guide_legend(order = 2))
-    p2 = p2 + xlab("Evaluations") + ylab("Rank")
-   
-    p = ggarrange(p1, p2, ncol=2, nrow=1, common.legend = TRUE, legend = "top")
+    ggsave(outpath, p1, width = 9, height = 6, device = "pdf")
+}
 
-    dir.create(file.path(plotspath, prompt))
-    dir.create(file.path(plotspath, prompt, gsub("\\.", "", metric)))
-
-    ggsave(file.path(plotspath, prompt, gsub("\\.", "", metric), paste("ranks_", limits[1], "_", limits[2], ".pdf", sep = "")), p, width = 9, height = 6, device = "pdf")
+plotRanks = function(data, outpath, metric, limits) {
+    # rankdata: gives for each version a rank
+    ylab_names = data.table(name = c("DomHV[test]", "DomHV[valid]", "trueDomHV[test]"), 
+                          mymetric = c("naive.hout.domHV", "eval.domHV", "true.hout.domHV"))
+    myname = ylab_names[mymetric == metric, ]$name
 
     # --- plot stuff over all learners first
     p1 = ggplot()
-    p1 = p1 + geom_line(data = res_ovr_pl, aes(x = evals, y = mean.domHV, lty = algorithm, colour = variant), size = 0.6)
-    p1 = p1 + scale_colour_Publication() + theme_Publication() 
+    p1 = p1 + geom_line(data = data, aes(x = evals, y = mean.rank, lty = algorithm, colour = variant), size = 0.6)
+    p1 = p1 + scale_colour_Publication() + theme_Publication() + scale_fill_Publication()
     p1 = p1 + ylab("Value") + labs(colour = "Variant", lty = "Algorithm") 
     p1 = p1 + theme(legend.direction = "horizontal", legend.position = "top", legend.box = "vertical", legend.box.just = "left")
     p1 = p1 + guides(lty = guide_legend(order = 1), colour = guide_legend(order = 2))
-    p1 = p1 + xlab("Evaluations") + ylim(limits) + ylab(myname)
-    p1 = p1 + facet_grid(learner ~ .) 
+    p1 = p1 + xlab("Evaluations") + ylab(myname)
+    
+    ggsave(outpath, p1, width = 6, height = 6, device = "pdf")
+}
 
-    p2 = ggplot()
-    p2 = p2 + geom_line(data = res_ovr_pl, aes(x = evals, y = mean.rank, lty = algorithm, colour = variant), size = 0.6)
-    p2 = p2 + scale_colour_Publication() + theme_Publication() 
-    p2 = p2 + ylab("Value") + labs(colour = "Variant", lty = "Algorithm") 
-    p2 = p2 + theme(legend.direction = "horizontal", legend.position = "top", legend.box = "vertical", legend.box.just = "left")
-    p2 = p2 + guides(lty = guide_legend(order = 1), colour = guide_legend(order = 2))
-    p2 = p2 + xlab("Evaluations") + ylab("Rank")
-    p2 = p2 + facet_grid(learner ~ .) 
 
-    p = ggarrange(p1, p2, ncol = 2, nrow = 1, common.legend = TRUE, legend = "top")
-    ggsave(file.path(plotspath, prompt, gsub("\\.", "", metric), paste("ranksPerLearner_", limits[1], "_", limits[2], ".pdf", sep = "")), p, width = 9, height = 11, device = "pdf")
+
+
+
+
+plotRanks = function(res, plotspath, experiments, logscale = FALSE, metric = "naive.hout.domHV", prompt, limits = c(0.5, 1), height = 10, width = 7) {
+    
+    # 1) Pepare the dataset for plotting 
+    df = res[variant %in% experiments$variant, ]
+    df = extractFromSummary(df, c("runtime", metric))
+    df = renameAndRevalue(df)
+    names(df)[which(names(df) == metric)] = "metric"
+    df$runtime = df$runtime / 3600
+
+    ylab_names = data.table(name = c("DomHV[test]", "DomHV[valid]", "trueDomHV[test]"), 
+                          mymetric = c("naive.hout.domHV", "eval.domHV", "true.hout.domHV"))
+    myname = ylab_names[mymetric == metric, ]$name
+
+    # --- average across problems
+    for (prob in unique(df$problem)) {
+      plist = list()
+      dir.create(file.path(plotspath, prompt, gsub("\\.", "", metric), prob))
+      for (lrn in unique(df$learner)) {
+        plist[[lrn]] = ggplot()
+        plist[[lrn]] = plist[[lrn]] + geom_line(data = df[problem == prob & learner == lrn, ], aes(x = runtime, y = metric, lty = algorithm, colour = variant, group = job.id), size = 0.6)
+        plist[[lrn]] = plist[[lrn]] + scale_colour_Publication() + theme_Publication() 
+        plist[[lrn]] = plist[[lrn]] + labs(colour = "Variant", lty = "Algorithm") 
+        plist[[lrn]] = plist[[lrn]] + theme(legend.direction = "horizontal", legend.position = "top", legend.box = "vertical", legend.box.just = "left")
+        plist[[lrn]] = plist[[lrn]] + guides(lty = guide_legend(order = 1), colour = guide_legend(order = 2))
+        plist[[lrn]] = plist[[lrn]] + xlab("Runtime [in h]") + ylab(myname)
+        plist[[lrn]] = plist[[lrn]] + xlim(c(0, 5))
+      }
+      p = do.call(grid.arrange, c(plist, ncol = 3))
+      ggsave(file.path(plotspath, prompt, gsub("\\.", "", metric), prob, paste("perf_vs_runtime.pdf", sep = "")), p, width = 15, height = 8, device = "pdf")
+    }
+
 }
 
 plotSOperformance = function(res, plotspath, experiments, logscale = FALSE, prompt, limits = c(0.5, 1), height = 10, width = 7) {

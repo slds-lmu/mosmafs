@@ -36,8 +36,8 @@ experiments_list = list(
 	RS = data.table(algorithm = "randomsearch", initialization = "none", filter = "none", chw.bitflip = NA, adaptive.filter.weights = NA, filter.during.run = NA),
 	RSI = data.table(algorithm = "randomsearch", initialization = "unif", filter = "none", chw.bitflip = NA, adaptive.filter.weights = NA, filter.during.run = NA),
 	RSIF = data.table(algorithm = "randomsearch", initialization = "unif", filter = "custom", chw.bitflip = NA, adaptive.filter.weights = NA, filter.during.run = NA),
-	# BS1RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = FALSE, surrogate = "randomForest", infill = "cb", propose.points = 15L),
-	# BS2RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = TRUE, surrogate = "randomForest", infill = "cb", propose.points = 15L), 
+	BS1RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = FALSE, surrogate = "randomForest", infill = "cb", propose.points = 15L),
+	BS2RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = TRUE, surrogate = "randomForest", infill = "cb", propose.points = 15L), 
 	BSMO = data.table(algorithm = "mbo_multicrit", filter = "custom", surrogate = "randomForest", infill = "cb", propose.points = 15L)
 )
 
@@ -58,83 +58,99 @@ problems = problems[order(problems$p), ]
 # --- 3. Create Visualizations
 
 files_loc = list.files(data_path, recursive = TRUE, full.names = TRUE)
+files_loc = grep("/.*/", files_loc, value = TRUE)
 files = lapply(files_loc, readRDS)
 res = rbindlist(files, fill = TRUE)
 
 # --- Analyze mosmafs
-limits = list(c(0, 1), c(0.5, 1), c(0.8, 1), c(0.85, 0.95))
+limits = list(c(0.5, 1))
+metrics = c("eval.domHV", "true.hout.domHV", "naive.hout.domHV")
 
-# --- a) inner evaluation
+# All results 
 for (lim in limits) {
-	plotRanks(res = res, plotspath = plotspath, 
-	experiments = experiments[algorithm == "mosmafs", ], 
-	metric =  "eval.domHV", prompt = c("mosmafs"), limits = lim)#, height = 8, width = 7)
+	prompt = "all"
+	dir.create(file.path(plotspath, prompt))
+	for (metric in metrics) {
+		dir.create(file.path(plotspath, prompt, gsub("\\.", "", metric)))
+		plotMosmafsOptResult(res = res, plotspath = plotspath, 
+		experiments = experiments, 
+		metric =  metric, prompt = prompt, limits = lim)#, height = 8, width = 7)
+	}
 }
 
-# --- b) outer evaluation
+# Mosmafs only  
 for (lim in limits) {
-	plotRanks(res = res, plotspath = plotspath, 
-	experiments = experiments[algorithm == "mosmafs", ], 
-	metric =  "naive.hout.domHV", prompt = c("mosmafs"), limits = lim)#, height = 8, width = 7)
+	prompt = "mosmafs"
+	dir.create(file.path(plotspath, prompt))
+	for (metric in metrics) {
+		dir.create(file.path(plotspath, prompt, gsub("\\.", "", metric)))
+		plotMosmafsOptResult(res = res, plotspath = plotspath, 
+		experiments = experiments[algorithm == "mosmafs", ], 
+		metric =  metric, prompt = prompt, limits = lim)#, height = 8, width = 7)
+	}
 }
 
-# --- c) outer evaluation (true hout domHV)
+# Mosmafs against RS baselines   
 for (lim in limits) {
-	plotRanks(res = res, plotspath = plotspath, 
-	experiments = experiments[algorithm == "mosmafs", ], 
-	metric =  "true.hout.domHV", prompt = c("mosmafs"), limits = lim)#, height = 8, width = 7)
+	prompt = "baselines_rs"
+	dir.create(file.path(plotspath, prompt))
+	for (metric in metrics) {
+		dir.create(file.path(plotspath, prompt, gsub("\\.", "", metric)))		
+		plotMosmafsOptResult(res = res, plotspath = plotspath, 
+		experiments = experiments[variant %in% c("O", "OIH", "OIHFiFmS", "RS", "RSI", "RSIF"), ], 
+		metric =  metric, prompt = prompt, limits = lim)#, height = 8, width = 7)
+	}
 }
 
-# --- Analyze the best 2 of mosmafs against randomsearch baselines 
-
-# --- a) inner evaluation
+# Mosmafs against MBO baselines   
 for (lim in limits) {
-	plotRanks(res = res, plotspath = plotspath, 
-	experiments = experiments[variant %in% c("O", "OIH", "OIHFiFmS", "RS", "RSI", "RSIF"), ], 
-	metric =  "eval.domHV", prompt = c("baselines_rs"), limits = lim)#, height = 8, width = 7)
-}
-
-# --- b) outer evaluation
-for (lim in limits) {
-	plotRanks(res = res, plotspath = plotspath, 
-	experiments = experiments[variant %in% c("O", "OIH", "OIHFiFmS", "RS", "RSI", "RSIF"), ], 
-	metric =  "naive.hout.domHV", prompt = c("baselines_rs"), limits = lim)#, height = 8, width = 7)
-}
-
-# --- c) outer evaluation (true hout domHV)
-for (lim in limits) {
-	plotRanks(res = res, plotspath = plotspath, 
-	experiments =  experiments[variant %in% c("O", "OIH", "OIHFiFmS", "RS", "RSI", "RSIF"), ], 
-	metric =  "true.hout.domHV", prompt = c("baselines_rs"), limits = lim)#, height = 8, width = 7)
+	prompt = "baselines_mbo"
+	dir.create(file.path(plotspath, prompt))
+	for (metric in metrics) {
+		dir.create(file.path(plotspath, prompt, gsub("\\.", "", metric)))		
+		plotMosmafsOptResult(res = res, plotspath = plotspath, 
+		experiments = experiments[variant %in% c("O", "OIH", "OIHFiFmS", "BSMO"), ], 
+		metric =  metric, prompt = prompt, limits = lim)#, height = 8, width = 7)
+	}
 }
 
 
-# --- Analyze the best 2 of mosmafs against baselines MBO
-
-# --- a) inner evaluation
+# Mosmafs against MBO baselines (including SO)  
 for (lim in limits) {
-	plotRanks(res = res, plotspath = plotspath, 
-	experiments = experiments[variant %in% c("O", "OIH", "OIHFiFmS", "BSMO"), ], 
-	metric =  "eval.domHV", prompt = c("baselines_mbo"), limits = lim)#, height = 8, width = 7)
+	prompt = "baselines_mbo_with_SO"
+	dir.create(file.path(plotspath, prompt))
+	for (metric in metrics) {
+		dir.create(file.path(plotspath, prompt, gsub("\\.", "", metric)))		
+		plotMosmafsOptResult(res = res, plotspath = plotspath, 
+		experiments = experiments[variant %in% c("O", "OIH", "OIHFiFmS", "BSMO", "BS1RF", "BS2RF"), ], 
+		metric =  metric, prompt = prompt, limits = lim, plotRanks = FALSE)#, height = 8, width = 7)
+	}
 }
 
-# --- b) outer evaluation
-for (lim in limits) {
-	plotRanks(res = res, plotspath = plotspath, 
-	experiments = experiments[variant %in% c("O", "OIH", "OIHFiFmS", "BSMO"), ], 
-	metric =  "naive.hout.domHV", prompt = c("baselines_mbo"), limits = lim)#, height = 8, width = 7)
-}
 
-# --- c) outer evaluation (true hout domHV)
-for (lim in limits) {
-	plotRanks(res = res, plotspath = plotspath, 
-	experiments =  experiments[variant %in% c("O", "OIH", "OIHFiFmS", "BSMO"), ], 
-	metric =  "true.hout.domHV", prompt = c("baselines_mbo"), limits = lim)#, height = 8, width = 7)
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # --- 4. Debugging: Visualize single results
-res = readRDS(file.path(data_path, "single_experiments_sonar.rds"))
+res = readRDS(file.path(data_path, "single_experiments_hill-valley.rds"))
 
 # get the first 100 points 
 
@@ -145,8 +161,12 @@ for (i in 1:3) {
 	fitnesses = popAggregate(exp_mosmafs$log, "fitness")
 	hofitnesses = popAggregate(exp_mosmafs$log, "fitness.holdout")
 
+	object <- res[i + 3, ]$result[[1]]
+	task.p <- mlr::getTaskNFeats(object$train.task)
 	df_mbo = data.table(data.frame(res[i + 3, ]$result[[1]]$result$opt.path))
-	names(df_mbo)[c(5, 6, 18, 19)] = c("eval.perf", "eval.propfeat", "hout.perf", "hout.propfeat")
+	names(df_mbo)[which(names(df_mbo) %in% c("y_1", "y_2", "fitness.holdout.perf", "fitness.holdout.propfeat"))] = c("eval.perf", "eval.propfeat", "hout.perf", "hout.propfeat")
+	df_mbo$eval.propfeat <- ceiling(task.p * df_mbo$eval.propfeat) / task.p
+	df_mbo$hout.propfeat <- ceiling(task.p * df_mbo$hout.propfeat) / task.p
 	df_mbo = df_mbo[, c("eval.perf", "eval.propfeat", "hout.perf", "hout.propfeat")]
 	df_mbo$variant = c("mbo")
 	df_mbo$evals = 1:nrow(df_mbo)
@@ -173,20 +193,6 @@ df = rbindlist(dfl, fill = TRUE)
 df$overestim = df$diff > 0
 
 
-p = ggplot() + geom_histogram(data = df[evals <= maxevals, ], aes(diff, fill = variant))
-p = p + facet_grid(variant ~ exp)
-p
-
-p = ggplot() + geom_histogram(data = df[evals <= maxevals, ], aes( eval.propfeat, fill = variant))
-p = p + facet_grid(variant ~ exp) + ggtitle("Number of features")
-
-dfr = df[, .(eval=seq_along(eval.perf), meanperf=cummean(eval.perf), meanhout = cummean(hout.perf)), by = c("variant", "exp")]
-
-p = ggplot() + geom_line(data = dfr[eval <= 4000, ], aes(x = eval, y = meanperf, color = variant))
-p = p + geom_line(data = dfr[eval <= 4000, ], aes(x = eval, y = meanhout, color = variant), lty = 2)
-p = p + facet_grid(. ~ exp) + ggtitle("Number of features")
-p
-
 plist = list()
 i = 1
 
@@ -195,13 +201,13 @@ for (maxgen in c(0, 100, 200, 250)){
 	maxevals = maxgen * 15 + 80
 
 	# FOR MOSMAFS, ONLY PLOT CURRENT GENERATION 
-	dfp = df[evals <= maxevals & exp == 3, ]
+	dfp = df[evals <= maxevals & exp == 2, ]
 	dfp = dfp[variant == "mbo" | (variant == "mosmafs" & gen == maxgen)]
 	dfp$id = paste(dfp$variant, "_", dfp$exp, sep = "")
 
 	dfp = lapply(unique(dfp$id), function(x) {
 		df_sub = dfp[id == x, ]
-		idx = which(doNondominatedSorting(t(as.matrix(df_sub[, c("eval.perf", "eval.propfeat")])))$ranks == 1)
+		idx = which(df_sub$variant == "mosmafs" | doNondominatedSorting(t(as.matrix(df_sub[, c("eval.perf", "eval.propfeat")])))$ranks == 1)
 		df_sub[idx, ]
 	})
 
@@ -210,8 +216,8 @@ for (maxgen in c(0, 100, 200, 250)){
 	plist[[i]] = ggplot() + geom_point(data = dfp, aes(x = eval.perf, y = eval.propfeat))
 	plist[[i]] = plist[[i]] + geom_point(data = dfp, aes(x = hout.perf, y = eval.propfeat), shape = 2)
 	plist[[i]] = plist[[i]] + geom_segment(data = dfp, aes(x = eval.perf, xend = hout.perf, y = eval.propfeat, yend = eval.propfeat, colour = evals, lty = overestim))
-	plist[[i]] = plist[[i]] + facet_grid(. ~ variant) 
-	plist[[i]]
+	plist[[i]] = plist[[i]] + facet_grid(. ~ variant) + theme_bw()
+	plist[[i]] 
 
 	i = i + 1
 }
@@ -219,14 +225,14 @@ for (maxgen in c(0, 100, 200, 250)){
 p = do.call(grid.arrange, c(plist, ncol = 2, nrow = 2))
 
 
-# p = ggplot() + geom_point(data = df, aes(x = evals, y = eval.perf), color = "orange")
-# p = p + geom_point(data = df, aes(x = evals, y = hout.perf), color = "green")
-# p = p + theme_bw()
-# p = p + facet_grid( . ~ variant)
+p = ggplot() + geom_point(data = df, aes(x = evals, y = eval.perf), color = "orange")
+p = p + geom_point(data = df, aes(x = evals, y = hout.perf), color = "green")
+p = p + theme_bw()
+p = p + facet_grid( . ~ variant)
 
 
 
-# df[, mean(diff), by = c("variant")]
+df[, mean(diff), by = c("variant")]
 
 
 
@@ -333,3 +339,66 @@ plotFrontPerProblem(plotspath, parfrnt)
 
 p = ggplot(data = op) + geom_point(aes(x = y_1, y = y_2, col = filter))
 p
+
+
+
+
+
+
+
+
+
+
+#--------------------------------
+
+res2 <- copy(res)
+
+res2 <-  problems[res2, on = "problem"]
+
+res2[, overfit := sapply(result, function(re) {
+	c(tail(re$eval.domHV - re$naive.hout.domHV, 1), -2)[1]
+})]
+
+res2[, overfit := sapply(result, function(re) {
+	c(tail(re$eval.domHV - re$true.hout.domHV, 1), -2)[1]
+})]
+
+
+res2$result <- NULL
+
+mosmafsres <- res2[experiments_list$OIHFiFmS, on = colnames(experiments_list$OIHFiFmS)]
+mbores <- res2[experiments_list$BSMO, on = colnames(experiments_list$BSMO)]
+
+ftbl <- rbind(mosmafsres, mbores)
+
+ftblmean <- ftbl[, list(overfit = mean(overfit)), by = c("n", "algorithm", "problem", "p")]
+
+ggplot(ftbl, aes(x = problem, y = overfit, color = algorithm)) +
+  geom_boxplot()
+
+ggplot(ftbl, aes(x = 1 / n, y = overfit, color = algorithm)) + geom_point() + geom_smooth(method = "lm")
+ggplot(ftbl, aes(x = log(n), y = overfit, color = algorithm)) + geom_point() + geom_smooth(method = "lm")
+
+ggplot(ftbl, aes(x = p, y = overfit, color = algorithm)) + geom_point() + geom_smooth(method = "lm")
+ggplot(ftbl, aes(x = log(p), y = overfit, color = algorithm)) + geom_point() + geom_smooth(method = "lm")
+
+
+ggplot(ftblmean, aes(x = n, y = overfit, color = algorithm)) + geom_point()
+ggplot(ftblmean, aes(x = 1/n, y = overfit, color = algorithm)) + geom_point()
+
+
+str(mosmafsres)
+
+names(res$result[[1]])
+names(res)
+
+summary(lm(overfit ~ I(1 / n), data = ftbl[algorithm == "mosmafs", ]))
+summary(lm(overfit ~ I(log(n)), data = ftbl[algorithm == "mosmafs", ]))
+
+summary(lm(overfit ~ I(1 / n) * algorithm, data = ftbl))
+
+
+summary(lm(overfit ~ I(1/p), data = ftbl[algorithm == "mosmafs", ]))
+summary(lm(overfit ~ I(log(p)), data = ftbl[algorithm == "mosmafs", ]))
+
+summary(lm(I(problems$p) ~ I(1/problems$n)))

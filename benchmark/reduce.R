@@ -28,13 +28,13 @@ experiments = list(
 	# OIFiFm = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = FALSE, adaptive.filter.weights = FALSE, filter.during.run = TRUE),
 	# OIFiFmS = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = FALSE, adaptive.filter.weights = TRUE, filter.during.run = TRUE),
 	# OIH = data.table(algorithm = "mosmafs", filter = "none", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = FALSE, filter.during.run = FALSE),
-	# OIHFiFmS = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, multi.objective = NA),
+	OIHFiFmS = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, multi.objective = NA),
 	# RS = data.table(algorithm = "randomsearch", initialization = "none", filter = "none", chw.bitflip = NA, adaptive.filter.weights = NA, filter.during.run = NA),
 	# RSI = data.table(algorithm = "randomsearch", initialization = "unif", filter = "none", chw.bitflip = NA, adaptive.filter.weights = NA, filter.during.run = NA),
 	# RSIF = data.table(algorithm = "randomsearch", initialization = "unif", filter = "custom", chw.bitflip = NA, adaptive.filter.weights = NA, filter.during.run = NA)
 	# BS5SO = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, multi.objective = FALSE, parent.sel = "selTournament")#,
 	# BS1RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = FALSE, surrogate = "randomForest", infill = "cb", propose.points = 15),
-	# BS2RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = TRUE, surrogate = "randomForest", infill = "cb", propose.points = 15),
+	# BS2RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = TRUE, surrogate = "randomForest", infill = "cb", propose.points = 15)
 	BSMO = data.table(algorithm = "mbo_multicrit", filter = "custom", surrogate = "randomForest", infill = "cb", propose.points = 15L)
 	)
 
@@ -49,11 +49,70 @@ collectParetofront(path, experiments = experiments[c("O", "OIHFiFmS", "RS", "RSI
 collectBenchmarkResults(path, experiments, tab, mbo = TRUE)
 
 # Reduce single results for MBO and for O
-toreduce = tab[problem == "sonar" & learner == "xgboost", ]
+toreduce = tab[problem == "hill-valley" & learner == "kknn", ]
 toreduce = toreduce[algorithm %in% c("mbo_multicrit", "mosmafs"), ]
-toreduce = toreduce[algorithm %in% "mbo_multicrit" | (adaptive.filter.weights & filter.during.run & chw.bitflip & parent.sel == "selTournamentMO"), ]
+toreduce = toreduce[algorithm %in% "mbo_multicrit" | (filter == "custom" & adaptive.filter.weights & filter.during.run & chw.bitflip & initialization == "unif" & parent.sel == "selTournamentMO"), ]
 toreduce = ijoin(toreduce, findDone())
 toreduce = toreduce[c(1:3, 11:13), ]
 
 res = reduceResultsDataTable(toreduce)
-saveRDS(res, file.path(path, "single_experiments_sonar.rds"))
+saveRDS(res, file.path(path, "single_experiments_hill-valley.rds"))
+
+
+
+
+
+ fitnesses <- lapply(
+ 	mosmafs::getPopulations(res_mosmafs[[1]]$result$log),
+ 	function(x) x$fitness)
+
+min(which(sapply(fitnesses, function(x) sum(nondominated(x))) > 65)) * 15 + 80
+
+ for (gen in seq_along(fitnesses)[-1]) {
+ 	first <- fitnesses[[gen - 1]]
+ 	second <- fitnesses[[gen]]
+ 	print(min(which(nondominated(cbind(first, second - 1e-7)))))
+ }
+
+ mosmafs_coll <- collectResult(res_mosmafs[[1]]$result)
+
+ head(mosmafs_coll)
+
+
+ mbo_coll <- collectResultMBO(res_mbo[[1]])
+
+ nrow(mbo_coll)
+
+
+
+
+p <- environment(res_mbo[[1]]$result$final.opt.state$opt.problem$fun)$p
+filtermat <- environment(
+  res_mbo[[1]]$result$final.opt.state$opt.problem$fun)$filtermat
+
+
+rx2 <- sapply(1:4010, function(cline) {
+
+rdline <- as.list(resdf[cline, ])
+
+arglist <- as.list(rdline[c("k", "distance", "kernel")])
+arglist$kernel <- as.character(arglist$kernel)
+
+sel.sel <- 1:p %in% order(filtermat[, as.character(rdline$filter),
+	drop = FALSE], decreasing = TRUE)[1:ceiling(rdline$perc * p)]
+
+arglist$selector.selection = sel.sel
+
+res_mosmafs[[1]]$result$task$fitness.fun(arglist, holdout = FALSE)[1]
+  rdline$y_1
+
+
+	res_mosmafs[[1]]$result$task$fitness.fun(arglist, holdout = TRUE)[1]
+	rdline$fitness.holdout.perf
+
+}
+)
+
+rx
+
+rx2
