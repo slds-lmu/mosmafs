@@ -42,8 +42,6 @@ Suggests:
   rgenoud,
   randomForest,
   digest
-Remotes:
-  mlr-org/mlr
 RoxygenNote: 6.1.1
 Collate: 
     'customnsga2.R'
