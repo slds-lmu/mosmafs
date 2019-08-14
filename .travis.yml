@@ -19,9 +19,6 @@ env:
     - MAKEFLAGS="-j 2"
     - RGL_USE_NULL=TRUE
 
-before_install:
-  - Rscript -e 'message("INSTALLED PACKS:"); installed.packages()[,2:3]'
-
 before_script:
   - rm inst/doc/*.* || true
   - Rscript -e 'if (!require("roxygen2")) install.packages("roxygen2")'
@@ -38,14 +35,28 @@ stages:
 jobs:
   include:
     - stage: test
+      env: github-mlr
       script:
+        - Rscript -e 'devtools::install_github("berndbischl/BBmisc")'
+        - Rscript -e 'devtools::install_github("berndbischl/ParamHelpers")'
+        - Rscript -e 'devtools::install_github("mlr-org/mlr")'
+        - Rscript -e 'message("INSTALLED PACKS:"); installed.packages()[,2:3]'
         - travis_wait 100 R CMD build .
         - travis_wait 100 R CMD check mosmafs*.tar.gz --as-cran --run-donttest
-          #        - grep -q -R "WARNING" "mosmafs.Rcheck/00check.log" ; [ $? -ne 0 ]
+        - grep -q -R "WARNING" "mosmafs.Rcheck/00check.log" ; [ $? -ne 0 ]
     - stage: test
+      env: cran-mlr
+      script:
+        - Rscript -e 'message("INSTALLED PACKS:"); installed.packages()[,2:3]'
+        - travis_wait 100 R CMD build .
+        - travis_wait 100 R CMD check mosmafs*.tar.gz --as-cran --run-donttest
+        - grep -q -R "WARNING" "mosmafs.Rcheck/00check.log" ; [ $? -ne 0 ]
+    - stage: test
+      env: cran-mlr
       script:
         - travis_wait 100 Rscript -e 'covr::codecov(quiet = FALSE)'
     - stage: document
+      env: cran-mlr
       script:
         - true
       before_deploy:
