@@ -20,6 +20,7 @@ mosmafs = function(data, job, instance, learner, maxeval, filter, initialization
 
   if (!tune.hyperparams) {
     params = instance$hyperparams[[learner]]
+    params$kernel = as.character(params$kernel)
     params = params[getParamIds(ps)]
     params = trafoValue(ps, params)
     ps = pSS()
