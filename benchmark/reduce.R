@@ -33,8 +33,8 @@ experiments = list(
 	# RSI = data.table(algorithm = "randomsearch", initialization = "unif", filter = "none", chw.bitflip = NA, adaptive.filter.weights = NA, filter.during.run = NA),
 	# RSIF = data.table(algorithm = "randomsearch", initialization = "unif", filter = "custom", chw.bitflip = NA, adaptive.filter.weights = NA, filter.during.run = NA)
 	# BS5SO = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, multi.objective = FALSE, parent.sel = "selTournament")#,
-	# BS1RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = FALSE, surrogate = "randomForest", infill = "cb", propose.points = 15),
-	# BS2RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = TRUE, surrogate = "randomForest", infill = "cb", propose.points = 15)
+	BS1RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = FALSE, surrogate = "randomForest", infill = "cb", propose.points = 15),
+	BS2RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = TRUE, surrogate = "randomForest", infill = "cb", propose.points = 15),
 	BSMO = data.table(algorithm = "mbo_multicrit", filter = "custom", surrogate = "randomForest", infill = "cb", propose.points = 15L)
 	)
 
@@ -47,6 +47,28 @@ collectParetofront(path, experiments = experiments[c("O", "OIHFiFmS", "RS", "RSI
 
 # Collect MBO Baselines BSMO, BS1RF, BS2RF
 collectBenchmarkResults(path, experiments, tab, mbo = TRUE)
+
+# Just get the hyperparameters of MBO 
+toreduce = ijoin(tab, findDone())
+toreduce = ijoin(toreduce, experiments[["BS1RF"]])
+res = reduceResultsDataTable(toreduce, getHyperparamsPerProblem)
+res = ijoin(tab, res)
+
+for (prob in problems) {
+	res_reduced = res[problem == prob, ]
+	res_reduced = res_reduced[, replication := 1:length(job.id), by = c("learner")]
+	hyperparams = lapply(1:10, function(x) {
+		a = res_reduced[replication == x, ]
+		z = lapply(a$learner, function(x) {
+			a[learner == x, ]$result[[1]]
+		})
+		names(z) = a$learner
+		z
+	})
+	saveRDS(hyperparams, file.path("data", prob, "hyperparams.rds"))
+}
+
+
 
 # Reduce single results for MBO and for O
 toreduce = tab[problem == "hill-valley" & learner == "kknn", ]

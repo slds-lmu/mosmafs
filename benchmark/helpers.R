@@ -980,7 +980,15 @@ plotFrontPerProblem = function(path, parfront) {
 
 }
 
+getHyperparamsPerProblem = function(x) {
+  
+  toreduce = ijoin(tab, experiments[["BS1RF"]])
+  path = as.data.frame(x$result$opt.path)
+  best_id = which.min(path$y)
+  best = as.list(path[best_id,][, !names(path) %in% c("y")])
 
+  return(best)
+}
 
 
 # --- FOR LATER

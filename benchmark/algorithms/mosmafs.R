@@ -1,5 +1,5 @@
 mosmafs = function(data, job, instance, learner, maxeval, filter, initialization,
-  lambda, mu, parent.sel, chw.bitflip, adaptive.filter.weights, filter.during.run, cv.iters, multi.objective) {
+  lambda, mu, parent.sel, chw.bitflip, adaptive.filter.weights, filter.during.run, cv.iters, multi.objective, tune.hyperparams) {
 
   PARALLELIZE = FALSE
 
@@ -8,7 +8,7 @@ mosmafs = function(data, job, instance, learner, maxeval, filter, initialization
   # ---
 
   lrn = LEARNERS[[learner]] # learner 
-
+  
   train.task = instance$train.task # training
   test.task = instance$test.task # for outer evaluation
 
@@ -17,6 +17,14 @@ mosmafs = function(data, job, instance, learner, maxeval, filter, initialization
   ps = PAR.SETS[[learner]] # paramset
   num.discrete = sum(BBmisc::viapply(ps$pars[sapply(ps$pars, isDiscrete)], getParamLengths))
   num.numeric = sum(BBmisc::viapply(ps$pars[sapply(ps$pars, isNumeric)], getParamLengths))
+
+  if (!tune.hyperparams) {
+    params = instance$hyperparams[[learner]]
+    params = params[getParamIds(ps)]
+    params = trafoValue(ps, params)
+    ps = pSS()
+    lrn = setHyperPars2(lrn, params)
+  }
 
   # ---
   # 1. eventually setup parallel environemnt

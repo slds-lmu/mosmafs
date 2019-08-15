@@ -21,3 +21,4 @@ registry/
 data/
 archive/
 *xgboost.model
+results*
