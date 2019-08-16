@@ -1,5 +1,5 @@
 mosmafs = function(data, job, instance, learner, maxeval, filter, initialization,
-  lambda, mu, parent.sel, chw.bitflip, adaptive.filter.weights, filter.during.run, cv.iters, multi.objective, tune.hyperparams) {
+  lambda, mu, parent.sel, chw.bitflip, adaptive.filter.weights, filter.during.run, cv.iters, multi.objective, tune.hyperparams, tune.iters) {
 
   PARALLELIZE = FALSE
 
