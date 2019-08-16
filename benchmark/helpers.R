@@ -550,11 +550,11 @@ plotMosmafsOptResult = function(res, plotspath, experiments,
 
     # --- 1. AGGREGATION 
     # per learner, problem, replication and evaluation: calculate Rank
-    df = df[, `:=` (rank_variant = rank(- metric)), by = c("learner", "problem", "evals", "replication")]
+    dfr = df[, `:=` (rank_variant = rank(- metric)), by = c("learner", "problem", "evals", "replication")]
     assert(all(dfr$rank_variant <= length(experiments) & dfr$rank_variant >= 1)) # we made always 10 replications
 
     # aggregate over all replications 
-    dfr = df[, .(mean(metric), mean(rank_variant)), by = c("algorithm", "learner", "problem", "evals", "variant")]
+    dfr = dfr[, .(mean(metric), mean(rank_variant)), by = c("algorithm", "learner", "problem", "evals", "variant")]
 
     # --- 2. CREATE PLOTS
     # --- a) Overall results (all experiments compared)
@@ -663,38 +663,38 @@ plotRanks = function(data, outpath, metric, limits) {
 
 
 
-plotRanks = function(res, plotspath, experiments, logscale = FALSE, metric = "naive.hout.domHV", prompt, limits = c(0.5, 1), height = 10, width = 7) {
+# plotRanks = function(res, plotspath, experiments, logscale = FALSE, metric = "naive.hout.domHV", prompt, limits = c(0.5, 1), height = 10, width = 7) {
     
-    # 1) Pepare the dataset for plotting 
-    df = res[variant %in% experiments$variant, ]
-    df = extractFromSummary(df, c("runtime", metric))
-    df = renameAndRevalue(df)
-    names(df)[which(names(df) == metric)] = "metric"
-    df$runtime = df$runtime / 3600
+#     # 1) Pepare the dataset for plotting 
+#     df = res[variant %in% experiments$variant, ]
+#     df = extractFromSummary(df, c("runtime", metric))
+#     df = renameAndRevalue(df)
+#     names(df)[which(names(df) == metric)] = "metric"
+#     df$runtime = df$runtime / 3600
 
-    ylab_names = data.table(name = c("DomHV[test]", "DomHV[valid]", "trueDomHV[test]"), 
-                          mymetric = c("naive.hout.domHV", "eval.domHV", "true.hout.domHV"))
-    myname = ylab_names[mymetric == metric, ]$name
+#     ylab_names = data.table(name = c("DomHV[test]", "DomHV[valid]", "trueDomHV[test]"), 
+#                           mymetric = c("naive.hout.domHV", "eval.domHV", "true.hout.domHV"))
+#     myname = ylab_names[mymetric == metric, ]$name
 
-    # --- average across problems
-    for (prob in unique(df$problem)) {
-      plist = list()
-      dir.create(file.path(plotspath, prompt, gsub("\\.", "", metric), prob))
-      for (lrn in unique(df$learner)) {
-        plist[[lrn]] = ggplot()
-        plist[[lrn]] = plist[[lrn]] + geom_line(data = df[problem == prob & learner == lrn, ], aes(x = runtime, y = metric, lty = algorithm, colour = variant, group = job.id), size = 0.6)
-        plist[[lrn]] = plist[[lrn]] + scale_colour_Publication() + theme_Publication() 
-        plist[[lrn]] = plist[[lrn]] + labs(colour = "Variant", lty = "Algorithm") 
-        plist[[lrn]] = plist[[lrn]] + theme(legend.direction = "horizontal", legend.position = "top", legend.box = "vertical", legend.box.just = "left")
-        plist[[lrn]] = plist[[lrn]] + guides(lty = guide_legend(order = 1), colour = guide_legend(order = 2))
-        plist[[lrn]] = plist[[lrn]] + xlab("Runtime [in h]") + ylab(myname)
-        plist[[lrn]] = plist[[lrn]] + xlim(c(0, 5))
-      }
-      p = do.call(grid.arrange, c(plist, ncol = 3))
-      ggsave(file.path(plotspath, prompt, gsub("\\.", "", metric), prob, paste("perf_vs_runtime.pdf", sep = "")), p, width = 15, height = 8, device = "pdf")
-    }
+#     # --- average across problems
+#     for (prob in unique(df$problem)) {
+#       plist = list()
+#       dir.create(file.path(plotspath, prompt, gsub("\\.", "", metric), prob))
+#       for (lrn in unique(df$learner)) {
+#         plist[[lrn]] = ggplot()
+#         plist[[lrn]] = plist[[lrn]] + geom_line(data = df[problem == prob & learner == lrn, ], aes(x = runtime, y = metric, lty = algorithm, colour = variant, group = job.id), size = 0.6)
+#         plist[[lrn]] = plist[[lrn]] + scale_colour_Publication() + theme_Publication() 
+#         plist[[lrn]] = plist[[lrn]] + labs(colour = "Variant", lty = "Algorithm") 
+#         plist[[lrn]] = plist[[lrn]] + theme(legend.direction = "horizontal", legend.position = "top", legend.box = "vertical", legend.box.just = "left")
+#         plist[[lrn]] = plist[[lrn]] + guides(lty = guide_legend(order = 1), colour = guide_legend(order = 2))
+#         plist[[lrn]] = plist[[lrn]] + xlab("Runtime [in h]") + ylab(myname)
+#         plist[[lrn]] = plist[[lrn]] + xlim(c(0, 5))
+#       }
+#       p = do.call(grid.arrange, c(plist, ncol = 3))
+#       ggsave(file.path(plotspath, prompt, gsub("\\.", "", metric), prob, paste("perf_vs_runtime.pdf", sep = "")), p, width = 15, height = 8, device = "pdf")
+#     }
 
-}
+# }
 
 plotSOperformance = function(res, plotspath, experiments, logscale = FALSE, prompt, limits = c(0.5, 1), height = 10, width = 7) {
     # PUT GENERATIONS HERE 
@@ -767,11 +767,12 @@ renameAndRevalue = function(df) {
     
     # --- reordering of factors for plots
     library(forcats)
-    ord_ages_class = c("O", "OI", "OIFi", "OIFiFm", "OIFiFmS", "OIH", "OIHFiFmS", "BS1RF", "BS2RF", "BSMO")
+    ord_ages_class = c("O", "OI", "OIFi", "OIFiFm", "OIFiFmS", "OIH", "OIHFiFmS", "BS1RF", "BS2RF", "BSMO", "OIHFiFmS_no_hyperpars")
     df$variant = factor(df$variant, levels = ord_ages_class)
     df$variant = revalue(df$variant, 
       c("O" = "base version", "OI" = "+UI", "OIFi" = "+UI+FI", "OIFiFm" = "+UI+FI+FM", 
-        "OIFiFmS" = "+UI+FI+FM (s.a.)", "OIH" = "+UI+HP", "OIHFiFmS" = "+UI+FI+HP+FM (s.a.)", "BS1RF" = "BS1RF", "BS2RF" = "BS2RF", "BSMO" = "BSMO"))
+        "OIFiFmS" = "+UI+FI+FM (s.a.)", "OIH" = "+UI+HP", "OIHFiFmS" = "+UI+FI+HP+FM (s.a.)", "BS1RF" = "BS1RF", "BS2RF" = "BS2RF", "BSMO" = "BSMO",
+        "OIHFiFmS_no_hyperpars" = "+UI+FI+HP+FM (s.a.) / no tune"))
     df$algorithm = revalue(df$algorithm, c("mosmafs" = "NSGA-II", "randomsearch" = "Random Search", "no_feature_sel" = "MBO", "mbo_multicrit" = "MBO"))
 
     return(df)
@@ -980,10 +981,11 @@ plotFrontPerProblem = function(path, parfront) {
 
 }
 
-getHyperparamsPerProblem = function(x) {
+getHyperparamsPerProblem = function(x, evals = NULL) {
   
-  toreduce = ijoin(tab, experiments[["BS1RF"]])
   path = as.data.frame(x$result$opt.path)
+  if (!is.null(evals))
+    path = path[1:evals, ]
   best_id = which.min(path$y)
   best = as.list(path[best_id,][, !names(path) %in% c("y")])
 
