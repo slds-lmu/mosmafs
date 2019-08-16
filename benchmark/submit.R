@@ -11,7 +11,7 @@ reg = loadRegistry("registry", writeable = TRUE)
 tab = summarizeExperiments(
 	by = c("job.id", "algorithm", "problem", "learner", "maxeval", "cv.iters", "filter", "initialization", 
 	"lambda", "mu", "parent.sel", "chw.bitflip", "adaptive.filter.weights", "filter.during.run", "surrogate", 
-	"infill", "propose.points", "multi.objective", "tune.hyperparams")
+	"infill", "propose.points", "multi.objective", "tune.hyperparams", "tune.iters")
 	)
 
 source("probdesign.R")
@@ -45,11 +45,12 @@ experiments = list(
 	# RS = data.table(algorithm = "randomsearch", initialization = "none", filter = "none", chw.bitflip = NA, adaptive.filter.weights = NA, filter.during.run = NA),
 	# RSI = data.table(algorithm = "randomsearch", initialization = "unif", filter = "none", chw.bitflip = NA, adaptive.filter.weights = NA, filter.during.run = NA),
 	# RSIF = data.table(algorithm = "randomsearch", initialization = "unif", filter = "custom", chw.bitflip = NA, adaptive.filter.weights = NA, filter.during.run = NA),
-	BS1RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = FALSE, surrogate = "randomForest", infill = "cb", propose.points = 15L),
-	BS2RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = TRUE, surrogate = "randomForest", infill = "cb", propose.points = 15L),
+	# BS1RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = FALSE, surrogate = "randomForest", infill = "cb", propose.points = 15L),
+	# BS2RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = TRUE, surrogate = "randomForest", infill = "cb", propose.points = 15L),
 	# BS5SO = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, multi.objective = FALSE, parent.sel = "selTournament"),
 	# BSMO = data.table(algorithm = "mbo_multicrit", filter = "custom", surrogate = "randomForest", infill = "cb", propose.points = 15L),
-	OIHFiFmS_no_hyperpars = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, multi.objective = TRUE, parent.sel = "selTournamentMO", tune.hyperparams = FALSE)
+	OIHFiFmS_no_hyperpars = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, multi.objective = TRUE, parent.sel = "selTournamentMO", tune.hyperparams = FALSE, tune.iters = NA),
+	OIHFiFmS_no_hyperpars500 = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, multi.objective = TRUE, parent.sel = "selTournamentMO", tune.hyperparams = FALSE, tune.iters = 500)
 	)
 
 # b) Datasets
@@ -57,25 +58,26 @@ problems.serial = c("wdbc", "ionosphere", "sonar", "hill-valley", "clean1",
 	"tecator", "semeion", "lsvt", "isolet", "cnae-9")
 
 # --- SUBMITTING STATUS
-# --- RS        	|   DONE 	   |  300 / 300 DONE 
-# --- RSI       	|   DONE       |  300 / 300 DONE 
-# --- RSIF      	|   DONE       |  300 / 300 DONE 
-# --- O         	|   DONE       |  300 / 300 DONE 
-# --- OI        	|   DONE       |  300 / 300 DONE 
-# --- OIFi      	|   DONE       |  300 / 300 DONE 
-# --- OIFiFm    	|   DONE       |  300 / 300 DONE 
-# --- OIFiFmS   	|   DONE       |  300 / 300 DONE 
-# --- OIH       	|   DONE       |  300 / 300 DONE 
-# --- OIHFiFmS  	|   DONE       |  300 / 300 DONE 
-# --- OIHFiFmS  	|   DONE       |  300 / 300 DONE 
-# --- BS1RF     	|   doing      |  288 / 300 DONE 
-# --- BS2RF     	|   doing      |  295 / 300 DONE
-# --- BS5SO     	|   DONE       |  300 / 300 DONE
-# --- BSMO      	|   DONE       |  300 / 300 DONE  
-# --- OIHFiFmS_nohyp|   doing      |    0 / 300 DONE  
+# --- RS        	   |   DONE 	   |  300 / 300 DONE 
+# --- RSI       	   |   DONE       |  300 / 300 DONE 
+# --- RSIF      	   |   DONE       |  300 / 300 DONE 
+# --- O         	   |   DONE       |  300 / 300 DONE 
+# --- OI        	   |   DONE       |  300 / 300 DONE 
+# --- OIFi      	   |   DONE       |  300 / 300 DONE 
+# --- OIFiFm    	   |   DONE       |  300 / 300 DONE 
+# --- OIFiFmS   	   |   DONE       |  300 / 300 DONE 
+# --- OIH       	   |   DONE       |  300 / 300 DONE 
+# --- OIHFiFmS  	   |   DONE       |  300 / 300 DONE 
+# --- OIHFiFmS  	   |   DONE       |  300 / 300 DONE 
+# --- BS1RF     	   |   doing      |  288 / 300 DONE 
+# --- BS2RF     	   |   doing      |  295 / 300 DONE
+# --- BS5SO     	   |   DONE       |  300 / 300 DONE
+# --- BSMO      	   |   DONE       |  300 / 300 DONE  
+# --- OIHFiFmS_nohyp   |   DONE       |  300 / 300 DONE  
+# --- OIHFiFmS_nohyp500|   DONE       |  300 / 300 DONE  
 
 
-experiment = "OIHFiFmS_no_hyperpars"
+experiment = "OIHFiFmS_no_hyperpars500"
 tosubmit = ijoin(tab, experiments[[experiment]], by = names(experiments[[experiment]]))
 tosubmit = ijoin(tosubmit, findNotDone())
 tosubmit = tosubmit[problem %in% problems.serial, ]
