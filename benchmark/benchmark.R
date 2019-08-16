@@ -60,7 +60,7 @@ if (TEST) {
 readDataAndRinst = function(data, job, rinst.iter, ...) {
   task = readRDS(file.path(data, "task.rds"))
   rin = readRDS(file.path(data, "rin.rds"))
-  hyperparams = readRDS(file.path(data, "hyperparams.rds"))[[rinst.iter]]
+  hyperparams = readRDS(file.path(data, "hyperparams500.rds"))[[rinst.iter]]
 
   train.task = subsetTask(task, rin$train.inds[[rinst.iter]])
   test.task = subsetTask(task, rin$test.inds[[rinst.iter]])
