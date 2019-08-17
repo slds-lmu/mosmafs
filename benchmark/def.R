@@ -16,7 +16,7 @@ datafolder = "data"
 OVERWRITE = FALSE
 
 # --- Maximum number of evaluations allowed
-MAXEVAL = 2000L
+MAXEVAL = 4000L
 
 # --- Maximum runtime
 MAXTIME = 3600L * 40L
@@ -73,7 +73,7 @@ ades.mosmafs = CJ(learner = c("SVM", "kknn", "xgboost"),
 			adaptive.filter.weights = c(FALSE,TRUE),
 			filter.during.run = c(FALSE, TRUE),
 			multi.objective = TRUE,
-			tune.hyperparams = FALSE,
+			tune.hyperparams = c(FALSE, TRUE),
 			tune.iters = 500,
 			sorted = FALSE)
 
