@@ -1,7 +1,7 @@
 mbo_multicrit = function(data, job, instance, learner, maxeval, maxtime, cv.iters, filter, 
   surrogate, infill, propose.points, adaptive.filter.weights) {
 
-    PARALLELIZE = FALSE
+    PARALLELIZE = TRUE
 
     # ---
     # 0. Define task, learner, paramset, and inner resampling

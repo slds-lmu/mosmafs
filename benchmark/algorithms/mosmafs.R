@@ -1,7 +1,7 @@
 mosmafs = function(data, job, instance, learner, maxeval, filter, initialization,
   lambda, mu, parent.sel, chw.bitflip, adaptive.filter.weights, filter.during.run, cv.iters, multi.objective, tune.hyperparams, tune.iters) {
 
-  PARALLELIZE = FALSE
+  PARALLELIZE = TRUE
 
   # ---
   # 0. Define task, learner, paramset, and inner resampling

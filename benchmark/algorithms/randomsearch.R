@@ -1,6 +1,6 @@
 randomsearch = function(data, job, instance, learner, maxeval, filter, initialization, cv.iters) {
 
-    PARALLELIZE = FALSE
+    PARALLELIZE = TRUE
 
     # ---
     # 0. Define task, learner, paramset, and inner resampling
