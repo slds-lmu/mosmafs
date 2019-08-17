@@ -11,7 +11,7 @@ reg = loadRegistry("registry", writeable = TRUE)
 tab = summarizeExperiments(
 	by = c("job.id", "algorithm", "problem", "learner", "maxeval", "cv.iters", "filter", "initialization", 
 	"lambda", "mu", "parent.sel", "chw.bitflip", "adaptive.filter.weights", "filter.during.run", "surrogate", "infill",
-	"propose.points", "multi.objective", "tune.hyperparams"))
+	"propose.points", "multi.objective", "tune.hyperparams", "tune.iters"))
 
 # path to store 
 path = "results_raw"
@@ -33,10 +33,11 @@ experiments = list(
 	# RSI = data.table(algorithm = "randomsearch", initialization = "unif", filter = "none", chw.bitflip = NA, adaptive.filter.weights = NA, filter.during.run = NA),
 	# RSIF = data.table(algorithm = "randomsearch", initialization = "unif", filter = "custom", chw.bitflip = NA, adaptive.filter.weights = NA, filter.during.run = NA),
 	BS1RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = FALSE, surrogate = "randomForest", infill = "cb", propose.points = 15L),
-	# BS2RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = TRUE, surrogate = "randomForest", infill = "cb", propose.points = 15L),
-	# BS5SO = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, multi.objective = FALSE, parent.sel = "selTournament"),
-	# BSMO = data.table(algorithm = "mbo_multicrit", filter = "custom", surrogate = "randomForest", infill = "cb", propose.points = 15L),
-	OIHFiFmS_no_hyperpars = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, multi.objective = TRUE, parent.sel = "selTournamentMO", tune.hyperparams = FALSE)
+	BS2RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = TRUE, surrogate = "randomForest", infill = "cb", propose.points = 15L),
+	BS5SO = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, multi.objective = FALSE, parent.sel = "selTournament"),
+	BSMO = data.table(algorithm = "mbo_multicrit", filter = "custom", surrogate = "randomForest", infill = "cb", propose.points = 15L),
+	OIHFiFmS_no_hyperpars = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, multi.objective = TRUE, parent.sel = "selTournamentMO", tune.hyperparams = FALSE, tune.iters = NA),
+	OIHFiFmS_no_hyperpars500 = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, multi.objective = TRUE, parent.sel = "selTournamentMO", tune.hyperparams = FALSE, tune.iters = 500)
 	)
 
 # b) problems to reduce 
@@ -51,7 +52,7 @@ collectBenchmarkResults(path, experiments, tab, mbo = TRUE)
 
 # Just get the hyperparameters of MBO 
 toreduce = ijoin(tab, findDone())
-toreduce = ijoin(toreduce, experiments[["BS1RF"]])
+toreduce = ijoin(toreduce, experiments[["OIHFiFmS_no_hyperpars"]])
 res = reduceResultsDataTable(toreduce, function(x) getHyperparamsPerProblem(x, 500) )
 res = ijoin(tab, res)
 
@@ -75,14 +76,16 @@ for (prob in problems) {
 
 
 # Reduce single results for MBO and for O
-toreduce = tab[problem == "hill-valley" & learner == "kknn", ]
+toreduce = tab[problem == "lsvt" & learner == "kknn", ]
 toreduce = toreduce[algorithm %in% c("mbo_multicrit", "mosmafs"), ]
-toreduce = toreduce[algorithm %in% "mbo_multicrit" | (filter == "custom" & adaptive.filter.weights & filter.during.run & chw.bitflip & initialization == "unif" & parent.sel == "selTournamentMO"), ]
+toreduce = toreduce[algorithm %in% "mbo_multicrit" 
+| (is.na(tune.hyperparams) & filter == "custom" & adaptive.filter.weights & filter.during.run & chw.bitflip & initialization == "unif" & parent.sel == "selTournamentMO") 
+| (!tune.hyperparams & is.na(tune.iters)), ]
 toreduce = ijoin(toreduce, findDone())
-toreduce = toreduce[c(1:3, 11:13), ]
+toreduce = toreduce[c(1:3, 11:13, 21:23), ]
 
 res = reduceResultsDataTable(toreduce)
-saveRDS(res, file.path(path, "single_experiments_hill-valley.rds"))
+saveRDS(res, file.path(path, "single_experiments_lsvt_kknn.rds"))
 
 
 

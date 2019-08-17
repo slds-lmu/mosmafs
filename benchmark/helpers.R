@@ -1002,3 +1002,120 @@ getHyperparamsPerProblem = function(x, evals = NULL) {
     #     df$runtime_binned = floor(df$runtime / 5) # FLOOR OR ROUND?
     #     dfr = df[, max(metric), by = c("algorithm", "variant", "learner", "problem", "replication", "runtime_binned")]
     # }
+
+
+makeBaselineObjective <- function(learner, task, filters, ps, resampling, measure = NULL, num.explicit.featsel = 0, holdout.data = NULL, worst.measure = NULL, cpo = NULLCPO, numfeats = getTaskNFeats(task)) {
+  if (is.null(measure)) {
+    measure <- getDefaultMeasure(task)
+  }
+  assertClass(learner, "Learner")
+  assertClass(cpo, "CPO")
+  assertClass(task, "Task")
+  assertClass(holdout.data, "Task", null.ok = TRUE)
+  assertCharacter(filters, any.missing = FALSE, min.len = 1)
+  # assertSubset(filters, names(get(".FilterRegister", envir = getNamespace("mlr"))))
+  assertInt(num.explicit.featsel, lower =  0)
+  assertClass(ps, "ParamSet")
+  assert(
+      checkClass(resampling, "ResampleInstance"),
+      checkClass(resampling, "ResampleDesc")
+  )
+  assertClass(measure, "Measure")
+  if (is.null(worst.measure)) {
+    worst.measure <- measure$worst
+  }
+  assertNumber(worst.measure, finite = TRUE)
+  assertInt(numfeats, lower = 1)
+
+  obj.factor <- if (measure$minimize) 1 else -1
+
+  worst.measure <- worst.measure * obj.factor
+
+  learner <- cpoSelector() %>>% checkLearner(learner, type = getTaskType(task))
+  learner %<<<% cpo
+
+  argnames <- getParamIds(getParamSet(learner))
+
+  assertSubset(getParamIds(ps), argnames)
+  ps <- c(ps, pSS(mosmafs.nselect = NA: integer[0L, numfeats]),
+    makeParamSet(params = lapply(seq_len(num.explicit.featsel), function(idx) {
+      # not using vector parameters here because mlrMBO probably
+      # sucks at handling them.
+      makeIntegerParam(sprintf("mosmafs.iselect.%s", idx),
+        lower = 1L, upper = numfeats)
+    })),
+    if (length(filters) > 1) {
+      makeParamSet(params = lapply(seq_along(filters), function(idx) {
+        # not using vector parameters here because mlrMBO probably
+        # sucks at handling them.
+        makeIntegerParam(sprintf("mosmafs.select.weights.%s", idx),
+          lower = 1L, upper = numfeats)
+      }))
+    }
+  )
+
+  fmat <- makeFilterMat(task %>>% cpo, filters)
+  assertMatrix(fmat, nrows = numfeats)
+
+  smoof::makeMultiObjectiveFunction(
+    sprintf("mosmafs_baseline_%s_%s", learner$id, task$task.desc$id),
+    has.simple.signature = FALSE, par.set = ps, n.objectives = 2,
+    ref.point = c(worst.measure, 1),
+    fn = function(x) {
+      # mlrMBO is the platonic ideal of awful design.
+      # The function parameter actually must be named 'x'.
+      args <- x
+      dif.names <- getParamIds(ps)[!getParamIds(ps) %in% names(args)]
+      if (length(dif.names) > 0) {
+        stop(sprintf("%s must be an element in list 'x'", dif.names))
+      }
+      
+      # trafo not necessary in mlrMBO
+
+      # set up `selector.selection` from nselect, iselect, select.weights and fmat
+      nselect <- args$mosmafs.nselect
+      iselect <- args[sprintf("mosmafs.iselect.%s", seq_len(num.explicit.featsel))]
+      if (length(filters) > 1) {
+        select.weights <- unlist(args[sprintf("mosmafs.select.weights.%s",
+          seq_along(filters))])
+        fvals <- c(fmat %*% select.weights)
+      } else {
+        fvals <- c(fmat)
+      }
+      selections <- order(fvals, decreasing = TRUE)
+      selections <- selections[unique(c(unlist(iselect), seq_along(selections)))]
+      args$selector.selection <- rep(FALSE, numfeats)
+      args$selector.selection[selections[seq_len(nselect)]] <- TRUE
+
+      # filter out mosmafs.* parameters we don't need any more
+      args <- args[intersect(names(args), argnames)]
+      learner <- setHyperPars(learner, par.vals = args)
+
+      propfeat <- mean(args$selector.selection)
+
+      net.time <- system.time(
+        val <- resample(learner, task, resampling,
+          list(measure), show.info = FALSE)$aggr,
+        gcFirst = FALSE)[3]
+      if (is.na(val)) {
+        val <- worst.measure
+      }
+      userextra <- list(net.time = net.time)
+
+      if (!is.null(holdout.data)) {
+        model <- train(learner, task)
+        prd <- predict(model, holdout.data)
+        val.holdout <- performance(prd, list(measure), task, model)[1]
+        if (is.na(val.holdout)) {
+          val.holdout <- worst.measure
+        }
+        userextra <- c(userextra, list(
+          fitness.holdout.perf = unname(val.holdout * obj.factor),
+          fitness.holdout.propfeat = propfeat))
+      }
+
+      result <- c(perf = unname(val * obj.factor), propfeat = propfeat)
+      attr(result, "extras") <- userextra
+      result
+    })
+}

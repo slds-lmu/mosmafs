@@ -151,7 +151,7 @@ for (lim in limits) {
 
 
 # --- 4. Debugging: Visualize single results
-res = readRDS(file.path(data_path, "single_experiments_hill-valley.rds"))
+result = readRDS(file.path(data_path, "single_experiments_lsvt.rds"))
 
 # get the first 100 points 
 
@@ -161,6 +161,12 @@ for (i in 1:3) {
 	exp_mosmafs = res[i, ]$result[[1]]$result
 	fitnesses = popAggregate(exp_mosmafs$log, "fitness")
 	hofitnesses = popAggregate(exp_mosmafs$log, "fitness.holdout")
+
+	exp_mosmafs2 = res[i + 6, ]$result[[1]]$result
+	fitnesses2 = popAggregate(exp_mosmafs2$log, "fitness")
+	hofitnesses2 = popAggregate(exp_mosmafs2$log, "fitness.holdout")
+
+
 
 	object <- res[i + 3, ]$result[[1]]
 	task.p <- mlr::getTaskNFeats(object$train.task)
@@ -182,7 +188,16 @@ for (i in 1:3) {
 	df_mosmafs$evals = 1:nrow(df_mosmafs)
 	df_mosmafs$gen = rep(0:(length(fitnesses) - 1), each = 80)
 	df_mosmafs$evals = 80 + 15 * df_mosmafs$gen
-	dfl[[i]] = rbind(df_mbo, df_mosmafs)
+
+	df_mosmafs2 = do.call(rbind, lapply(1:length(fitnesses2), function(i)
+		cbind(as.data.frame(t(fitnesses2[[i]])), as.data.frame(t(hofitnesses2[[i]])))))
+	names(df_mosmafs2) = c("eval.perf", "eval.propfeat", "hout.perf", "hout.propfeat")
+	df_mosmafs2$variant = c("mosmafs2")
+	df_mosmafs2$evals = 1:nrow(df_mosmafs2)
+	df_mosmafs2$gen = rep(0:(length(fitnesses2) - 1), each = 80)
+	df_mosmafs2$evals = 80 + 15 * df_mosmafs2$gen
+
+	dfl[[i]] = rbind(df_mbo, df_mosmafs, df_mosmafs2)
 
 	dfl[[i]]$diff = dfl[[i]]$hout.perf - dfl[[i]]$eval.perf
 
@@ -203,12 +218,14 @@ for (maxgen in c(0, 100, 200, 250)){
 
 	# FOR MOSMAFS, ONLY PLOT CURRENT GENERATION 
 	dfp = df[evals <= maxevals & exp == 2, ]
-	dfp = dfp[variant == "mbo" | (variant == "mosmafs" & gen == maxgen)]
+	dfp = dfp[variant == "mbo" | (variant != "mbo" & gen == maxgen)]
+	# dfp = dfp[gen == maxgen]
 	dfp$id = paste(dfp$variant, "_", dfp$exp, sep = "")
 
 	dfp = lapply(unique(dfp$id), function(x) {
 		df_sub = dfp[id == x, ]
-		idx = which(df_sub$variant == "mosmafs" | doNondominatedSorting(t(as.matrix(df_sub[, c("eval.perf", "eval.propfeat")])))$ranks == 1)
+		idx = which(df_sub$variant != "mbo" | doNondominatedSorting(t(as.matrix(df_sub[, c("eval.perf", "eval.propfeat")])))$ranks == 1)
+		#idx = which(doNondominatedSorting(t(as.matrix(df_sub[, c("eval.perf", "eval.propfeat")])))$ranks == 1)
 		df_sub[idx, ]
 	})
 

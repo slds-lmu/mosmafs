@@ -1,5 +1,5 @@
 mbo_multicrit = function(data, job, instance, learner, maxeval, maxtime, cv.iters, filter, 
-  surrogate, infill, propose.points) {
+  surrogate, infill, propose.points, adaptive.filter.weights) {
 
     PARALLELIZE = FALSE
 
@@ -18,9 +18,10 @@ mbo_multicrit = function(data, job, instance, learner, maxeval, maxtime, cv.iter
     
     filters = FILTER[[filter]]
 
-    ps = c(ps, pSS(filter: discrete[filters], perc: numeric[0, 1]))
+    if (!adaptive.filter.weights) {
+        ps = c(ps, pSS(filter: discrete[filters], perc: numeric[0, 1]))
+    }
     
-    filtermat = makeFilterMat(task = train.task, filters = filters)
     p = getTaskNFeats(train.task)
 
     # ---
@@ -48,36 +49,40 @@ mbo_multicrit = function(data, job, instance, learner, maxeval, maxtime, cv.iter
     # ---
     # 4. Objective 
     # --- 
+    if (adaptive.filter.weights) {
+      tuneobj = makeBaselineObjective(learner = lrn, task = train.task, filters = filters, ps = ps, resampling = inner, holdout.data = test.task) 
+    } else {
+      filtermat = makeFilterMat(task = train.task, filters = filters)
+      tuneobj = makeMultiObjectiveFunction(name = "tuning",
+       fn = function(x) {
+        
+          perc = x$perc
+          x$perc = NULL
 
-    tuneobj = makeMultiObjectiveFunction(name = "tuning",
-     fn = function(x) {
-      
-        perc = x$perc
-        x$perc = NULL
+          filter = x$filter
+          x$filter = NULL
+            
+          ind.features = order(filtermat[,filter, drop = FALSE], decreasing = TRUE)[1:ceiling(perc*p)]
+          filtered.train.task = subsetTask(train.task, features = ind.features)
+          filtered.test.task = subsetTask(test.task, features = ind.features) 
 
-        filter = x$filter
-        x$filter = NULL
+          lrn2 = setHyperPars2(lrn, par.vals = x)
           
-        ind.features = order(filtermat[,filter, drop = FALSE], decreasing = TRUE)[1:ceiling(perc*p)]
-        filtered.train.task = subsetTask(train.task, features = ind.features)
-        filtered.test.task = subsetTask(test.task, features = ind.features) 
-
-        lrn2 = setHyperPars2(lrn, par.vals = x)
-        
-        model = train(lrn2, filtered.train.task)
-        prd = predict(model, filtered.test.task)
-        val = performance(prd, mmce)[1]
-        
-        res = resample(lrn2, filtered.train.task, inner, show.info = FALSE)$aggr
-        res = c(res, propfeat = perc)
-        attr(res, "extras") = list(fitness.holdout.perf = val, fitness.holdout.propfeat = perc)
-        res
-      },
-      par.set = ps,
-      has.simple.signature = FALSE,
-      minimize = c(TRUE, TRUE), 
-      n.objectives = 2L, ref.point = c(1, 1)
-    )
+          model = train(lrn2, filtered.train.task)
+          prd = predict(model, filtered.test.task)
+          val = performance(prd, mmce)[1]
+          
+          res = resample(lrn2, filtered.train.task, inner, show.info = FALSE)$aggr
+          res = c(res, propfeat = perc)
+          attr(res, "extras") = list(fitness.holdout.perf = val, fitness.holdout.propfeat = perc)
+          res
+        },
+        par.set = ps,
+        has.simple.signature = FALSE,
+        minimize = c(TRUE, TRUE), 
+        n.objectives = 2L, ref.point = c(1, 1)
+      )
+    }
 
   time = proc.time()
 
