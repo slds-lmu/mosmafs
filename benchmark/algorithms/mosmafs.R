@@ -32,7 +32,7 @@ mosmafs = function(data, job, instance, learner, maxeval, filter, initialization
   # --- 
   
   if (PARALLELIZE)
-    parallelMap::parallelStartMulticore(cpus = 10L)
+    parallelMap::parallelStartMulticore(cpus = 15L)
  
 
   # ---

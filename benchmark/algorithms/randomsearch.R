@@ -20,7 +20,7 @@ randomsearch = function(data, job, instance, learner, maxeval, filter, initializ
     # --- 
     
     if (PARALLELIZE)
-      parallelMap::parallelStartMulticore(cpus = 10L)
+      parallelMap::parallelStartMulticore(cpus = 15L)
  
     # ---
     # 2. population initialization

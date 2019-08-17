@@ -34,7 +34,7 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
     # --- 
     
     if (PARALLELIZE)
-      parallelMap::parallelStartMulticore(cpus = 10L)
+      parallelMap::parallelStartMulticore(cpus = 15L)
  
     # ---
     # 2. Initial design 
