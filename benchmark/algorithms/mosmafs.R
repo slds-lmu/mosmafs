@@ -1,7 +1,7 @@
 mosmafs = function(data, job, instance, learner, maxeval, filter, initialization,
   lambda, mu, parent.sel, chw.bitflip, adaptive.filter.weights, filter.during.run, cv.iters, multi.objective, tune.hyperparams, tune.iters) {
 
-  PARALLELIZE = TRUE
+  PARALLELIZE = FALSE
 
   # ---
   # 0. Define task, learner, paramset, and inner resampling
@@ -170,6 +170,16 @@ mosmafs = function(data, job, instance, learner, maxeval, filter, initialization
     initials = initSelector(initials, distribution = distribution)
   else  
     initials = initSelector(initials, distribution = distribution, soften.op = ecr::setup(mutUniformMetaResetSHW, p = 1), soften.op.strategy = getFilterStrat(TRUE)) 
+
+  if (tune.hyperparams & tune.iters > 0) {
+    params = instance$hyperparams[[learner]]
+    params$kernel = as.character(params$kernel)
+    params = params[which(getParamIds(ps) %in% names(params))]
+    initials = lapply(initials, function(x) {
+      x[names(x) %in% names(params)] = params
+      x
+    })
+  }
 
   
   # ---
