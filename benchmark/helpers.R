@@ -35,10 +35,13 @@ getAllIndividuals = function(ecr_res) {
 }
 
 saveOpenMLTask = function(id, path) {
-  task = convertOMLTaskToMlr(getOMLTask(id))$mlr.task
+  openmltask = convertOMLTaskToMlr(getOMLTask(id))
+  task = openmltask$mlr.task
+  rin = openmltask$mlr.rin
   task.id = task$task.desc$id
   dir.create(file.path(path, task.id))
   saveRDS(task, paste(path, task.id, "task.rds", sep = "/"))
+  saveRDS(rin, paste(path, task.id, "rin.rds", sep = "/"))
 }
 
 fromDataToTask = function(path, id, target) {
