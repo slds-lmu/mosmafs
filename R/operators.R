@@ -1,10 +1,10 @@
 #' @include utils.R
 #' recSBXInt <- intifyRecombinator(recSBX)
-#' 
-#' combo.rec.int <- combine.operators(ps, 
-#' numeric = recSBX, 
+#'
+#' combo.rec.int <- combine.operators(ps,
+#' numeric = recSBX,
 #' int = recSBXInt)
-#' 
+#'
 #' combo.rec.int(list(list(numb = 1.5, int = 3), list(numb = 3, int = 0))) de utils.R
 
 .tol <- sqrt(.Machine$double.eps) * 4
@@ -19,36 +19,36 @@
 #' @param operator `[ecr_operator]` [`ecr_operator`][ecr::makeOperator] that supports continuous
 #'   variables.
 #' @return [`ecr_operator`][ecr::makeOperator] operator that operates on integers.
-#' @examples 
+#' @examples
 #' library(mlrCPO)
-#' 
-#' # Create parameter set 
+#'
+#' # Create parameter set
 #' ps <- pSS(
-#' numb: numeric[1, 10], 
+#' numb: numeric[1, 10],
 #' int: integer[0, 5])
-#' 
+#'
 #' # Define mutator
-#' # If Gaussian mutator is applied to integer parameter, 
+#' # If Gaussian mutator is applied to integer parameter,
 #' # it does not return an integer
-#' combo.mut <- combine.operators(ps, 
-#' numeric = mutGauss, 
+#' combo.mut <- combine.operators(ps,
+#' numeric = mutGauss,
 #' int = mutGauss)
 #' combo.mut(list(numb = 1.5, int = 3))
-#' 
+#'
 #' # Turn continuous-space operator mutGauss into integer-space operator
 #' mutGaussInt <- intifyMutator(mutGauss)
-#' combo.mut.int <- combine.operators(ps, 
-#' numeric = mutGauss, 
+#' combo.mut.int <- combine.operators(ps,
+#' numeric = mutGauss,
 #' int = mutGaussInt)
 #' combo.mut.int(list(numb = 1.5, int = 3))
-#' 
+#'
 #' # Turn continuous-space operator recSBX into integer-space operator
 #' recSBXInt <- intifyRecombinator(recSBX)
-#' combo.rec.int <- combine.operators(ps, 
-#' numeric = recSBX, 
+#' combo.rec.int <- combine.operators(ps,
+#' numeric = recSBX,
 #' int = recSBXInt)
 #' combo.rec.int(list(list(numb = 1.5, int = 3), list(numb = 3, int = 0)))
-#' 
+#'
 #' @export
 intifyMutator <- function(operator) {
   assertClass(operator, c("ecr_mutator", "ecr_operator", "function"))
@@ -75,7 +75,7 @@ intifyMutator <- function(operator) {
 
 #' @rdname intifyMutator
 #' @export
-intifyRecombinator <- function(operator) { 
+intifyRecombinator <- function(operator) {
   assertClass(operator, c("ecr_recombinator", "ecr_operator", "function"))
   makeRecombinator(function(inds, ..., lower, upper) { # nocov
     assertList(inds, any.missing = FALSE, min.len = 2)
@@ -105,18 +105,18 @@ intifyRecombinator <- function(operator) {
       return(do.call(wrapChildren, lapply(children, function(x)
         as.integer(pmin(pmax(lower, round(x)), upper)))))
     } # nocov start
-  wrapChildren(as.integer(pmin(pmax(lower, round(children)), upper))) 
+  wrapChildren(as.integer(pmin(pmax(lower, round(children)), upper)))
 },
 n.parents = getNumberOfParentsNeededForMating(operator),
 n.children = getNumberOfChildren(operator))} # nocov end
 
 
 #' @title Integer Gaussian Mutator
-#' 
+#'
 #' @param ind `[integer]` integer vector/individual to mutate.
-#' @param lower `[integer]` vector of minimal values for each parameter of the 
+#' @param lower `[integer]` vector of minimal values for each parameter of the
 #' decision space. Must have the same length as `ind`.
-#' @param upper `[integer]` vector of maximal values for each parameter of the 
+#' @param upper `[integer]` vector of maximal values for each parameter of the
 #' decision space. Must have the same length as `ind`.
 #' @param ...  further arguments passed on to the method.
 #' @description
@@ -130,9 +130,9 @@ mutGaussInt <- intifyMutator(mutGauss)
 #' @description
 #' See [ecr::mutPolynomial]
 #' @param ind `[integer]` integer vector/individual to mutate.
-#' @param lower `[integer]` vector of minimal values for each parameter of the 
+#' @param lower `[integer]` vector of minimal values for each parameter of the
 #' decision space. Must have the same length as `ind`.
-#' @param upper `[integer]` vector of maximal values for each parameter of the 
+#' @param upper `[integer]` vector of maximal values for each parameter of the
 #' decision space. Must have the same length as `ind`.
 #' @param ...  further arguments passed on to the method.
 #' @family operators
@@ -144,9 +144,9 @@ mutPolynomialInt <- intifyMutator(mutPolynomial)
 #' @description
 #' See [ecr::mutUniform]
 #' @param ind `[integer]` integer vector/individual to mutate.
-#' @param lower `[integer]` vector of minimal values for each parameter of the 
+#' @param lower `[integer]` vector of minimal values for each parameter of the
 #' decision space. Must have the same length as `ind`.
-#' @param upper `[integer]` vector of maximal values for each parameter of the 
+#' @param upper `[integer]` vector of maximal values for each parameter of the
 #' decision space. Must have the same length as `ind`.
 #' @param ...  further arguments passed on to the method.
 #' @family operators
@@ -157,13 +157,13 @@ mutUniformInt <- intifyMutator(mutUniform)
 #'
 #' @description
 #' See [ecr::recSBX]
-#' @param inds `[integer]` parents, i.e., list of exactly two numeric vectors 
+#' @param inds `[integer]` parents, i.e., list of exactly two numeric vectors
 #' of equal length.
-#' @param lower `[integer]` vector of minimal values for each parameter of the 
+#' @param lower `[integer]` vector of minimal values for each parameter of the
 #' decision space.
-#' @param upper `[integer]` vector of maximal values for each parameter of the 
+#' @param upper `[integer]` vector of maximal values for each parameter of the
 #' decision space.
-#' @param ...  further arguments passed on to the method. 
+#' @param ...  further arguments passed on to the method.
 #' @family operators
 #' @export
 recIntSBX <- intifyRecombinator(recSBX)
@@ -173,12 +173,12 @@ recIntSBX <- intifyRecombinator(recSBX)
 #'
 #' @description
 #' See [ecr::recIntermediate]
-#' 
-#' @param inds `[inds]` parents, i.e., list of exactly two integer vectors 
+#'
+#' @param inds `[inds]` parents, i.e., list of exactly two integer vectors
 #' of equal length.
-#' @param lower `[integer]` vector of minimal values for each parameter of the 
+#' @param lower `[integer]` vector of minimal values for each parameter of the
 #' decision space.
-#' @param upper `[integer]` vector of maximal values for each parameter of the 
+#' @param upper `[integer]` vector of maximal values for each parameter of the
 #' decision space.
 #' @param ...  further arguments passed on to the method.
 #' @family operators
@@ -187,22 +187,22 @@ recIntIntermediate <- intifyRecombinator(recIntermediate)
 
 
 #' @title Gaussian Intermediate Recombinator
-#' 
+#'
 #' @description
-#' Gaussian intermediate recombinator samples component-wise from a normal 
-#' distribution with mean as the component-wise mean  
+#' Gaussian intermediate recombinator samples component-wise from a normal
+#' distribution with mean as the component-wise mean
 #' and standard deviation as halved components-wise absolute distance
 #' of the two given parents.
 #' It is applicable only for numeric representations.
-#' 
+#'
 #' See also [ecr::recIntermediate].
 #' @param inds `[list]` list of two individuals to recombinate.
 #' @param lower `[integer]` lower bounds of `inds` values. May have same length as
-#'   one individual or may be a single number, if the lower bounds are the same for all 
-#'   values. 
+#'   one individual or may be a single number, if the lower bounds are the same for all
+#'   values.
 #' @param upper `[integer]` upper bounds of `inds` values. May have same length as
-#'   one individual or may be a single number, if the upper bounds are the same for all 
-#'   values. 
+#'   one individual or may be a single number, if the upper bounds are the same for all
+#'   values.
 #' @family operators
 #' @export
 recGaussian <- makeRecombinator(function(inds, lower, upper) {
@@ -232,7 +232,7 @@ recIntGaussian <- intifyRecombinator(recGaussian)
 #'
 #' @description
 #' "Random Choice" mutation operator for discrete parameters: with probability
-#'  `p` chooses one of the available categories at random (this *may* be 
+#'  `p` chooses one of the available categories at random (this *may* be
 #'  the original value!)
 #' @param ind `[character]` individuum to mutate.
 #' @param values `[list of character]` set of possible values for `ind` entries to take.
@@ -261,8 +261,8 @@ mutRandomChoice <- makeMutator(function(ind, values, p = 0.1) {
 #' @title Double Geometric Distribution Mutator
 #'
 #' @description
-#' "Double Geometric" mutation operator for integer parameters: with 
-#' probability `p` a random geometrically distributed value is added, 
+#' "Double Geometric" mutation operator for integer parameters: with
+#' probability `p` a random geometrically distributed value is added,
 #' and another (different) one subtracted.
 #'
 #' `mutDoubleGeomScaled` scales `sdev` with each component's range and then uses
@@ -274,11 +274,11 @@ mutRandomChoice <- makeMutator(function(ind, values, p = 0.1) {
 #' @param geomp `[numeric]` geometric distribution parameter.
 #' @param sdev `[numeric]` standard deviation, relative to `upper - lower`.
 #' @param lower `[integer]` lower bounds of `ind` values. May have same length as
-#'   `ind` or may be a single number, if the lower bounds are the same for all 
-#'   values. 
+#'   `ind` or may be a single number, if the lower bounds are the same for all
+#'   values.
 #' @param upper `[integer]` upper bounds of `ind` values. May have same length as
-#'  `ind` or may be a single number, if the upper bounds are the same for all 
-#'   values. 
+#'  `ind` or may be a single number, if the upper bounds are the same for all
+#'   values.
 #' @return [`integer`]
 #' @family operators
 #' @export
@@ -310,7 +310,7 @@ mutDoubleGeomScaled <- makeMutator(function(ind, p = 1, sdev = 0.05, lower, uppe
   }
   assertNumeric(sdev, lower = 0 - .tol, any.missing = FALSE, finite = TRUE)
   sdev <- sdev * (upper - lower)
-  mutDoubleGeom(ind, p = p, geomp = (sqrt(2 * sdev^2 + 1) - 1) / sdev^2, 
+  mutDoubleGeom(ind, p = p, geomp = (sqrt(2 * sdev^2 + 1) - 1) / sdev^2,
     lower = lower, upper = upper)
 }, supported = "custom")
 
@@ -326,12 +326,12 @@ mutDoubleGeomScaled <- makeMutator(function(ind, p = 1, sdev = 0.05, lower, uppe
 #' @param lx `[numeric]` uniform distribution bandwidth.
 #' @param sdev `[numeric]` standard deviation, will be scaled to `upper - lower`.
 #' @param lower `[integer]` lower bounds of `ind` values. May have same length as
-#'   `ind` or may be a single number, if the lower bounds are the same for all 
-#'   values. 
-#' @param upper `[integer]` upper bounds of `ind` values. May have same length as
-#'  `ind` or may be a single number, if the upper bounds are the same for all 
+#'   `ind` or may be a single number, if the lower bounds are the same for all
 #'   values.
-#' @param ...  further arguments passed on to the method. 
+#' @param upper `[integer]` upper bounds of `ind` values. May have same length as
+#'  `ind` or may be a single number, if the upper bounds are the same for all
+#'   values.
+#' @param ...  further arguments passed on to the method.
 #' @export
 mutUniformParametric <- makeMutator(function(ind, p, lx, lower, upper) {
   assertNumeric(ind)
@@ -342,7 +342,7 @@ mutUniformParametric <- makeMutator(function(ind, p, lx, lower, upper) {
   n = length(ind)
   for (arg in c("lx", "lower", "upper", "p")) {
     if (!(length(get(arg)) %in% c(n, 1))) {
-      stopf("%s must have same length as individual or 1.", 
+      stopf("%s must have same length as individual or 1.",
         arg)
     }
     if ((length(get(arg)) == 1) & (arg != "p")) {
@@ -419,7 +419,7 @@ mutUniformReset <- makeMutator(function(ind, p = 0.1, reset.dist) {
   if (length(reset.dist) == 1) {
     reset.dist = rep(reset.dist, length(ind))
   }
-  assertNumeric(reset.dist, lower = 0 - .tol, upper = 1 + .tol, 
+  assertNumeric(reset.dist, lower = 0 - .tol, upper = 1 + .tol,
     len = length(ind), any.missing = FALSE)
   assertNumeric(p, lower = 0 - .tol, upper = 1 + .tol)
   if (!(length(p) %in% c(length(ind), 1))) {
@@ -446,7 +446,7 @@ mutUniformMetaReset <- makeMutator(function(ind, p = 0.1, reset.dists, reset.dis
   assertNumeric(reset.dist.weights, lower = 0 - .tol, upper = 1 + .tol, any.missing = FALSE)
   reset.dist.weights <- pmin(reset.dist.weights, 1 - .Machine$double.eps)
   assertMatrix(reset.dists, mode = "numeric", nrows = length(ind), ncols = length(reset.dist.weights))
-  reset.dist.weights <- -log(1 - reset.dist.weights)
+  reset.dist.weights <- -log1p(-reset.dist.weights)
   reset.dist.weights <- reset.dist.weights / max(sum(reset.dist.weights), .001)
   mutUniformReset(ind, p = p, reset.dist = reset.dists %*% reset.dist.weights)
 }, supported = "binary")
@@ -478,7 +478,7 @@ makeFilterStrategy <- function(reset.dists, weight.param.name) {
 #' See [ecr::mutGauss]. Allows a vector of standard deviations. Scales
 #' standard deviations to the range of `[lower, upper]`.
 #' @inheritParams ecr::mutGauss
-#' @param sdev `[numeric]` standard deviation(s) of the Gauss mutation. 
+#' @param sdev `[numeric]` standard deviation(s) of the Gauss mutation.
 #' @family operators
 #' @export
 mutGaussScaled <- makeMutator(function(ind, p = 1, sdev = 0.05, lower, upper) {
@@ -486,7 +486,7 @@ mutGaussScaled <- makeMutator(function(ind, p = 1, sdev = 0.05, lower, upper) {
   assertNumeric(sdev, lower = 0 - .tol, any.missing = FALSE, finite = TRUE)
   assertNumeric(lower, any.missing = FALSE, finite = TRUE)
   assertNumeric(upper, any.missing = FALSE, finite = TRUE)
-  
+
   sdev.scaled <- sdev * (upper - lower)
   new.ind <- rnorm(length(ind), mean = ind, sd = sdev.scaled)
   which.step <- runif(length(ind)) < p
@@ -501,7 +501,7 @@ mutGaussScaled <- makeMutator(function(ind, p = 1, sdev = 0.05, lower, upper) {
 #' @param ind `[integer]` integer vector/individual to mutate.
 #' @param lower `[integer]` vector of minimal values for each parameter of the decision space. Must have the same length as `ind`.
 #' @param upper `[integer]` vector of maximal values for each parameter of the decision space. Must have the same length as `ind`.
-#' @param ...  further arguments passed on to the method. 
+#' @param ...  further arguments passed on to the method.
 #' @family operators
 #' @export
 mutGaussIntScaled <- intifyMutator(mutGaussScaled)
@@ -672,7 +672,7 @@ mutUniformResetSHW <- makeMutator(function(ind, p = 0.1, reset.dist, ...) {
   if (!(length(p) %in% c(length(ind), 1))) {
     stopf("Argument p must have same length as individual or 1.")
   }
-  
+
   affect <- runif(length(ind)) < p
 
   m <- sum(ind)

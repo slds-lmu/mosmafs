@@ -80,14 +80,14 @@ ps.simple <- mlrCPO::pSS(
   makeResampleDesc("Subsample", split = 0.9, iters = n)
 }
 
-fitness.fun.mos <- makeObjective(lrn, task, ps.simple, nRes, 
-  measure = mse, 
+fitness.fun.mos <- makeObjective(lrn, task, ps.simple, nRes,
+  measure = mse,
   holdout.data = task.hout, worst.measure = 100)
 
 # extract param set from objective
 ps.obj  <- getParamSet(fitness.fun.mos)
 getParamIds(ps.obj) # automatically added parameter ' for selecting features
- 
+
 exp <- sampleValue(ps.obj)
 res <- fitness.fun.mos(exp, fidelity = 2, holdout = FALSE)
 
