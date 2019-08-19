@@ -1,4 +1,5 @@
-#' @inclu#' recSBXInt <- intifyRecombinator(recSBX)
+#' @include utils.R
+#' recSBXInt <- intifyRecombinator(recSBX)
 #' 
 #' combo.rec.int <- combine.operators(ps, 
 #' numeric = recSBX, 
