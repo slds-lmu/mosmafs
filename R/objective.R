@@ -5,14 +5,14 @@
 #' Creates an objective function that resamples `learner` on `task`
 #' with `resampling` and measures `measure` (optional), together
 #' with the number of features selected.
-#' If measure needs to be maximized, it is multiplied by -1 to make it 
-#' a minimization task. 
+#' If measure needs to be maximized, it is multiplied by -1 to make it
+#' a minimization task.
 #'
-#' The `ParamSet` used to generate individuals for the ecr must include 
-#' parameters for `learner`, not a `logical` parameter with length equal 
-#' to `getTaskNFeats(task)` for feature selection, as it is automatically added 
+#' The `ParamSet` used to generate individuals for the ecr must include
+#' parameters for `learner`, not a `logical` parameter with length equal
+#' to `getTaskNFeats(task)` for feature selection, as it is automatically added
 #' named as `selector.selection`.
-#' It can be accessed via `getParamSet()` with the object created by 
+#' It can be accessed via `getParamSet()` with the object created by
 #' `makeObjective()` as input.
 #'
 #' `learner` must *not* include a `cpoSelector()` applied to it, this
@@ -20,8 +20,8 @@
 #'
 #' @param learner `[Learner]` A [`Learner`][mlr::makeLearner] object to optimize.
 #' @param task `[Task]` The [`mlr::Task`] object to optimize on.
-#' @param ps `[ParamSet]` The [`ParamSet`][ParamHelpers::makeParamSet] to optimize over, only parameters of the 
-#' actual learner. 
+#' @param ps `[ParamSet]` The [`ParamSet`][ParamHelpers::makeParamSet] to optimize over, only parameters of the
+#' actual learner.
 #' @param resampling `[ResampleDesc | ResampleInst | function]` The [`ResampleDesc`][mlr::makeResampleDesc] or
 #'   [`ResampleInst`][mlr::makeResampleInstance] object to use. This may be a function
 #'   `numeric(1)` -> `ResampleDesc`/`ResampleInst` which maps fidelity to the resampling to use.
@@ -30,15 +30,15 @@
 #'   or repetitions.
 #' @param measure `[Measure | NULL]` The [`Measure`][mlr::makeMeasure] to optimize for.
 #'   The default is `NULL`, which uses the `task`'s default `Measure`.
-#'   If measure needs to be maximized, the measure is multiplied 
-#'   by -1, to make it a minimization task. 
+#'   If measure needs to be maximized, the measure is multiplied
+#'   by -1, to make it a minimization task.
 #' @param holdout.data `[Task]` Additional data on which to predict each
 #'   configuration after training on `task`.
 #' @param worst.measure `[numeric(1)]` worst value for measure to consider,
 #'   for dominated hypervolume calculation. Will be extracted from the
 #'   given measure if not given, but will raise an error if the extracted
 #'   (or given) value is infinite. Measure is multiplied by -1, if measure needs
-#'   to be maximized. 
+#'   to be maximized.
 #' @param cpo `[CPO]` CPO pipeline to apply before feature selection.
 #'   (A CPO that should be applied *after* feature selection should already be
 #'   part of `learner` when given). Care should be taken that the
@@ -48,13 +48,13 @@
 #' @examples
 #' library("mlr")
 #' library("rpart")
-#' 
+#'
 #' task.whole <- bh.task
 #' rows.whole <- sample(nrow(getTaskData(task.whole)))
 #' task <- subsetTask(task.whole, rows.whole[1:250])
 #' task.hout <- subsetTask(task.whole, rows.whole[251])
 #' lrn <- makeLearner("regr.rpart")
-#' 
+#'
 #' ps.simple <- mlrCPO::pSS(
 #'   maxdepth: integer[1, 30],
 #'   minsplit: integer[2, 30],
@@ -62,19 +62,19 @@
 #'   nRes <- function(n) {
 #'   makeResampleDesc("Subsample", split = 0.9, iters = n)
 #' }
-#' 
-#' fitness.fun.mos <- makeObjective(lrn, task, ps.simple, nRes, 
-#'   measure = mse, 
+#'
+#' fitness.fun.mos <- makeObjective(lrn, task, ps.simple, nRes,
+#'   measure = mse,
 #'   holdout.data = task.hout, worst.measure = 100)
-#' 
+#'
 #' # extract param set from objective
 #' ps.obj  <- getParamSet(fitness.fun.mos)
 #' getParamIds(ps.obj) # automatically added parameter ' for selecting features
-#'  
+#'
 #' exp <- sampleValue(ps.obj)
 #' res <- fitness.fun.mos(exp, fidelity = 2, holdout = FALSE)
 #'
-#' 
+#'
 #' @export
 makeObjective <- function(learner, task, ps, resampling, measure = NULL, holdout.data = NULL, worst.measure = NULL, cpo = NULLCPO) {
   if (is.null(measure)) {
@@ -105,7 +105,7 @@ makeObjective <- function(learner, task, ps, resampling, measure = NULL, holdout
     stop("selector.selection is not allowed to be part of 'ps' as it is automatically added")
   }
   ps = c(ps, pSS(selector.selection = NA: logical^getTaskNFeats(task)))
-  
+
   learner <- cpoSelector() %>>% checkLearner(learner, type = getTaskType(task))
   learner %<<<% cpo
 
@@ -180,11 +180,11 @@ valuesFromNames <- function(paramset, value) {
 #' @title Create mlrMBO Objective Function
 #'
 #' @description
-#' "Baseline" performance measure: Creates an objective function that performs 
-#' normal parameter optimization by evaluating filters with additional parameters: 
+#' "Baseline" performance measure: Creates an objective function that performs
+#' normal parameter optimization by evaluating filters with additional parameters:
 #' `mosmafs.nselect` (how many features to select),
-#' `mosmafs.iselect` (vector integer parameter that selects explicit features 
-#' that are not necessary the best according to filter values) 
+#' `mosmafs.iselect` (vector integer parameter that selects explicit features
+#' that are not necessary the best according to filter values)
 #' and `mosmafs.select.weights` (numeric parameter vector that does
 #' weighting between filter values to use.
 #' @param learner `[Learner]` the base learner to use.
@@ -194,9 +194,9 @@ valuesFromNames <- function(paramset, value) {
 #'   not include `selector.selection` etc., only parameters of the actual
 #'   learner.
 #' @param resampling `[ResampleDesc | ResampleInstance]` the resampling strategy to use.
-#' @param measure `[Measure]` the measure to evaluate. 
-#' If measure needs to be maximized, the measure is multiplied by -1, 
-#' to make it a minimization task. 
+#' @param measure `[Measure]` the measure to evaluate.
+#' If measure needs to be maximized, the measure is multiplied by -1,
+#' to make it a minimization task.
 #' @param num.explicit.featsel `[integer(1)]` additional number of parameters
 #'   to add for explicit feature selection.
 #' @param holdout.data `[Task | NULL]` the holdout data to consider.
@@ -251,8 +251,8 @@ makeBaselineObjective <- function(learner, task, filters, ps, resampling, measur
       makeParamSet(params = lapply(seq_along(filters), function(idx) {
         # not using vector parameters here because mlrMBO probably
         # sucks at handling them.
-        makeIntegerParam(sprintf("mosmafs.select.weights.%s", idx),
-          lower = 1L, upper = numfeats)
+        makeNumericParam(sprintf("mosmafs.select.weights.%s", idx),
+          lower = 0, upper = 1)
       }))
     }
   )
@@ -272,7 +272,7 @@ makeBaselineObjective <- function(learner, task, filters, ps, resampling, measur
       if (length(dif.names) > 0) {
         stop(sprintf("%s must be an element in list 'x'", dif.names))
       }
-      
+
       # trafo not necessary in mlrMBO
 
       # set up `selector.selection` from nselect, iselect, select.weights and fmat
