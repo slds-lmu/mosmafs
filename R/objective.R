@@ -281,6 +281,7 @@ makeBaselineObjective <- function(learner, task, filters, ps, resampling, measur
       if (length(filters) > 1) {
         select.weights <- unlist(args[sprintf("mosmafs.select.weights.%s",
           seq_along(filters))])
+        select.weights <- pmin(select.weights, 1 - .Machine$double.eps)
         select.weights <- -log1p(-select.weights)
         select.weights <- select.weights / max(sum(select.weights), .001)
         fvals <- c(fmat %*% select.weights)
