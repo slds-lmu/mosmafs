@@ -24,30 +24,30 @@ up, respectively, to retain a fair distribution.
 \examples{
 library(mlrCPO)
 
-# Create parameter set 
+# Create parameter set
 ps <- pSS(
-numb: numeric[1, 10], 
+numb: numeric[1, 10],
 int: integer[0, 5])
 
 # Define mutator
-# If Gaussian mutator is applied to integer parameter, 
+# If Gaussian mutator is applied to integer parameter,
 # it does not return an integer
-combo.mut <- combine.operators(ps, 
-numeric = mutGauss, 
+combo.mut <- combine.operators(ps,
+numeric = mutGauss,
 int = mutGauss)
 combo.mut(list(numb = 1.5, int = 3))
 
 # Turn continuous-space operator mutGauss into integer-space operator
 mutGaussInt <- intifyMutator(mutGauss)
-combo.mut.int <- combine.operators(ps, 
-numeric = mutGauss, 
+combo.mut.int <- combine.operators(ps,
+numeric = mutGauss,
 int = mutGaussInt)
 combo.mut.int(list(numb = 1.5, int = 3))
 
 # Turn continuous-space operator recSBX into integer-space operator
 recSBXInt <- intifyRecombinator(recSBX)
-combo.rec.int <- combine.operators(ps, 
-numeric = recSBX, 
+combo.rec.int <- combine.operators(ps,
+numeric = recSBX,
 int = recSBXInt)
 combo.rec.int(list(list(numb = 1.5, int = 3), list(numb = 3, int = 0)))
 
