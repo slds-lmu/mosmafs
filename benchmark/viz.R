@@ -39,9 +39,13 @@ experiments_list = list(
 	BS1RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = FALSE, surrogate = "randomForest", infill = "cb", propose.points = 15L),
 	BS2RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = TRUE, surrogate = "randomForest", infill = "cb", propose.points = 15L),
 	BS5SO = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, multi.objective = FALSE, parent.sel = "selTournament"),
-	BSMO = data.table(algorithm = "mbo_multicrit", filter = "custom", surrogate = "randomForest", infill = "cb", propose.points = 15L),
-	OIHFiFmS_no_hyperpars = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, multi.objective = TRUE, parent.sel = "selTournamentMO", tune.hyperparams = FALSE)
+	BSMO = data.table(algorithm = "mbo_multicrit", filter = "custom", surrogate = "randomForest", infill = "cb", propose.points = 15L, adaptive.filter.weights = NA),
+	OIHFiFmS_no_hyperpars = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, multi.objective = TRUE, parent.sel = "selTournamentMO", tune.hyperparams = FALSE, tune.iters = NA),
+	OIHFiFmS_no_hyperpars500 = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, multi.objective = TRUE, parent.sel = "selTournamentMO", tune.hyperparams = FALSE, tune.iters = 500),
+	BSMOF = data.table(algorithm = "mbo_multicrit", filter = "custom", surrogate = "randomForest", infill = "cb", propose.points = 15L, adaptive.filter.weights = TRUE),
+	OIHFiFmS_preset500 = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, multi.objective = TRUE, parent.sel = "selTournamentMO", tune.hyperparams = TRUE, tune.iters = 500)
 	)
+
 experiments = rbindlist(experiments_list, fill = TRUE)
 experiments$variant = names(experiments_list)
 
@@ -110,23 +114,36 @@ for (lim in limits) {
 	for (metric in metrics) {
 		dir.create(file.path(plotspath, prompt, gsub("\\.", "", metric)))		
 		plotMosmafsOptResult(res = res, plotspath = plotspath, 
-		experiments = experiments[variant %in% c("O", "OIH", "OIHFiFmS", "BSMO", "OIHFiFmS_no_hyperpars"), ], 
+		experiments = experiments[variant %in% c("O", "OIH", "OIHFiFmS", "BSMO", "OIHFiFmS_no_hyperpars", "OIHFiFmS_no_hyperpars500", "BSMOF", "OIHFiFmS_preset500"), ], 
+		metric =  metric, prompt = prompt, limits = lim)#, height = 8, width = 7)
+	}
+}
+
+# Mosmafs against MBO baselines   
+for (lim in limits) {
+	prompt = "baselines_mbo_new"
+	dir.create(file.path(plotspath, prompt))
+	for (metric in metrics) {
+		dir.create(file.path(plotspath, prompt, gsub("\\.", "", metric)))		
+		plotMosmafsOptResult(res = res, plotspath = plotspath, 
+		experiments = experiments[variant %in% c("OIHFiFmS", "BSMO", "BSMOF"), ], 
 		metric =  metric, prompt = prompt, limits = lim)#, height = 8, width = 7)
 	}
 }
 
 
+
 # Mosmafs against MBO baselines (including SO)  
-for (lim in limits) {
-	prompt = "baselines_mbo_with_SO"
-	dir.create(file.path(plotspath, prompt))
-	for (metric in metrics) {
-		dir.create(file.path(plotspath, prompt, gsub("\\.", "", metric)))		
-		plotMosmafsOptResult(res = res, plotspath = plotspath, 
-		experiments = experiments[variant %in% c("O", "OIH", "OIHFiFmS", "BSMO", "BS1RF", "BS2RF", "OIHFiFmS_no_hyperpars"), ], 
-		metric =  metric, prompt = prompt, limits = lim, plotRanks = FALSE)#, height = 8, width = 7)
-	}
-}
+# for (lim in limits) {
+# 	prompt = "baselines_mbo_with_SO"
+# 	dir.create(file.path(plotspath, prompt))
+# 	for (metric in metrics) {
+# 		dir.create(file.path(plotspath, prompt, gsub("\\.", "", metric)))		
+# 		plotMosmafsOptResult(res = res, plotspath = plotspath, 
+# 		experiments = experiments[variant %in% c("O", "OIH", "OIHFiFmS", "BSMO", "BS1RF", "BS2RF", "OIHFiFmS_no_hyperpars", "OIHFiFmS_no_hyperpars500", "BSMOF", "OIHFiFmS_preset500"), ], 
+# 		metric =  metric, prompt = prompt, limits = lim, plotRanks = FALSE)#, height = 8, width = 7)
+# 	}
+# }
 
 
 

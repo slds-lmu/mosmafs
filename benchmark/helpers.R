@@ -372,6 +372,8 @@ collectResultMBO = function(object, aggregate.perresult = list(domHV = function(
 # CollectResults
 collectBenchmarkResults = function(path, experiments, tab, mbo = FALSE) {
   
+  assert(!is.null(path))
+
   for (experiment in names(experiments)) {
     toreduce = ijoin(tab, experiments[[experiment]], by = names(experiments[[experiment]]))
     toreduce = ijoin(toreduce, findDone(), by = "job.id")
@@ -621,7 +623,7 @@ plotAbsPerformance = function(data, outpath, metric, plot.sd, limits) {
     }
 
 
-    ggsave(outpath, p1, width = 9, height = 6, device = "pdf")
+    ggsave(outpath, p1, width = 12, height = 6, device = "pdf")
 }
 
 plotPerformanceVsRuntime = function(data, outpath, metric_name, limits) {
@@ -658,7 +660,7 @@ plotRanks = function(data, outpath, metric, limits) {
     p1 = p1 + guides(lty = guide_legend(order = 1), colour = guide_legend(order = 2))
     p1 = p1 + xlab("Evaluations") + ylab(myname)
     
-    ggsave(outpath, p1, width = 6, height = 6, device = "pdf")
+    ggsave(outpath, p1, width = 12, height = 6, device = "pdf")
 }
 
 
@@ -770,12 +772,16 @@ renameAndRevalue = function(df) {
     
     # --- reordering of factors for plots
     library(forcats)
-    ord_ages_class = c("O", "OI", "OIFi", "OIFiFm", "OIFiFmS", "OIH", "OIHFiFmS", "BS1RF", "BS2RF", "BSMO", "OIHFiFmS_no_hyperpars")
+    ord_ages_class = c("O", "OI", "OIFi", "OIFiFm", "OIFiFmS", "OIH", "OIHFiFmS", 
+      "BS1RF", "BS2RF", "BSMO", "OIHFiFmS_no_hyperpars", "OIHFiFmS_no_hyperpars500",
+      "BSMOF", "OIHFiFmS_preset500")
     df$variant = factor(df$variant, levels = ord_ages_class)
     df$variant = revalue(df$variant, 
       c("O" = "base version", "OI" = "+UI", "OIFi" = "+UI+FI", "OIFiFm" = "+UI+FI+FM", 
         "OIFiFmS" = "+UI+FI+FM (s.a.)", "OIH" = "+UI+HP", "OIHFiFmS" = "+UI+FI+HP+FM (s.a.)", "BS1RF" = "BS1RF", "BS2RF" = "BS2RF", "BSMO" = "BSMO",
-        "OIHFiFmS_no_hyperpars" = "+UI+FI+HP+FM (s.a.) / no tune"))
+        "OIHFiFmS_no_hyperpars" = "+UI+FI+HP+FM (s.a.) / no tune",
+        "OIHFiFmS_no_hyperpars500" = "+UI+FI+HP+FM (s.a.) / no tune (500)", 
+        "BSMOF" = "BSMO_ensemble", "OIHFiFmS_preset500" = "+UI+FI+HP+FM (s.a.) / tune 500"))
     df$algorithm = revalue(df$algorithm, c("mosmafs" = "NSGA-II", "randomsearch" = "Random Search", "no_feature_sel" = "MBO", "mbo_multicrit" = "MBO"))
 
     return(df)

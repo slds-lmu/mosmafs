@@ -35,20 +35,20 @@ resources.mpp2 = list(ncpus = 15L,
 
 # a) Algorithm versions
 experiments = list(
-	# O = data.table(algorithm = "mosmafs", filter = "none", initialization = "none", chw.bitflip = FALSE, adaptive.filter.weights = FALSE, filter.during.run = FALSE, multi.objective = NA, parent.sel = "selTournamentMO", tune.hyperparams = NA),
-	# OI = data.table(algorithm = "mosmafs", filter = "none", initialization = "unif", chw.bitflip = FALSE, adaptive.filter.weights = FALSE, filter.during.run = FALSE, multi.objective = NA, parent.sel = "selTournamentMO", tune.hyperparams = NA),
-	# OIFi = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = FALSE, adaptive.filter.weights = FALSE, filter.during.run = FALSE, multi.objective = NA, parent.sel = "selTournamentMO", tune.hyperparams = NA),
-	# OIFiFm = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = FALSE, adaptive.filter.weights = FALSE, filter.during.run = TRUE, multi.objective = NA, parent.sel = "selTournamentMO", tune.hyperparams = NA),
-	# OIFiFmS = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = FALSE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, multi.objective = NA, parent.sel = "selTournamentMO", tune.hyperparams = NA),
-	# OIH = data.table(algorithm = "mosmafs", filter = "none", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = FALSE, filter.during.run = FALSE, multi.objective = NA, parent.sel = "selTournamentMO", tune.hyperparams = NA),
-	# OIHFiFmS = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, multi.objective = NA, parent.sel = "selTournamentMO", tune.hyperparams = NA),
-	# RS = data.table(algorithm = "randomsearch", initialization = "none", filter = "none", chw.bitflip = NA, adaptive.filter.weights = NA, filter.during.run = NA),
-	# RSI = data.table(algorithm = "randomsearch", initialization = "unif", filter = "none", chw.bitflip = NA, adaptive.filter.weights = NA, filter.during.run = NA),
-	# RSIF = data.table(algorithm = "randomsearch", initialization = "unif", filter = "custom", chw.bitflip = NA, adaptive.filter.weights = NA, filter.during.run = NA),
-	# BS1RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = FALSE, surrogate = "randomForest", infill = "cb", propose.points = 15L),
-	# BS2RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = TRUE, surrogate = "randomForest", infill = "cb", propose.points = 15L),
-	# BS5SO = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, multi.objective = FALSE, parent.sel = "selTournament"),
-	# BSMO = data.table(algorithm = "mbo_multicrit", filter = "custom", surrogate = "randomForest", infill = "cb", propose.points = 15L),
+	O = data.table(algorithm = "mosmafs", filter = "none", initialization = "none", chw.bitflip = FALSE, adaptive.filter.weights = FALSE, filter.during.run = FALSE, multi.objective = NA, parent.sel = "selTournamentMO", tune.hyperparams = NA),
+	OI = data.table(algorithm = "mosmafs", filter = "none", initialization = "unif", chw.bitflip = FALSE, adaptive.filter.weights = FALSE, filter.during.run = FALSE, multi.objective = NA, parent.sel = "selTournamentMO", tune.hyperparams = NA),
+	OIFi = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = FALSE, adaptive.filter.weights = FALSE, filter.during.run = FALSE, multi.objective = NA, parent.sel = "selTournamentMO", tune.hyperparams = NA),
+	OIFiFm = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = FALSE, adaptive.filter.weights = FALSE, filter.during.run = TRUE, multi.objective = NA, parent.sel = "selTournamentMO", tune.hyperparams = NA),
+	OIFiFmS = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = FALSE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, multi.objective = NA, parent.sel = "selTournamentMO", tune.hyperparams = NA),
+	OIH = data.table(algorithm = "mosmafs", filter = "none", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = FALSE, filter.during.run = FALSE, multi.objective = NA, parent.sel = "selTournamentMO", tune.hyperparams = NA),
+	OIHFiFmS = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, multi.objective = NA, parent.sel = "selTournamentMO", tune.hyperparams = NA),
+	RS = data.table(algorithm = "randomsearch", initialization = "none", filter = "none", chw.bitflip = NA, adaptive.filter.weights = NA, filter.during.run = NA),
+	RSI = data.table(algorithm = "randomsearch", initialization = "unif", filter = "none", chw.bitflip = NA, adaptive.filter.weights = NA, filter.during.run = NA),
+	RSIF = data.table(algorithm = "randomsearch", initialization = "unif", filter = "custom", chw.bitflip = NA, adaptive.filter.weights = NA, filter.during.run = NA),
+	BS1RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = FALSE, surrogate = "randomForest", infill = "cb", propose.points = 15L),
+	BS2RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = TRUE, surrogate = "randomForest", infill = "cb", propose.points = 15L),
+	BS5SO = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, multi.objective = FALSE, parent.sel = "selTournament"),
+	BSMO = data.table(algorithm = "mbo_multicrit", filter = "custom", surrogate = "randomForest", infill = "cb", propose.points = 15L, adaptive.filter.weights = NA),
 	OIHFiFmS_no_hyperpars = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, multi.objective = TRUE, parent.sel = "selTournamentMO", tune.hyperparams = FALSE, tune.iters = NA),
 	OIHFiFmS_no_hyperpars500 = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, multi.objective = TRUE, parent.sel = "selTournamentMO", tune.hyperparams = FALSE, tune.iters = 500),
 	BSMOF = data.table(algorithm = "mbo_multicrit", filter = "custom", surrogate = "randomForest", infill = "cb", propose.points = 15L, adaptive.filter.weights = TRUE),
@@ -60,30 +60,32 @@ problems.serial = c("wdbc", "ionosphere", "sonar", "hill-valley", "clean1",
 	"tecator", "semeion", "lsvt", "isolet", "cnae-9")
 
 # --- SUBMITTING STATUS
-# --- RS        	   |   DONE 	   |  300 / 300 DONE 
-# --- RSI       	   |   DONE       |  300 / 300 DONE 
-# --- RSIF      	   |   DONE       |  300 / 300 DONE 
-# --- O         	   |   DONE       |  300 / 300 DONE 
-# --- OI        	   |   DONE       |  300 / 300 DONE 
-# --- OIFi      	   |   DONE       |  300 / 300 DONE 
-# --- OIFiFm    	   |   DONE       |  300 / 300 DONE 
-# --- OIFiFmS   	   |   DONE       |  300 / 300 DONE 
-# --- OIH       	   |   DONE       |  300 / 300 DONE 
-# --- OIHFiFmS  	   |   DONE       |  300 / 300 DONE 
-# --- OIHFiFmS  	   |   DONE       |  300 / 300 DONE 
-# --- BS1RF     	   |   doing      |  288 / 300 DONE 
-# --- BS2RF     	   |   doing      |  295 / 300 DONE
-# --- BS5SO     	   |   DONE       |  300 / 300 DONE
-# --- BSMO      	   |   DONE       |  300 / 300 DONE  
-# --- OIHFiFmS_nohyp   |   DONE       |  300 / 300 DONE  
-# --- OIHFiFmS_nohyp500|   DONE       |  300 / 300 DONE  
-# --- OIHFiFmS_preset500|   DONE       |  0 / 300 DONE  
+# --- RS        	         |   DONE 	    |  300 / 300 DONE 
+# --- RSI       	         |   DONE       |  300 / 300 DONE 
+# --- RSIF      	         |   DONE       |  300 / 300 DONE 
+# --- O         	         |   DONE       |  300 / 300 DONE 
+# --- OI        	         |   DONE       |  300 / 300 DONE 
+# --- OIFi      	         |   DONE       |  300 / 300 DONE 
+# --- OIFiFm    	         |   DONE       |  300 / 300 DONE 
+# --- OIFiFmS   	         |   DONE       |  300 / 300 DONE 
+# --- OIH       	         |   DONE       |  300 / 300 DONE 
+# --- OIHFiFmS  	         |   DONE       |  300 / 300 DONE 
+# --- OIHFiFmS  	         |   DONE       |  300 / 300 DONE 
+# --- BS1RF     	         |   doing      |  295 / 300 DONE 
+# --- BS2RF     	         |   DONE       |  300 / 300 DONE
+# --- BS5SO     	         |   DONE       |  300 / 300 DONE
+# --- BSMO      	         |   DONE       |  300 / 300 DONE  
+# --- BSMOF       	         |   doing      |  290 / 300 DONE  xgboost hill-valley is missing
+# --- OIHFiFmS_nohyperpars   |   DONE       |  300 / 300 DONE  
+# --- OIHFiFmS_nohyp500      |   DONE       |  300 / 300 DONE  
+# --- OIHFiFmS_preset500     |   DONE       |  300 / 300 DONE  
 
 
-experiment = "OIHFiFmS_preset500"
+experiment = "BSMOF"
 tosubmit = ijoin(tab, experiments[[experiment]], by = names(experiments[[experiment]]))
 tosubmit = ijoin(tosubmit, findNotDone())
 tosubmit = tosubmit[problem %in% problems.serial, ]
+tosubmit = tosubmit[maxeval == 4000, ]
 # tosubmit = tosubmit[- which(learner == "xgboost")]
 # tosubmit = tosubmit[mu != 3, ]
 tosubmit = tosubmit[- which(job.id %in% findOnSystem()$job.id), ]
