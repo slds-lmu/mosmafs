@@ -111,6 +111,7 @@ ades.mbo_multicrit = CJ(learner = c("SVM", "kknn", "xgboost"),
 			infill = c("cb"),
       propose.points = 15L, 
       adaptive.filter.weights = TRUE,
+      multi.objective = TRUE,
       sorted = FALSE)
 
 

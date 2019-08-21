@@ -1,5 +1,5 @@
 mbo_multicrit = function(data, job, instance, learner, maxeval, maxtime, cv.iters, filter, 
-  surrogate, infill, propose.points, adaptive.filter.weights) {
+  surrogate, infill, propose.points, adaptive.filter.weights, multiobjective) {
 
     PARALLELIZE = FALSE
 
