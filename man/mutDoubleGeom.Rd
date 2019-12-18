@@ -10,21 +10,21 @@ mutDoubleGeom(ind, p = 1, geomp = 0.9, lower, upper)
 mutDoubleGeomScaled(ind, p = 1, sdev = 0.05, lower, upper)
 }
 \arguments{
-\item{ind}{\code{[integer]} individual to mutate.}
+\item{ind}{\verb{[integer]} individual to mutate.}
 
-\item{p}{\code{[numeric(1)]} per-entry probability to perform mutation.}
+\item{p}{\verb{[numeric(1)]} per-entry probability to perform mutation.}
 
-\item{geomp}{\code{[numeric]} geometric distribution parameter.}
+\item{geomp}{\verb{[numeric]} geometric distribution parameter.}
 
-\item{lower}{\code{[integer]} lower bounds of \code{ind} values. May have same length as
+\item{lower}{\verb{[integer]} lower bounds of \code{ind} values. May have same length as
 \code{ind} or may be a single number, if the lower bounds are the same for all
 values.}
 
-\item{upper}{\code{[integer]} upper bounds of \code{ind} values. May have same length as
+\item{upper}{\verb{[integer]} upper bounds of \code{ind} values. May have same length as
 \code{ind} or may be a single number, if the upper bounds are the same for all
 values.}
 
-\item{sdev}{\code{[numeric]} standard deviation, relative to \code{upper - lower}.}
+\item{sdev}{\verb{[numeric]} standard deviation, relative to \code{upper - lower}.}
 }
 \value{
 \code{\link{integer}}
@@ -38,11 +38,15 @@ and another (different) one subtracted.
 \code{geomp = (sqrt(2 * sdev^2 + 1) - 1) / sdev^2}.
 }
 \seealso{
-Other operators: \code{\link{mutGaussIntScaled}},
-  \code{\link{mutGaussInt}}, \code{\link{mutGaussScaled}},
-  \code{\link{mutPolynomialInt}},
-  \code{\link{mutRandomChoice}},
-  \code{\link{mutUniformInt}}, \code{\link{recGaussian}},
-  \code{\link{recIntIntermediate}}, \code{\link{recIntSBX}}
+Other operators: 
+\code{\link{mutGaussIntScaled}()},
+\code{\link{mutGaussInt}()},
+\code{\link{mutGaussScaled}()},
+\code{\link{mutPolynomialInt}()},
+\code{\link{mutRandomChoice}()},
+\code{\link{mutUniformInt}()},
+\code{\link{recGaussian}()},
+\code{\link{recIntIntermediate}()},
+\code{\link{recIntSBX}()}
 }
 \concept{operators}

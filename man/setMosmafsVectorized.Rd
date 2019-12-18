@@ -9,7 +9,7 @@ setMosmafsVectorized(fn, vectorize = TRUE)
 \arguments{
 \item{fn}{\code{smoof_multi_objective_function} fitness function.}
 
-\item{vectorize}{\code{[logical(1)]} whether to force \code{slickEvaluateFitness} to
+\item{vectorize}{\verb{[logical(1)]} whether to force \code{slickEvaluateFitness} to
 pass candidates to fitness function as \code{data.frame} or not.}
 }
 \description{

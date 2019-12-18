@@ -7,15 +7,15 @@
 overallRankMO(fitness, sorting = "crowding", ref.point)
 }
 \arguments{
-\item{fitness}{\code{[matrix]} fitness matrix, one column per individuum.}
+\item{fitness}{\verb{[matrix]} fitness matrix, one column per individuum.}
 
-\item{sorting}{\code{[character(1)]} one of \code{"domhv"} or \code{"crowding"} (default).}
+\item{sorting}{\verb{[character(1)]} one of \code{"domhv"} or \code{"crowding"} (default).}
 
-\item{ref.point}{\code{[numeric]} reference point for hypervolume, must be given
+\item{ref.point}{\verb{[numeric]} reference point for hypervolume, must be given
 if \code{sorting} is \code{"domhv"}.}
 }
 \value{
-\code{[integer]} vector of ranks with length \code{ncol(fitness)}, lower ranks are
+\verb{[integer]} vector of ranks with length \code{ncol(fitness)}, lower ranks are
 associated with individuals that tend to dominate more points and that tend to
 have larger crowding distance or hypervolume contribution.
 }

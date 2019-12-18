@@ -7,11 +7,11 @@
 combine.operators(param.set, ..., .binary.discrete.as.logical = TRUE)
 }
 \arguments{
-\item{param.set}{\code{[ParamSet]} \code{\link[ParamHelpers:makeParamSet]{ParamSet}} that defines the search space.}
+\item{param.set}{\verb{[ParamSet]} \code{\link[ParamHelpers:makeParamSet]{ParamSet}} that defines the search space.}
 
 \item{...}{additional parameters. See description.}
 
-\item{.binary.discrete.as.logical}{\code{[logical(1)]} whether to treat binary discrete parameters as \code{logical} parameters and
+\item{.binary.discrete.as.logical}{\verb{[logical(1)]} whether to treat binary discrete parameters as \code{logical} parameters and
 use bitwise operators.}
 }
 \value{
@@ -20,7 +20,7 @@ use bitwise operators.}
 \description{
 Combine operators to be applied to individuals that conform to parameter set \code{param.set}.
 Parameters are the \code{param.set}, and the names / types of params with the operator to use.
-Parameter groups that use a single operator can be defined using \code{.params.<groupname> = [character]}.
+Parameter groups that use a single operator can be defined using \verb{.params.<groupname> = [character]}.
 
 Say \code{param.set} has three logical params 'l1', 'l2', 'l3' and two numeric params 'n1', 'n2'.
 To use operatorA for 'l1' and 'l2', operatorB for 'l3', and operatorC for all numeric
@@ -30,7 +30,7 @@ params, call
 Use arguments by types, names of parameters, or group name. Valid types are 'numeric', 'logical', 'integer', 'discrete'.
 Operators given for groups or individual parameters supercede operators given for types.
 
-Strategy parameters can be created by using \code{.strategy.<groupname|parametername|type>}. They must be a \emph{function}
+Strategy parameters can be created by using \verb{.strategy.<groupname|parametername|type>}. They must be a \emph{function}
 taking a named list of parameter values (i.e. an individuum) as input and return a named list of parameter values
 to be given to the respective group's / parameter's or type's operator. If, in the example above, \code{operatorA} has
 a parameter \code{sigma} that should also be treated as a parameter under evolution (and in fact be equal to \code{l3}), then

@@ -6,59 +6,86 @@
 \alias{continueEcr}
 \title{Modified Interface to ECR}
 \usage{
-slickEcr(fitness.fun, lambda, population, mutator, recombinator,
-  generations = 100, parent.selector = selSimple,
-  survival.selector = selNondom, p.recomb = 0.7, p.mut = 0.3,
-  survival.strategy = "plus", n.elite = 0, fidelity = NULL,
-  unbiased.fidelity = TRUE, log.stats = NULL,
-  log.stats.newinds = c(list(runtime = list("mean", "sum")), if
-  (!is.null(fidelity)) list(fidelity = list("sum"))))
+slickEcr(
+  fitness.fun,
+  lambda,
+  population,
+  mutator,
+  recombinator,
+  generations = 100,
+  parent.selector = selSimple,
+  survival.selector = selNondom,
+  p.recomb = 0.7,
+  p.mut = 0.3,
+  survival.strategy = "plus",
+  n.elite = 0,
+  fidelity = NULL,
+  unbiased.fidelity = TRUE,
+  log.stats = NULL,
+  log.stats.newinds = c(list(runtime = list("mean", "sum")), if (!is.null(fidelity))
+    list(fidelity = list("sum")))
+)
 
-initEcr(fitness.fun, population, fidelity = NULL, log.stats = NULL,
-  log.stats.newinds = c(list(runtime = list("mean", "sum")), if
-  (!is.null(fidelity)) list(fidelity = list("sum"))),
-  unbiased.fidelity = TRUE)
+initEcr(
+  fitness.fun,
+  population,
+  fidelity = NULL,
+  log.stats = NULL,
+  log.stats.newinds = c(list(runtime = list("mean", "sum")), if (!is.null(fidelity))
+    list(fidelity = list("sum"))),
+  unbiased.fidelity = TRUE
+)
 
-continueEcr(ecr.object, generations, lambda = NULL, mutator = NULL,
-  recombinator = NULL, parent.selector = NULL,
-  survival.selector = NULL, p.recomb = NULL, p.mut = NULL,
-  survival.strategy = NULL, n.elite = NULL, fidelity = NULL,
-  unbiased.fidelity = NULL)
+continueEcr(
+  ecr.object,
+  generations,
+  lambda = NULL,
+  mutator = NULL,
+  recombinator = NULL,
+  parent.selector = NULL,
+  survival.selector = NULL,
+  p.recomb = NULL,
+  p.mut = NULL,
+  survival.strategy = NULL,
+  n.elite = NULL,
+  fidelity = NULL,
+  unbiased.fidelity = NULL
+)
 }
 \arguments{
-\item{fitness.fun}{\code{[smoof_multi_objective_function]} fitness function, must be a
+\item{fitness.fun}{\verb{[smoof_multi_objective_function]} fitness function, must be a
 "\code{smoof}" function.}
 
-\item{lambda}{\code{[integer(1)]} number of individuals to add in each generation.}
+\item{lambda}{\verb{[integer(1)]} number of individuals to add in each generation.}
 
-\item{population}{\code{[list]} list of individuals to start off from.}
+\item{population}{\verb{[list]} list of individuals to start off from.}
 
-\item{mutator}{\code{[ecr_mutator]} mutation operator.}
+\item{mutator}{\verb{[ecr_mutator]} mutation operator.}
 
-\item{recombinator}{\code{[ecr_recombinator]} recombination operator.}
+\item{recombinator}{\verb{[ecr_recombinator]} recombination operator.}
 
-\item{generations}{\code{[integer(1) | list of function]} number of iterations to
+\item{generations}{\verb{[integer(1) | list of function]} number of iterations to
 evaluate if it is an integer, or \link[=mosmafsTermEvals]{terminator} function.
 If this is an integer, it counts the \emph{new} generations to evaluate;
 otherwise the terminator functions are applied to the whole combined trace
 of evaluation.}
 
-\item{parent.selector}{\code{[ecr_selector]} parent selection operator.}
+\item{parent.selector}{\verb{[ecr_selector]} parent selection operator.}
 
-\item{survival.selector}{\code{[ecr_selector]} survival selection operator.}
+\item{survival.selector}{\verb{[ecr_selector]} survival selection operator.}
 
-\item{p.recomb}{\code{[numeric(1)]} probability to apply a recombination operator.}
+\item{p.recomb}{\verb{[numeric(1)]} probability to apply a recombination operator.}
 
-\item{p.mut}{\code{[numeric(1)]} probability to apply mutation operator.}
+\item{p.mut}{\verb{[numeric(1)]} probability to apply mutation operator.}
 
-\item{survival.strategy}{\code{[character(1)|function]} one of \code{"plus"} or \code{"comma"}
+\item{survival.strategy}{\verb{[character(1)|function]} one of \code{"plus"} or \code{"comma"}
 or a function. If function, arguments must be the same as for
 \code{\link[ecr:replaceMuPlusLambda]{ecr::replaceMuPlusLambda}}.}
 
-\item{n.elite}{\code{[integer(1)]} Number of elites to keep, only used if
+\item{n.elite}{\verb{[integer(1)]} Number of elites to keep, only used if
 \code{survival.strategy} is \code{"comma"}}
 
-\item{fidelity}{\code{[data.frame | NULL]} If this is given, it controls the
+\item{fidelity}{\verb{[data.frame | NULL]} If this is given, it controls the
 fidelity of the function being evaluated, via its \code{fidelity} argument.
 It must then be a \code{data.frame} with two or three columns. The first column
 gives the generation at which the fidelity first applies; the second
@@ -70,14 +97,14 @@ of the first column must always be 1. Whenever fidelity changes, the whole
 population is re-evaluated, so it is recommended to use only few different
 fidelity jumps throughout all generations.}
 
-\item{unbiased.fidelity}{\code{[logical(1)]} Whether generations do not have to be re-evaluated when fidelity jumps downward.}
+\item{unbiased.fidelity}{\verb{[logical(1)]} Whether generations do not have to be re-evaluated when fidelity jumps downward.}
 
-\item{log.stats}{\code{[list]} information to log for each generation. Defaults to
+\item{log.stats}{\verb{[list]} information to log for each generation. Defaults to
 min, mean, and max of each objective as well as dominated hypervolume.}
 
-\item{log.stats.newinds}{\code{[list]} information to log for each newly evaluated individuals}
+\item{log.stats.newinds}{\verb{[list]} information to log for each newly evaluated individuals}
 
-\item{ecr.object}{\code{[MosmafsResult]} an object retrieved from previous runs of
+\item{ecr.object}{\verb{[MosmafsResult]} an object retrieved from previous runs of
 \code{initEcr}, \code{slickEcr}, or \code{continueEcr}}
 }
 \description{

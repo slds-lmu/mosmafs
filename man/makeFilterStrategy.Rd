@@ -7,9 +7,9 @@
 makeFilterStrategy(reset.dists, weight.param.name)
 }
 \arguments{
-\item{reset.dists}{\code{[matrix]} see \code{reset.dists} in \link{mutUniformMetaReset}.}
+\item{reset.dists}{\verb{[matrix]} see \code{reset.dists} in \link{mutUniformMetaReset}.}
 
-\item{weight.param.name}{\code{[character(1)]} name of parameter to use as
+\item{weight.param.name}{\verb{[character(1)]} name of parameter to use as
 \code{reset.dist.weights} in \link{mutUniformMetaReset}.}
 }
 \value{

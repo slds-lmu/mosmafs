@@ -4,39 +4,47 @@
 \alias{makeObjective}
 \title{Create ecr Objective Function}
 \usage{
-makeObjective(learner, task, ps, resampling, measure = NULL,
-  holdout.data = NULL, worst.measure = NULL, cpo = NULLCPO)
+makeObjective(
+  learner,
+  task,
+  ps,
+  resampling,
+  measure = NULL,
+  holdout.data = NULL,
+  worst.measure = NULL,
+  cpo = NULLCPO
+)
 }
 \arguments{
-\item{learner}{\code{[Learner]} A \code{\link[mlr:makeLearner]{Learner}} object to optimize.}
+\item{learner}{\verb{[Learner]} A \code{\link[mlr:makeLearner]{Learner}} object to optimize.}
 
-\item{task}{\code{[Task]} The \code{\link[mlr:Task]{mlr::Task}} object to optimize on.}
+\item{task}{\verb{[Task]} The \code{\link[mlr:Task]{mlr::Task}} object to optimize on.}
 
-\item{ps}{\code{[ParamSet]} The \code{\link[ParamHelpers:makeParamSet]{ParamSet}} to optimize over, only parameters of the
+\item{ps}{\verb{[ParamSet]} The \code{\link[ParamHelpers:makeParamSet]{ParamSet}} to optimize over, only parameters of the
 actual learner.}
 
-\item{resampling}{\code{[ResampleDesc | ResampleInst | function]} The \code{\link[mlr:makeResampleDesc]{ResampleDesc}} or
+\item{resampling}{\verb{[ResampleDesc | ResampleInst | function]} The \code{\link[mlr:makeResampleDesc]{ResampleDesc}} or
 \code{\link[mlr:makeResampleInstance]{ResampleInst}} object to use. This may be a function
 \code{numeric(1)} -> \code{ResampleDesc}/\code{ResampleInst} which maps fidelity to the resampling to use.
 If this is used, then the resampling should be chosen such that an average value, weighted by fidelity,
 makes sense. For example, the function could map an integer to a corresponding number of resampling folds
 or repetitions.}
 
-\item{measure}{\code{[Measure | NULL]} The \code{\link[mlr:makeMeasure]{Measure}} to optimize for.
+\item{measure}{\verb{[Measure | NULL]} The \code{\link[mlr:makeMeasure]{Measure}} to optimize for.
 The default is \code{NULL}, which uses the \code{task}'s default \code{Measure}.
 If measure needs to be maximized, the measure is multiplied
 by -1, to make it a minimization task.}
 
-\item{holdout.data}{\code{[Task]} Additional data on which to predict each
+\item{holdout.data}{\verb{[Task]} Additional data on which to predict each
 configuration after training on \code{task}.}
 
-\item{worst.measure}{\code{[numeric(1)]} worst value for measure to consider,
+\item{worst.measure}{\verb{[numeric(1)]} worst value for measure to consider,
 for dominated hypervolume calculation. Will be extracted from the
 given measure if not given, but will raise an error if the extracted
 (or given) value is infinite. Measure is multiplied by -1, if measure needs
 to be maximized.}
 
-\item{cpo}{\code{[CPO]} CPO pipeline to apply before feature selection.
+\item{cpo}{\verb{[CPO]} CPO pipeline to apply before feature selection.
 (A CPO that should be applied \emph{after} feature selection should already be
 part of \code{learner} when given). Care should be taken that the
 \code{selector.selection} parameter in \code{ps} has the appropriate length of

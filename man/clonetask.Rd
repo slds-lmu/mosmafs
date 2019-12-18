@@ -4,18 +4,22 @@
 \alias{clonetask}
 \title{Replace Data in Task with new Data}
 \usage{
-clonetask(task, newdata, newid, orig.features = rep(TRUE, ncol(newdata) -
-  length(getTaskTargetNames(task))))
+clonetask(
+  task,
+  newdata,
+  newid,
+  orig.features = rep(TRUE, ncol(newdata) - length(getTaskTargetNames(task)))
+)
 }
 \arguments{
-\item{task}{\code{[Task]} mlr \code{\link{Task}} to use.}
+\item{task}{\verb{[Task]} mlr \code{\link{Task}} to use.}
 
-\item{newdata}{\code{[data.frame]} data to replace \code{task} data with; must
+\item{newdata}{\verb{[data.frame]} data to replace \code{task} data with; must
 include the target column with same name.}
 
-\item{newid}{\code{[character(1)]} ID to use for new \code{Task}.}
+\item{newid}{\verb{[character(1)]} ID to use for new \code{Task}.}
 
-\item{orig.features}{\code{[logical]} features that correspond to original task's data.}
+\item{orig.features}{\verb{[logical]} features that correspond to original task's data.}
 }
 \value{
 \code{\link{Task}}
@@ -27,11 +31,12 @@ original task, or should add new noise-features, in which case \code{orig.featur
 should mark the features that correspond to the full original task.
 }
 \seealso{
-Other Artificial Datasets: \code{\link{create.hypersphere.data}},
-  \code{\link{create.linear.data}},
-  \code{\link{create.linear.toy.data}},
-  \code{\link{create.regr.task}},
-  \code{\link{task.add.permuted.cols}},
-  \code{\link{task.add.random.cols}}
+Other Artificial Datasets: 
+\code{\link{create.hypersphere.data}()},
+\code{\link{create.linear.data}()},
+\code{\link{create.linear.toy.data}()},
+\code{\link{create.regr.task}()},
+\code{\link{task.add.permuted.cols}()},
+\code{\link{task.add.random.cols}()}
 }
 \concept{Artificial Datasets}
