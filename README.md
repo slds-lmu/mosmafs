@@ -23,4 +23,4 @@ devtools::install_github("compstat-lmu/mosmafs", ref = "mosmafs-package")
 
 ## License
 
-[GNU AGPL-3](https://opensource.org/licenses/AGPL-3.0)
+MIT License
