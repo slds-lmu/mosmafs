@@ -103,6 +103,7 @@ first row is applied for 2 generations, after which the fidelity given in the
 second row applies.
 }
 \examples{
+\dontrun{
 library("mlr")
 library("magrittr")
 library("mlrCPO")
@@ -159,5 +160,5 @@ run.simple <- slickEcr(
  generations = 5)
  
 print(run.simple)
-  
+} 
 }
