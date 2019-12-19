@@ -60,6 +60,7 @@
 #' @param ecr.object `[MosmafsResult]` an object retrieved from previous runs of
 #'   `initEcr`, `slickEcr`, or `continueEcr`
 #' @examples 
+#' \dontrun{
 #' library("mlr")
 #' library("magrittr")
 #' library("mlrCPO")
@@ -116,7 +117,7 @@
 #'  generations = 5)
 #'  
 #' print(run.simple)
-#'   
+#' } 
 #' @export
 slickEcr <- function(fitness.fun, lambda, population, mutator, recombinator, generations = 100, parent.selector = selSimple, survival.selector = selNondom, p.recomb = 0.7, p.mut = 0.3, survival.strategy = "plus", n.elite = 0, fidelity = NULL, unbiased.fidelity = TRUE, log.stats = NULL, log.stats.newinds = c(list(runtime = list("mean", "sum")), if (!is.null(fidelity)) list(fidelity = list("sum")))) {
   if (!smoof::isSmoofFunction(fitness.fun)) {
