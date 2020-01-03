@@ -2,9 +2,11 @@
 datafolder = "data"
 
 # --- problem design ---
-datasets = c("sonar", "ionosphere", "madelon", 
-	"madeline", "hill-valley", "wdbc", "tecator",
-	"lsvt", "isolet", "cnae-9", "clean1", "semeion") #"USPS")
+# datasets = c("sonar", "ionosphere", "madelon", 
+# 	"madeline", "hill-valley", "wdbc", "tecator",
+# 	"lsvt", "isolet", "cnae-9", "clean1", "semeion") #"USPS")
+
+datasets = c("AP_Breast_Colon")
 
 # --- specify learners ---
 # Machine learning algorithms to be benchmarked

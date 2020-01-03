@@ -10,13 +10,13 @@ datafolder = "data"
 OVERWRITE = TRUE
 
 # Maximum number of evaluations allowed
-MAXEVAL = 30L
+MAXEVAL = 20L
 
 # Maximum runtime
 MAXTIME = 3600L * 40L
 
 # number of inner cross-validation iterations
-CVITERS = 3L
+CVITERS = 10L
 
 # Parent Selections
 PARENTSEL = list("selSimple" = ecr::setup(selSimple), "selNondom" = ecr::setup(selNondom), "selTournamentMO" = ecr::setup(selTournamentMO), "selTournament" = ecr::setup(selTournament))

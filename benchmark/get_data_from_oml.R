@@ -13,11 +13,12 @@ library(mlr)
 library(OpenML)
 
 # --- benchmark tasks ---
-datasets = list("sonar" = 39, "ionosphere" = 57, "madelon" = 145853,
-	"hill-valley" = 9893, "wdbc" = 145878, "tecator" = 3716, "lsvt" = 9975, 
-	"clean1" = 146193, "USPS" = 190142, "isolet" = 190143, "cnae-9" = 190144, 
-	"semeion" = 190150)
+# datasets = list("sonar" = 39, "ionosphere" = 57, "madelon" = 145853,
+# 	"hill-valley" = 9893, "wdbc" = 145878, "tecator" = 3716, "lsvt" = 9975, 
+# 	"clean1" = 146193, "USPS" = 190142, "isolet" = 190143, "cnae-9" = 190144, 
+# 	"semeion" = 190150)
 
+datasets = list("sonar" = 39)
 
 path = "data/"
 
