@@ -7,11 +7,11 @@ library(stringi)
 library(dplyr)
 
 # --- 1. Load Registry and Metadata
-reg = loadRegistry("registry", writeable = TRUE)
+reg = loadRegistry("registry_temp", writeable = TRUE)
 tab = summarizeExperiments(
 	by = c("job.id", "algorithm", "problem", "learner", "maxeval", "cv.iters", "filter", "initialization", 
 	"lambda", "mu", "parent.sel", "chw.bitflip", "adaptive.filter.weights", "filter.during.run", "surrogate", 
-	"infill", "propose.points", "multi.objective", "tune.hyperparams", "tune.iters")
+	"infill", "propose.points", "tune.hyperparams", "tune.iters")
 	)
 
 source("probdesign.R")
@@ -123,3 +123,7 @@ submitJobs(tosubmit, resources = resources.serial)
 # resources.mpp2 = list(ncpus = 15L,
 # 	walltime = 3600L * 48L, memory = 1000L * 50L,
 # 	clusters = "mpp2") # get name from lrz homepage))
+
+tab = tab[filter == "custom" & algorithm == "randomsearch", ]
+
+submitJobs(c(3, 4), resources = resources.serial)

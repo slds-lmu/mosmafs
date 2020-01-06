@@ -19,7 +19,7 @@ lapply(packages, library, character.only = TRUE)
 # 1. Setup envorinoment (TEST / NO TEST) + load registry
 # ---
 
-TEST = TRUE
+TEST = FALSE
 
 if (TEST) {
   deffile = "def_test.R"
@@ -60,12 +60,12 @@ if (TEST) {
 readDataAndRinst = function(data, job, rinst.iter, ...) {
   task = readRDS(file.path(data, "task.rds"))
   rin = readRDS(file.path(data, "rin.rds"))
-  hyperparams = readRDS(file.path(data, "hyperparams_500.rds"))[[rinst.iter]]
+  # hyperparams = readRDS(file.path(data, "hyperparams_500.rds"))[[rinst.iter]]
 
   train.task = subsetTask(task, rin$train.inds[[rinst.iter]])
   test.task = subsetTask(task, rin$test.inds[[rinst.iter]])
 
-  list(train.task = train.task, test.task = test.task, hyperparams = hyperparams)
+  list(train.task = train.task, test.task = test.task)#, hyperparams = hyperparams)
 }
 
 for (i in 1:length(datasets)) {  

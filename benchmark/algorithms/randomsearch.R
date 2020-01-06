@@ -69,3 +69,21 @@ randomsearch = function(data, job, instance, learner, maxeval, filter, initializ
 
   return(list(result = result, test.task = test.task, train.task = train.task, runtime = runtime, ps = ps, filtermat = fima))
 } 
+
+
+# for (nfeats in ) {
+#     res = system.time({
+#       train.task = subsetTask(task, features = 1:nfeats)
+#       fima = makeFilterMat(train.task, filters = FILTER[["custom"]])
+#     })
+# }
+
+
+# res2 = lapply(c(1000, 2000, 3000, 4000, 5000), function(nfeats) {
+#   print(nfeats)
+#   system.time({
+#         train.task = subsetTask(task, features = 1:nfeats)
+#         fima = makeFilterMat(train.task, filters = FILTER[["custom"]])
+#       })
+#   }
+# )
