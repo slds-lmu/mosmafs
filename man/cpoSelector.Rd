@@ -4,14 +4,22 @@
 \alias{cpoSelector}
 \title{CPO that Selects Features}
 \usage{
-cpoSelector(selection, id, export = "export.default",
-  affect.type = NULL, affect.index = integer(0),
-  affect.names = character(0), affect.pattern = NULL,
-  affect.invert = FALSE, affect.pattern.ignore.case = FALSE,
-  affect.pattern.perl = FALSE, affect.pattern.fixed = FALSE)
+cpoSelector(
+  selection,
+  id,
+  export = "export.default",
+  affect.type = NULL,
+  affect.index = integer(0),
+  affect.names = character(0),
+  affect.pattern = NULL,
+  affect.invert = FALSE,
+  affect.pattern.ignore.case = FALSE,
+  affect.pattern.perl = FALSE,
+  affect.pattern.fixed = FALSE
+)
 }
 \arguments{
-\item{selection}{\code{[logical]}\cr
+\item{selection}{\verb{[logical]}\cr
 Logical vector indicating if a features
 was selected or not. Must have the same length as number of features.}
 

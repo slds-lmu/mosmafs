@@ -7,12 +7,12 @@
 availableAttributes(log, check = FALSE)
 }
 \arguments{
-\item{log}{\code{[ecr_logger]} ecr log object.}
+\item{log}{\verb{[ecr_logger]} ecr log object.}
 
-\item{check}{\code{[logical(1)]} whether to check consistency.}
+\item{check}{\verb{[logical(1)]} whether to check consistency.}
 }
 \value{
-\code{[character]} attributes of individuals in population.
+\verb{[character]} attributes of individuals in population.
 }
 \description{
 Looks at the first individuum in the first generation and

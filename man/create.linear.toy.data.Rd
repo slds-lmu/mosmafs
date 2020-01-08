@@ -7,10 +7,10 @@
 create.linear.toy.data(n)
 }
 \arguments{
-\item{n}{\code{[integer(1)]} number of samples to draw.}
+\item{n}{\verb{[integer(1)]} number of samples to draw.}
 }
 \value{
-\code{list(X = [Matrix], Y = [vector], orig.features = logical)}
+\verb{list(X = [Matrix], Y = [vector], orig.features = logical)}
 }
 \description{
 Based on Weston (2000) Feature Selection for SVMs.
@@ -26,11 +26,12 @@ for \code{i} = 4, 5, 6.
 All other features are noise.
 }
 \seealso{
-Other Artificial Datasets: \code{\link{clonetask}},
-  \code{\link{create.hypersphere.data}},
-  \code{\link{create.linear.data}},
-  \code{\link{create.regr.task}},
-  \code{\link{task.add.permuted.cols}},
-  \code{\link{task.add.random.cols}}
+Other Artificial Datasets: 
+\code{\link{clonetask}()},
+\code{\link{create.hypersphere.data}()},
+\code{\link{create.linear.data}()},
+\code{\link{create.regr.task}()},
+\code{\link{task.add.permuted.cols}()},
+\code{\link{task.add.random.cols}()}
 }
 \concept{Artificial Datasets}

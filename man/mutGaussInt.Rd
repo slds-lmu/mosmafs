@@ -7,26 +7,29 @@
 mutGaussInt(ind, ..., lower, upper)
 }
 \arguments{
-\item{ind}{\code{[integer]} integer vector/individual to mutate.}
+\item{ind}{\verb{[integer]} integer vector/individual to mutate.}
 
 \item{...}{further arguments passed on to the method.}
 
-\item{lower}{\code{[integer]} vector of minimal values for each parameter of the
+\item{lower}{\verb{[integer]} vector of minimal values for each parameter of the
 decision space. Must have the same length as \code{ind}.}
 
-\item{upper}{\code{[integer]} vector of maximal values for each parameter of the
+\item{upper}{\verb{[integer]} vector of maximal values for each parameter of the
 decision space. Must have the same length as \code{ind}.}
 }
 \description{
 See \link[ecr:mutGauss]{ecr::mutGauss}
 }
 \seealso{
-Other operators: \code{\link{mutDoubleGeom}},
-  \code{\link{mutGaussIntScaled}},
-  \code{\link{mutGaussScaled}},
-  \code{\link{mutPolynomialInt}},
-  \code{\link{mutRandomChoice}},
-  \code{\link{mutUniformInt}}, \code{\link{recGaussian}},
-  \code{\link{recIntIntermediate}}, \code{\link{recIntSBX}}
+Other operators: 
+\code{\link{mutDoubleGeom}()},
+\code{\link{mutGaussIntScaled}()},
+\code{\link{mutGaussScaled}()},
+\code{\link{mutPolynomialInt}()},
+\code{\link{mutRandomChoice}()},
+\code{\link{mutUniformInt}()},
+\code{\link{recGaussian}()},
+\code{\link{recIntIntermediate}()},
+\code{\link{recIntSBX}()}
 }
 \concept{operators}

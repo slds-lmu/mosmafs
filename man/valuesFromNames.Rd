@@ -7,12 +7,12 @@
 valuesFromNames(paramset, value)
 }
 \arguments{
-\item{paramset}{\code{[ParamSet]} The \code{\link[ParamHelpers:makeParamSet]{ParamSet}} used to generate the value.}
+\item{paramset}{\verb{[ParamSet]} The \code{\link[ParamHelpers:makeParamSet]{ParamSet}} used to generate the value.}
 
-\item{value}{\code{[named list]} Names list of parameters sampled from \code{paramset}.}
+\item{value}{\verb{[named list]} Names list of parameters sampled from \code{paramset}.}
 }
 \value{
-\code{named list} of parameter values, with \code{character} entries representing names
+\verb{named list} of parameter values, with \code{character} entries representing names
 of values of discrete params converted to the actual values.
 }
 \description{

@@ -10,11 +10,11 @@ create.regr.task(id, data)
 create.classif.task(id, data, cutoff = 0)
 }
 \arguments{
-\item{id}{\code{[character(1)]} ID to use for \code{\link{Task}}.}
+\item{id}{\verb{[character(1)]} ID to use for \code{\link{Task}}.}
 
-\item{data}{\code{[named list]} with columns entries \code{$X}, \code{$Y}, and \code{$orig.features}.}
+\item{data}{\verb{[named list]} with columns entries \verb{$X}, \verb{$Y}, and \verb{$orig.features}.}
 
-\item{cutoff}{\code{[numeric(1)]} cutoff at which to binarize target.}
+\item{cutoff}{\verb{[numeric(1)]} cutoff at which to binarize target.}
 }
 \value{
 \code{\link{Task}}
@@ -25,18 +25,20 @@ Both \code{create.regr.task} and \code{create.classif.task} take a numeric targe
 task, while \code{create.regr.task} creates a regression task.
 }
 \seealso{
-Other Artificial Datasets: \code{\link{clonetask}},
-  \code{\link{create.hypersphere.data}},
-  \code{\link{create.linear.data}},
-  \code{\link{create.linear.toy.data}},
-  \code{\link{task.add.permuted.cols}},
-  \code{\link{task.add.random.cols}}
+Other Artificial Datasets: 
+\code{\link{clonetask}()},
+\code{\link{create.hypersphere.data}()},
+\code{\link{create.linear.data}()},
+\code{\link{create.linear.toy.data}()},
+\code{\link{task.add.permuted.cols}()},
+\code{\link{task.add.random.cols}()}
 
-Other Artificial Datasets: \code{\link{clonetask}},
-  \code{\link{create.hypersphere.data}},
-  \code{\link{create.linear.data}},
-  \code{\link{create.linear.toy.data}},
-  \code{\link{task.add.permuted.cols}},
-  \code{\link{task.add.random.cols}}
+Other Artificial Datasets: 
+\code{\link{clonetask}()},
+\code{\link{create.hypersphere.data}()},
+\code{\link{create.linear.data}()},
+\code{\link{create.linear.toy.data}()},
+\code{\link{task.add.permuted.cols}()},
+\code{\link{task.add.random.cols}()}
 }
 \concept{Artificial Datasets}

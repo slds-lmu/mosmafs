@@ -19,31 +19,35 @@ mosmafsTermFidelity(fidelity)
 
 mosmafsTermStagnationHV(stag, stag.index = "generations")
 
-mosmafsTermStagnationObjStatistic(stag, stag.index = "generations",
-  obj.stat = "mean", objective.index = TRUE)
+mosmafsTermStagnationObjStatistic(
+  stag,
+  stag.index = "generations",
+  obj.stat = "mean",
+  objective.index = TRUE
+)
 }
 \arguments{
-\item{evals}{\code{[integer(1)]} limit evals.}
+\item{evals}{\verb{[integer(1)]} limit evals.}
 
-\item{generations}{\code{[integer(1)]} limit generations. Initial population does
+\item{generations}{\verb{[integer(1)]} limit generations. Initial population does
 not count.}
 
-\item{time}{\code{[numeric(1)]} limit evaluation time (which does not count
+\item{time}{\verb{[numeric(1)]} limit evaluation time (which does not count
 holdout fitting time.}
 
-\item{fidelity}{\code{[numeric(1)]} total fidelity evaluation to limit.}
+\item{fidelity}{\verb{[numeric(1)]} total fidelity evaluation to limit.}
 
-\item{stag}{\code{[integer(1)]} number of generations (or other measures)
+\item{stag}{\verb{[integer(1)]} number of generations (or other measures)
 without progress in hypervolume or mean objective value.}
 
-\item{stag.index}{\code{[character(1)]} one of \code{"generations"} (default),
+\item{stag.index}{\verb{[character(1)]} one of \code{"generations"} (default),
 \code{"evals"}, \code{"time"}, \code{"fidelity"}: What index to count \code{stag} against when
 aborting after stagnation.}
 
-\item{obj.stat}{\code{[character(1)]} what statistic of the objective to test.
+\item{obj.stat}{\verb{[character(1)]} what statistic of the objective to test.
 One of "min", "mean", "max". Default "mean".}
 
-\item{objective.index}{\code{[integer | logical]} index of objective(s) to consider. Terminates
+\item{objective.index}{\verb{[integer | logical]} index of objective(s) to consider. Terminates
 if all the objectives listed here stagnate. \code{TRUE} for all objectives. Default \code{TRUE}.}
 }
 \value{

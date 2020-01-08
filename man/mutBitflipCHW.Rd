@@ -7,17 +7,17 @@
 mutBitflipCHW(ind, p = 0.1, ...)
 }
 \arguments{
-\item{ind}{\code{[integer]} binary individual.}
+\item{ind}{\verb{[integer]} binary individual.}
 
-\item{p}{\code{[numeric]} average flip probability, must be between 0
+\item{p}{\verb{[numeric]} average flip probability, must be between 0
 and 0.5.}
 
 \item{...}{further arguments passed on to the method.}
 }
 \description{
 If a given bitvector has \code{m} 1s and \code{n} 0s, then a bit is flipped from
-0 to 1 with probability \code{2p(m+1)/(m+n+2)} and from
-1 to 0 with probability \code{2p(n+1)/(m+n+2)}. This is
+0 to 1 with probability \verb{2p(m+1)/(m+n+2)} and from
+1 to 0 with probability \verb{2p(n+1)/(m+n+2)}. This is
 equivalent with choosing bits uniformly at random with probability
 2 * \code{p} and drawing them from a bernoulli-distribution with parameter
 \code{(m+1)/(m+n+2)}.

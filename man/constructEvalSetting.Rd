@@ -4,37 +4,44 @@
 \alias{constructEvalSetting}
 \title{Parameter Configuration of Mosmafs}
 \usage{
-constructEvalSetting(task, learner, ps,
-  measure = getDefaultMeasure(task), worst.measure = NULL,
-  cpo = NULLCPO, nfeat = getTaskNFeats(task \%>>\% cpo),
-  evals = 1e+05, outer.resampling = makeResampleDesc("CV", iters = 10,
-  stratify = TRUE), savedir = NULL)
+constructEvalSetting(
+  task,
+  learner,
+  ps,
+  measure = getDefaultMeasure(task),
+  worst.measure = NULL,
+  cpo = NULLCPO,
+  nfeat = getTaskNFeats(task \%>>\% cpo),
+  evals = 1e+05,
+  outer.resampling = makeResampleDesc("CV", iters = 10, stratify = TRUE),
+  savedir = NULL
+)
 }
 \arguments{
-\item{task}{\code{[Task]} the task to optimize.}
+\item{task}{\verb{[Task]} the task to optimize.}
 
-\item{learner}{\code{[Learner]} the learner to optimize.}
+\item{learner}{\verb{[Learner]} the learner to optimize.}
 
-\item{ps}{\code{[ParamSet]} the parameter set of the learner (and \code{cpo}) alone.}
+\item{ps}{\verb{[ParamSet]} the parameter set of the learner (and \code{cpo}) alone.}
 
-\item{measure}{\code{[Measure]} measure to optimize.}
+\item{measure}{\verb{[Measure]} measure to optimize.}
 
-\item{worst.measure}{\code{[numeric(1)]} worst value for measure to consider,
+\item{worst.measure}{\verb{[numeric(1)]} worst value for measure to consider,
 for dominated hypervolume calculation. Will be extracted from the
 given measure if not given, but will raise an error if the extracted
 (or given) value is infinite.}
 
-\item{cpo}{\code{[CPO]} cpo to prepend feature selection.}
+\item{cpo}{\verb{[CPO]} cpo to prepend feature selection.}
 
-\item{nfeat}{\code{[integer(1)]} number of features.}
+\item{nfeat}{\verb{[integer(1)]} number of features.}
 
-\item{evals}{\code{[integer(1)]} number of evals to perform. Note this concerns fidelity
+\item{evals}{\verb{[integer(1)]} number of evals to perform. Note this concerns fidelity
 evaluations (i.e. single CV folds). When not using multifid the number of points
 evaluated is 1/10th the \code{evals} value.}
 
 \item{outer.resampling}{outer resampling to use.}
 
-\item{savedir}{\code{[character(1) | NULL]} the directory to save every trace to.
+\item{savedir}{\verb{[character(1) | NULL]} the directory to save every trace to.
 If this is \code{NULL} (the default) evaluations are not saved.}
 }
 \value{
@@ -44,7 +51,7 @@ If this is \code{NULL} (the default) evaluations are not saved.}
 Create a SMOOF function for parameter configuration of mosmafs, with parameter set.
 
 The resulting function takes a list of values according to its \code{getParamSet()}.
-Additionally the list can contain an \code{$INSTANCE}, an integer between 1 and 1000.
+Additionally the list can contain an \verb{$INSTANCE}, an integer between 1 and 1000.
 If it is not given, the instance will be chosen randomly. It corresponds to the
 resampling instance to use if \code{fixed.ri} is \code{TRUE}.
 }

@@ -4,25 +4,24 @@
 \alias{create.linear.data}
 \title{Create Linear Model Data}
 \usage{
-create.linear.data(n, p, q = exp(-1), beta0 = 1, rho = 0,
-  permute = TRUE)
+create.linear.data(n, p, q = exp(-1), beta0 = 1, rho = 0, permute = TRUE)
 }
 \arguments{
-\item{n}{\code{[integer(1)]} number of rows to generate.}
+\item{n}{\verb{[integer(1)]} number of rows to generate.}
 
-\item{p}{\code{[integer(1)]} number of columns to generate.}
+\item{p}{\verb{[integer(1)]} number of columns to generate.}
 
-\item{q}{\code{[numeric(1)]} attenuation factor for beta coefficients.}
+\item{q}{\verb{[numeric(1)]} attenuation factor for beta coefficients.}
 
-\item{beta0}{\code{[numeric(1)]} size of first coefficient.}
+\item{beta0}{\verb{[numeric(1)]} size of first coefficient.}
 
-\item{rho}{\code{[numeric(1)]} parameter for correlation matrix.}
+\item{rho}{\verb{[numeric(1)]} parameter for correlation matrix.}
 
-\item{permute}{\code{[logical(1)]} whether to permute columns of \code{X} and coefficient
+\item{permute}{\verb{[logical(1)]} whether to permute columns of \code{X} and coefficient
 vector (\code{beta}).}
 }
 \value{
-\code{list(X=[Matrix], Y=[vector], beta = [vector], orig.features = logical)}
+\verb{list(X=[Matrix], Y=[vector], beta = [vector], orig.features = logical)}
 }
 \description{
 Create linear model data \code{Y = X * beta + epsilon} with
@@ -35,20 +34,21 @@ rho^p ...
 }
 
 \code{epsilon} is standard normally distributed and
-\code{beta[i] = beta0 * q ^ (i - 1)} for \code{i = 1,..., p}.
+\code{beta[i] = beta0 * q ^ (i - 1)} for \verb{i = 1,..., p}.
 
 If \code{permute == TRUE}, columns of \code{X} as well as \code{beta} are permuted before
 the linear model equation is evaluated to generate \code{Y}. These permuted
 values are also the ones returned in the result.
 
-\code{$orig.features} are the features with \code{beta > 1 / sqrt(n)}.
+\verb{$orig.features} are the features with \code{beta > 1 / sqrt(n)}.
 }
 \seealso{
-Other Artificial Datasets: \code{\link{clonetask}},
-  \code{\link{create.hypersphere.data}},
-  \code{\link{create.linear.toy.data}},
-  \code{\link{create.regr.task}},
-  \code{\link{task.add.permuted.cols}},
-  \code{\link{task.add.random.cols}}
+Other Artificial Datasets: 
+\code{\link{clonetask}()},
+\code{\link{create.hypersphere.data}()},
+\code{\link{create.linear.toy.data}()},
+\code{\link{create.regr.task}()},
+\code{\link{task.add.permuted.cols}()},
+\code{\link{task.add.random.cols}()}
 }
 \concept{Artificial Datasets}

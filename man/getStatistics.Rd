@@ -7,7 +7,7 @@
 getStatistics(log)
 }
 \arguments{
-\item{log}{\code{[ecr_logger]} ecr log object}
+\item{log}{\verb{[ecr_logger]} ecr log object}
 }
 \value{
 \code{data.frame} of logged statistics.

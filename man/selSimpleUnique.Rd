@@ -7,14 +7,15 @@
 selSimpleUnique(fitness, n.select)
 }
 \arguments{
-\item{fitness}{\code{[matrix]} fitness matrix, one column per individuum.}
+\item{fitness}{\verb{[matrix]} fitness matrix, one column per individuum.}
 
-\item{n.select}{\code{[integer(1)]} number of individuums to select.}
+\item{n.select}{\verb{[integer(1)]} number of individuums to select.}
 }
 \description{
 Simple Selector without Replacement
 }
 \seealso{
-Other Selectors: \code{\link{selTournamentMO}}
+Other Selectors: 
+\code{\link{selTournamentMO}()}
 }
 \concept{Selectors}
