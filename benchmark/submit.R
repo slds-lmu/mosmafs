@@ -7,11 +7,11 @@ library(stringi)
 library(dplyr)
 
 # --- 1. Load Registry and Metadata
-reg = loadRegistry("registry_temp", writeable = TRUE)
+reg = loadRegistry("registry", writeable = TRUE)
 tab = summarizeExperiments(
 	by = c("job.id", "algorithm", "problem", "learner", "maxeval", "cv.iters", "filter", "initialization", 
 	"lambda", "mu", "parent.sel", "chw.bitflip", "adaptive.filter.weights", "filter.during.run", "surrogate", 
-	"infill", "propose.points", "tune.hyperparams", "tune.iters")
+	"infill", "propose.points", "tune.hyperparams", "tune.iters", "multi.objective")
 	)
 
 source("probdesign.R")
@@ -35,13 +35,13 @@ resources.mpp2 = list(ncpus = 15L,
 
 # a) Algorithm versions
 experiments = list(
-	O = data.table(algorithm = "mosmafs", filter = "none", initialization = "none", chw.bitflip = FALSE, adaptive.filter.weights = FALSE, filter.during.run = FALSE, multi.objective = NA, parent.sel = "selTournamentMO", tune.hyperparams = NA),
-	OI = data.table(algorithm = "mosmafs", filter = "none", initialization = "unif", chw.bitflip = FALSE, adaptive.filter.weights = FALSE, filter.during.run = FALSE, multi.objective = NA, parent.sel = "selTournamentMO", tune.hyperparams = NA),
-	OIFi = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = FALSE, adaptive.filter.weights = FALSE, filter.during.run = FALSE, multi.objective = NA, parent.sel = "selTournamentMO", tune.hyperparams = NA),
-	OIFiFm = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = FALSE, adaptive.filter.weights = FALSE, filter.during.run = TRUE, multi.objective = NA, parent.sel = "selTournamentMO", tune.hyperparams = NA),
-	OIFiFmS = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = FALSE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, multi.objective = NA, parent.sel = "selTournamentMO", tune.hyperparams = NA),
-	OIH = data.table(algorithm = "mosmafs", filter = "none", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = FALSE, filter.during.run = FALSE, multi.objective = NA, parent.sel = "selTournamentMO", tune.hyperparams = NA),
-	OIHFiFmS = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, multi.objective = NA, parent.sel = "selTournamentMO", tune.hyperparams = NA),
+	O = data.table(algorithm = "mosmafs", filter = "none", initialization = "none", chw.bitflip = FALSE, adaptive.filter.weights = FALSE, filter.during.run = FALSE, parent.sel = "selTournamentMO", tune.hyperparams = TRUE),
+	OI = data.table(algorithm = "mosmafs", filter = "none", initialization = "unif", chw.bitflip = FALSE, adaptive.filter.weights = FALSE, filter.during.run = FALSE, parent.sel = "selTournamentMO", tune.hyperparams = TRUE),
+	OIFi = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = FALSE, adaptive.filter.weights = FALSE, filter.during.run = FALSE, parent.sel = "selTournamentMO", tune.hyperparams = TRUE),
+	OIFiFm = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = FALSE, adaptive.filter.weights = FALSE, filter.during.run = TRUE, parent.sel = "selTournamentMO", tune.hyperparams = TRUE),
+	OIFiFmS = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = FALSE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, parent.sel = "selTournamentMO", tune.hyperparams = TRUE),
+	OIH = data.table(algorithm = "mosmafs", filter = "none", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = FALSE, filter.during.run = FALSE, parent.sel = "selTournamentMO", tune.hyperparams = TRUE),
+	OIHFiFmS = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, parent.sel = "selTournamentMO", tune.hyperparams = TRUE),
 	RS = data.table(algorithm = "randomsearch", initialization = "none", filter = "none", chw.bitflip = NA, adaptive.filter.weights = NA, filter.during.run = NA),
 	RSI = data.table(algorithm = "randomsearch", initialization = "unif", filter = "none", chw.bitflip = NA, adaptive.filter.weights = NA, filter.during.run = NA),
 	RSIF = data.table(algorithm = "randomsearch", initialization = "unif", filter = "custom", chw.bitflip = NA, adaptive.filter.weights = NA, filter.during.run = NA),
@@ -81,11 +81,12 @@ problems.serial = c("wdbc", "ionosphere", "sonar", "hill-valley", "clean1",
 # --- OIHFiFmS_preset500     |   DONE       |  300 / 300 DONE  
 
 
-experiment = "BSMOF"
+# NOT FULLY SUBMITTED 
+experiment = "BS2RF"
 tosubmit = ijoin(tab, experiments[[experiment]], by = names(experiments[[experiment]]))
 tosubmit = ijoin(tosubmit, findNotDone())
-tosubmit = tosubmit[problem %in% problems.serial, ]
-tosubmit = tosubmit[maxeval == 4000, ]
+# tosubmit = tosubmit[problem %in% problems.serial, ]
+tosubmit = tosubmit[maxeval == 2000, ]
 # tosubmit = tosubmit[- which(learner == "xgboost")]
 # tosubmit = tosubmit[mu != 3, ]
 tosubmit = tosubmit[- which(job.id %in% findOnSystem()$job.id), ]
@@ -126,4 +127,4 @@ submitJobs(tosubmit, resources = resources.serial)
 
 tab = tab[filter == "custom" & algorithm == "randomsearch", ]
 
-submitJobs(c(3, 4), resources = resources.serial)
+submitJobs(c(1), resources = resources.serial)

@@ -7,7 +7,7 @@ source("helpers.R")
 source("probdesign.R")
 
 # --- 1. Load Registry and Metadata
-reg = loadRegistry("registry", writeable = TRUE)
+reg = loadRegistry("registry", writeable = FALSE)
 tab = summarizeExperiments(
 	by = c("job.id", "algorithm", "problem", "learner", "maxeval", "cv.iters", "filter", "initialization", 
 	"lambda", "mu", "parent.sel", "chw.bitflip", "adaptive.filter.weights", "filter.during.run", "surrogate", "infill",
@@ -89,81 +89,3 @@ toreduce = toreduce[c(1:3, 11:13, 21:23), ]
 
 res = reduceResultsDataTable(toreduce)
 saveRDS(res, file.path(path, "single_experiments_lsvt_kknn.rds"))
-
-
-
-
-
- fitnesses <- lapply(
- 	mosmafs::getPopulations(res_mosmafs[[1]]$result$log),
- 	function(x) x$fitness)
-
-min(which(sapply(fitnesses, function(x) sum(nondominated(x))) > 65)) * 15 + 80
-
- for (gen in seq_along(fitnesses)[-1]) {
- 	first <- fitnesses[[gen - 1]]
- 	second <- fitnesses[[gen]]
- 	print(min(which(nondominated(cbind(first, second - 1e-7)))))
- }
-
- mosmafs_coll <- collectResult(res_mosmafs[[1]]$result)
-
- head(mosmafs_coll)
-
-
- mbo_coll <- collectResultMBO(res_mbo[[1]])
-
- nrow(mbo_coll)
-
-
-
-
-p <- environment(res_mbo[[1]]$result$final.opt.state$opt.problem$fun)$p
-filtermat <- environment(
-  res_mbo[[1]]$result$final.opt.state$opt.problem$fun)$filtermat
-
-
-rx2 <- sapply(1:4010, function(cline) {
-
-rdline <- as.list(resdf[cline, ])
-
-arglist <- as.list(rdline[c("k", "distance", "kernel")])
-arglist$kernel <- as.character(arglist$kernel)
-
-sel.sel <- 1:p %in% order(filtermat[, as.character(rdline$filter),
-	drop = FALSE], decreasing = TRUE)[1:ceiling(rdline$perc * p)]
-
-arglist$selector.selection = sel.sel
-
-res_mosmafs[[1]]$result$task$fitness.fun(arglist, holdout = FALSE)[1]
-  rdline$y_1
-
-
-	res_mosmafs[[1]]$result$task$fitness.fun(arglist, holdout = TRUE)[1]
-	rdline$fitness.holdout.perf
-
-}
-)
-
-rx
-
-rx2
-
-
-
-
-x <- ceiling(n * p)
-
-x == ceiling(n * (x / n))/n
-
-
-mean(1 / c(30, 34, 60, 100, 168, 124, 256, 259, 310, 500, 617, 856, 256))
-
-disagmat <- sapply(c(30, 34, 60, 100, 168, 124, 256, 259, 310, 500, 617, 856, 256), function(nfeat) {
-	sapply(1:1000, function(selfeat) {
-		if (selfeat > nfeat) return(0)
-		p = selfeat / nfeat
-		p2 = ceiling(p * nfeat) / nfeat
-		p - p2
-	})
-})
