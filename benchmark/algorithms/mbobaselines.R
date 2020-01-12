@@ -66,7 +66,7 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
         if (!is.null(x$filter)) {
           filter = x$filter
           x$filter = NULL
-          ind.features = order(filtermat[,filter, drop = FALSE], decreasing = TRUE)[1:ceiling(perc*p)]
+          ind.features = order(filtermat[,paste("value", filter, sep = "."), drop = FALSE], decreasing = TRUE)[1:ceiling(perc*p)]
           filtered.train.task = subsetTask(train.task, features = ind.features)
           filtered.test.task = subsetTask(test.task, features = ind.features) 
         } else {
