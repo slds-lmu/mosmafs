@@ -47,7 +47,7 @@ makeFilter(
 
 
 FILTER = list("none" = NULL,
-	"custom" = c("FSelectorRcpp_information.gain", "randomForestSRC_var.select", "praznik_JMI", "auc", "praznik_CMIM", "DUMMY"), 
+	"custom" = c("FSelectorRcpp_information.gain", "randomForest_importance", "praznik_JMI", "auc", "praznik_CMIM", "DUMMY"), 
 	"testfilter" = c("Featureless"), 
   "testfilter2" = c("praznik_JMI"))
 
