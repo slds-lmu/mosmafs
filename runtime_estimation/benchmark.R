@@ -9,13 +9,13 @@ if (file.exists(registry_name)) {
   if (OVERWRITE) {
     unlink(registry_name, recursive = TRUE)
     reg = makeRegistry(file.dir = registry_name, seed = 123L,
-      packages = c("mlr", "data.table"), conf.file = ".batchtools.conf.R", source = "def_runtime_eval.R")
+      packages = c("mlr", "data.table"), conf.file = ".batchtools.conf.R", source = "def.R")
   } else {
     reg = loadRegistry(registry_name, writeable = TRUE)
   }
 } else {
     reg = makeRegistry(file.dir = registry_name, seed = 123L,
-      packages = c("mlr", "data.table"), conf.file = ".batchtools.conf.R", source = "def_runtime_eval.R")
+      packages = c("mlr", "data.table"), conf.file = ".batchtools.conf.R", source = "def.R")
 }
 
 
@@ -72,14 +72,19 @@ ids = batchMap(function(i) {
 
 }, 1:nrow(args))
 
-ids[, chunk := chunk(job.id, chunk.size = 9)]
+ids[, chunk := chunk(job.id, chunk.size = 45)]
+
+resources.serial = list(
+  walltime = 3600L * 96L, memory = 1024L * 4L,
+  clusters = "serial", max.concurrent.jobs = 1000L # get name from lrz homepage)
+)
 
 submitJobs(ids, resources = resources.serial)
 
 
 library(batchtools)
 
-reg = loadRegistry("test", writeable = FALSE)
+reg = loadRegistry(registry_name, writeable = FALSE)
 
 res = reduceResultsDataTable(fun = function(x) x[1] / 60)
 res$result = unlist(res$result)
@@ -88,6 +93,43 @@ args$job.id = 1:nrow(args)
 
 res = ijoin(args, res, by = "job.id")
 
-dir.create("")
+perf = lapply(res$job.id, function(x) {
+  file = getLog(x)
+  blub = lapply(file, function(z) {
+    if (grepl("mmce.test.mean", z)) {
+      as.numeric(strsplit(z, "mmce.test.mean=")[[1]][2])
+    }
+  })
+  blub[lengths(blub) != 0][[1]]
+})
 
-saveRDS(res, "res_runtime_AP_Breast_Colon.rds")
+perf = do.call(rbind, perf)
+res$perf = perf
+
+dir.create("results")
+
+saveRDS(res, "results/runtime_results.rds")
+
+## 
+
+# visualize
+
+library(ggplot2)
+library(data.table)
+
+res = readRDS("results/runtime_results.rds")
+res = setDT(res)
+res$nrounds = as.character(res$nrounds)
+res[early_stopping == TRUE, ]$nrounds = "earlystop"
+res$nrounds = as.factor(res$nrounds)
+
+p = ggplot(data = res, aes(x = nrounds, y = result)) + geom_boxplot()
+p = p + facet_grid(rows = vars(per_feats), cols = vars(dataset))
+p
+
+p = ggplot(data = res, aes(x = nrounds, y = perf)) + geom_boxplot()
+p = p + facet_grid(rows = vars(per_feats), cols = vars(dataset))
+p
+
+ggsave(p, file = "results/perf_datasets.pdf")
+

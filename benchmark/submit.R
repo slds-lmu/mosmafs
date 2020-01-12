@@ -57,56 +57,12 @@ experiments = list(
 	)
 
 # b) Datasets
-problems.serial = c("AP_Breast_Colon")
-problems.serial = c("madelon")
-
-
-printState = function(tab, experiments, dataset = NULL) {
-	# prints the current state of experiments that are finished w.r.t. the specified datasets
-	experiments = lapply(1:length(experiments), function(i) cbind(version = names(experiments[i]), experiments[[i]]))
-	dfs = lapply(experiments, function(ex) ijoin(tab, ex, by = names(ex)[2:ncol(ex)]))
-	df = do.call(rbind, dfs)
-	df$isdone = df$job.id %in% findDone()$job.id 
-	df$onsystem = df$job.id %in% findOnSystem()$job.id 
-	df = df[, sum(isdone), by = c("version", "algorithm", "problem", "learner")]
-	
-	if (!is.null(dataset)) {
-		df = df[problem != dataset, ]
-	}
-
-	df = dcast(df, version ~ learner)
-	
-	return(df)
-}
+problems.serial = c("madelon", "madeline")
 
 printState(tab, experiments)
 
-
-
-# --- SUBMITTING STATUS
-# --- RS        	         |   DONE 	    |  300 / 300 DONE 
-# --- RSI       	         |   DONE       |  300 / 300 DONE 
-# --- RSIF      	         |   DONE       |  300 / 300 DONE 
-# --- O         	         |   DONE       |  300 / 300 DONE 
-# --- OI        	         |   DONE       |  300 / 300 DONE 
-# --- OIFi      	         |   DONE       |  300 / 300 DONE 
-# --- OIFiFm    	         |   DONE       |  300 / 300 DONE 
-# --- OIFiFmS   	         |   DONE       |  300 / 300 DONE 
-# --- OIH       	         |   DONE       |  300 / 300 DONE 
-# --- OIHFiFmS  	         |   DONE       |  300 / 300 DONE 
-# --- OIHFiFmS  	         |   DONE       |  300 / 300 DONE 
-# --- BS1RF     	         |   doing      |  295 / 300 DONE 
-# --- BS2RF     	         |   DONE       |  300 / 300 DONE
-# --- BS5SO     	         |   DONE       |  300 / 300 DONE
-# --- BSMO      	         |   DONE       |  300 / 300 DONE  
-# --- BSMOF       	         |   doing      |  290 / 300 DONE  xgboost hill-valley is missing
-# --- OIHFiFmS_nohyperpars   |   DONE       |  300 / 300 DONE  
-# --- OIHFiFmS_nohyp500      |   DONE       |  300 / 300 DONE  
-# --- OIHFiFmS_preset500     |   DONE       |  300 / 300 DONE  
-
-
 # NOT FULLY SUBMITTED 
-experiment = "BS5SO"
+experiment = "O"
 tosubmit = ijoin(tab, experiments[[experiment]], by = names(experiments[[experiment]]))
 tosubmit = ijoin(tosubmit, findNotDone())
 # tosubmit = tosubmit[problem %in% problems.serial, ]

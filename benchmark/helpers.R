@@ -1,5 +1,23 @@
 # helpers
 
+printState = function(tab, experiments, dataset = NULL) {
+  # prints the current state of experiments that are finished w.r.t. the specified datasets
+  experiments = lapply(1:length(experiments), function(i) cbind(version = names(experiments[i]), experiments[[i]]))
+  dfs = lapply(experiments, function(ex) ijoin(tab, ex, by = names(ex)[2:ncol(ex)]))
+  df = do.call(rbind, dfs)
+  df$isdone = df$job.id %in% findDone()$job.id 
+  df$onsystem = df$job.id %in% findOnSystem()$job.id 
+  df = df[, sum(isdone), by = c("version", "algorithm", "problem", "learner")]
+  
+  if (!is.null(dataset)) {
+    df = df[problem != dataset, ]
+  }
+
+  df = dcast(df, version ~ learner)
+  
+  return(df)
+}
+
 fitnesses <- function(results) {
   pops <- getPopulations(results$log)
   do.call(rbind, lapply(seq_along(pops), function(idx) {
