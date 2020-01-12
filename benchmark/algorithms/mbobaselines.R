@@ -121,9 +121,6 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
 
   path = trafoOptPath(result$opt.path)$env$path
 
-  if (getTaskId(train.task) & learner == "xgboost")
-    STEPS = 240
-
   n.steps = floor((maxeval - START) / STEPS)
   seq.path = c(START, START + 1:n.steps * STEPS)
   seq.path = sort(c(4 * sum(getParamLengths(ps)), seq.path)) # add first evaluation
