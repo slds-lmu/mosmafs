@@ -33,7 +33,7 @@ FEATURE_MUT = list("mutBitflipCHW" = ecr::setup(mutBitflipCHW), "mutBitflip" = m
 # --- Filtering and Initialization hyperparameters
 # --- According to Guyon we take a information theoretic, a single classifier based and a correlation based filter value
 FILTER = list("none" = NULL,
-	"custom" = c("FSelectorRcpp_information.gain", "randomForestSRC_var.select", "praznik_JMI", "auc", "praznik_CMIM", "DUMMY"))
+	"custom" = c("FSelectorRcpp_information.gain", "randomForest_importance", "praznik_JMI", "auc", "praznik_CMIM", "DUMMY"))
 
 # --- definitions of MBO baseline 
 SURROGATE = list(randomForest = cpoImputeConstant("__MISSING__") %>>% makeLearner("regr.randomForest", se.method = "sd", predict.type = "se"),

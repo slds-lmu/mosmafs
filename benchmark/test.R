@@ -26,7 +26,7 @@ sapply(binom$result$last.population, function (x) mean(x$selector.selection))
 sapply(unif$result$last.population, function (x) mean(x$selector.selection))
 	
 # filter initialization
-res = testJob(tosubmit[5, ]) # filter 
+res = testJob(tosubmit[4, ]) # filter 
 # expect 1 for sonar task
 mean(sapply(res$result$last.population, function (x) x$selector.selection[1]))
 

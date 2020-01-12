@@ -62,7 +62,7 @@ problems.serial = c("madelon", "madeline")
 printState(tab, experiments)
 
 # NOT FULLY SUBMITTED 
-experiment = "O"
+experiment = "RS"
 tosubmit = ijoin(tab, experiments[[experiment]], by = names(experiments[[experiment]]))
 tosubmit = ijoin(tosubmit, findNotDone())
 tosubmit = tosubmit[problem %in% problems.serial, ]
