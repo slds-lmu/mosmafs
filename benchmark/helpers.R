@@ -7,13 +7,13 @@ printState = function(tab, experiments, dataset = NULL) {
   df = do.call(rbind, dfs)
   df$isdone = df$job.id %in% findDone()$job.id 
   df$onsystem = df$job.id %in% findOnSystem()$job.id 
-  df = df[, sum(isdone), by = c("version", "algorithm", "problem", "learner")]
+  df = df[, sum(isdone), by = c("version", "problem", "learner")]
   
   if (!is.null(dataset)) {
     df = df[problem != dataset, ]
   }
 
-  df = dcast(df, version ~ learner)
+  df = dcast(df, version ~ learner, fun.aggregate = sum)
   
   return(df)
 }

@@ -6,7 +6,7 @@ datafolder = "data"
 # 	"madeline", "hill-valley", "wdbc", "tecator",
 # 	"lsvt", "isolet", "cnae-9", "clean1", "semeion") #"USPS")
 
-datasets = c("arcene", "AP_Colon_Kidney", "madelon", "madeline")
+datasets = c("sonar", "arcene", "AP_Colon_Kidney", "madelon", "madeline")
 
 # --- specify learners ---
 # Machine learning algorithms to be benchmarked

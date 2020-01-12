@@ -171,6 +171,8 @@ mosmafs = function(data, job, instance, learner, maxeval, filter, initialization
   else  
     initials = initSelector(initials, distribution = distribution, soften.op = ecr::setup(mutUniformMetaResetSHW, p = 1), soften.op.strategy = getFilterStrat(TRUE)) 
 
+
+  # "soft start" - we tune hyperparameters, but they are initialized already
   if (tune.hyperparams & tune.iters > 0) {
     params = instance$hyperparams[[learner]]
     params$kernel = as.character(params$kernel)
