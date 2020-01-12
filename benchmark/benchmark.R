@@ -10,7 +10,7 @@
 # TODO: packrat
 
 packages = c("batchtools", "data.table", "ecr", "mlr", "mlrCPO", "mlrMBO", "mosmafs", 
-  "magrittr", "parallelMap", "ParamHelpers", "packrat")
+  "magrittr", "parallelMap", "ParamHelpers")
 
 lapply(packages, library, character.only = TRUE)
 
@@ -19,7 +19,7 @@ lapply(packages, library, character.only = TRUE)
 # 1. Setup envorinoment (TEST / NO TEST) + load registry
 # ---
 
-TEST = FALSE
+TEST = TRUE
 
 if (TEST) {
   deffile = "def_test.R"

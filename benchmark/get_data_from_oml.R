@@ -18,7 +18,8 @@ library(OpenML)
 # 	"clean1" = 146193, "USPS" = 190142, "isolet" = 190143, "cnae-9" = 190144, 
 # 	"semeion" = 190150)
 
-datasets = list("madelon" = 9976)
+datasets = list("madelon" = 9976, "madeline" = 190392, "AP_Colon_Kidney" = 3971, 
+  "arcene" = 10092)
 
 path = "data/"
 
