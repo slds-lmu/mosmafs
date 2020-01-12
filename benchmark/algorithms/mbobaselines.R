@@ -2,8 +2,8 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
   surrogate, infill, filter.during.run, propose.points) {
 
     PARALLELIZE = FALSE
-    STEPS = 120L
-    START = 80L
+    STEPS = 5L
+    START = 10L
 
     # ---
     # 0. Define task, learner, paramset, and inner resampling
