@@ -1,7 +1,5 @@
 learner = "xgboost"
 
-dataset = "AP_Breast_Colon"
-
 args = CJ(
 	dataset = c("madelon", "madeline", "AP_Colon_Kidney", "arcene"),
 	nrounds = c(10, 100, 1000, 2000),
