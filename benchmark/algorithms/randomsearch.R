@@ -1,9 +1,7 @@
 randomsearch = function(data, job, instance, learner, maxeval, filter, initialization, cv.iters) {
 
-    PARALLELIZE = FALSE
-
     # ---
-    # 0. Define task, learner, paramset, and inner resampling
+    # 1. Define task, learner, paramset, and inner resampling
     # ---
 
     lrn = LEARNERS[[learner]] # learner 
@@ -14,13 +12,6 @@ randomsearch = function(data, job, instance, learner, maxeval, filter, initializ
     inner = makeResampleDesc("CV", iters = cv.iters, stratify = TRUE)
 
     ps = PAR.SETS[[learner]] # paramset
-
-    # ---
-    # 1. eventually setup parallel environemnt
-    # --- 
-    
-    if (PARALLELIZE)
-      parallelMap::parallelStartMulticore(cpus = 15L)
  
     # ---
     # 2. population initialization
@@ -61,29 +52,8 @@ randomsearch = function(data, job, instance, learner, maxeval, filter, initializ
     population = initials
   )
 
-  if (PARALLELIZE) {
-    parallelStop()
-  }
 
   runtime = proc.time() - time
 
   return(list(result = result, test.task = test.task, train.task = train.task, runtime = runtime, ps = ps, filtermat = fima))
 } 
-
-
-# for (nfeats in ) {
-#     res = system.time({
-#       train.task = subsetTask(task, features = 1:nfeats)
-#       fima = makeFilterMat(train.task, filters = FILTER[["custom"]])
-#     })
-# }
-
-
-# res2 = lapply(c(1000, 2000, 3000, 4000, 5000), function(nfeats) {
-#   print(nfeats)
-#   system.time({
-#         train.task = subsetTask(task, features = 1:nfeats)
-#         fima = makeFilterMat(train.task, filters = FILTER[["custom"]])
-#       })
-#   }
-# )

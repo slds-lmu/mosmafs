@@ -1,12 +1,21 @@
 no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.iters, filter, 
   surrogate, infill, filter.during.run, propose.points) {
 
-    PARALLELIZE = FALSE
-    STEPS = 5L
-    START = 10L
+    # MBO baseline: single-objective tuning with "reconstruction" of a Pareto front afterwards
+
+    # data, job, instance:      batchtools specific
+    # learner:                  learner to be tuned
+    # maxeval:                  maximum number of evals, one eval = one complete CV
+    # maxtime:                  maximum time the algorithm should run 
+    # cv.iters:                 iterations of inner cross-validation
+    # filter:                   set of filters to be tuned over, specified in def.R; 
+    # surrogate:                surrogate model for model-based optimization
+    # infill:                   infill crit for model-based optimization
+    # filter.during.run:        if TRUE, we tune over filter and perc in a single-objective way 
+    # propose.points:           number of points proposed in one batch
 
     # ---
-    # 0. Define task, learner, paramset, and inner resampling
+    # 1. Define task, learner, paramset, and inner resampling
     # ---
 
     lrn = LEARNERS[[learner]] # learner 
@@ -29,12 +38,6 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
     filtermat = makeFilterMat(task = train.task, filters = filters)
     p = getTaskNFeats(train.task)
 
-    # ---
-    # 1. eventually setup parallel environemnt
-    # --- 
-    
-    if (PARALLELIZE)
-      parallelMap::parallelStartMulticore(cpus = 15L)
  
     # ---
     # 2. Initial design 
@@ -92,33 +95,38 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
 
   time = proc.time()
 
-  if (PARALLELIZE) {
-    parallelStartMulticore(cpus = 80L)
-  }
-
   # ---
   # 5. Run experiment 
   # ---
   result = mbo(tuneobj, learner = SURROGATE[[surrogate]], control = ctrl)
   
-  
   runtime = proc.time() - time
 
 
-  if (PARALLELIZE) {
-    parallelStop()
-  }
-  
+
   # ---
   # 6. Receive a Pareto front by subsetting features using filter
   # ---
 
+  # Basic Idea: take 1:p features according to a filter, and compute performance
+  # get the Pareto front and the dominated hypervolume from this 
+
+
+  reconstructParetoFront = function(start.iter = 80L, step.size, mbo.result, )
+
+
+
+  # SET FOR RECONSTRUCTION OF THE PARETOFRONT AFTERWARDS
+  STEPS = 120L  # make 5 steps to reconstruct 
+  START = 80L # first point of evaluation: 10 iterations 
+
   time = proc.time()
 
-  # if the number of features is too high, we just construct the paretofront with less features 
-  pind = pmin(p, 20L)
+  # if the number of features is too high, just take every 100th feature 
+  pind = pmin(p, 20L) 
   seq.perc = seq(1, p, length.out = pind) / p
 
+  # get the optpath
   path = trafoOptPath(result$opt.path)$env$path
 
   n.steps = floor((maxeval - START) / STEPS)

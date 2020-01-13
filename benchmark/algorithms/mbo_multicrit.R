@@ -1,7 +1,19 @@
 mbo_multicrit = function(data, job, instance, learner, maxeval, maxtime, cv.iters, filter, 
-  surrogate, infill, propose.points, adaptive.filter.weights, multiobjective) {
+  surrogate, infill, propose.points, adaptive.filter.weights) {
 
-    PARALLELIZE = FALSE
+    # Multiobjective model-based joint optimization 
+
+    # data, job, instance:      batchtools specific
+    # learner:                  learner to be tuned
+    # maxeval:                  maximum number of evals, one eval = one complete CV
+    # maxtime:                  maximum time the algorithm should run 
+    # cv.iters:                 iterations of inner cross-validation
+    # filter:                   set of filters to be tuned over, specified in def.R; 
+    # surrogate:                surrogate model for model-based optimization
+    # infill:                   infill crit for model-based optimization
+    # propose.points:           number of points proposed in one batch
+    # adaptive.filter.wegihts:  tuning over a weighted sum of filter values
+
 
     # ---
     # 0. Define task, learner, paramset, and inner resampling
@@ -11,6 +23,7 @@ mbo_multicrit = function(data, job, instance, learner, maxeval, maxtime, cv.iter
 
     train.task = instance$train.task # training
     test.task = instance$test.task # for outer evaluation
+    p = getTaskNFeats(train.task)
 
     inner = makeResampleDesc("CV", iters = cv.iters, stratify = TRUE)
 
@@ -21,24 +34,15 @@ mbo_multicrit = function(data, job, instance, learner, maxeval, maxtime, cv.iter
     if (!adaptive.filter.weights) {
         ps = c(ps, pSS(filter: discrete[filters], perc: numeric[0, 1]))
     }
-    
-    p = getTaskNFeats(train.task)
-
+     
     # ---
-    # 1. eventually setup parallel environemnt
-    # --- 
-    
-    if (PARALLELIZE)
-      parallelMap::parallelStartMulticore(cpus = 15L)
- 
-    # ---
-    # 2. Initial design 
+    # 1. Initial design 
     # --- 
   
     # no specification --> default is maximin Latin Hypercube with 4 * nparams
 
     # ---
-    # 3. Control 
+    # 2. Control 
     # --- 
     
     ctrl = makeMBOControl(n.objectives = 2L, propose.points = propose.points)
@@ -47,7 +51,7 @@ mbo_multicrit = function(data, job, instance, learner, maxeval, maxtime, cv.iter
     ctrl = setMBOControlInfill(ctrl, crit = INFILL[[infill]])
 
     # ---
-    # 4. Objective 
+    # 3. Objective 
     # --- 
     if (adaptive.filter.weights) {
       tuneobj = makeBaselineObjective(learner = lrn, task = train.task, filters = filters, ps = ps, resampling = inner, holdout.data = test.task) 
@@ -84,24 +88,15 @@ mbo_multicrit = function(data, job, instance, learner, maxeval, maxtime, cv.iter
       )
     }
 
+
+  # ---
+  # 4. Run experiment 
+  # ---
+
   time = proc.time()
-
-  if (PARALLELIZE) {
-    parallelStartMulticore(cpus = 80L)
-  }
-
-  # ---
-  # 5. Run experiment 
-  # ---
-  result = mbo(tuneobj, learner = SURROGATE[[surrogate]], control = ctrl)
-  
-  
+  result = mbo(tuneobj, learner = SURROGATE[[surrogate]], control = ctrl)  
   runtime = proc.time() - time
 
-
-  if (PARALLELIZE) {
-    parallelStop()
-  }
     
   return(list(result = result, test.task = test.task, train.task = train.task, runtime = runtime, ps = ps))
 } 

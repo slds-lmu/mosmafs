@@ -1,7 +1,19 @@
-mosmafs = function(data, job, instance, learner, maxeval, filter, initialization,
-  lambda, mu, parent.sel, chw.bitflip, adaptive.filter.weights, filter.during.run, cv.iters, multi.objective, tune.hyperparams, tune.iters) {
+mosmafs = function(data, job, instance, learner, maxeval, cv.iters, filter, initialization,
+  lambda, mu, parent.sel, chw.bitflip, adaptive.filter.weights, filter.during.run, multi.objective, tune.hyperparams, tune.iters) {
 
-  PARALLELIZE = FALSE
+  # mosmafs:  our method, multi-objective simulatenous hyperparameter optimization and feature selection 
+  #           based on GAs
+
+  # data, job, instance:      batchtools specific
+  # learner:                  learner to be tuned
+  # maxeval:                  maximum number of evals, one eval = one complete CV
+  # cv.iters:                 iterations of inner cross-validation
+  # filter:                   set of filters used for initialization and mutation 
+  # initialization:           distribution w.r.t. which the feature bit vector is initialization 
+  # lambda:                   lambda in (mu + lambda)-strategy
+  # mu:                       mu in (mu + lambda)-strategy
+  # filter.during.run:        if TRUE, we tune over filter and perc in a single-objective way 
+  # propose.points:           number of points proposed in one batch
 
   # ---
   # 0. Define task, learner, paramset, and inner resampling

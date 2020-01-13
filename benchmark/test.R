@@ -10,7 +10,7 @@ tab = summarizeExperiments(by = c("job.id", "algorithm",
 	"problem", "learner", "maxeval", "filter", "initialization", 
 	"lambda", "mu", "parent.sel", "chw.bitflip", "adaptive.filter.weights",
 	"filter.during.run", "surrogate", "infill", "propose.points", "maxtime", 
-  "multi.objective"))
+  "multi.objective", "tune.hyperparams"))
 tab = tab[problem %in% testdata, ]
 
 
@@ -49,7 +49,7 @@ res = testJob(tosubmit[2, ])
 tosubmit = tab[algorithm %in% "mosmafs", ]
 
 # uniform vs. non-uniform 
-binom = testJob(61)
+binom = testJob(81)
 sapply(binom$result$last.population, function (x) mean(x$selector.selection))
 
 unif = testJob(63)
