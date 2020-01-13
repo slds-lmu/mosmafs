@@ -1149,7 +1149,7 @@ makeBaselineObjective <- function(learner, task, filters, ps, resampling, measur
 
 
 
-reconstructParetoFront = function(start.iter, step.size, mbo.result, train.task, test.task, maxeval, filters) {
+reconstructParetoFront = function(start.iter, step.size, mbo.result, train.task, test.task, maxeval, filters, ps) {
 
   time = proc.time()
 
