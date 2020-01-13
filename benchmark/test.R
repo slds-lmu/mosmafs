@@ -14,8 +14,6 @@ tab = summarizeExperiments(by = c("job.id", "algorithm",
 
 tab = tab[problem %in% testdata & learner == "xgboost", ]
 
-
-
 # --- TEST RANDOMSEARCH
 
 tosubmit = tab[algorithm %in% "randomsearch", ]
