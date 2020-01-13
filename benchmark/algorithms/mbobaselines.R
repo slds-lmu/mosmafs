@@ -36,6 +36,12 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
     }
     
     filtermat = makeFilterMat(task = train.task, filters = filters)
+    colnames(filtermat) = sapply(colnames(filtermat), function(x) {
+      z = strsplit(x, "value.")[[1]]
+      z[length(z)]
+    })
+
+
     p = getTaskNFeats(train.task)
 
  
@@ -69,7 +75,7 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
         if (!is.null(x$filter)) {
           filter = x$filter
           x$filter = NULL
-          ind.features = order(filtermat[,paste("value", filter, sep = "."), drop = FALSE], decreasing = TRUE)[1:ceiling(perc*p)]
+          ind.features = order(filtermat[,filter, drop = FALSE], decreasing = TRUE)[1:ceiling(perc*p)]
           filtered.train.task = subsetTask(train.task, features = ind.features)
           filtered.test.task = subsetTask(test.task, features = ind.features) 
         } else {
@@ -93,13 +99,13 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
       minimize = TRUE
     )
 
-  time = proc.time()
 
   # ---
   # 5. Run experiment 
   # ---
-  result = mbo(tuneobj, learner = SURROGATE[[surrogate]], control = ctrl)
-  
+
+  time = proc.time()
+  result = mbo(tuneobj, learner = SURROGATE[[surrogate]], control = ctrl)  
   runtime = proc.time() - time
 
 
