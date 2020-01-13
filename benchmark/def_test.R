@@ -85,9 +85,9 @@ ades.mosmafs = CJ(learner = c("SVM", "kknn", "xgboost"),
             chw.bitflip = c(FALSE, TRUE),
             adaptive.filter.weights = c(FALSE,TRUE),
             filter.during.run = c(FALSE, TRUE),
-            multi.objective = TRUE,
-            tune.hyperparams = FALSE,
-            tune.iters = 500,
+            multi.objective = c(TRUE, FALSE),
+            tune.hyperparams = c(TRUE, FALSE),
+            tune.iters = c(0, 500),
             sorted = FALSE)
 
 ades.no_feature_sel = CJ(learner = c("SVM", "kknn", "xgboost"), 

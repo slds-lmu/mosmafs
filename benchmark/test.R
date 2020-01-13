@@ -53,7 +53,7 @@ res = testJob(tosubmit[filter.during.run == FALSE, ][1, ])
 tosubmit = tab[algorithm %in% "mosmafs", ]
 
 # uniform vs. non-uniform 
-binom = testJob(tosubmit[initialization == "none", ][1, ])
+binom = testJob(tosubmit[initialization == "none" & tune.hyperparams == TRUE, ][1, ])
 sapply(binom$result$last.population, function (x) mean(x$selector.selection))
 
 unif = testJob(tosubmit[initialization == "unif", ][1, ])
