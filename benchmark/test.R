@@ -12,7 +12,7 @@ tab = summarizeExperiments(by = c("job.id", "algorithm",
 	"filter.during.run", "surrogate", "infill", "propose.points", "maxtime", 
   "multi.objective", "tune.hyperparams", "tune.iters"))
 
-tab = tab[problem %in% testdata, ]
+tab = tab[problem %in% testdata & learner == "xgboost", ]
 
 
 
@@ -38,15 +38,12 @@ sapply(res$result$last.population, function (x) mean(x$selector.selection))
 mean(sapply(res$result$last.population, function (x) x$selector.selection[1]))
 
 
-
 # --- TEST MBO
 
 # pure MBO without feature selection
 tosubmit = tab[algorithm %in% "no_feature_sel", ]
 res = testJob(tosubmit[filter.during.run == TRUE, ][1, ])
 res = testJob(tosubmit[filter.during.run == FALSE, ][1, ])
-
-
 
 
 # --- TEST MOSMAFS
