@@ -1,4 +1,5 @@
-packages = c("batchtools", "ecr", "magrittr", "mosmafs", "ParamHelpers", "mlr", "mlrCPO", "parallelMap", "mlrMBO", "doParallel")
+packages = c("batchtools", "data.table", "ecr", "magrittr", "mosmafs", "ParamHelpers", "mlr", "mlrCPO", "parallelMap", "mlrMBO", "doParallel")
+lapply(packages, library, character.only = TRUE)
 
 # source the prob design
 source("probdesign.R")
