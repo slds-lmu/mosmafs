@@ -86,6 +86,8 @@ ades.no_feature_sel = CJ(learner = c("SVM", "kknn", "xgboost"),
 			infill = c("cb"),
       		filter.during.run = c(FALSE, TRUE), 
       		propose.points = 15L, 
+      		start.recon.iter = 80L, 
+      		step.size = 120L, 
       		sorted = FALSE)
 
 ades.mbo_multicrit = CJ(learner = c("SVM", "kknn", "xgboost"), 

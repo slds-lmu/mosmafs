@@ -1,5 +1,5 @@
 no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.iters, filter, 
-  surrogate, infill, filter.during.run, propose.points) {
+  surrogate, infill, filter.during.run, propose.points, start.recon.iter, step.size) {
 
     # MBO baseline: single-objective tuning with "reconstruction" of a Pareto front afterwards
 
@@ -111,80 +111,10 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
   # Basic Idea: take 1:p features according to a filter, and compute performance
   # get the Pareto front and the dominated hypervolume from this 
 
+  recon = reconstructParetoFront(start.iter = start.recon.iter, step.size = step.size, mbo.result = result, train.task = train.task, test.task = test.task, maxeval = maxeval, filters = filters)
 
-  reconstructParetoFront = function(start.iter = 80L, step.size, mbo.result, )
-
-
-
-  # SET FOR RECONSTRUCTION OF THE PARETOFRONT AFTERWARDS
-  STEPS = 120L  # make 5 steps to reconstruct 
-  START = 80L # first point of evaluation: 10 iterations 
-
-  time = proc.time()
-
-  # if the number of features is too high, just take every 100th feature 
-  pind = pmin(p, 20L) 
-  seq.perc = seq(1, p, length.out = pind) / p
-
-  # get the optpath
-  path = trafoOptPath(result$opt.path)$env$path
-
-  n.steps = floor((maxeval - START) / STEPS)
-  seq.path = c(START, START + 1:n.steps * STEPS)
-  seq.path = sort(c(4 * sum(getParamLengths(ps)), seq.path)) # add first evaluation
-
-  # If filter was already tuned, take tuned filter
-  filters = filters[- which(filters == "DUMMY")]
-  final = tail(path, 1)
-  if (!is.null(final$filter)) {
-    filters = final$filter
-  }
-  
-  # Create lists of results: one for inner evaluation, one for outer evaluation on test set
-  result.pf.list = list()
-  result.pf.test.list = list()
-  
-  for (row.nr in seq.path) {
-    best_id = which.min(path[1:row.nr,]$y)
-    best = as.list(path[best_id,][, !names(path) %in% c("y")])
-  
-    # if (!is.null(path)) {
-    #   filters = best$filter
-    # }
-  
-    # temporary result dataframe: one for inner evaluation, one for outer evaluation on test set
-    result.pf = as.data.frame(matrix(NA, nrow = length(seq.perc), ncol = length(filters)))
-    rownames(result.pf) = seq.perc
-    colnames(result.pf) = filters
-    result.pf.test = result.pf
-    
-    for (fil in filters) {
-      for (s.perc in seq.perc) {
-        best$filter = fil
-        best$perc = s.perc
-        perf = tuneobj(best)
-        result.pf[as.character(s.perc), fil] = perf
-        result.pf.test[as.character(s.perc), fil] = attr(perf, "extras")$fitness.holdout.perf
-      }
-    }
-  # if (ncol(result.pf) > 1) {
-  #   col.id = which.max(rowSums(apply(result.pf, 1, rank)))
-  # } else {
-  #   col.id = 1
-  # }
-  # result.pf = setDT(result.pf[, col.id, drop = FALSE], keep.rownames = TRUE)[]
-  # result.pf.test = setDT(result.pf.test[, col.id, drop = FALSE], keep.rownames = TRUE)[]
-    
-    result.pf = setDT(result.pf, keep.rownames = TRUE)[]
-    result.pf.test = setDT(result.pf.test, keep.rownames = TRUE)[]
-    result.pf.list[[as.character(row.nr)]] = result.pf
-    result.pf.test.list[[as.character(row.nr)]] = result.pf.test
-
-    print(paste("Reconstructing Pareto Front Iteration: ", row.nr, " / ", max(seq.path)))
-
-  }
-  pareto.time = proc.time() - time
-    
-  return(list(result = result, result.pf = result.pf.list, result.pf.test = result.pf.test.list, test.task = test.task, train.task = train.task, runtime = runtime, pareto.time = pareto.time, ps = ps))
+  return(list(result = result, result.pf = recon$result.pf.list, result.pf.test = recon$result.pf.test.list, test.task = test.task, train.task = train.task, runtime = runtime, pareto.time = recon$pareto.time, ps = ps))
 } 
+
+
 

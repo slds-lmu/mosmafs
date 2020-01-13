@@ -12,11 +12,16 @@ mosmafs = function(data, job, instance, learner, maxeval, cv.iters, filter, init
   # initialization:           distribution w.r.t. which the feature bit vector is initialization 
   # lambda:                   lambda in (mu + lambda)-strategy
   # mu:                       mu in (mu + lambda)-strategy
-  # filter.during.run:        if TRUE, we tune over filter and perc in a single-objective way 
-  # propose.points:           number of points proposed in one batch
+  # parent.sel:               type of parent selection
+  # chw.bitflip:              hamming-weight preserving bitflip mutation
+  # adaptive.filter.weights:  tune over weights of filter combinations 
+  # filter.during.run:        use filter during run
+  # multi.objective:          if TRUE, tune over (perf, nfeat)
+  # tune.hyperparams:         if TRUE, hyperparameters and feature are tuned jointly
+  # tune.iters:               allow a warm start for tuning. Attention: filter configuration has to be stored before 
 
   # ---
-  # 0. Define task, learner, paramset, and inner resampling
+  # 1. Define task, learner, paramset, and inner resampling
   # ---
 
   lrn = LEARNERS[[learner]] # learner 
@@ -37,15 +42,7 @@ mosmafs = function(data, job, instance, learner, maxeval, cv.iters, filter, init
     params = trafoValue(ps, params)
     ps = pSS()
     lrn = setHyperPars2(lrn, params)
-  }
-
-  # ---
-  # 1. eventually setup parallel environemnt
-  # --- 
-  
-  if (PARALLELIZE)
-    parallelMap::parallelStartMulticore(cpus = 15L)
- 
+  }   
 
   # ---
   # 2. Mosmafs initialization 
@@ -212,10 +209,6 @@ mosmafs = function(data, job, instance, learner, maxeval, cv.iters, filter, init
     recombinator = crossover,
     generations = ceiling((maxeval - mu) / lambda)
   )
-
-  if (PARALLELIZE) {
-    parallelStop()
-  }
 
   runtime = proc.time() - time
 

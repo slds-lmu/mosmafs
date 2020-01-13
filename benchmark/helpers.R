@@ -1146,3 +1146,77 @@ makeBaselineObjective <- function(learner, task, filters, ps, resampling, measur
       result
     })
 }
+
+
+
+reconstructParetoFront = function(start.iter, step.size, mbo.result, train.task, test.task, maxeval, filters) {
+
+  time = proc.time()
+
+  path = trafoOptPath(mbo.result$opt.path)$env$path
+  p = getTaskNFeats(train.task)
+
+  # if the number of features is too high, just take every 100th feature 
+  pind = pmin(p, 20L) 
+  seq.perc = seq(1, p, length.out = pind) / p
+
+  n.steps = floor((maxeval - start.iter) / step.size)
+  seq.path = c(start.iter, start.iter + 1:n.steps * step.size)
+  seq.path = sort(c(4 * sum(getParamLengths(ps)), seq.path)) # add first evaluation
+
+  # If filter was already tuned, take tuned filter
+  filters = filters[- which(filters == "DUMMY")]
+  final = tail(path, 1)
+  if (!is.null(final$filter)) {
+    filters = final$filter
+  }
+
+  # Create lists of results: one for inner evaluation, one for outer evaluation on test set
+  result.pf.list = list()
+  result.pf.test.list = list()
+  
+  for (row.nr in seq.path) {
+    best_id = which.min(path[1:row.nr,]$y)
+    best = as.list(path[best_id,][, !names(path) %in% c("y")])
+  
+    # if (!is.null(path)) {
+    #   filters = best$filter
+    # }
+  
+    # temporary result dataframe: one for inner evaluation, one for outer evaluation on test set
+    result.pf = as.data.frame(matrix(NA, nrow = length(seq.perc), ncol = length(filters)))
+    rownames(result.pf) = seq.perc
+    colnames(result.pf) = filters
+    result.pf.test = result.pf
+    
+    for (fil in filters) {
+      for (s.perc in seq.perc) {
+        best$filter = fil
+        best$perc = s.perc
+        perf = tuneobj(best)
+        result.pf[as.character(s.perc), fil] = perf
+        result.pf.test[as.character(s.perc), fil] = attr(perf, "extras")$fitness.holdout.perf
+      }
+    }
+
+  # if (ncol(result.pf) > 1) {
+  #   col.id = which.max(rowSums(apply(result.pf, 1, rank)))
+  # } else {
+  #   col.id = 1
+  # }
+  # result.pf = setDT(result.pf[, col.id, drop = FALSE], keep.rownames = TRUE)[]
+  # result.pf.test = setDT(result.pf.test[, col.id, drop = FALSE], keep.rownames = TRUE)[]
+  
+  result.pf = setDT(result.pf, keep.rownames = TRUE)[]
+  result.pf.test = setDT(result.pf.test, keep.rownames = TRUE)[]
+  result.pf.list[[as.character(row.nr)]] = result.pf
+  result.pf.test.list[[as.character(row.nr)]] = result.pf.test
+
+  print(paste("Reconstructing Pareto Front Iteration: ", row.nr, " / ", max(seq.path)))
+
+  }
+
+  pareto.time = proc.time() - time
+
+  return(list(result.pf.list, result.pf.test.list, pareto.time))
+}

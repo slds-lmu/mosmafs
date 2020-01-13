@@ -97,9 +97,11 @@ ades.no_feature_sel = CJ(learner = c("SVM", "kknn", "xgboost"),
 			filter = c("custom"), 
 			surrogate = c("randomForest"),
 			infill = c("cb"),
-      		filter.during.run = c(FALSE, TRUE), 
-      		propose.points = 15L, 
-      		sorted = FALSE)
+      start.recon.iter = 16L, 
+      step.size = 2L, 
+  		filter.during.run = c(FALSE, TRUE), 
+  		propose.points = 15L, 
+  		sorted = FALSE)
 
 
 ades.mbo_multicrit = CJ(learner = c("SVM", "kknn", "xgboost"), 
