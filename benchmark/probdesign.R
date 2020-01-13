@@ -12,7 +12,8 @@ datasets = c("sonar", "arcene", "AP_Colon_Kidney", "madelon", "madeline")
 # Machine learning algorithms to be benchmarked
 LEARNERS = list("SVM" = makeLearner("classif.ksvm", kernel = "rbfdot"),
 	"kknn" = makeLearner("classif.kknn"),
-	"xgboost" = makeLearner("classif.xgboost", id = "classif.xgboost", eval_metric = "error", objective = "binary:logistic")
+	"xgboost" = makeLearner("classif.xgboost", id = "classif.xgboost", eval_metric = "error", objective = "binary:logistic", 
+		par.vals = list(early_stopping_rounds = 10L, nrounds = 2000L))
 	)
 
 # Tuning parameter sets to be benchmarked
@@ -28,7 +29,8 @@ PAR.SETS = list(
 		makeDiscreteParam("kernel", values = c("rectangular", "optimal", "triangular", "biweight"))
 	),
 	xgboost = makeParamSet(
-	  	makeIntegerParam("nrounds", lower = 1L, upper = 2000L),	
+		# do early stopping instead 
+	  	# makeIntegerParam("nrounds", lower = 1L, upper = 2000L),	
 	  	makeNumericParam("eta", lower = 0.01, upper = 0.2),
 	  	makeNumericParam("gamma", lower = -7, upper = 6, trafo = function(x) 2^x),
 	  	makeIntegerParam("max_depth", lower = 3, upper = 20),

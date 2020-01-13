@@ -10,7 +10,7 @@ tab = summarizeExperiments(by = c("job.id", "algorithm",
 	"problem", "learner", "maxeval", "filter", "initialization", 
 	"lambda", "mu", "parent.sel", "chw.bitflip", "adaptive.filter.weights",
 	"filter.during.run", "surrogate", "infill", "propose.points", "maxtime", 
-  "multi.objective", "tune.hyperparams"))
+  "multi.objective", "tune.hyperparams", "tune.iters"))
 
 tab = tab[problem %in% testdata, ]
 
@@ -53,17 +53,14 @@ res = testJob(tosubmit[filter.during.run == FALSE, ][1, ])
 tosubmit = tab[algorithm %in% "mosmafs", ]
 
 # uniform vs. non-uniform 
-binom = testJob(tosubmit[initialization == "none" & tune.hyperparams == TRUE, ][1, ])
+binom = testJob(tosubmit[initialization == "none" & tune.hyperparams == TRUE & tune.iters == 0 & multi.objective == TRUE, ][1, ])
 sapply(binom$result$last.population, function (x) mean(x$selector.selection))
 
-unif = testJob(tosubmit[initialization == "unif", ][1, ])
+unif = testJob(tosubmit[initialization == "unif" & tune.hyperparams == TRUE & tune.iters == 0 & multi.objective == TRUE, ][1, ])
 sapply(unif$result$last.population, function (x) mean(x$selector.selection))
 
 # --- test single objective
-tosubmit = tab[multi.objective == FALSE & parent.sel == "selTournament", ]
-res = testJob(tosubmit[1, ])
-
-
+singleobj = testJob(tosubmit[initialization == "unif" & tune.hyperparams == TRUE & tune.iters == 0 & multi.objective == FALSE & parent.sel == "selTournament", ][1, ])
 
 
 # --- TEST MBO

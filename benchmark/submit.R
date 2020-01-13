@@ -15,8 +15,6 @@ tab = summarizeExperiments(
 	)
 tab = tab[maxeval == 2000L, ]
 
-source("probdesign.R")
-
 resources.serial = list(
 	walltime = 3600L * 96L, memory = 1024L * 4L,
 	clusters = "serial", max.concurrent.jobs = 1000L # get name from lrz homepage)
@@ -43,9 +41,9 @@ experiments = list(
 	OIFiFmS = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = FALSE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, parent.sel = "selTournamentMO", tune.hyperparams = TRUE, tune.iters = 0, multi.objective = TRUE),
 	OIH = data.table(algorithm = "mosmafs", filter = "none", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = FALSE, filter.during.run = FALSE, parent.sel = "selTournamentMO", tune.hyperparams = TRUE, tune.iters = 0, multi.objective = TRUE),
 	OIHFiFmS = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, parent.sel = "selTournamentMO", tune.hyperparams = TRUE, tune.iters = 0, multi.objective = TRUE),
-	RS = data.table(algorithm = "randomsearch", initialization = "none", filter = "none", chw.bitflip = NA, adaptive.filter.weights = NA, filter.during.run = NA),
-	RSI = data.table(algorithm = "randomsearch", initialization = "unif", filter = "none", chw.bitflip = NA, adaptive.filter.weights = NA, filter.during.run = NA),
-	RSIF = data.table(algorithm = "randomsearch", initialization = "unif", filter = "custom", chw.bitflip = NA, adaptive.filter.weights = NA, filter.during.run = NA),
+	RS = data.table(algorithm = "randomsearch", initialization = "none", filter = "none"),
+	RSI = data.table(algorithm = "randomsearch", initialization = "unif", filter = "none"),
+	RSIF = data.table(algorithm = "randomsearch", initialization = "unif", filter = "custom"),
 	BS1RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = FALSE, surrogate = "randomForest", infill = "cb", propose.points = 15L),
 	BS2RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = TRUE, surrogate = "randomForest", infill = "cb", propose.points = 15L),
 	BS5SO = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, multi.objective = FALSE, parent.sel = "selTournament", tune.hyperparams = TRUE),
@@ -57,7 +55,9 @@ experiments = list(
 	)
 
 # b) Datasets
-problems.serial = c("madelon", "madeline")
+
+# ru59sol2
+problems.serial = c("AP_Breast_Colon")
 
 printState(tab, experiments)
 
