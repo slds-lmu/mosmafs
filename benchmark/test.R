@@ -11,7 +11,9 @@ tab = summarizeExperiments(by = c("job.id", "algorithm",
 	"lambda", "mu", "parent.sel", "chw.bitflip", "adaptive.filter.weights",
 	"filter.during.run", "surrogate", "infill", "propose.points", "maxtime", 
   "multi.objective", "tune.hyperparams"))
+
 tab = tab[problem %in% testdata, ]
+
 
 
 # --- TEST RANDOMSEARCH
@@ -19,78 +21,54 @@ tab = tab[problem %in% testdata, ]
 tosubmit = tab[algorithm %in% "randomsearch", ]
 
 # uniform vs. non-uniform 
-binom = testJob(tosubmit[1, ])
-unif = testJob(tosubmit[2, ])
+binom = testJob(tosubmit[initialization == "none", ][1, ])
+unif = testJob(tosubmit[initialization == "unif", ][1, ])
 
 sapply(binom$result$last.population, function (x) mean(x$selector.selection))
 sapply(unif$result$last.population, function (x) mean(x$selector.selection))
 	
 # filter initialization
-res = testJob(tosubmit[4, ]) # filter 
+res = testJob(tosubmit[filter == "testfilter", ][1, ]) # filter 
 # expect 1 for sonar task
 mean(sapply(res$result$last.population, function (x) x$selector.selection[1]))
 
 # filter + nonuniform initialization 
-res = testJob(tosubmit[6, ])
+res = testJob(tosubmit[filter == "testfilter" & initialization == "unif", ][1, ])
 sapply(res$result$last.population, function (x) mean(x$selector.selection))
 mean(sapply(res$result$last.population, function (x) x$selector.selection[1]))
 
-# --- TEST MBO?! 
+
+
+# --- TEST MBO
 
 # pure MBO without feature selection
 tosubmit = tab[algorithm %in% "no_feature_sel", ]
-res = testJob(tosubmit[1, ])
-res = testJob(tosubmit[4, ])
+res = testJob(tosubmit[filter.during.run == TRUE, ][1, ])
+res = testJob(tosubmit[filter.during.run == FALSE, ][1, ])
 
-res = testJob(tosubmit[2, ])
+
 
 
 # --- TEST MOSMAFS
 tosubmit = tab[algorithm %in% "mosmafs", ]
 
 # uniform vs. non-uniform 
-binom = testJob(81)
+binom = testJob(tosubmit[initialization == "none", ][1, ])
 sapply(binom$result$last.population, function (x) mean(x$selector.selection))
 
-unif = testJob(63)
+unif = testJob(tosubmit[initialization == "unif", ][1, ])
 sapply(unif$result$last.population, function (x) mean(x$selector.selection))
-
 
 # --- test single objective
 tosubmit = tab[multi.objective == FALSE & parent.sel == "selTournament", ]
 res = testJob(tosubmit[1, ])
 
 
-# --- test mbo multicrit
+
+
+# --- TEST MBO
 tosubmit = tab[algorithm == "mbo_multicrit", ]
-res = testJob(tosubmit[1, ])
-
-
-
-
-
-bla = lapply(object$result.pf, function(x) {
-    res = doNondominatedSorting(t(as.matrix(x)))
-    which(res$ranks == 1)
-}
-)
-
-
-  
-  perflist <- mapply(FUN = function(train, hold) {
-    res = doNondominatedSorting(t(as.matrix(train)))
-    idx = which(res$ranks == 1)
-
-    res = cbind(train[idx, ], hold[idx, 2])
-    res$diff = res[, 3] - res[, 2]
-    res
-
-    
-  }, object$result.pf, object$result.pf.test, SIMPLIFY = FALSE)
-
-sapply(perflist, function(x) mean(x$diff))
-
-
-# how does something like that look like for NSGA-II? 
+res = testJob(tosubmit[adaptive.filter.weights == TRUE, ][1, ])
+res = testJob(tosubmit[adaptive.filter.weights == FALSE, ][1, ])
 
 

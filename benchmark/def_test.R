@@ -10,13 +10,13 @@ datafolder = "data"
 OVERWRITE = TRUE
 
 # Maximum number of evaluations allowed
-MAXEVAL = 20L
+MAXEVAL = 15L
 
 # Maximum runtime
 MAXTIME = 3600L * 40L
 
 # number of inner cross-validation iterations
-CVITERS = 10L
+CVITERS = 3L
 
 # Parent Selections
 PARENTSEL = list("selSimple" = ecr::setup(selSimple), "selNondom" = ecr::setup(selNondom), "selTournamentMO" = ecr::setup(selTournamentMO), "selTournament" = ecr::setup(selTournament))
@@ -100,7 +100,7 @@ ades.no_feature_sel = CJ(learner = c("SVM", "kknn", "xgboost"),
       start.recon.iter = 16L, 
       step.size = 2L, 
   		filter.during.run = c(FALSE, TRUE), 
-  		propose.points = 15L, 
+  		propose.points = 3L, 
   		sorted = FALSE)
 
 
