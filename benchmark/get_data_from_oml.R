@@ -19,7 +19,7 @@ datasets = list("sonar" = 39)# , "ionosphere" = 57, "madelon" = 145853,
 # 	"semeion" = 190150)
 
 datasets = list("madelon" = 9976, "madeline" = 190392, "AP_Colon_Kidney" = 3971, 
-  "arcene" = 10092)
+  "arcene" = 10092, "AP_Breast_Colon" = 3979)
 
 path = "data/"
 

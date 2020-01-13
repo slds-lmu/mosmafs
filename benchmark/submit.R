@@ -58,16 +58,15 @@ experiments = list(
 
 # ru59sol2
 problems.serial = c("AP_Breast_Colon")
+problems.serial = c("madelon")
 
 printState(tab, experiments)
 
 # NOT FULLY SUBMITTED 
-experiment = "RS"
+experiment = "O"
 tosubmit = ijoin(tab, experiments[[experiment]], by = names(experiments[[experiment]]))
 tosubmit = ijoin(tosubmit, findNotDone())
 tosubmit = tosubmit[problem %in% problems.serial, ]
-tosubmit = tosubmit[maxeval == 2000, ]
-tosubmit = tosubmit[- which(learner == "xgboost")]
 # tosubmit = tosubmit[mu != 3, ]
 tosubmit = tosubmit[- which(job.id %in% findOnSystem()$job.id), ]
 # chunk.size = 5L

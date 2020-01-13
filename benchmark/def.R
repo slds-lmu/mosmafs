@@ -1,6 +1,6 @@
 # --- packages needed
 # devtools::install_github("bertcarnell/lhs")
-packages = c("batchtools", "ecr", "magrittr", "mosmafs", "ParamHelpers", "mlr", "mlrCPO", "parallelMap", "mlrMBO", "doParallel")
+packages = c("batchtools", "data.table", "ecr", "magrittr", "mosmafs", "ParamHelpers", "mlr", "mlrCPO", "parallelMap", "mlrMBO", "doParallel")
 
 # --- source the prob design
 source("probdesign.R")
