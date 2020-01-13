@@ -97,10 +97,10 @@ ades.no_feature_sel = CJ(learner = c("SVM", "kknn", "xgboost"),
 			filter = c("custom"), 
 			surrogate = c("randomForest"),
 			infill = c("cb"),
-      start.recon.iter = 20L, 
-      step.size = 5L, 
+      start.recon.iter = 34L, 
+      step.size = 2L, 
   		filter.during.run = c(FALSE, TRUE), 
-  		propose.points = 3L, 
+  		propose.points = 2L, 
   		sorted = FALSE)
 
 
