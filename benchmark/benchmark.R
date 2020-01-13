@@ -19,7 +19,7 @@ lapply(packages, library, character.only = TRUE)
 # 1. Setup envorinoment (TEST / NO TEST) + load registry
 # ---
 
-TEST = TRUE
+TEST = FALSE
 
 if (TEST) {
   deffile = "def_test.R"
