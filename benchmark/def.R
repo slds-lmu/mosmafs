@@ -1,6 +1,7 @@
 # --- packages needed
 # devtools::install_github("bertcarnell/lhs")
 packages = c("batchtools", "data.table", "ecr", "magrittr", "mosmafs", "ParamHelpers", "mlr", "mlrCPO", "parallelMap", "mlrMBO", "doParallel")
+lapply(packages, library, character.only = TRUE)
 
 # --- source the prob design
 source("probdesign.R")
@@ -99,7 +100,6 @@ ades.mbo_multicrit = CJ(learner = c("SVM", "kknn", "xgboost"),
 			infill = c("cb"),
       		propose.points = 15L, 
       		adaptive.filter.weights = c(FALSE, TRUE),
-      		multiobjective = TRUE,
       		sorted = FALSE)
 
 

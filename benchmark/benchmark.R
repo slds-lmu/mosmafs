@@ -34,22 +34,23 @@ source(deffile)
 if (TEST) {
     unlink(registry_name, recursive = TRUE)
     reg = makeExperimentRegistry(file.dir = registry_name, seed = 123L,
-      packages = packages, source = deffile, conf.file = ".batchtools.conf.R")
+      packages = packages, source = deffile)
 } else {
   if (file.exists(registry_name)) {
     if (OVERWRITE) {
       unlink(registry_name, recursive = TRUE)
       reg = makeExperimentRegistry(file.dir = registry_name, seed = 123L,
-        packages = packages, source = deffile, conf.file = ".batchtools.conf.R")
+        packages = packages, source = deffile)
     } else {
       reg = loadRegistry(registry_name, writeable = TRUE)
     }
   } else {
       reg = makeExperimentRegistry(file.dir = registry_name, seed = 123L,
-        packages = packages, source = deffile, conf.file = ".batchtools.conf.R")
+        packages = packages, source = deffile)
     }
 }
 
+/dss/dsshome1/lxc0E/julia
 
 # ---
 # 2. Create problems
