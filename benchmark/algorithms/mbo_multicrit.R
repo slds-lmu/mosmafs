@@ -57,6 +57,11 @@ mbo_multicrit = function(data, job, instance, learner, maxeval, maxtime, cv.iter
       tuneobj = makeBaselineObjective(learner = lrn, task = train.task, filters = filters, ps = ps, resampling = inner, holdout.data = test.task) 
     } else {
       filtermat = makeFilterMat(task = train.task, filters = filters)
+      colnames(filtermat) = sapply(colnames(filtermat), function(x) {
+        z = strsplit(x, "value.")[[1]]
+        z[length(z)]
+      })
+      
       tuneobj = makeMultiObjectiveFunction(name = "tuning",
        fn = function(x) {
         
