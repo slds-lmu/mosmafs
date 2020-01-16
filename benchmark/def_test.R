@@ -11,7 +11,7 @@ datafolder = "data"
 OVERWRITE = TRUE
 
 # Maximum number of evaluations allowed
-MAXEVAL = 40L
+MAXEVAL = 60L
 
 # Maximum runtime
 MAXTIME = 3600L * 40L
