@@ -12,7 +12,7 @@ reg = loadRegistry("registry", writeable = TRUE)
 tab = summarizeExperiments(
 	by = c("job.id", "algorithm", "problem", "learner", "maxeval", "cv.iters", "filter", "initialization", 
 	"lambda", "mu", "parent.sel", "chw.bitflip", "adaptive.filter.weights", "filter.during.run", "surrogate", 
-	"infill", "propose.points", "tune.hyperparams", "tune.iters", "multi.objective")
+	"infill", "propose.points", "tune.hyperparams", "tune.iters", "multi.objective", "start.recon.iter")
 	)
 tab = tab[maxeval == 2000L, ]
 
@@ -45,8 +45,8 @@ experiments = list(
 	RS = data.table(algorithm = "randomsearch", initialization = "none", filter = "none"),
 	RSI = data.table(algorithm = "randomsearch", initialization = "unif", filter = "none"),
 	RSIF = data.table(algorithm = "randomsearch", initialization = "unif", filter = "custom"),
-	BS1RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = FALSE, surrogate = "randomForest", infill = "cb", propose.points = 15L),
-	BS2RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = TRUE, surrogate = "randomForest", infill = "cb", propose.points = 15L),
+	BS1RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = FALSE, surrogate = "randomForest", infill = "cb", propose.points = 15L, start.recon.iter = 80L),
+	BS2RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = TRUE, surrogate = "randomForest", infill = "cb", propose.points = 15L, start.recon.iter = 80L),
 	BS5SO = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, multi.objective = FALSE, parent.sel = "selTournament", tune.hyperparams = TRUE, tune.iters = 0),
 	BSMO = data.table(algorithm = "mbo_multicrit", filter = "custom", surrogate = "randomForest", infill = "cb", propose.points = 15L, adaptive.filter.weights = FALSE),
 	OIHFiFmS_no_hyperpars = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, multi.objective = TRUE, parent.sel = "selTournamentMO", tune.hyperparams = FALSE, tune.iters = NA),
@@ -62,10 +62,10 @@ problems.serial = c("AP_Breast_Colon")
 # di25pic2
 problems.serial = c("madelon")
 
-printState(tab, experiments)
+printState(tab, experiments, ids = findRunning())
 
 # NOT FULLY SUBMITTED 
-experiment = "RSIF"
+experiment = "OIFiFmS"
 tosubmit = ijoin(tab, experiments[[experiment]], by = names(experiments[[experiment]]))
 tosubmit = ijoin(tosubmit, findNotDone())
 tosubmit = tosubmit[problem %in% problems.serial, ]
@@ -76,4 +76,3 @@ tosubmit = tosubmit[- which(job.id %in% findOnSystem()$job.id), ]
 # nchunks = nrow(tosubmit) / chunk.size
 # tosubmit$chunk = rep(1:nchunks, each = chunk.size)
 submitJobs(tosubmit, resources = resources.serial)
-
