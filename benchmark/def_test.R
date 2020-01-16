@@ -113,8 +113,7 @@ ades.mbo_multicrit = CJ(learner = c("SVM", "kknn", "xgboost"),
 			surrogate = c("randomForest"), # "km.nugget"),
 			infill = c("cb"),
       propose.points = 15L, 
-      adaptive.filter.weights = TRUE,
-      multi.objective = TRUE,
+      adaptive.filter.weights = c(FALSE, TRUE),
       sorted = FALSE)
 
 
