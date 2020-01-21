@@ -79,6 +79,15 @@ getPopulations <- function(log) {
   pop
 }
 
+slickEcr <- function(fidelity = NULL, ...) {
+  if (!is.null(fidelity)) {
+    fidelity[[2]] = fidelity[[2]] * 0 + seq_along(fidelity[[2]])
+    if (length(fidelity) > 2) {
+      fidelity[[3]] = fidelity[[3]] * 0 + 1
+    }
+  }
+  mosmafs::slickEcr(fidelity = fidelity, ...)
+}
 
 knitr::opts_chunk$set(
   cache = FALSE,
