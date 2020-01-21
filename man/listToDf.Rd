@@ -7,13 +7,13 @@
 listToDf(list.object, par.set)
 }
 \arguments{
-\item{list.object}{\code{[list]} list of individuals, each with elements named
+\item{list.object}{\verb{[list]} list of individuals, each with elements named
 by parameter ids.}
 
-\item{par.set}{\code{[ParamSet]} parameter set.}
+\item{par.set}{\verb{[ParamSet]} parameter set.}
 }
 \value{
-\code{[data.frame]}
+\verb{[data.frame]}
 }
 \description{
 Converts a list to a data.frame based on given parameter set.

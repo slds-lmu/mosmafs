@@ -7,15 +7,18 @@
 recGaussian(inds, lower, upper)
 }
 \arguments{
-\item{inds}{\code{[list]} list of two individuals to recombinate.}
+\item{inds}{\verb{[list of numeric]} list of two individuals to recombinate.}
 
-\item{lower}{\code{[integer]} lower bounds of \code{inds} values. May have same length as
+\item{lower}{\verb{[numeric]} lower bounds of \code{inds} values. May have same length as
 one individual or may be a single number, if the lower bounds are the same for all
 values.}
 
-\item{upper}{\code{[integer]} upper bounds of \code{inds} values. May have same length as
+\item{upper}{\verb{[numeric]} upper bounds of \code{inds} values. May have same length as
 one individual or may be a single number, if the upper bounds are the same for all
 values.}
+}
+\value{
+\verb{[list of numeric]} recombined individuals.
 }
 \description{
 Gaussian intermediate recombinator samples component-wise from a normal
@@ -27,12 +30,15 @@ It is applicable only for numeric representations.
 See also \link[ecr:recIntermediate]{ecr::recIntermediate}.
 }
 \seealso{
-Other operators: \code{\link{mutDoubleGeom}},
-  \code{\link{mutGaussIntScaled}},
-  \code{\link{mutGaussInt}}, \code{\link{mutGaussScaled}},
-  \code{\link{mutPolynomialInt}},
-  \code{\link{mutRandomChoice}},
-  \code{\link{mutUniformInt}},
-  \code{\link{recIntIntermediate}}, \code{\link{recIntSBX}}
+Other operators: 
+\code{\link{mutDoubleGeom}()},
+\code{\link{mutGaussIntScaled}()},
+\code{\link{mutGaussInt}()},
+\code{\link{mutGaussScaled}()},
+\code{\link{mutPolynomialInt}()},
+\code{\link{mutRandomChoice}()},
+\code{\link{mutUniformInt}()},
+\code{\link{recIntIntermediate}()},
+\code{\link{recIntSBX}()}
 }
 \concept{operators}

@@ -7,9 +7,9 @@
 task.add.permuted.cols(task, num)
 }
 \arguments{
-\item{task}{\code{[Task]} the input task.}
+\item{task}{\verb{[Task]} the input task.}
 
-\item{num}{\code{[integer(1)]} Number of noise features to add.}
+\item{num}{\verb{[integer(1)]} Number of noise features to add.}
 }
 \value{
 \code{\link{Task}}
@@ -18,18 +18,19 @@ task.add.permuted.cols(task, num)
 Adds \code{num} copies of the \code{task} with permuted rows.
 
 The feature names of the \code{i}th permuted copy have \code{PERM.i.} prepended to them.
-The returned task has a new member \code{$orig.features} which is a logical vector
+The returned task has a new member \verb{$orig.features} which is a logical vector
 indicating the features that were originally in the task.
 
-If the \code{$orig.features} slot is already present in the input \code{task}, then the
+If the \verb{$orig.features} slot is already present in the input \code{task}, then the
 output will have added \code{FALSE} entries at appropriate positions.
 }
 \seealso{
-Other Artificial Datasets: \code{\link{clonetask}},
-  \code{\link{create.hypersphere.data}},
-  \code{\link{create.linear.data}},
-  \code{\link{create.linear.toy.data}},
-  \code{\link{create.regr.task}},
-  \code{\link{task.add.random.cols}}
+Other Artificial Datasets: 
+\code{\link{clonetask}()},
+\code{\link{create.hypersphere.data}()},
+\code{\link{create.linear.data}()},
+\code{\link{create.linear.toy.data}()},
+\code{\link{create.regr.task}()},
+\code{\link{task.add.random.cols}()}
 }
 \concept{Artificial Datasets}

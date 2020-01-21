@@ -7,10 +7,10 @@
 paretoEdges(fitness, refpoint)
 }
 \arguments{
-\item{fitness}{\code{[matrix | data.frame]} matrix or (numeric) \code{data.frame}
+\item{fitness}{\verb{[matrix | data.frame]} matrix or (numeric) \code{data.frame}
 with two columns and rows for each individuum.}
 
-\item{refpoint}{\code{[numeric(2)]} reference point.}
+\item{refpoint}{\verb{[numeric(2)]} reference point.}
 }
 \value{
 \code{data.frame} with three columns: The points on the pareto front,
@@ -21,6 +21,7 @@ and a \code{logical} column \code{point} indicating whether the point is on the 
 Get the edges defining a 2D pareto front for plotting.
 }
 \seealso{
-Other Utility Functions: \code{\link{fitnesses}}
+Other Utility Functions: 
+\code{\link{fitnesses}()}
 }
 \concept{Utility Functions}

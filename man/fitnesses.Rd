@@ -7,9 +7,9 @@
 fitnesses(results, trafo = identity)
 }
 \arguments{
-\item{results}{\code{[ecr_multi_objective_result]} ecr run log.}
+\item{results}{\verb{[ecr_multi_objective_result]} ecr run log.}
 
-\item{trafo}{\code{[function]} function \code{matrix}|\code{data.frame} -> \code{matrix}|\code{data.frame}
+\item{trafo}{\verb{[function]} function \code{matrix}|\code{data.frame} -> \code{matrix}|\code{data.frame}
 to transforms individual generation matrices.}
 }
 \value{
@@ -19,6 +19,7 @@ to transforms individual generation matrices.}
 Extract fitnesses for each generation from ECR log.
 }
 \seealso{
-Other Utility Functions: \code{\link{paretoEdges}}
+Other Utility Functions: 
+\code{\link{paretoEdges}()}
 }
 \concept{Utility Functions}

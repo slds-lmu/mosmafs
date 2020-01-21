@@ -5,6 +5,7 @@
 #'   Logical vector indicating if a features 
 #'   was selected or not. Must have the same length as number of features.
 #' @inheritParams mlrCPO::cpoTemplate
+#' @return `[CPO]`
 #' @examples 
 #' library("mlr")
 #' library("mlrCPO")

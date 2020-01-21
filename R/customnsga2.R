@@ -59,8 +59,9 @@
 #' @param log.stats.newinds `[list]` information to log for each newly evaluated individuals
 #' @param ecr.object `[MosmafsResult]` an object retrieved from previous runs of
 #'   `initEcr`, `slickEcr`, or `continueEcr`
+#' @return `[MosmafsResult]` the terminated optimization state.
 #' @examples 
-#' \dontrun{
+#' \donttest{
 #' library("mlr")
 #' library("magrittr")
 #' library("mlrCPO")

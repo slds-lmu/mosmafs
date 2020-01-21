@@ -4,38 +4,44 @@
 \alias{create.hypersphere.data}
 \title{Create Hypersphere Data}
 \usage{
-create.hypersphere.data(dim, n, dist = function(x) runif(x, -1, 1),
-  norm = 2, radius = 1)
+create.hypersphere.data(
+  dim,
+  n,
+  dist = function(x) runif(x, -1, 1),
+  norm = 2,
+  radius = 1
+)
 }
 \arguments{
-\item{dim}{\code{[integer(1)]} number of columns to create.}
+\item{dim}{\verb{[integer(1)]} number of columns to create.}
 
-\item{n}{\code{[integer(1)]} number of sample to create.}
+\item{n}{\verb{[integer(1)]} number of sample to create.}
 
-\item{dist}{\code{[function]} function \code{n} -> \code{numeric(n)} that is used to sample points dimension-wise.}
+\item{dist}{\verb{[function]} function \code{n} -> \code{numeric(n)} that is used to sample points dimension-wise.}
 
-\item{norm}{\code{[numeric(1)]} Norm exponent.}
+\item{norm}{\verb{[numeric(1)]} Norm exponent.}
 
-\item{radius}{\code{[numeric(1)]} Radius to check against.}
+\item{radius}{\verb{[numeric(1)]} Radius to check against.}
 }
 \value{
-\code{list(X = [Matrix], Y = [vector], orig.features = logical)}
+\verb{list(X = [Matrix], Y = [vector], orig.features = logical)}
 }
 \description{
 Creates hypersphere data with X  as a \code{n * dim} matrix of sampled columns
 from \code{dist}. \code{dist} must be a function
-\code{n -> vector length (n)}
+\verb{n -> vector length (n)}
 and should (probably) sample randomly to create \code{X}.
 
-Y is a vector with entries \code{Y[i]} = \code{+1} if the L_\code{norm} of \code{X[i, ]} is \code{< radius^norm},
+Y is a vector with entries \code{Y[i]} = \code{+1} if the L_\code{norm} of \code{X[i, ]} is \verb{< radius^norm},
 and \code{Y[i]} = \code{-1} otherwise.
 }
 \seealso{
-Other Artificial Datasets: \code{\link{clonetask}},
-  \code{\link{create.linear.data}},
-  \code{\link{create.linear.toy.data}},
-  \code{\link{create.regr.task}},
-  \code{\link{task.add.permuted.cols}},
-  \code{\link{task.add.random.cols}}
+Other Artificial Datasets: 
+\code{\link{clonetask}()},
+\code{\link{create.linear.data}()},
+\code{\link{create.linear.toy.data}()},
+\code{\link{create.regr.task}()},
+\code{\link{task.add.permuted.cols}()},
+\code{\link{task.add.random.cols}()}
 }
 \concept{Artificial Datasets}

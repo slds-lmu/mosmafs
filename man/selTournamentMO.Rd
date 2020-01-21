@@ -4,25 +4,31 @@
 \alias{selTournamentMO}
 \title{Multi-Objective k-Tournament Selector}
 \usage{
-selTournamentMO(fitness, n.select, sorting = "crowding", ref.point,
-  k = 2, return.unique = FALSE)
+selTournamentMO(
+  fitness,
+  n.select,
+  sorting = "crowding",
+  ref.point,
+  k = 2,
+  return.unique = FALSE
+)
 }
 \arguments{
-\item{fitness}{\code{[matrix]} fitness matrix, one column per individuum.}
+\item{fitness}{\verb{[matrix]} fitness matrix, one column per individual.}
 
-\item{n.select}{\code{[integer(1)]} number of individuums to select.}
+\item{n.select}{\verb{[integer(1)]} number of individuals to select.}
 
-\item{sorting}{\code{[character(1)]} one of \code{"domhv"} or \code{"crowding"} (default).}
+\item{sorting}{\verb{[character(1)]} one of \code{"domhv"} or \code{"crowding"} (default).}
 
-\item{ref.point}{\code{[numeric]} reference point for hypervolume, must be given
+\item{ref.point}{\verb{[numeric]} reference point for hypervolume, must be given
 if \code{sorting} is \code{"domhv"}.}
 
-\item{k}{\code{[integer(1)]} number of individuals to select at once.}
+\item{k}{\verb{[integer(1)]} number of individuals to select at once.}
 
-\item{return.unique}{\code{[logical(1)]} whether returned individual indices must be unique.}
+\item{return.unique}{\verb{[logical(1)]} whether returned individual indices must be unique.}
 }
 \value{
-\code{[integer]} vector of selected individuals.
+\verb{[integer]} vector of selected individuals.
 }
 \description{
 k individuals are chosen randomly and the best one
@@ -36,6 +42,7 @@ Ties are broken randomly by adding random noise of relative magnitude
 \code{.Machine$double.eps * 2^10} to points.
 }
 \seealso{
-Other Selectors: \code{\link{selSimpleUnique}}
+Other Selectors: 
+\code{\link{selSimpleUnique}()}
 }
 \concept{Selectors}

@@ -4,15 +4,14 @@
 \alias{slickEvaluateFitness}
 \title{Compute the Fitness of Individuals}
 \usage{
-slickEvaluateFitness(ctrl, population, fidelity = NULL,
-  previous.points = NULL)
+slickEvaluateFitness(ctrl, population, fidelity = NULL, previous.points = NULL)
 }
 \arguments{
-\item{ctrl}{\code{[ecr_control]} control object.}
+\item{ctrl}{\verb{[ecr_control]} control object.}
 
-\item{population}{\code{[list]} list of individuals to evaluate.}
+\item{population}{\verb{[list]} list of individuals to evaluate.}
 
-\item{fidelity}{\code{[numeric]} vector of fidelity, with one
+\item{fidelity}{\verb{[numeric]} vector of fidelity, with one
 or two elements. If this has one element, it is directly
 passed on to the fitness function. If it has two elements,
 the fitness function is first evaluated with the first
@@ -21,7 +20,7 @@ given in \code{population} it is again evaluated with the
 second fidelity given, and the result is averaged weighted
 by the fidelity parameter.}
 
-\item{previous.points}{\code{[matrix]} population to compare points
+\item{previous.points}{\verb{[matrix]} population to compare points
 to if \code{fidelity} has two elements. Otherwise not used.}
 }
 \value{

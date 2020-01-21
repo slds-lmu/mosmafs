@@ -4,30 +4,32 @@
 \alias{collectResult}
 \title{Collect Result Information}
 \usage{
-collectResult(ecr.object, aggregate.perresult = list(domHV = function(x)
-  computeHV(x, ref.point)), aggregate.perobjective = list("min", "mean",
-  "max"),
+collectResult(
+  ecr.object,
+  aggregate.perresult = list(domHV = function(x) computeHV(x, ref.point)),
+  aggregate.perobjective = list("min", "mean", "max"),
   ref.point = smoof::getRefPoint(ecr.object$control$task$fitness.fun),
-  cor.fun = cor)
+  cor.fun = cor
+)
 }
 \arguments{
-\item{ecr.object}{\code{[MosmafsResult]} \code{slickEcr()} result to analyse.}
+\item{ecr.object}{\verb{[MosmafsResult]} \code{slickEcr()} result to analyse.}
 
-\item{aggregate.perresult}{\code{[list]} list of functions
+\item{aggregate.perresult}{\verb{[list]} list of functions
 to apply to fitness and holdout fitness. Every entry must either be
 a \code{character(1)} naming the function to use, or a function, in which
 that entry must have a name. Each function must return exactly one
 numeric value when fed a fitness matrix of one generation. This is
 ignored for single-objective runs.}
 
-\item{aggregate.perobjective}{\code{[list]} list of functions
+\item{aggregate.perobjective}{\verb{[list]} list of functions
 to apply to fitness and holdout fitness matrix rows, formatted like
 \code{aggregate.perresult}. Each function must return exactly one numeric
 value when fed a fitness vector.}
 
-\item{ref.point}{\code{[numeric]} reference point to use for HV computation.}
+\item{ref.point}{\verb{[numeric]} reference point to use for HV computation.}
 
-\item{cor.fun}{\code{[function]} function to use for calculation of
+\item{cor.fun}{\verb{[function]} function to use for calculation of
 correlation between objective and holdout. Must take two \code{numeric}
 arguments and return a \code{numeric(1)}.}
 }

@@ -13,7 +13,7 @@ Numeric vector / individual to mutate.}
 \item{p}{[\code{numeric(1)}]\cr
 Probability of mutation for the gauss mutation operator.}
 
-\item{sdev}{\code{[numeric]} standard deviation(s) of the Gauss mutation.}
+\item{sdev}{\verb{[numeric]} standard deviation(s) of the Gauss mutation.}
 
 \item{lower}{[\code{numeric}]\cr
 Vector of minimal values for each parameter of the decision space.}
@@ -21,17 +21,23 @@ Vector of minimal values for each parameter of the decision space.}
 \item{upper}{[\code{numeric}]\cr
 Vector of maximal values for each parameter of the decision space.}
 }
+\value{
+\verb{[numeric]} mutated individual.
+}
 \description{
 See \link[ecr:mutGauss]{ecr::mutGauss}. Allows a vector of standard deviations. Scales
-standard deviations to the range of \code{[lower, upper]}.
+standard deviations to the range of \verb{[lower, upper]}.
 }
 \seealso{
-Other operators: \code{\link{mutDoubleGeom}},
-  \code{\link{mutGaussIntScaled}},
-  \code{\link{mutGaussInt}},
-  \code{\link{mutPolynomialInt}},
-  \code{\link{mutRandomChoice}},
-  \code{\link{mutUniformInt}}, \code{\link{recGaussian}},
-  \code{\link{recIntIntermediate}}, \code{\link{recIntSBX}}
+Other operators: 
+\code{\link{mutDoubleGeom}()},
+\code{\link{mutGaussIntScaled}()},
+\code{\link{mutGaussInt}()},
+\code{\link{mutPolynomialInt}()},
+\code{\link{mutRandomChoice}()},
+\code{\link{mutUniformInt}()},
+\code{\link{recGaussian}()},
+\code{\link{recIntIntermediate}()},
+\code{\link{recIntSBX}()}
 }
 \concept{operators}

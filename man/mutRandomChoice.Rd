@@ -7,15 +7,15 @@
 mutRandomChoice(ind, values, p = 0.1)
 }
 \arguments{
-\item{ind}{\code{[character]} individuum to mutate.}
+\item{ind}{\verb{[character]} individual to mutate.}
 
-\item{values}{\code{[list of character]} set of possible values for \code{ind} entries to take.
+\item{values}{\verb{[list of character]} set of possible values for \code{ind} entries to take.
 May be a list of length 1, in which case it is recycled.}
 
-\item{p}{\code{[numeric(1)]} per-entry probability to perform mutation.}
+\item{p}{\verb{[numeric(1)]} per-entry probability to perform mutation.}
 }
 \value{
-\code{\link{character}}
+\verb{[character]}
 }
 \description{
 "Random Choice" mutation operator for discrete parameters: with probability
@@ -23,11 +23,15 @@ May be a list of length 1, in which case it is recycled.}
 the original value!)
 }
 \seealso{
-Other operators: \code{\link{mutDoubleGeom}},
-  \code{\link{mutGaussIntScaled}},
-  \code{\link{mutGaussInt}}, \code{\link{mutGaussScaled}},
-  \code{\link{mutPolynomialInt}},
-  \code{\link{mutUniformInt}}, \code{\link{recGaussian}},
-  \code{\link{recIntIntermediate}}, \code{\link{recIntSBX}}
+Other operators: 
+\code{\link{mutDoubleGeom}()},
+\code{\link{mutGaussIntScaled}()},
+\code{\link{mutGaussInt}()},
+\code{\link{mutGaussScaled}()},
+\code{\link{mutPolynomialInt}()},
+\code{\link{mutUniformInt}()},
+\code{\link{recGaussian}()},
+\code{\link{recIntIntermediate}()},
+\code{\link{recIntSBX}()}
 }
 \concept{operators}

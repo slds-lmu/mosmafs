@@ -10,7 +10,7 @@ intifyMutator(operator)
 intifyRecombinator(operator)
 }
 \arguments{
-\item{operator}{\code{[ecr_operator]} \code{\link[ecr:makeOperator]{ecr_operator}} that supports continuous
+\item{operator}{\verb{[ecr_operator]} \code{\link[ecr:makeOperator]{ecr_operator}} that supports continuous
 variables.}
 }
 \value{

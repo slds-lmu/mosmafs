@@ -29,6 +29,7 @@ clonelog <- function(log) {
 #'   with columns for each individuum compatible as fitness matrix
 #'   with various ecr tools (if `FALSE`, default). Only effective if
 #'  `simplify` is `TRUE`.
+#' @return `[matrix]` if `simplify` is `TRUE`, `[list]` otherwise.
 #' @export
 popAggregate <- function(log, extract, simplify = TRUE, data.frame = FALSE) {
   assertCharacter(extract, min.len = 1, any.missing = FALSE)
@@ -447,6 +448,7 @@ heuristicHasSimpleSig <- function(fn) {
 #' @param fn `smoof_multi_objective_function` fitness function. 
 #' @param vectorize `[logical(1)]` whether to force `slickEvaluateFitness` to 
 #' pass candidates to fitness function as `data.frame` or not.
+#' @return `smoof_multi_objective_function`.
 #' @export
 setMosmafsVectorized <- function(fn, vectorize = TRUE) { 
   if (vectorize && heuristicHasSimpleSig(fn)) {

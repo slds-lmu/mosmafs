@@ -7,14 +7,14 @@
 recPCrossover(inds, p = 0.1, ...)
 }
 \arguments{
-\item{inds}{\code{[list of any]} list of two individuals to perform uniform crossover on}
+\item{inds}{\verb{[list of any]} list of two individuals to perform uniform crossover on}
 
-\item{p}{\code{[numeric(1)]} per-entry probability to perform crossover.}
+\item{p}{\verb{[numeric(1)]} per-entry probability to perform crossover.}
 
 \item{...}{further arguments passed on to the method.}
 }
 \value{
-\code{[list of any]} The mutated individuals.
+\verb{[list of any]} The mutated individuals.
 }
 \description{
 Crossover recombination operator that crosses over each position iid with prob. \code{p}

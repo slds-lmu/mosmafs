@@ -119,6 +119,7 @@ n.children = getNumberOfChildren(operator))} # nocov end
 #' @param upper `[integer]` vector of maximal values for each parameter of the
 #' decision space. Must have the same length as `ind`.
 #' @param ...  further arguments passed on to the method.
+#' @return `[integer]` mutated individual.
 #' @description
 #' See [ecr::mutGauss]
 #' @family operators
@@ -135,6 +136,7 @@ mutGaussInt <- intifyMutator(mutGauss)
 #' @param upper `[integer]` vector of maximal values for each parameter of the
 #' decision space. Must have the same length as `ind`.
 #' @param ...  further arguments passed on to the method.
+#' @return `[integer]` mutated individual.
 #' @family operators
 #' @export
 mutPolynomialInt <- intifyMutator(mutPolynomial)
@@ -149,6 +151,7 @@ mutPolynomialInt <- intifyMutator(mutPolynomial)
 #' @param upper `[integer]` vector of maximal values for each parameter of the
 #' decision space. Must have the same length as `ind`.
 #' @param ...  further arguments passed on to the method.
+#' @return `[integer]` mutated individual.
 #' @family operators
 #' @export
 mutUniformInt <- intifyMutator(mutUniform)
@@ -164,6 +167,7 @@ mutUniformInt <- intifyMutator(mutUniform)
 #' @param upper `[integer]` vector of maximal values for each parameter of the
 #' decision space.
 #' @param ...  further arguments passed on to the method.
+#' @return `[integer]` mutated individual.
 #' @family operators
 #' @export
 recIntSBX <- intifyRecombinator(recSBX)
@@ -181,6 +185,7 @@ recIntSBX <- intifyRecombinator(recSBX)
 #' @param upper `[integer]` vector of maximal values for each parameter of the
 #' decision space.
 #' @param ...  further arguments passed on to the method.
+#' @return `[integer]` mutated individual.
 #' @family operators
 #' @export
 recIntIntermediate <- intifyRecombinator(recIntermediate)
@@ -196,13 +201,14 @@ recIntIntermediate <- intifyRecombinator(recIntermediate)
 #' It is applicable only for numeric representations.
 #'
 #' See also [ecr::recIntermediate].
-#' @param inds `[list]` list of two individuals to recombinate.
-#' @param lower `[integer]` lower bounds of `inds` values. May have same length as
+#' @param inds `[list of numeric]` list of two individuals to recombinate.
+#' @param lower `[numeric]` lower bounds of `inds` values. May have same length as
 #'   one individual or may be a single number, if the lower bounds are the same for all
 #'   values.
-#' @param upper `[integer]` upper bounds of `inds` values. May have same length as
+#' @param upper `[numeric]` upper bounds of `inds` values. May have same length as
 #'   one individual or may be a single number, if the upper bounds are the same for all
 #'   values.
+#' @return `[list of numeric]` recombined individuals.
 #' @family operators
 #' @export
 recGaussian <- makeRecombinator(function(inds, lower, upper) {
@@ -234,11 +240,11 @@ recIntGaussian <- intifyRecombinator(recGaussian)
 #' "Random Choice" mutation operator for discrete parameters: with probability
 #'  `p` chooses one of the available categories at random (this *may* be
 #'  the original value!)
-#' @param ind `[character]` individuum to mutate.
+#' @param ind `[character]` individual to mutate.
 #' @param values `[list of character]` set of possible values for `ind` entries to take.
 #'   May be a list of length 1, in which case it is recycled.
 #' @param p `[numeric(1)]` per-entry probability to perform mutation.
-#' @return [`character`]
+#' @return `[character]`
 #' @family operators
 #' @export
 mutRandomChoice <- makeMutator(function(ind, values, p = 0.1) {
@@ -279,7 +285,7 @@ mutRandomChoice <- makeMutator(function(ind, values, p = 0.1) {
 #' @param upper `[integer]` upper bounds of `ind` values. May have same length as
 #'  `ind` or may be a single number, if the upper bounds are the same for all
 #'   values.
-#' @return [`integer`]
+#' @return `[integer]`
 #' @family operators
 #' @export
 mutDoubleGeom <- makeMutator(function(ind, p = 1, geomp = 0.9, lower, upper) {
@@ -321,7 +327,7 @@ mutDoubleGeomScaled <- makeMutator(function(ind, p = 1, sdev = 0.05, lower, uppe
 #' with probability `p`, where `delta` is uniformly
 #' distributed between `pmax(lower - ind[x], -lx/2)` and
 #' `pmin(upper - ind[i], lx/2)`.
-#' @param ind `[numeric | integer]` individuum to mutate.
+#' @param ind `[numeric | integer]` individual to mutate.
 #' @param p `[numeric]` per-entry probability to perform mutation.
 #' @param lx `[numeric]` uniform distribution bandwidth.
 #' @param sdev `[numeric]` standard deviation, will be scaled to `upper - lower`.
@@ -332,6 +338,7 @@ mutDoubleGeomScaled <- makeMutator(function(ind, p = 1, sdev = 0.05, lower, uppe
 #'  `ind` or may be a single number, if the upper bounds are the same for all
 #'   values.
 #' @param ...  further arguments passed on to the method.
+#' @return `[numeric | integer]` mutated individual.
 #' @export
 mutUniformParametric <- makeMutator(function(ind, p, lx, lower, upper) {
   assertNumeric(ind)
@@ -408,11 +415,11 @@ recPCrossover <- makeRecombinator(function(inds, p = 0.1, ...) {
 #' reset is set to 1 with probability `reset.dist` and set to 0 with probability
 #' (1 - `reset.dist`).
 #'
-#' @param ind `[integer]` binary individuum with values 0 or 1.
+#' @param ind `[integer]` binary individual with values 0 or 1.
 #' @param p `[numeric(1)]` entry-wise reset probability.
 #' @param reset.dist `[numeric]` probability to draw 1-bit per entry, if reset is performed.
 #'   `reset.dist` can be length 1 or same length as `ind` (which uses a different distribution for each bit).
-#' @return `[integer]` the mutated individuum.
+#' @return `[integer]` the mutated individual.
 #' @export
 mutUniformReset <- makeMutator(function(ind, p = 0.1, reset.dist) {
   assertIntegerish(ind, lower = 0, upper = 1)
@@ -435,12 +442,12 @@ mutUniformReset <- makeMutator(function(ind, p = 0.1, reset.dist) {
 #'
 #' @description
 #' Performs [`mutUniformReset`] with `reset.dist = reset.dists %*% reset.dist.weights`.
-#' @param ind `[integer]` binary individuum with values 0 or 1.
+#' @param ind `[integer]` binary individual with values 0 or 1.
 #' @param p `[numeric(1)]` entry-wise reset probability.
 #' @param reset.dists `[matrix]` columns of probabilities to draw 1-bit per entry, if reset is performed.
 #'   Must have `length(ind)` rows and `length(reset.dist.weights)` columns.
 #' @param reset.dist.weights `[numeric]` weight vector to select among `reset.dists` columns.
-#' @return `[integer]` the mutated individuum
+#' @return `[integer]` the mutated individual
 #' @export
 mutUniformMetaReset <- makeMutator(function(ind, p = 0.1, reset.dists, reset.dist.weights) {
   assertNumeric(reset.dist.weights, lower = 0 - .tol, upper = 1 + .tol, any.missing = FALSE)
@@ -479,6 +486,7 @@ makeFilterStrategy <- function(reset.dists, weight.param.name) {
 #' standard deviations to the range of `[lower, upper]`.
 #' @inheritParams ecr::mutGauss
 #' @param sdev `[numeric]` standard deviation(s) of the Gauss mutation.
+#' @return `[numeric]` mutated individual.
 #' @family operators
 #' @export
 mutGaussScaled <- makeMutator(function(ind, p = 1, sdev = 0.05, lower, upper) {
@@ -502,6 +510,7 @@ mutGaussScaled <- makeMutator(function(ind, p = 1, sdev = 0.05, lower, upper) {
 #' @param lower `[integer]` vector of minimal values for each parameter of the decision space. Must have the same length as `ind`.
 #' @param upper `[integer]` vector of maximal values for each parameter of the decision space. Must have the same length as `ind`.
 #' @param ...  further arguments passed on to the method.
+#' @return `[integer]` mutated individual.
 #' @family operators
 #' @export
 mutGaussIntScaled <- intifyMutator(mutGaussScaled)
@@ -520,14 +529,14 @@ mutGaussIntScaled <- intifyMutator(mutGaussScaled)
 #' Ties are broken randomly by adding random noise of relative magnitude
 #' `.Machine$double.eps * 2^10` to points.
 #'
-#' @param fitness `[matrix]` fitness matrix, one column per individuum.
-#' @param n.select `[integer(1)]` number of individuums to select.
+#' @param fitness `[matrix]` fitness matrix, one column per individual.
+#' @param n.select `[integer(1)]` number of individuals to select.
 #' @param sorting `[character(1)]` one of `"domhv"` or `"crowding"` (default).
 #' @param ref.point `[numeric]` reference point for hypervolume, must be given
 #'   if `sorting` is `"domhv"`.
 #' @param k `[integer(1)]` number of individuals to select at once.
-#' @return `[integer]` vector of selected individuals.
 #' @param return.unique `[logical(1)]` whether returned individual indices must be unique.
+#' @return `[integer]` vector of selected individuals.
 #' @family Selectors
 #' @export
 selTournamentMO <- makeSelector(function(fitness, n.select, sorting = "crowding", ref.point, k = 2, return.unique = FALSE) {
@@ -555,8 +564,9 @@ selTournamentMO <- makeSelector(function(fitness, n.select, sorting = "crowding"
 
 #' @title Simple Selector without Replacement
 #'
-#' @param fitness `[matrix]` fitness matrix, one column per individuum.
-#' @param n.select `[integer(1)]` number of individuums to select.
+#' @param fitness `[matrix]` fitness matrix, one column per individual.
+#' @param n.select `[integer(1)]` number of individuals to select.
+#' @return `[matrix]` selected individuals.
 #' @family Selectors
 #' @export
 selSimpleUnique <- makeSelector(function(fitness, n.select) {
@@ -574,7 +584,7 @@ selSimpleUnique <- makeSelector(function(fitness, n.select) {
 #' Ties are broken randomly by adding random noise of relative magnitude
 #' `.Machine$double.eps * 2^10` to points.
 #'
-#' @param fitness `[matrix]` fitness matrix, one column per individuum.
+#' @param fitness `[matrix]` fitness matrix, one column per individual.
 #' @param sorting `[character(1)]` one of `"domhv"` or `"crowding"` (default).
 #' @param ref.point `[numeric]` reference point for hypervolume, must be given
 #'   if `sorting` is `"domhv"`.
@@ -625,6 +635,7 @@ overallRankMO <- function(fitness, sorting = "crowding", ref.point) {
 #' @param p `[numeric]` average flip probability, must be between 0
 #'   and 0.5.
 #' @param ...  further arguments passed on to the method.
+#' @return `[integer]` mutated binary individual.
 #' @export
 mutBitflipCHW <- makeMutator(function(ind, p = 0.1, ...) {
   assertNumeric(p, lower = 0 - .tol, upper = 0.5)
@@ -660,7 +671,7 @@ mutBitflipCHW <- makeMutator(function(ind, p = 0.1, ...) {
 #'   `length(reset.dist.weights)` rows.
 #' @param reset.dist.weights `[numeric]` weight vector to select among `reset.dist` columns.
 #' @param ...  further arguments passed on to the method.
-#' @return `[integer]` the mutated individuum
+#' @return `[integer]` the mutated individual
 #' @export
 mutUniformResetSHW <- makeMutator(function(ind, p = 0.1, reset.dist, ...) {
   assertIntegerish(ind, lower = 0, upper = 1, min.len = 1)
