@@ -19,6 +19,18 @@ mbo_multicrit = function(data, job, instance, learner, maxeval, maxtime, cv.iter
     # 0. Define task, learner, paramset, and inner resampling
     # ---
 
+    # learner = "xgboost"
+    # cv.iters = 5L
+    # filter = "custom"
+    # infill = "cb"
+    # propose.points = 3L
+    # maxtime = 2000L
+    # maxeval = 40L
+    # surrogate = "randomForest"
+    # instance = readDataAndRinst("data/sonar", 1, 1)
+    # adaptive.filter.weights = FALSE
+
+
     lrn = LEARNERS[[learner]] # learner 
 
     train.task = instance$train.task # training
@@ -61,7 +73,7 @@ mbo_multicrit = function(data, job, instance, learner, maxeval, maxtime, cv.iter
         z = strsplit(x, "value.")[[1]]
         z[length(z)]
       })
-      
+
       tuneobj = makeMultiObjectiveFunction(name = "tuning",
        fn = function(x) {
         
@@ -105,4 +117,7 @@ mbo_multicrit = function(data, job, instance, learner, maxeval, maxtime, cv.iter
     
   return(list(result = result, test.task = test.task, train.task = train.task, runtime = runtime, ps = ps))
 } 
+
+
+
 

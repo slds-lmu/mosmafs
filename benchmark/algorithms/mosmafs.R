@@ -172,8 +172,10 @@ mosmafs = function(data, job, instance, learner, maxeval, cv.iters, filter, init
 
   if (initialization == "unif") 
     distribution = function() floor(runif(1, 0, length(initials[[1]]$selector.selection) + 1))
-  else 
+  if (initialization == "none") 
     distribution = function() rbinom(1, length(initials[[1]]$selector.selection), 0.5)
+  if (initialization == "geom")
+    distribution = function() rgeom(1, length(initials[[1]]$selector.selection), 0.5)    
 
   if (filter == "none") 
     initials = initSelector(initials, distribution = distribution)

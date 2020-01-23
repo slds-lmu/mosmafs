@@ -9,7 +9,7 @@ printState = function(tab, experiments, dataset = NULL, ids) {
   df = df[, sum(isdone), by = c("version", "problem", "learner")]
   
   if (!is.null(dataset)) {
-    df = df[problem != dataset, ]
+    df = df[problem == dataset, ]
   }
 
   df = dcast(df, version ~ learner, fun.aggregate = sum)
