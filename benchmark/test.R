@@ -64,7 +64,6 @@ res = testJob(tosubmit[adaptive.filter.weights == TRUE, ][1, ])
 res = testJob(tosubmit[adaptive.filter.weights == FALSE, ][1, ])
 
 # --- TEST GEOM INIT
-tosubmit = tab[algorithm == "mbo_multicrit", ]
-res = testJob(tosubmit[adaptive.filter.weights == TRUE, ][1, ])
-res = testJob(tosubmit[adaptive.filter.weights == FALSE, ][1, ])
+tosubmit = tab[algorithm == "mosmafs" & initialization == "geom", ]
+res = testJob(tosubmit[2, ])
 
