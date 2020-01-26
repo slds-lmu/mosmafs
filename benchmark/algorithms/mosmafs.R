@@ -174,8 +174,27 @@ mosmafs = function(data, job, instance, learner, maxeval, cv.iters, filter, init
     distribution = function() floor(runif(1, 0, length(initials[[1]]$selector.selection) + 1))
   if (initialization == "none") 
     distribution = function() rbinom(1, length(initials[[1]]$selector.selection), 0.5)
-  if (initialization == "geom")
-    distribution = function() rgeom(1, length(initials[[1]]$selector.selection), 0.5)    
+  
+  if (initialization == "geom") {
+    # we empirically find a good value for p by fitting 100 trees 
+    rpart = makeLearner("classif.rpart")
+
+    rsmp = makeResampleDesc("RepCV")
+    rinst = makeResampleInstance(rsmp, train.task)
+    nacvars = rep(0, length(rinst$train.inds))
+
+    for (i in 1:length(rinst$train.inds)) {
+        tsk = subsetTask(train.task, subset = rinst$train.inds[[i]])
+        mod = train(rpart, tsk)
+    
+        splits = mod$learner.model$splits
+    
+        acvars = unique(rownames(splits))
+        nacvars[i] = length(acvars)
+    }
+    p = 1 / mean(nacvars) # heuristic for p
+    distribution = function() rgeom(1, p)    
+  }
 
   if (filter == "none") 
     initials = initSelector(initials, distribution = distribution)
