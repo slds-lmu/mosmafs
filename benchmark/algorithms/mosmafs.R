@@ -169,6 +169,7 @@ mosmafs = function(data, job, instance, learner, maxeval, cv.iters, filter, init
   # --- 
 
   initials = sampleValues(ps.init, mu, discrete.names = TRUE)
+  p = NULL
 
   if (initialization == "unif") 
     distribution = function() floor(runif(1, 0, length(initials[[1]]$selector.selection) + 1))
@@ -233,6 +234,6 @@ mosmafs = function(data, job, instance, learner, maxeval, cv.iters, filter, init
 
   runtime = proc.time() - time
 
-  return(list(result = result, test.task = test.task, train.task = train.task, runtime = runtime, ps = ps, filtermat = fima))
+  return(list(result = result, test.task = test.task, train.task = train.task, runtime = runtime, ps = ps, filtermat = fima, p_geom = p))
 } 
 
