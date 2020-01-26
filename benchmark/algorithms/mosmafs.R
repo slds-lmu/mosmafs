@@ -194,7 +194,13 @@ mosmafs = function(data, job, instance, learner, maxeval, cv.iters, filter, init
         nacvars[i] = length(acvars)
     }
     p = 1 / mean(nacvars) # heuristic for p
-    distribution = function() rgeom(1, p)    
+    distribution = function() {
+      z = getTaskNFeats(train.task) + 10
+      while(z > getTaskNFeats(train.task)) {
+        z = rgeom(1, p)
+      }
+      z
+    }   
   }
 
   if (filter == "none") 
