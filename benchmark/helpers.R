@@ -1220,7 +1220,7 @@ reconstructParetoFront = function(tuneobj, start.iter, step.size, mbo.result, tr
   p = getTaskNFeats(train.task)
 
   # if the number of features is too high, just take every 100th feature 
-  pind = pmin(p, 20L) 
+  pind = pmin(p, 10L) 
   seq.perc = seq(1, p, length.out = pind) / p
 
   n.steps = floor((maxeval - start.iter) / step.size)
