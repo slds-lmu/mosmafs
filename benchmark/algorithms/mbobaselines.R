@@ -117,7 +117,7 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
   # Basic Idea: take 1:p features according to a filter, and compute performance
   # get the Pareto front and the dominated hypervolume from this 
 
-  recon = reconstructParetoFront(tuneobj = tuneobj, start.iter = start.recon.iter, step.size = step.size, mbo.result = result, train.task = train.task, test.task = test.task, maxeval = maxeval, filters = filters, ps = ps)
+  recon = reconstructParetoFront(tuneobj = tuneobj, start.iter = start.recon.iter, step.size = 240L, mbo.result = result, train.task = train.task, test.task = test.task, maxeval = maxeval, filters = filters, ps = ps)
 
   return(list(result = result, result.pf = recon$result.pf.list, result.pf.test = recon$result.pf.test.list, test.task = test.task, train.task = train.task, runtime = runtime, pareto.time = recon$pareto.time, ps = ps))
 } 

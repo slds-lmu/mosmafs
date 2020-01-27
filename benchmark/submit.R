@@ -68,6 +68,7 @@ problems.serial = c("AP_Colon_Kidney")
 problems.serial = c("madelon")
 
 printState(tab[problem == problems.serial, ], experiments, ids = findDone())
+printState(tab[problem == problems.serial, ], experiments, ids = findQueued())
 printState(tab[problem == problems.serial, ], experiments, ids = findExpired())
 printState(tab[problem == problems.serial, ], experiments, ids = findRunning())
 
@@ -75,7 +76,7 @@ printState(tab[problem == problems.serial, ], experiments, ids = findRunning())
 # NOT FULLY SUBMITTED 
 for (exp in names(experiments)) {
 	tosubmit = ijoin(tab, experiments[[exp]], by = names(experiments[[exp]]))
-	tosubmit = ijoin(tosubmit, findNotDone())
+	tosubmit = ijoin(tosubmit, findExpired())
 	tosubmit = tosubmit[problem %in% problems.serial, ]
 	if (exp %in% c("BSMO", "BSMOF")) {
 		tosubmit = tosubmit[job.id > 100000, ]

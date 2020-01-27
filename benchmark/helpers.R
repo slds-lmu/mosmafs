@@ -402,17 +402,26 @@ collectBenchmarkResults = function(path, experiments, tab, mbo = FALSE) {
     if (mbo) {
       res = reduceResultsDataTable(toreduce, function(x) collectResultMBO(x))   
     } else {
-      if (!experiments[[experiment]]$multi.objective)
-        res = reduceResultsDataTable(toreduce, function(x) collectResult(x$result, ref.point = c(1)))
-      else 
-        res = reduceResultsDataTable(toreduce, function(x) collectResult(x$result))
+      if (!is.null(experiments[[experiment]]$multi.objective) && !experiments[[experiment]]$multi.objective) {
+          res = reduceResultsDataTable(toreduce, function(x) collectResult(x$result, ref.point = c(1)))
+        } else {
+          res = reduceResultsDataTable(toreduce, function(x) collectResult(x$result))
+      }
     }
+
     res = ijoin(tab, res, by = "job.id")
     res$variant = experiment
 
-    # pops = reduceResultsDataTable(toreduce, function(x) lapply(getPopulations(x$result$log), function(x) x$fitness))
-    # pops = ijoin(tab, pops, by = "job.id")
-    # pops$variant = experiment
+    for (prob = res$problem) {
+      if (nrow(res[problem == prob, ]) < 30)
+        warning(paste("Experiments for ", prob, experiment, "not complete  (", nrow(res[problem == prob, ]), " / 30 )"))
+
+      dir.create(file.path(path, prob))
+      dir.create(file.path(path, prob, experiment))
+
+      saveRDS(res, file.path(path, prob, experiment, "domHV_over_evals.rds"))
+    }
+
 
     dir.create(file.path(path, experiment))
 
@@ -421,6 +430,61 @@ collectBenchmarkResults = function(path, experiments, tab, mbo = FALSE) {
 
   }
 }
+
+
+# CollectResults
+collectPopulations = function(path, experiments, tab, mbo = FALSE) {
+  
+  assert(!is.null(path))
+
+  overview = readRDS(file.path(path, "overview.rds"))
+
+  for (experiment in names(experiments)) {
+
+    print(paste("Reducing ", experiment))
+
+    for (prob in unique(tab$problem)) {
+
+      print(paste("-- Reducing ", prob))
+
+      toreduce = ijoin(tab, experiments[[experiment]], by = names(experiments[[experiment]]))
+      toreduce = ijoin(toreduce, findDone(), by = "job.id")
+      toreduce = toreduce[problem == prob, ]
+
+      dir = as.numeric(sapply(list.files("registry/results/"), function(x) strsplit(x, ".rds")[[1]][1]))
+      dir = data.frame(job.id = dir)
+      toreduce = ijoin(toreduce, dir)
+
+      if (mbo) {
+        res = reduceResultsDataTable(toreduce, function(x) collectResultMBO(x))   
+      } else {
+        res = reduceResultsDataTable(toreduce, function(x) x$result$log$env$pop[1:130])
+      }
+
+      res = ijoin(tab, res, by = "job.id")
+      res$variant = experiment
+
+      nthr = nrow(res)
+      if (nrow(ijoin(data.frame(experiment = experiment, data.frame = prob), overview)) == 0L) {
+        overview = rbind(overview, data.table(experiment = experiment, data.frame = prob, experiments_complete = nthr, population_reduced = TRUE, domHV_reduced = FALSE, front_reduced = FALSE))
+      } else {
+        overview[experiment == experiment & data.frame == prob, ]$population_reduced = TRUE
+        overview[experiment == experiment & data.frame == prob, ]$experiments_complete = nthr
+      }
+
+      saveRDS(overview, "results_reduced/overview.rds")
+
+      if (nthr < 30)
+        warning(paste("Experiments for ", prob, experiment, "not complete  (", nthr, " / 30 )"))
+
+      dir.create(file.path(path, prob))
+      dir.create(file.path(path, prob, experiment))
+
+      saveRDS(res, file.path(path, prob, experiment, "populations.rds"))
+    }
+  }
+}
+
 
 
 collectParetofront = function(path, experiments, tab, problems, learners = "xgboost") {    
@@ -503,8 +567,9 @@ extractFromSummary = function(res, toextract) {
 theme_Publication <- function(base_size=14, base_family="helvetica") {
       library(grid)
       library(ggthemes)
-      (theme_foundation(base_size=base_size)
-       + theme(plot.title = element_text(face = "bold",
+      # (theme_foundation(base_size=base_size)
+      #  + 
+      theme_bw(plot.title = element_text(face = "bold",
                                          size = rel(1.2), hjust = 0.5),
                text = element_text(),
                panel.background = element_rect(colour = NA),
@@ -527,8 +592,7 @@ theme_Publication <- function(base_size=14, base_family="helvetica") {
                plot.margin=unit(c(10,5,5,5),"mm"),
                strip.background=element_rect(colour="#f0f0f0",fill="#f0f0f0"),
                strip.text = element_text(face="bold")
-          ))
-      
+          )#)  
 }
 
 scale_fill_Publication <- function(...){
