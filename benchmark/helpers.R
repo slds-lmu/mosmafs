@@ -412,7 +412,7 @@ collectBenchmarkResults = function(path, experiments, tab, mbo = FALSE) {
     res = ijoin(tab, res, by = "job.id")
     res$variant = experiment
 
-    for (prob = res$problem) {
+    for (prob in unique(res$problem)) {
       if (nrow(res[problem == prob, ]) < 30)
         warning(paste("Experiments for ", prob, experiment, "not complete  (", nrow(res[problem == prob, ]), " / 30 )"))
 
