@@ -18,13 +18,13 @@ tab = summarizeExperiments(
 tab = tab[maxeval == 2000L, ]
 
 resources.serial = list(
-	walltime = 3600L * 96L, memory = 1024L * 4L,
+	walltime = 3600L * 96L, memory = 1024L * 8L,
 	clusters = "serial", max.concurrent.jobs = 1000L # get name from lrz homepage)
 )
 
 resources.serial.doublemem = list(
-	walltime = 3600L * 60L, memory = 1024L * 10L,
-	clusters = "serial", max.concurrent.jobs = 250L # get name from lrz homepage)
+	walltime = 3600L * 120L, memory = 1024L * 8L,
+	clusters = "serial_shm4", max.concurrent.jobs = 250L # get name from lrz homepage)
 )
 
 resources.mpp2 = list(ncpus = 15L,
@@ -67,7 +67,7 @@ problems.serial = c("madeline")
 problems.serial = c("AP_Colon_Kidney")
 problems.serial = c("madelon")
 
-printState(tab[problem == problems.serial, ], experiments, ids = findDone())
+printState(tab[problem %in% problems.serial, ], experiments, ids = findDone())
 printState(tab[problem == problems.serial, ], experiments, ids = findQueued())
 printState(tab[problem == problems.serial, ], experiments, ids = findExpired())
 printState(tab[problem == problems.serial, ], experiments, ids = findRunning())
@@ -76,13 +76,13 @@ printState(tab[problem == problems.serial, ], experiments, ids = findRunning())
 # NOT FULLY SUBMITTED 
 for (exp in names(experiments)) {
 	tosubmit = ijoin(tab, experiments[[exp]], by = names(experiments[[exp]]))
-	tosubmit = ijoin(tosubmit, findNotDone())
+	tosubmit = ijoin(tosubmit, findExpired())
 	tosubmit = tosubmit[problem %in% problems.serial, ]
 	if (exp %in% c("BSMO", "BSMOF")) {
 		tosubmit = tosubmit[job.id > 100000, ]
 	}
 
-	if (nrow(tosubmit) > 0 && nrow(tosubmit) <= 30L) {
+	# if (nrow(tosubmit) > 0 && nrow(tosubmit) <= 30L) {
 		submitJobs(tosubmit, resources = resources.serial)
-	}
+	#}
 }

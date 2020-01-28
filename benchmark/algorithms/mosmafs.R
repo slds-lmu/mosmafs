@@ -25,13 +25,20 @@ mosmafs = function(data, job, instance, learner, maxeval, cv.iters, filter, init
   # ---
 
   lrn = LEARNERS[[learner]] # learner 
-  
+
   train.task = instance$train.task # training
   test.task = instance$test.task # for outer evaluation
 
   inner = makeResampleDesc("CV", iters = cv.iters, stratify = TRUE)
 
   ps = PAR.SETS[[learner]] # paramset
+
+  # for the bigger datasets, we do early stopping
+  if (lerner == "xgboost" && train.task$task.desc$id %in% datasets.earlystop) {
+    lrn = setHyperPars(lrn, par.vals = list(early_stopping_rounds = 10L, nrounds = 2000L))
+    ps$nrounds = NULL
+  }
+
   num.discrete = sum(BBmisc::viapply(ps$pars[sapply(ps$pars, isDiscrete)], getParamLengths))
   num.numeric = sum(BBmisc::viapply(ps$pars[sapply(ps$pars, isNumeric)], getParamLengths))
 
