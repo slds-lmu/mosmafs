@@ -12,7 +12,7 @@ tab = summarizeExperiments(by = c("job.id", "algorithm",
 	"filter.during.run", "surrogate", "infill", "propose.points", "maxtime", 
   "multi.objective", "tune.hyperparams", "tune.iters"))
 
-tab = tab[problem %in% testdata & learner == "xgboost", ]
+tab = tab[problem %in% testdata, ]
 
 # --- TEST RANDOMSEARCH
 
@@ -66,4 +66,14 @@ res = testJob(tosubmit[adaptive.filter.weights == FALSE, ][1, ])
 # --- TEST GEOM INIT
 tosubmit = tab[algorithm == "mosmafs" & initialization == "geom", ]
 res = testJob(tosubmit[2, ])
+
+
+
+# --- TEST MOSMAFS WITH WARMSTART
+tosubmit = tab[algorithm %in% "mosmafs" & chw.bitflip == TRUE & initialization == "geom" & tune.iters == 500L & tune.hyperparams == TRUE, ]
+res = testJob(tosubmit[1, ])
+
+
+# --- TEST MOSMAFS WITH PRETUNED HYPERPARAMS
+tosubmit = tab[algorithm %in% "mosmafs" & tune.iters == 500L & tune.hyperparams == FALSE, ]
 

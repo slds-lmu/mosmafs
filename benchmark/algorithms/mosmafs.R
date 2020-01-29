@@ -36,7 +36,7 @@ mosmafs = function(data, job, instance, learner, maxeval, cv.iters, filter, init
   # for the bigger datasets, we do early stopping
   if (learner == "xgboost" && train.task$task.desc$id %in% datasets.earlystop) {
     lrn = setHyperPars(lrn, par.vals = list(early_stopping_rounds = 10L, nrounds = 2000L))
-    ps$nrounds = NULL
+    ps$pars$nrounds = NULL
   }
 
   num.discrete = sum(BBmisc::viapply(ps$pars[sapply(ps$pars, isDiscrete)], getParamLengths))

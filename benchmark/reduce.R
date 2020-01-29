@@ -116,9 +116,9 @@ res = ijoin(tab, res, by = "job.id")
 
 for (prob in datasets) {
 	res_reduced = res[problem == prob, ]
-	res_reduced = res_reduced[, replication := 1:length(job.id), by = c("learner")]
-	
-	if(length(res_reduce == 30)) {
+
+	if(nrow(res_reduced) == 30) {
+		res_reduced = res_reduced[, replication := 1:length(job.id), by = c("learner")]	
 		hyperparams = lapply(1:10, function(x) {
 			a = res_reduced[replication == x, ]
 			z = lapply(a$learner, function(x) {
@@ -127,10 +127,12 @@ for (prob in datasets) {
 			names(z) = a$learner
 			z
 		})
+		saveRDS(hyperparams, file.path("data", prob, paste("hyperparams_", nevals, ".rds", sep = "")))			
+	} else {
+		warning(paste(lrn, "on", prob, "not completed yet"))
 	}
-
-	saveRDS(hyperparams, file.path("data", prob, paste("hyperparams_", nevals, ".rds", sep = "")))
 }
+
 
 
 
