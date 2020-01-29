@@ -523,7 +523,6 @@ collectBenchmarkResults = function(path, experiments, tab) {
       }
     }
   }
-}
 
 
 
