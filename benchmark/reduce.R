@@ -75,7 +75,7 @@ datasets = c("sonar", "ionosphere",
 	"AP_Colon_Kidney", "madelon", "madeline")
 
 lapply(datasets, function(x) dir.create(file.path(path, x)))
-collectBenchmarkResults2(path, experiments, tab)
+collectBenchmarkResults2(path, experiments_old, tab)
 
 
 
