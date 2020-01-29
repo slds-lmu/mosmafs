@@ -34,7 +34,7 @@ mosmafs = function(data, job, instance, learner, maxeval, cv.iters, filter, init
   ps = PAR.SETS[[learner]] # paramset
 
   # for the bigger datasets, we do early stopping
-  if (lerner == "xgboost" && train.task$task.desc$id %in% datasets.earlystop) {
+  if (learner == "xgboost" && train.task$task.desc$id %in% datasets.earlystop) {
     lrn = setHyperPars(lrn, par.vals = list(early_stopping_rounds = 10L, nrounds = 2000L))
     ps$nrounds = NULL
   }

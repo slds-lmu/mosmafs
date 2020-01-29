@@ -11,8 +11,10 @@ reg = loadRegistry("registry", writeable = FALSE)
 reg$work.dir = getwd()
 tab = summarizeExperiments(
 	by = c("job.id", "algorithm", "problem", "learner", "maxeval", "cv.iters", "filter", "initialization", 
-	"lambda", "mu", "parent.sel", "chw.bitflip", "adaptive.filter.weights", "filter.during.run", "surrogate", "infill",
-	"propose.points", "multi.objective", "tune.hyperparams", "tune.iters"))
+	"lambda", "mu", "parent.sel", "chw.bitflip", "adaptive.filter.weights", "filter.during.run", "surrogate", 
+	"infill", "propose.points", "tune.hyperparams", "tune.iters", "multi.objective", "start.recon.iter")
+	)
+tab = tab[maxeval == 2000L, ]
 
 # path to store 
 path = "results_reduced"
@@ -75,6 +77,14 @@ datasets = c("sonar", "ionosphere",
 lapply(datasets, function(x) dir.create(file.path(path, x)))
 
 # --- 3. Reduce 
+
+# get the solution candidates 
+
+
+
+
+
+
 
 collectBenchmarkResults(path, experiments, tab)
 

@@ -236,7 +236,7 @@ collectResult <- function(ecr.object, aggregate.perresult = list(domHV = functio
   # }
 
   if (length(fitnesses) == 1L) # ugly fix for calculating traces for randomsearch
-      fitnesses = lapply(c(seq(80, 4000, by = 15), 4000), function(i) fitnesses[[1]][, 1:i])
+      fitnesses = lapply(c(seq(80, 2000, by = 15), 2000), function(i) fitnesses[[1]][, 1:i])
 
   stats <- getStatistics(ecr.object$log)
   stats.newinds <- getStatistics(ecr.object$log.newinds)
@@ -263,11 +263,11 @@ collectResult <- function(ecr.object, aggregate.perresult = list(domHV = functio
   }
   resdf <- cbind(resdf,
     eval = aggregate.fitness(fitnesses))
-  resdf$evals = c(seq(80, 4000, by = 15), 4000)
+  resdf$evals = 80 + resdf$gen * 15
 
   hofitnesses <- popAggregate(ecr.object$log, "fitness.holdout")
   if (length(hofitnesses) == 1L) # ugly fix for calculating traces for randomsearch
-      hofitnesses = lapply(c(seq(80, 4000, by = 15), 4000), function(i) hofitnesses[[1]][, 1:i])
+      hofitnesses = lapply(c(seq(80, 2000, by = 15), 2000), function(i) hofitnesses[[1]][, 1:i])
 
   if (ecr.object$task$n.objectives == 1) {
       fitnesses = lapply(fitnesses, function(x) matrix(x, nrow = 1))
@@ -431,13 +431,42 @@ collectBenchmarkResults = function(path, experiments, tab, mbo = FALSE) {
   }
 }
 
+summarizeResultMosmafs = function(x) {
+    domhv = collectResult(x)
+    
+    # list of length with the number of generations 
+    pops = x$log$env$pop
+    pops[sapply(pops, is.null)] = NULL
+
+    pops2 = lapply(1:length(pops), function(i) {
+      gen = i - 1
+      p = pops[[i]][[1]]
+      res2 = lapply(p, function(q) {
+        q$absfeat = sum(q$selector.selection)
+        q$meanfeat = attr(q, "fitness")[2]
+        q$perf = attr(q, "fitness")[1]
+        q$perf.hout = attr(q, "fitness.holdout")[1]
+        q$runtime = attr(q, "runtime")
+        q$selector.selection = NULL
+        unlist(q)
+      })
+
+      res2 = as.data.table(do.call(rbind, res2))
+
+      mat = apply(as.matrix(res2[, c("perf.perf", "meanfeat.propfeat")]), 2, as.numeric)
+      res2$ranks = doNondominatedSorting(t(mat))$ranks
+
+      cbind(gen = gen, res2)
+    })
+
+    list(obj.summary = domhv, population = pops2)
+  }
+
 
 # CollectResults
-collectPopulations = function(path, experiments, tab, mbo = FALSE) {
+collectBenchmarkResults = function(path, experiments, tab) {
   
   assert(!is.null(path))
-
-  overview = readRDS(file.path(path, "overview.rds"))
 
   for (experiment in names(experiments)) {
 
@@ -455,24 +484,34 @@ collectPopulations = function(path, experiments, tab, mbo = FALSE) {
       dir = data.frame(job.id = dir)
       toreduce = ijoin(toreduce, dir)
 
-      if (mbo) {
+      if (experiments[[experiment]]$algorithm %in% c("no_feature_sel", "mbo_multicrit")) {
         res = reduceResultsDataTable(toreduce, function(x) collectResultMBO(x))   
       } else {
-        res = reduceResultsDataTable(toreduce, function(x) x$result$log$env$pop[1:130])
+        res = reduceResultsDataTable(toreduce, function(x) summarizeResultMosmafs(x$result))
       }
 
       res = ijoin(tab, res, by = "job.id")
       res$variant = experiment
 
+
+      # writing down metadata in the summary 
+
       nthr = nrow(res)
-      if (nrow(ijoin(data.frame(experiment = experiment, data.frame = prob), overview)) == 0L) {
-        overview = rbind(overview, data.table(experiment = experiment, data.frame = prob, experiments_complete = nthr, population_reduced = TRUE, domHV_reduced = FALSE, front_reduced = FALSE))
+
+      if (!file.exists(file.path(path, "overview.rds"))) {
+        overview = data.table(experiment = experiment, data.frame = prob, experiments_complete = nthr, population_reduced = TRUE, domHV_reduced = FALSE, front_reduced = FALSE)
       } else {
-        overview[experiment == experiment & data.frame == prob, ]$population_reduced = TRUE
-        overview[experiment == experiment & data.frame == prob, ]$experiments_complete = nthr
+        overview = readRDS(file.path(path, "overview.rds"))
+        
+        if (nrow(ijoin(data.frame(experiment = experiment, data.frame = prob), overview)) == 0L) {
+          overview = rbind(overview, data.table(experiment = experiment, data.frame = prob, experiments_complete = nthr, population_reduced = TRUE, domHV_reduced = FALSE, front_reduced = FALSE))
+        } else {
+          overview[experiment == experiment & data.frame == prob, ]$population_reduced = TRUE
+          overview[experiment == experiment & data.frame == prob, ]$experiments_complete = nthr
+        }
       }
 
-      saveRDS(overview, "results_reduced/overview.rds")
+      saveRDS(overview, file.path(path, "overview.rds"))
 
       if (nthr < 30)
         warning(paste("Experiments for ", prob, experiment, "not complete  (", nthr, " / 30 )"))
@@ -480,7 +519,8 @@ collectPopulations = function(path, experiments, tab, mbo = FALSE) {
       dir.create(file.path(path, prob))
       dir.create(file.path(path, prob, experiment))
 
-      saveRDS(res, file.path(path, prob, experiment, "populations.rds"))
+      saveRDS(res, file.path(path, prob, experiment, "result.rds"))
+      }
     }
   }
 }
