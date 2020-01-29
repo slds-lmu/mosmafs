@@ -65,7 +65,7 @@ experiments = list(
 # ru59sol2
 problems.serial = c("AP_Breast_Colon")
 problems.serial = c("arcene")
-# problems.serial = c("madeline")
+problems.serial = c("madeline")
 problems.serial = c("AP_Colon_Kidney")
 problems.serial = c("madelon")
 
@@ -78,13 +78,13 @@ printState(tab[problem %in% problems.serial, ], experiments, ids = findRunning()
 # NOT FULLY SUBMITTED 
 for (exp in names(experiments)) {
 	tosubmit = ijoin(tab, experiments[[exp]], by = names(experiments[[exp]]))
-	tosubmit = ijoin(tosubmit, findOnSystem())
-	tosubmit = tosubmit[problem %in% problems.serial, ]
+	tosubmit = ijoin(tosubmit, findNotDone())
+	tosubmit = tosubmit[problem %in% problems.serial & learner == "xgboost", ]
 	if (exp %in% c("BSMO", "BSMOF")) {
 		tosubmit = tosubmit[job.id > 100000, ]
 	}
 
-	# if (nrow(tosubmit) > 0 && nrow(tosubmit) <= 30L) {
-		submitJobs(tosubmit, resources = resources.serial.doublemem)
-	#}
+	if (nrow(tosubmit) > 0 && nrow(tosubmit) <= 40L) {
+		submitJobs(tosubmit, resources = resources.serial)
+	}
 }

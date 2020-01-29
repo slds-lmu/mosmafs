@@ -75,5 +75,5 @@ res = testJob(tosubmit[1, ])
 
 
 # --- TEST MOSMAFS WITH PRETUNED HYPERPARAMS
-tosubmit = tab[algorithm %in% "mosmafs" & tune.iters == 500L & tune.hyperparams == FALSE, ]
-
+tosubmit = tab[algorithm %in% "mosmafs" & chw.bitflip == TRUE & initialization == "geom" & tune.iters == 500L & tune.hyperparams == FALSE, ]
+res = testJob(tosubmit[1, ])

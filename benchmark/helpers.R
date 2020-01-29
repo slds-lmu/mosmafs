@@ -422,7 +422,6 @@ collectBenchmarkResults = function(path, experiments, tab, mbo = FALSE) {
       saveRDS(res, file.path(path, prob, experiment, "domHV_over_evals.rds"))
     }
 
-
     dir.create(file.path(path, experiment))
 
     saveRDS(res, file.path(path, experiment, "result.rds"))
@@ -464,7 +463,7 @@ summarizeResultMosmafs = function(x) {
 
 
 # CollectResults
-collectBenchmarkResults = function(path, experiments, tab) {
+collectBenchmarkResults2 = function(path, experiments, tab) {
   
   assert(!is.null(path))
 
@@ -480,6 +479,8 @@ collectBenchmarkResults = function(path, experiments, tab) {
       toreduce = ijoin(toreduce, findDone(), by = "job.id")
       toreduce = toreduce[problem == prob, ]
 
+      print(nrow(toreduce))
+
       dir = as.numeric(sapply(list.files("registry/results/"), function(x) strsplit(x, ".rds")[[1]][1]))
       dir = data.frame(job.id = dir)
       toreduce = ijoin(toreduce, dir)
@@ -492,7 +493,6 @@ collectBenchmarkResults = function(path, experiments, tab) {
 
       res = ijoin(tab, res, by = "job.id")
       res$variant = experiment
-
 
       # writing down metadata in the summary 
 
@@ -513,7 +513,7 @@ collectBenchmarkResults = function(path, experiments, tab) {
 
       saveRDS(overview, file.path(path, "overview.rds"))
 
-      if (nthr < 30)
+      if (nthr != 30)
         warning(paste("Experiments for ", prob, experiment, "not complete  (", nthr, " / 30 )"))
 
       dir.create(file.path(path, prob))
