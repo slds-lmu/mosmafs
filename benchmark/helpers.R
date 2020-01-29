@@ -519,10 +519,12 @@ collectBenchmarkResults2 = function(path, experiments, tab) {
       dir.create(file.path(path, prob))
       dir.create(file.path(path, prob, experiment))
 
-      saveRDS(res, file.path(path, prob, experiment, "result.rds"))
+      if (nthr == 30) {
+        saveRDS(res, file.path(path, prob, experiment, "result.rds"))
       }
     }
   }
+}
 
 
 
