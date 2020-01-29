@@ -72,7 +72,7 @@ experiments_old = list(
 datasets = c("sonar", "ionosphere", 
 	"hill-valley", "wdbc", "tecator", "lsvt", "isolet", "cnae-9", 
 	"clean1", "semeion", "AP_Breast_Colon", "arcene", 
-	"AP_Colon_Kidney")
+	"AP_Colon_Kidney", "madelon", "madeline")
 
 lapply(datasets, function(x) dir.create(file.path(path, x)))
 collectBenchmarkResults2(path, experiments, tab)
@@ -111,38 +111,36 @@ collectBenchmarkResults2(path, experiments, tab)
 
 # Get the optimal hyperparamters after 500 runs (single-objective) for intialization
 
-toreduce = ijoin(tab, findDone())
-toreduce = ijoin(toreduce, experiments[["BS1RF"]])
-nevals = 500L
-res = reduceResultsDataTable(toreduce, function(x) getHyperparamsPerProblem(x, nevals))
-res = ijoin(tab, res, by = "job.id")
+# toreduce = ijoin(tab, findDone())
+# toreduce = ijoin(toreduce, experiments[["BS1RF"]])
+# nevals = 500L
+# res = reduceResultsDataTable(toreduce, function(x) getHyperparamsPerProblem(x, nevals))
+# res = ijoin(tab, res, by = "job.id")
 
-for (prob in unique(res$problem)) {
-	res_reduced = res[problem == prob, ]
+# for (prob in unique(res$problem)) {
+# 	res_reduced = res[problem == prob, ]
 
-	if(nrow(res_reduced) == 30) {
-		res_reduced = res_reduced[, replication := 1:length(job.id), by = c("learner")]	
-		hyperparams = lapply(1:10, function(x) {
-			a = res_reduced[replication == x, ]
-			z = lapply(a$learner, function(x) {
-				a[learner == x, ]$result[[1]]
-			})
-			names(z) = a$learner
-			z
-		})
-		saveRDS(hyperparams, file.path("../../../mosmafs/benchmark/data", prob, paste("hyperparams_", nevals, ".rds", sep = "")))			
-	} else {
-		warning(paste(prob, "not completed yet"))
-	}
-}
-
-
+# 	if(nrow(res_reduced) == 30) {
+# 		res_reduced = res_reduced[, replication := 1:length(job.id), by = c("learner")]	
+# 		hyperparams = lapply(1:10, function(x) {
+# 			a = res_reduced[replication == x, ]
+# 			z = lapply(a$learner, function(x) {
+# 				a[learner == x, ]$result[[1]]
+# 			})
+# 			names(z) = a$learner
+# 			z
+# 		})
+# 		saveRDS(hyperparams, file.path("../../../mosmafs/benchmark/data", prob, paste("hyperparams_", nevals, ".rds", sep = "")))			
+# 	} else {
+# 		warning(paste(prob, "not completed yet"))
+# 	}
+# }
 
 
-reduceResultsDataTable(toreduce[1:2, ], function(x) getHyperparamsPerProblem(x, 500))
-res = ijoin(tab, res)
 
 
+# reduceResultsDataTable(toreduce[1:2, ], function(x) getHyperparamsPerProblem(x, 500))
+# res = ijoin(tab, res)
 
 
 
@@ -153,22 +151,24 @@ res = ijoin(tab, res)
 
 
 
-collectParetofront(path, experiments = experiments[c("O", "OIHFiFmS", "RS", "RSI", "RSIF")], tab, problems, learners = c("xgboost"))
-
-# Collect MBO Baselines BSMO, BS1RF, BS2RF
-collectBenchmarkResults(path, experiments, tab, mbo = TRUE)
 
 
+# collectParetofront(path, experiments = experiments[c("O", "OIHFiFmS", "RS", "RSI", "RSIF")], tab, problems, learners = c("xgboost"))
+
+# # Collect MBO Baselines BSMO, BS1RF, BS2RF
+# collectBenchmarkResults(path, experiments, tab, mbo = TRUE)
 
 
-# Reduce single results for MBO and for O
-toreduce = tab[problem == "lsvt" & learner == "kknn", ]
-toreduce = toreduce[algorithm %in% c("mbo_multicrit", "mosmafs"), ]
-toreduce = toreduce[algorithm %in% "mbo_multicrit" 
-| (is.na(tune.hyperparams) & filter == "custom" & adaptive.filter.weights & filter.during.run & chw.bitflip & initialization == "unif" & parent.sel == "selTournamentMO") 
-| (!tune.hyperparams & is.na(tune.iters)), ]
-toreduce = ijoin(toreduce, findDone())
-toreduce = toreduce[c(1:3, 11:13, 21:23), ]
 
-res = reduceResultsDataTable(toreduce)
-saveRDS(res, file.path(path, "single_experiments_lsvt_kknn.rds"))
+
+# # Reduce single results for MBO and for O
+# toreduce = tab[problem == "lsvt" & learner == "kknn", ]
+# toreduce = toreduce[algorithm %in% c("mbo_multicrit", "mosmafs"), ]
+# toreduce = toreduce[algorithm %in% "mbo_multicrit" 
+# | (is.na(tune.hyperparams) & filter == "custom" & adaptive.filter.weights & filter.during.run & chw.bitflip & initialization == "unif" & parent.sel == "selTournamentMO") 
+# | (!tune.hyperparams & is.na(tune.iters)), ]
+# toreduce = ijoin(toreduce, findDone())
+# toreduce = toreduce[c(1:3, 11:13, 21:23), ]
+
+# res = reduceResultsDataTable(toreduce)
+# saveRDS(res, file.path(path, "single_experiments_lsvt_kknn.rds"))
