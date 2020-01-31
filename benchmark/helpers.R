@@ -42,49 +42,12 @@ getIndividualsChromosomes <- function(results) {
 }
 
 
-
 getAllIndividuals = function(ecr_res) {
 	pops = lapply(getPopulations(ecr_res$log), function(x) do.call("rbind", lapply(x$population, unlist)))
 	pops = lapply(1:length(pops), function(i) cbind(i, pops[[i]]))
 	pops = do.call("rbind", pops)
 	pops = pops[!duplicated(pops[, -1]), ]
 
-}
-
-saveOpenMLTask = function(id, path) {
-  openmltask = convertOMLTaskToMlr(getOMLTask(id))
-  task = openmltask$mlr.task
-  rin = openmltask$mlr.rin
-  task.id = task$task.desc$id
-  dir.create(file.path(path, task.id))
-  saveRDS(task, paste(path, task.id, "task.rds", sep = "/"))
-  saveRDS(rin, paste(path, task.id, "rin.rds", sep = "/"))
-}
-
-fromDataToTask = function(path, id, target) {
-  f = list.files(file.path(path, id), full.names = TRUE)
-  data = do.call("rbind", lapply(f,  RWeka::read.arff))
-  task = makeClassifTask(id = id, data = data, target = target)
-  saveRDS(task, paste(path, id, "task.rds", sep = "/"))
-}
-
-saveHypersphereTask = function(path = "data", p.inf = 10, p.noise, n.train = 200, n.test = 10000, r = 1.8) {
-  id = paste("hypersphere", n.train, p.inf + p.noise, sep = ".")
-  dir.create(file.path(path, id))
-  task = create.hypersphere.data(p.inf, n.train + n.test, radius = r) %>% create.classif.task(id = id) %>% task.add.random.cols(num = p.noise)   
-  data = getTaskData(task)
-  names(data)[length(data)] = "class"
-  write.arff(data[1:200, ], file = file.path(path, id, "train.arff"))
-  write.arff(data[201:nrow(data), ], file = file.path(path, id, "test.arff"))
-}
-
-calculateRanks = function(dfr, nevals) {
-  dfr = dfr[evals <= nevals, ]
-  dfr = dfr[, .SD[which.max(generation)], by = job.id]
-  dfr = dfr[, replication := 1:length(job.id), by = c("problem", "mu", "lambda", "learner")]
-  dfr = dfr[, ranks_hypervol := rank(1 - hypervol), by = c("problem", "learner", "replication")]    
-  dfr = dfr[, mean(ranks_hypervol), by = c("mu", "lambda")]              
-  return(dfr)
 }
 
 makeSingleObjectiveFeatsel <- function(learner, task, ps, resampling, measure = NULL, holdout.data = NULL, worst.measure = NULL, cpo = NULLCPO) {
@@ -159,33 +122,48 @@ makeSingleObjectiveFeatsel <- function(learner, task, ps, resampling, measure = 
 
 
 
-# datapath = "data"
-# dirs = list.dirs(datapath)
-# for (i in 1:length(dirs)) {
-#   file = dirs[i]
-#   if (file.exists(file.path(file, "task.rds"))) {
-#       task = readRDS(file.path(file, "task.rds"))
-#       data = getTaskData(task)
-#       data = data[data$class %in% c(6, 9), ]
-#       data$class = as.factor(as.character(data$class))
-#       task = makeClassifTask(data = data, target = "class")
-#       outer.res.inst = makeResampleInstance(makeResampleDesc("Holdout", stratify = TRUE, split = 0.7), task)
-#       train.data = data[outer.res.inst$train.inds[[1]], ]
-#       names(train.data)[length(names(train.data))] = "class"
-#       test.data = data[outer.res.inst$test.inds[[1]], ]
-#       names(test.data)[length(names(test.data))] = "class"
-#       saveRDS(train.data, file = file.path(file, "train.arff.rds"))
-#       saveRDS(test.data, file = file.path(file, "test.arff.rds"))
-#   }
-#   if (file.exists(file.path(file, "train.arff"))) {
-#       train.data = read.arff(file.path(file, "train.arff"))
-#       names(train.data)[length(names(train.data))] = "class"
-#       test.data = read.arff(file.path(file, "test.arff"))
-#       names(test.data)[length(names(test.data))] = "class"
-#       saveRDS(train.data, file = file.path(file, "train.arff.rds"))
-#       saveRDS(test.data, file = file.path(file, "test.arff.rds"))
-#   }
-# }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 collectResult <- function(ecr.object, aggregate.perresult = list(domHV = function(x) computeHV(x, ref.point)), aggregate.perobjective = list("min", "mean", "max"), ref.point = smoof::getRefPoint(ecr.object$control$task$fitness.fun), cor.fun = cor) {
   assertClass(ecr.object, "MosmafsResult")
@@ -303,42 +281,45 @@ collectResult <- function(ecr.object, aggregate.perresult = list(domHV = functio
 }
 
 collectResultMBO = function(object, aggregate.perresult = list(domHV = function(x) computeHV(x, ref.point)), aggregate.perobjective = list("min", "mean", "max"), ref.point = smoof::getRefPoint(ecr.object$control$task$fitness.fun), cor.fun = cor) {
+ 
   opt.path <- data.frame(object$result$opt.path)
   resdf <- data.table()
   task.p <- getTaskNFeats(object$train.task)
 
-  if (object$result$control$n.objectives > 1) {
-    resdf = as.data.table(opt.path)
-    resdf$evals = seq_len(nrow(resdf))
-    resdf$gen <- pmax(ceiling((resdf$evals - 80) / 15), 0)
-    resdf$runtime <- cumsum(rowSums(resdf[, c("train.time",  "propose.time", "exec.time")], na.rm = TRUE))
+  resdf = as.data.table(opt.path)
+  resdf$evals = seq_len(nrow(resdf))
+  resdf$gen <- pmax(ceiling((resdf$evals - 80) / 15), 0)
+  times = opt.path[, c("train.time", "propose.time", "exec.time")]
+  times[is.na(times)] = 0
+  times$runtime = cumsum(rowSums(times))
+  resdf = cbind(resdf, times)
 
-    object$result.pf = lapply(unique(resdf$gen), function(x) {
-      x_filt = resdf[gen <= x, ]
-      cols = which(names(x_filt) %in% c("y_1", "y_2"))
-      names(x_filt)[cols] = c("perf", "rn")
-      x_filt$rn <- ceiling(task.p * x_filt$rn) / task.p
-      x_filt[, c("rn", "perf")]
-    })
-
-    object$result.pf.test = lapply(unique(resdf$gen), function(x) {
-      x_filt = resdf[gen <= x, ]
-      cols = which(names(x_filt) %in% c("y_1", "y_2"))
-      names(x_filt)[cols] = c("perf", "rn")
-      x_filt$rn <- ceiling(task.p * x_filt$rn) / task.p
-      x_filt[, c("rn", "fitness.holdout.perf")]
-    })
-
-    resdf = resdf[, .(runtime = max(runtime), evals = max(evals)), by = c("gen")]
-
+  if (object$result$control$n.objectives == 1) {
+    resdf$perf = opt.path$y
+    resdf$rn = opt.path$fitness.holdout.propfeat 
   } else {
-    resdf$gen <- 0:(length(object$result.pf)-1)
-    evals <- as.integer(names(object$result.pf))
-    resdf$runtime <- cumsum(rowSums(opt.path[evals, c("train.time",  "propose.time", "exec.time")], na.rm = TRUE))
-    resdf$evals <- evals
+    cols = which(names(resdf) %in% c("y_1", "y_2"))
+    names(resdf)[cols] = c("perf", "rn")  
   }
 
-  
+  object$result.pf = lapply(unique(resdf$gen), function(x) {
+    x_filt = resdf[gen <= x, ]
+    # why ceiling here? 
+    x_filt$rn <- ceiling(task.p * x_filt$rn) / task.p
+    x_filt[, c("rn", "perf")]
+  })
+
+  object$result.pf.test = lapply(unique(resdf$gen), function(x) {
+    x_filt = resdf[gen <= x, ]
+    # cols = which(names(x_filt) %in% c("y_1", "y_2"))
+    # names(x_filt)[cols] = c("perf", "rn")
+    # why ceiling here? 
+    x_filt$rn <- ceiling(task.p * x_filt$rn) / task.p
+    x_filt[, c("rn", "fitness.holdout.perf")]
+  })
+
+  resdf = resdf[, .(runtime = max(runtime), evals = max(evals)), by = c("gen")]
+
   multi.fun <- function(x) {
     c(min = min(x), mean = mean(x, na.rm = TRUE), max = max(x))
   }
@@ -355,14 +336,14 @@ collectResultMBO = function(object, aggregate.perresult = list(domHV = function(
     
     # Get summaries performance training data
     train$rn <- as.numeric(train$rn)
-    train <- train[, c(2, 1)] # ATTENTION HERE !!!
+    train <- train[, c("perf", "rn")] # ATTENTION HERE !!!
     train.perf <- receive.perf(train, c("eval.perf.min", "eval.perf.mean", 
       "eval.perf.max", "eval.propfeat.min", 
       "eval.propfeat.mean", "eval.propfeat.max", "eval.domHV"))
     
     # Get summaries performance holdout data
     hold$rn <- as.numeric(hold$rn)
-    hold <- hold[, c(2, 1)]
+    hold <- hold[, c("fitness.holdout.perf", "rn")] 
     test.perf <- receive.perf(hold, c("hout.perf.min", 
       "hout.perf.mean", "hout.perf.max", "hout.propfeat.min", "hout.propfeat.mean", 
       "hout.propfeat.max",  "hout.domHV"))
@@ -386,49 +367,49 @@ collectResultMBO = function(object, aggregate.perresult = list(domHV = function(
   return(resdf)
 }
 
-# CollectResults
-collectBenchmarkResults = function(path, experiments, tab, mbo = FALSE) {
+# # CollectResults
+# collectBenchmarkResults = function(path, experiments, tab, mbo = FALSE) {
   
-  assert(!is.null(path))
+#   assert(!is.null(path))
 
-  for (experiment in names(experiments)) {
-    toreduce = ijoin(tab, experiments[[experiment]], by = names(experiments[[experiment]]))
-    toreduce = ijoin(toreduce, findDone(), by = "job.id")
+#   for (experiment in names(experiments)) {
+#     toreduce = ijoin(tab, experiments[[experiment]], by = names(experiments[[experiment]]))
+#     toreduce = ijoin(toreduce, findDone(), by = "job.id")
 
-    dir = as.numeric(sapply(list.files("registry/results/"), function(x) strsplit(x, ".rds")[[1]][1]))
-    dir = data.frame(job.id = dir)
-    toreduce = ijoin(toreduce, dir)
+#     dir = as.numeric(sapply(list.files("registry/results/"), function(x) strsplit(x, ".rds")[[1]][1]))
+#     dir = data.frame(job.id = dir)
+#     toreduce = ijoin(toreduce, dir)
 
-    if (mbo) {
-      res = reduceResultsDataTable(toreduce, function(x) collectResultMBO(x))   
-    } else {
-      if (!is.null(experiments[[experiment]]$multi.objective) && !experiments[[experiment]]$multi.objective) {
-          res = reduceResultsDataTable(toreduce, function(x) collectResult(x$result, ref.point = c(1)))
-        } else {
-          res = reduceResultsDataTable(toreduce, function(x) collectResult(x$result))
-      }
-    }
+#     if (mbo) {
+#       res = reduceResultsDataTable(toreduce, function(x) collectResultMBO(x))   
+#     } else {
+#       if (!is.null(experiments[[experiment]]$multi.objective) && !experiments[[experiment]]$multi.objective) {
+#           res = reduceResultsDataTable(toreduce, function(x) collectResult(x$result, ref.point = c(1)))
+#         } else {
+#           res = reduceResultsDataTable(toreduce, function(x) collectResult(x$result))
+#       }
+#     }
 
-    res = ijoin(tab, res, by = "job.id")
-    res$variant = experiment
+#     res = ijoin(tab, res, by = "job.id")
+#     res$variant = experiment
 
-    for (prob in unique(res$problem)) {
-      if (nrow(res[problem == prob, ]) < 30)
-        warning(paste("Experiments for ", prob, experiment, "not complete  (", nrow(res[problem == prob, ]), " / 30 )"))
+#     for (prob in unique(res$problem)) {
+#       if (nrow(res[problem == prob, ]) < 30)
+#         warning(paste("Experiments for ", prob, experiment, "not complete  (", nrow(res[problem == prob, ]), " / 30 )"))
 
-      dir.create(file.path(path, prob))
-      dir.create(file.path(path, prob, experiment))
+#       dir.create(file.path(path, prob))
+#       dir.create(file.path(path, prob, experiment))
 
-      saveRDS(res, file.path(path, prob, experiment, "domHV_over_evals.rds"))
-    }
+#       saveRDS(res, file.path(path, prob, experiment, "domHV_over_evals.rds"))
+#     }
 
-    dir.create(file.path(path, experiment))
+#     dir.create(file.path(path, experiment))
 
-    saveRDS(res, file.path(path, experiment, "result.rds"))
-    # saveRDS(pops, file.path(path, experiment, "population.rds"))
+#     saveRDS(res, file.path(path, experiment, "result.rds"))
+#     # saveRDS(pops, file.path(path, experiment, "population.rds"))
 
-  }
-}
+#   }
+# }
 
 summarizeResultMosmafs = function(x) {
     domhv = collectResult(x)
@@ -461,9 +442,27 @@ summarizeResultMosmafs = function(x) {
     list(obj.summary = domhv, population = pops2)
   }
 
+summarizeResultMBO = function(x) {
+    p = getTaskNFeats(x$train.task)
+
+    domhv = collectResultMBO(x)
+    
+    # list of length with the number of generations 
+    pops = setDT(data.frame(x$result$opt.path))
+    pops$gen = pmax(floor((1:nrow(pops) - 80) / 15), 0)
+    pops$abfeat = p * pops$fitness.holdout.propfeat
+    pops$meanfeat.propfeat = pops$fitness.holdout.propfeat
+    pops$perf.perf = pops$y
+    pops$perf.hout.perf = pops$fitness.holdout.perf
+    pops$fitness.holdout.propfeat = NULL
+    pops$y = NULL
+    pops$fitness.holdout.perf = NULL
+
+    list(obj.summary = domhv, population = pops)
+}
 
 # CollectResults
-collectBenchmarkResults2 = function(path, experiments, tab) {
+collectBenchmarkResults = function(path, experiments, tab) {
   
   assert(!is.null(path))
 
@@ -471,7 +470,7 @@ collectBenchmarkResults2 = function(path, experiments, tab) {
 
     print(paste("Reducing ", experiment))
 
-    for (prob in unique(tab$problem)) {
+    for (prob in datasets[1:10]) {
 
       print(paste("-- Reducing ", prob))
 
@@ -486,7 +485,7 @@ collectBenchmarkResults2 = function(path, experiments, tab) {
       toreduce = ijoin(toreduce, dir)
 
       if (experiments[[experiment]]$algorithm %in% c("no_feature_sel", "mbo_multicrit")) {
-        res = reduceResultsDataTable(toreduce, function(x) collectResultMBO(x))   
+        res = reduceResultsDataTable(toreduce, function(x) summarizeResultMBO(x))   
       } else {
         res = reduceResultsDataTable(toreduce, function(x) summarizeResultMosmafs(x$result))
       }
@@ -604,54 +603,6 @@ extractFromSummary = function(res, toextract) {
   return(df)
 }
 
-
-theme_Publication <- function(base_size=14, base_family="helvetica") {
-      library(grid)
-      library(ggthemes)
-      # (theme_foundation(base_size=base_size)
-      #  + 
-      theme_bw(plot.title = element_text(face = "bold",
-                                         size = rel(1.2), hjust = 0.5),
-               text = element_text(),
-               panel.background = element_rect(colour = NA),
-               plot.background = element_rect(colour = NA),
-               panel.border = element_rect(colour = NA),
-               axis.title = element_text(face = "bold",size = rel(1)),
-               axis.title.y = element_text(angle=90,vjust =2),
-               axis.title.x = element_text(vjust = -0.2),
-               axis.text = element_text(), 
-               axis.line = element_line(colour="black"),
-               axis.ticks = element_line(),
-               panel.grid.major = element_line(colour="#f0f0f0"),
-               panel.grid.minor = element_blank(),
-               legend.key = element_rect(colour = NA),
-               legend.position = "bottom",
-               legend.direction = "horizontal",
-               legend.key.size= unit(0.5, "cm"),
-               legend.margin = unit(0, "cm"),
-               legend.title = element_text(face="italic"),
-               plot.margin=unit(c(10,5,5,5),"mm"),
-               strip.background=element_rect(colour="#f0f0f0",fill="#f0f0f0"),
-               strip.text = element_text(face="bold")
-          )#)  
-}
-
-scale_fill_Publication <- function(...){
-      library(scales)
-      discrete_scale("fill","Publication",manual_pal(values = c("#386cb0","#fdb462","#7fc97f","#ef3b2c","#662506","#a6cee3","#fb9a99","#984ea3","#00856E","#000000")), ...)
-
-}
-
-scale_colour_Publication <- function(...){
-      library(scales)
-      discrete_scale("colour","Publication",manual_pal(values = c("#386cb0","#fdb462","#7fc97f","#ef3b2c","#662506","#a6cee3","#fb9a99","#984ea3","#00856E","#000000")), ...)
-
-}
-
-scale_colour_spec <- function(...){
-      library(scales)
-      discrete_scale("colour","Publication",manual_pal(values = c("#000000", "#386cb0","#fdb462","#7fc97f","#ef3b2c","#662506","#a6cee3","#fb9a99","#984ea3","#ffff33")), ...)
-}
 
 
 plotMosmafsOptResult = function(res, plotspath, experiments, 
@@ -785,43 +736,6 @@ plotRanks = function(data, outpath, metric, limits) {
     ggsave(outpath, p1, width = 12, height = 6, device = "pdf")
 }
 
-
-
-
-
-
-# plotRanks = function(res, plotspath, experiments, logscale = FALSE, metric = "naive.hout.domHV", prompt, limits = c(0.5, 1), height = 10, width = 7) {
-    
-#     # 1) Pepare the dataset for plotting 
-#     df = res[variant %in% experiments$variant, ]
-#     df = extractFromSummary(df, c("runtime", metric))
-#     df = renameAndRevalue(df)
-#     names(df)[which(names(df) == metric)] = "metric"
-#     df$runtime = df$runtime / 3600
-
-#     ylab_names = data.table(name = c("DomHV[test]", "DomHV[valid]", "trueDomHV[test]"), 
-#                           mymetric = c("naive.hout.domHV", "eval.domHV", "true.hout.domHV"))
-#     myname = ylab_names[mymetric == metric, ]$name
-
-#     # --- average across problems
-#     for (prob in unique(df$problem)) {
-#       plist = list()
-#       dir.create(file.path(plotspath, prompt, gsub("\\.", "", metric), prob))
-#       for (lrn in unique(df$learner)) {
-#         plist[[lrn]] = ggplot()
-#         plist[[lrn]] = plist[[lrn]] + geom_line(data = df[problem == prob & learner == lrn, ], aes(x = runtime, y = metric, lty = algorithm, colour = variant, group = job.id), size = 0.6)
-#         plist[[lrn]] = plist[[lrn]] + scale_colour_Publication() + theme_Publication() 
-#         plist[[lrn]] = plist[[lrn]] + labs(colour = "Variant", lty = "Algorithm") 
-#         plist[[lrn]] = plist[[lrn]] + theme(legend.direction = "horizontal", legend.position = "top", legend.box = "vertical", legend.box.just = "left")
-#         plist[[lrn]] = plist[[lrn]] + guides(lty = guide_legend(order = 1), colour = guide_legend(order = 2))
-#         plist[[lrn]] = plist[[lrn]] + xlab("Runtime [in h]") + ylab(myname)
-#         plist[[lrn]] = plist[[lrn]] + xlim(c(0, 5))
-#       }
-#       p = do.call(grid.arrange, c(plist, ncol = 3))
-#       ggsave(file.path(plotspath, prompt, gsub("\\.", "", metric), prob, paste("perf_vs_runtime.pdf", sep = "")), p, width = 15, height = 8, device = "pdf")
-#     }
-
-# }
 
 plotSOperformance = function(res, plotspath, experiments, logscale = FALSE, prompt, limits = c(0.5, 1), height = 10, width = 7) {
     # PUT GENERATIONS HERE 

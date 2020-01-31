@@ -37,13 +37,13 @@ experiments_old = list(
 	OGHFiFmS = data.table(algorithm = "mosmafs", filter = "custom", initialization = "geom", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, parent.sel = "selTournamentMO", tune.hyperparams = TRUE, tune.iters = 0, multi.objective = TRUE),
 	RS = data.table(algorithm = "randomsearch", initialization = "none", filter = "none"),
 	RSI = data.table(algorithm = "randomsearch", initialization = "unif", filter = "none"),
-	RSIF = data.table(algorithm = "randomsearch", initialization = "unif", filter = "custom")
-	# BS1RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = FALSE, surrogate = "randomForest", infill = "cb", propose.points = 15L, start.recon.iter = 80L),
-	# BS2RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = TRUE, surrogate = "randomForest", infill = "cb", propose.points = 15L, start.recon.iter = 80L),
-	# BS5SO = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, multi.objective = FALSE, parent.sel = "selTournament", tune.hyperparams = TRUE, tune.iters = 0),
-	# BSMO = data.table(algorithm = "mbo_multicrit", filter = "custom", surrogate = "randomForest", infill = "cb", propose.points = 15L, adaptive.filter.weights = FALSE),
+	RSIF = data.table(algorithm = "randomsearch", initialization = "unif", filter = "custom"),
+	BS1RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = FALSE, surrogate = "randomForest", infill = "cb", propose.points = 15L),
+	BS2RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = TRUE, surrogate = "randomForest", infill = "cb", propose.points = 15L),
+	BS5SO = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, multi.objective = FALSE, parent.sel = "selTournament", tune.hyperparams = TRUE, tune.iters = 0),
+	BSMO = data.table(algorithm = "mbo_multicrit", filter = "custom", surrogate = "randomForest", infill = "cb", propose.points = 15L, adaptive.filter.weights = NA),
 	# OIHFiFmS_no_hyperpars = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, multi.objective = TRUE, parent.sel = "selTournamentMO", tune.hyperparams = FALSE, tune.iters = 0L),
-	# BSMOF = data.table(algorithm = "mbo_multicrit", filter = "custom", surrogate = "randomForest", infill = "cb", propose.points = 15L, adaptive.filter.weights = TRUE)
+	BSMOF = data.table(algorithm = "mbo_multicrit", filter = "custom", surrogate = "randomForest", infill = "cb", propose.points = 15L, adaptive.filter.weights = TRUE)
 	# OIHFiFmS_no_hyperpars500 = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, multi.objective = TRUE, parent.sel = "selTournamentMO", tune.hyperparams = FALSE, tune.iters = 500),
 	# OIHFiFmS_preset500 = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, multi.objective = TRUE, parent.sel = "selTournamentMO", tune.hyperparams = TRUE, tune.iters = 500)
 	)
@@ -60,26 +60,37 @@ experiments = list(
 	OGHFiFmS = data.table(algorithm = "mosmafs", filter = "custom", initialization = "geom", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, parent.sel = "selTournamentMO", tune.hyperparams = TRUE, tune.iters = 0, multi.objective = TRUE),
 	RS = data.table(algorithm = "randomsearch", initialization = "none", filter = "none"),
 	RSI = data.table(algorithm = "randomsearch", initialization = "unif", filter = "none"),
-	RSIF = data.table(algorithm = "randomsearch", initialization = "unif", filter = "custom")# ,
-	# BS1RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = FALSE, surrogate = "randomForest", infill = "cb", propose.points = 15L, start.recon.iter = 80L)
-	# BS2RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = TRUE, surrogate = "randomForest", infill = "cb", propose.points = 15L, start.recon.iter = 80L),
-	# BS5SO = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, multi.objective = FALSE, parent.sel = "selTournament", tune.hyperparams = TRUE, tune.iters = 0),
-	# BSMO = data.table(algorithm = "mbo_multicrit", filter = "custom", surrogate = "randomForest", infill = "cb", propose.points = 15L, adaptive.filter.weights = FALSE),
+	RSIF = data.table(algorithm = "randomsearch", initialization = "unif", filter = "custom"),
+	BS1RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = FALSE, surrogate = "randomForest", infill = "cb", propose.points = 15L, start.recon.iter = 80L),
+	BS2RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = TRUE, surrogate = "randomForest", infill = "cb", propose.points = 15L, start.recon.iter = 80L),
+	BS5SO = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, multi.objective = FALSE, parent.sel = "selTournament", tune.hyperparams = TRUE, tune.iters = 0),
+	BSMO = data.table(algorithm = "mbo_multicrit", filter = "custom", surrogate = "randomForest", infill = "cb", propose.points = 15L, adaptive.filter.weights = FALSE),
 	# OIHFiFmS_no_hyperpars = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, multi.objective = TRUE, parent.sel = "selTournamentMO", tune.hyperparams = FALSE, tune.iters = 0L),
-	# BSMOF = data.table(algorithm = "mbo_multicrit", filter = "custom", surrogate = "randomForest", infill = "cb", propose.points = 15L, adaptive.filter.weights = TRUE)
+	BSMOF = data.table(algorithm = "mbo_multicrit", filter = "custom", surrogate = "randomForest", infill = "cb", propose.points = 15L, adaptive.filter.weights = TRUE)
 	# OIHFiFmS_no_hyperpars500 = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, multi.objective = TRUE, parent.sel = "selTournamentMO", tune.hyperparams = FALSE, tune.iters = 500),
 	# OIHFiFmS_preset500 = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, multi.objective = TRUE, parent.sel = "selTournamentMO", tune.hyperparams = TRUE, tune.iters = 500)
 	)
 
 # b) Problems to reduce 
 
-datasets = c("sonar", "ionosphere", 
-	"hill-valley", "wdbc", "tecator", "lsvt", "isolet", "cnae-9", 
-	"clean1", "semeion")#, "AP_Breast_Colon", "arcene", 
-	#"AP_Colon_Kidney", "madelon", "madeline")
+# on the old registry perform
 
-lapply(datasets, function(x) dir.create(file.path(path, x)))
-collectBenchmarkResults2(path, experiments_old, tab)
+if (grepl("repos", getwd())) {
+	datasets = c("sonar", "ionosphere", 
+		"hill-valley", "wdbc", "tecator", "lsvt", "isolet", "cnae-9", 
+		"clean1", "semeion")
+	lapply(datasets, function(x) dir.create(file.path(path, x)))
+	collectBenchmarkResults2(path, experiments_old, tab)
+} else {
+	datasets = c("sonar", "ionosphere", 
+		"hill-valley", "wdbc", "tecator", "lsvt", "isolet", "cnae-9", 
+		"clean1", "semeion", "AP_Breast_Colon", "arcene", "AP_Colon_Kidney", 
+		"madelon", "madeline")
+	lapply(datasets, function(x) dir.create(file.path(path, x)))
+	collectBenchmarkResults(path, experiments, tab)	
+}
+# on the new one, perform 
+
 
 
 
@@ -87,19 +98,6 @@ collectBenchmarkResults2(path, experiments_old, tab)
 # --- 3. Reduce 
 
 # get the solution candidates 
-
-bla = list.files("results_reduced", recursive = TRUE, full.names = TRUE)
-bla = lapply(bla, function(x) nrow(readRDS(x)))
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -115,30 +113,30 @@ bla = lapply(bla, function(x) nrow(readRDS(x)))
 
 # Get the optimal hyperparamters after 500 runs (single-objective) for intialization
 
-# toreduce = ijoin(tab, findDone())
-# toreduce = ijoin(toreduce, experiments[["BS1RF"]])
-# nevals = 500L
-# res = reduceResultsDataTable(toreduce, function(x) getHyperparamsPerProblem(x, nevals))
-# res = ijoin(tab, res, by = "job.id")
+toreduce = ijoin(tab, findDone())
+toreduce = ijoin(toreduce, experiments[["BS1RF"]])
+nevals = 500L
+res = reduceResultsDataTable(toreduce, function(x) getHyperparamsPerProblem(x, nevals))
+res = ijoin(tab, res, by = "job.id")
 
-# for (prob in unique(res$problem)) {
-# 	res_reduced = res[problem == prob, ]
+for (prob in unique(res$problem)) {
+	res_reduced = res[problem == prob, ]
 
-# 	if(nrow(res_reduced) == 30) {
-# 		res_reduced = res_reduced[, replication := 1:length(job.id), by = c("learner")]	
-# 		hyperparams = lapply(1:10, function(x) {
-# 			a = res_reduced[replication == x, ]
-# 			z = lapply(a$learner, function(x) {
-# 				a[learner == x, ]$result[[1]]
-# 			})
-# 			names(z) = a$learner
-# 			z
-# 		})
-# 		saveRDS(hyperparams, file.path("../../../mosmafs/benchmark/data", prob, paste("hyperparams_", nevals, ".rds", sep = "")))			
-# 	} else {
-# 		warning(paste(prob, "not completed yet"))
-# 	}
-# }
+	if(nrow(res_reduced) == 30) {
+		res_reduced = res_reduced[, replication := 1:length(job.id), by = c("learner")]	
+		hyperparams = lapply(1:10, function(x) {
+			a = res_reduced[replication == x, ]
+			z = lapply(a$learner, function(x) {
+				a[learner == x, ]$result[[1]]
+			})
+			names(z) = a$learner
+			z
+		})
+		saveRDS(hyperparams, file.path("data", prob, paste("hyperparams_", nevals, ".rds", sep = "")))			
+	} else {
+		warning(paste(prob, "not completed yet"))
+	}
+}
 
 
 

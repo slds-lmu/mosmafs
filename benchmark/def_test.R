@@ -61,7 +61,7 @@ INFILL = list("cb" = makeMBOInfillCritCB())
 ades.random = CJ(learner = c("SVM", "kknn", "xgboost"), 
 			maxeval = MAXEVAL, 
 			filter = c("none", "custom", "testfilter"),
-			initialization = c("none", "unif"), 
+			initialization = c("none", "unif", "geom"), 
 			cv.iters = CVITERS,
 			sorted = FALSE)
 

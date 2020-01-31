@@ -32,12 +32,42 @@ randomsearch = function(data, job, instance, learner, maxeval, filter, initializ
     ps = getParamSet(fitness.fun)
     
     initials = sampleValues(ps, maxeval, discrete.names = TRUE)
+    p = NULL
 
     # --- initialization according to a distribution
     if (initialization == "unif") 
       distribution = function() floor(runif(1, 0, length(initials[[1]]$selector.selection) + 1))
-    else 
+    if (initialization == "none") 
       distribution = function() rbinom(1, length(initials[[1]]$selector.selection), 0.5)
+    
+    if (initialization == "geom") {
+      # we empirically find a good value for p by fitting 100 trees 
+      rpart = makeLearner("classif.rpart")
+
+      rsmp = makeResampleDesc("RepCV")
+      rinst = makeResampleInstance(rsmp, train.task)
+      nacvars = rep(0, length(rinst$train.inds))
+
+      for (i in 1:length(rinst$train.inds)) {
+          tsk = subsetTask(train.task, subset = rinst$train.inds[[i]])
+          mod = train(rpart, tsk)
+      
+          splits = mod$learner.model$splits
+      
+          acvars = unique(rownames(splits))
+          nacvars[i] = length(acvars)
+      }
+      p = 1 / mean(nacvars) # heuristic for p
+      distribution = function() {
+        z = getTaskNFeats(train.task) + 10
+        while(z > getTaskNFeats(train.task)) {
+          z = rgeom(1, p)
+        }
+        z
+      }   
+    }
+
+
 
     if (filter == "none") 
       initials = initSelector(initials, distribution = distribution)
@@ -55,5 +85,5 @@ randomsearch = function(data, job, instance, learner, maxeval, filter, initializ
 
   runtime = proc.time() - time
 
-  return(list(result = result, test.task = test.task, train.task = train.task, runtime = runtime, ps = ps, filtermat = fima))
+  return(list(result = result, test.task = test.task, train.task = train.task, runtime = runtime, ps = ps, filtermat = fima, p_geom = p))
 } 
