@@ -4,7 +4,7 @@ library(batchtools)
 
 reg = loadRegistry("registry_temp", writeable = TRUE)
 
-testdata = "sonar"
+testdata = "arcene"
 
 tab = summarizeExperiments(by = c("job.id", "algorithm", 
 	"problem", "learner", "maxeval", "filter", "initialization", 
@@ -21,6 +21,7 @@ tosubmit = tab[algorithm %in% "randomsearch", ]
 # uniform vs. non-uniform 
 binom = testJob(tosubmit[initialization == "none", ][1, ])
 unif = testJob(tosubmit[initialization == "unif", ][1, ])
+geom = testJob(tosubmit[initialization == "geom", ][1, ])
 
 sapply(binom$result$last.population, function (x) mean(x$selector.selection))
 sapply(unif$result$last.population, function (x) mean(x$selector.selection))

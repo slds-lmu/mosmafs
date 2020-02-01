@@ -412,11 +412,14 @@ collectResultMBO = function(object, aggregate.perresult = list(domHV = function(
 # }
 
 summarizeResultMosmafs = function(x) {
-    domhv = collectResult(x)
+
+    domhv = collectResult(x$result)
     
     # list of length with the number of generations 
-    pops = x$log$env$pop
+    pops = x$result$log$env$pop
     pops[sapply(pops, is.null)] = NULL
+
+    nfeats = getTaskNFeats(x$train.task)
 
     pops2 = lapply(1:length(pops), function(i) {
       gen = i - 1
@@ -432,6 +435,9 @@ summarizeResultMosmafs = function(x) {
       })
 
       res2 = as.data.table(do.call(rbind, res2))
+
+      if (!("meanfeat.propfeat" %in% names(res2)))
+        res2$meanfeat.propfeat = as.numeric(res2$absfeat) / nfeats
 
       mat = apply(as.matrix(res2[, c("perf.perf", "meanfeat.propfeat")]), 2, as.numeric)
       res2$ranks = doNondominatedSorting(t(mat))$ranks
@@ -453,6 +459,9 @@ summarizeResultMBO = function(x) {
     pops$abfeat = p * pops$fitness.holdout.propfeat
     pops$meanfeat.propfeat = pops$fitness.holdout.propfeat
     pops$perf.perf = pops$y
+    if ("y_1" %in% names(pops))
+      pops$perf.perf = pops$y_1
+
     pops$perf.hout.perf = pops$fitness.holdout.perf
     pops$fitness.holdout.propfeat = NULL
     pops$y = NULL
@@ -466,11 +475,11 @@ collectBenchmarkResults = function(path, experiments, tab) {
   
   assert(!is.null(path))
 
-  for (experiment in names(experiments)) {
+  for (experiment in names(experiments)[8:12]) {
 
     print(paste("Reducing ", experiment))
 
-    for (prob in datasets[1:10]) {
+    for (prob in datasets) {
 
       print(paste("-- Reducing ", prob))
 
@@ -487,7 +496,7 @@ collectBenchmarkResults = function(path, experiments, tab) {
       if (experiments[[experiment]]$algorithm %in% c("no_feature_sel", "mbo_multicrit")) {
         res = reduceResultsDataTable(toreduce, function(x) summarizeResultMBO(x))   
       } else {
-        res = reduceResultsDataTable(toreduce, function(x) summarizeResultMosmafs(x$result))
+        res = reduceResultsDataTable(toreduce, function(x) summarizeResultMosmafs(x))
       }
 
       res = ijoin(tab, res, by = "job.id")
@@ -518,7 +527,7 @@ collectBenchmarkResults = function(path, experiments, tab) {
       dir.create(file.path(path, prob))
       dir.create(file.path(path, prob, experiment))
 
-      if (nthr == 30) {
+      if (nthr > 28) {
         saveRDS(res, file.path(path, prob, experiment, "result.rds"))
       }
     }

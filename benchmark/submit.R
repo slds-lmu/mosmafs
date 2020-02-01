@@ -18,7 +18,7 @@ tab = summarizeExperiments(
 tab = tab[maxeval == 2000L, ]
 
 resources.serial = list(
-	walltime = 3600L * 96L, memory = 1024L * 2L,
+	walltime = 3600L * 96L, memory = 1024L * 4L,
 	clusters = "serial", max.concurrent.jobs = 1000L # get name from lrz homepage)
 )
 
@@ -53,33 +53,34 @@ experiments = list(
 	RSG = data.table(algorithm = "randomsearch", initialization = "geom", filter = "none"),
 	RSIF = data.table(algorithm = "randomsearch", initialization = "unif", filter = "custom"),
 	RSGF = data.table(algorithm = "randomsearch", initialization = "geom", filter = "custom"),
-	BS1RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = FALSE, surrogate = "randomForest", infill = "cb", propose.points = 15L),#, start.recon.iter = 80L),
+	BS1RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = FALSE, surrogate = "randomForest", infill = "cb", propose.points = 15L, start.recon.iter = 80L),
 	BS2RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = TRUE, surrogate = "randomForest", infill = "cb", propose.points = 15L, start.recon.iter = 80L),
 	BS5SO = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, multi.objective = FALSE, parent.sel = "selTournament", tune.hyperparams = TRUE, tune.iters = 0),
 	BSMO = data.table(algorithm = "mbo_multicrit", filter = "custom", surrogate = "randomForest", infill = "cb", propose.points = 15L, adaptive.filter.weights = FALSE),
 	# OIHFiFmS_no_hyperpars = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, multi.objective = TRUE, parent.sel = "selTournamentMO", tune.hyperparams = FALSE, tune.iters = 0L),
-	BSMOF = data.table(algorithm = "mbo_multicrit", filter = "custom", surrogate = "randomForest", infill = "cb", propose.points = 15L, adaptive.filter.weights = TRUE),
-	OIHFiFmS_no_hyperpars500 = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, multi.objective = TRUE, parent.sel = "selTournamentMO", tune.hyperparams = FALSE, tune.iters = 500),
-	OIHFiFmS_preset500 = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, multi.objective = TRUE, parent.sel = "selTournamentMO", tune.hyperparams = TRUE, tune.iters = 500),
-	OIGFiFmS_no_hyperpars500 = data.table(algorithm = "mosmafs", filter = "custom", initialization = "geom", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, multi.objective = TRUE, parent.sel = "selTournamentMO", tune.hyperparams = FALSE, tune.iters = 500),
-	OIGFiFmS_preset500 = data.table(algorithm = "mosmafs", filter = "custom", initialization = "geom", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, multi.objective = TRUE, parent.sel = "selTournamentMO", tune.hyperparams = TRUE, tune.iters = 500)
+	BSMOF = data.table(algorithm = "mbo_multicrit", filter = "custom", surrogate = "randomForest", infill = "cb", propose.points = 15L, adaptive.filter.weights = TRUE)#,
+	# OIHFiFmS_no_hyperpars500 = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, multi.objective = TRUE, parent.sel = "selTournamentMO", tune.hyperparams = FALSE, tune.iters = 500),
+	# OIHFiFmS_preset500 = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, multi.objective = TRUE, parent.sel = "selTournamentMO", tune.hyperparams = TRUE, tune.iters = 500),
+	# OIGFiFmS_no_hyperpars500 = data.table(algorithm = "mosmafs", filter = "custom", initialization = "geom", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, multi.objective = TRUE, parent.sel = "selTournamentMO", tune.hyperparams = FALSE, tune.iters = 500),
+	# OIGFiFmS_preset500 = data.table(algorithm = "mosmafs", filter = "custom", initialization = "geom", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, multi.objective = TRUE, parent.sel = "selTournamentMO", tune.hyperparams = TRUE, tune.iters = 500)
 	)
 
 # b) Datasets
 
 # ru59sol2
 problems.serial = c("AP_Breast_Colon")
-# problems.serial = c("arcene")
-# problems.serial = c("madeline")
+problems.serial = c("arcene")
+problems.serial = c("madeline")
 problems.serial = c("AP_Colon_Kidney")
 problems.serial = c("madelon")
 
-printState(tab[problem %in% problems.serial, ], experiments, ids = findDone())
-# printState(tab[problem %in% problems.serial, ], experiments, ids = findQueued())
-printState(tab[problem %in% problems.serial, ], experiments, ids = findExpired())
-printState(tab[problem %in% problems.serial, ], experiments, ids = findRunning())
-printState(tab[problem %in% problems.serial, ], experiments, ids = findErrors())
+toprint = tab[problem %in% problems.serial, ]
 
+printState(toprint, experiments, ids = findDone())
+printState(toprint, experiments, ids = findQueued())
+printState(toprint, experiments, ids = findExpired())
+printState(toprint, experiments, ids = findRunning())
+printState(toprint, experiments, ids = findErrors())
 
 # NOT FULLY SUBMITTED 
 for (exp in c("RSG", "RSGF")) {
@@ -90,7 +91,7 @@ for (exp in c("RSG", "RSGF")) {
 		tosubmit = tosubmit[job.id > 100000, ]
 	}
 
-	if (nrow(tosubmit) == 300) {
+	# if (nrow(tosubmit) == 300) {
 		submitJobs(tosubmit, resources = resources.serial)
-	}
+	# }
 }
