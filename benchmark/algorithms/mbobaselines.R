@@ -55,7 +55,7 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
     # --- 
     
     ctrl = makeMBOControl(propose.points = propose.points)
-    ctrl = setMBOControlTermination(ctrl, max.evals = maxeval, exec.time.budget = maxtime)
+    ctrl = setMBOControlTermination(ctrl, max.evals = 2000L, exec.time.budget = maxtime)
     ctrl = setMBOControlInfill(ctrl, crit = INFILL[[infill]])
 
     # ---
