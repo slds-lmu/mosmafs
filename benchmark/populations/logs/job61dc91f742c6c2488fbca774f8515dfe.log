@@ -1,9 +1,0 @@
-### [bt]: This is batchtools v0.9.12
-### [bt]: Starting calculation of 1 jobs
-### [bt]: Setting working directory to '/home/julia/Documents/repos/mosmafs/benchmark'
-### [bt]: Memory measurement disabled
-### [bt]: Starting job [batchtools job.id=78]
-### [bt]: Setting seed to 12738 ...
-
-### [bt]: Job terminated successfully [batchtools job.id=78]
-### [bt]: Calculation finished!
