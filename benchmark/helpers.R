@@ -475,7 +475,7 @@ collectBenchmarkResults = function(path, experiments, tab) {
   
   assert(!is.null(path))
 
-  for (experiment in names(experiments)[8:12]) {
+  for (experiment in names(experiments)) {
 
     print(paste("Reducing ", experiment))
 
@@ -489,51 +489,123 @@ collectBenchmarkResults = function(path, experiments, tab) {
 
       print(nrow(toreduce))
 
-      dir = as.numeric(sapply(list.files("registry/results/"), function(x) strsplit(x, ".rds")[[1]][1]))
-      dir = data.frame(job.id = dir)
-      toreduce = ijoin(toreduce, dir)
+      savepath = file.path(path, prob, experiment, "result.rds")
 
-      if (experiments[[experiment]]$algorithm %in% c("no_feature_sel", "mbo_multicrit")) {
-        res = reduceResultsDataTable(toreduce, function(x) summarizeResultMBO(x))   
-      } else {
-        res = reduceResultsDataTable(toreduce, function(x) summarizeResultMosmafs(x))
-      }
+      # if (file.exists(savepath) && nrow(readRDS(savepath)) == 30) {
+      #   print(paste(experiment, "on", prob, "already completely reduced."))
+      # } else {
 
-      res = ijoin(tab, res, by = "job.id")
-      res$variant = experiment
+        dir = as.numeric(sapply(list.files("registry/results/"), function(x) strsplit(x, ".rds")[[1]][1]))
+        dir = data.frame(job.id = dir)
+        toreduce = ijoin(toreduce, dir)
 
-      # writing down metadata in the summary 
-
-      nthr = nrow(res)
-
-      if (!file.exists(file.path(path, "overview.rds"))) {
-        overview = data.table(experiment = experiment, data.frame = prob, experiments_complete = nthr, population_reduced = TRUE, domHV_reduced = FALSE, front_reduced = FALSE)
-      } else {
-        overview = readRDS(file.path(path, "overview.rds"))
-        
-        if (nrow(ijoin(data.frame(experiment = experiment, data.frame = prob), overview)) == 0L) {
-          overview = rbind(overview, data.table(experiment = experiment, data.frame = prob, experiments_complete = nthr, population_reduced = TRUE, domHV_reduced = FALSE, front_reduced = FALSE))
+        if (experiments[[experiment]]$algorithm %in% c("no_feature_sel", "mbo_multicrit")) {
+          res = reduceResultsDataTable(toreduce, function(x) summarizeResultMBO(x))   
         } else {
-          overview[experiment == experiment & data.frame == prob, ]$population_reduced = TRUE
-          overview[experiment == experiment & data.frame == prob, ]$experiments_complete = nthr
+          res = reduceResultsDataTable(toreduce, function(x) summarizeResultMosmafs(x))
         }
-      }
 
-      saveRDS(overview, file.path(path, "overview.rds"))
+        res = ijoin(tab, res, by = "job.id")
+        res$variant = experiment
 
-      if (nthr != 30)
-        warning(paste("Experiments for ", prob, experiment, "not complete  (", nthr, " / 30 )"))
+        # writing down metadata in the summary 
 
-      dir.create(file.path(path, prob))
-      dir.create(file.path(path, prob, experiment))
+        nthr = nrow(res)
 
-      if (nthr > 28) {
-        saveRDS(res, file.path(path, prob, experiment, "result.rds"))
+        if (!file.exists(file.path(path, "overview.rds"))) {
+          overview = data.table(experiment = experiment, data.frame = prob, experiments_complete = nthr, population_reduced = TRUE, domHV_reduced = FALSE, front_reduced = FALSE)
+        } else {
+          overview = readRDS(file.path(path, "overview.rds"))
+          
+          if (nrow(ijoin(data.frame(experiment = experiment, data.frame = prob), overview)) == 0L) {
+            overview = rbind(overview, data.table(experiment = experiment, data.frame = prob, experiments_complete = nthr, population_reduced = TRUE, domHV_reduced = FALSE, front_reduced = FALSE))
+          } else {
+            overview[experiment == experiment & data.frame == prob, ]$population_reduced = TRUE
+            overview[experiment == experiment & data.frame == prob, ]$experiments_complete = nthr
+          }
+        }
+
+        saveRDS(overview, file.path(path, "overview.rds"))
+
+        if (nthr != 30)
+          warning(paste("Experiments for ", prob, experiment, "not complete  (", nthr, " / 30 )"))
+
+        dir.create(file.path(path, prob))
+        dir.create(file.path(path, prob, experiment))
+
+        if (nthr > 28) {
+          saveRDS(res, file.path(path, prob, experiment, "result.rds"))
+        # }
       }
     }
   }
 }
 
+getPopulations = function(v, d) {
+            f = file.path("results_reduced", d, v, "result.rds")
+            if (file.exists(f)) {
+                resdf = readRDS(f)
+
+                do.call(rbind, lapply(resdf$job.id, function(i) {
+                    rr = resdf[job.id == i, ]$result[[1]]$population
+                    if ("start.recon.iter" %in% colnames(rr))
+                        rr$start.recon.iter = NULL
+                    
+                    if (is.data.table(rr)) {
+                        rr$evals = 1:nrow(rr)
+                        rr = list(rr)
+                    } 
+
+                    z = lapply(rr, function(df) {
+                        if ("abfeat" %in% names(df))
+                            names(df)[which(names(df) == "abfeat")] = "absfeat"
+                        if (!("ranks" %in% names(df))) 
+                            df$ranks = 1
+                        if ("y_1" %in% names(df) & !("perf.perf" %in% names(df)))
+                            df$perf.perf = df$y_1
+                        if ("gen" %in% names(df)) {
+                            df$evals = df$gen * 15L + 80L
+                        }
+                        res = df[, c("evals", "absfeat", "meanfeat.propfeat", "perf.perf", "perf.hout.perf", "ranks")]
+                    })
+                    z = do.call(rbind, z)
+                    z = cbind(job.id = i, z)
+                    z = ijoin(resdf[job.id == i, - c("result")], z, by = "job.id")
+                    z
+
+                    #     bla = lapply(1:9 / 10, function(p) {
+                    #         df = r[meanfeat.propfeat <= p, ]
+                    #         if (nrow(df) == 0) {
+                    #             df = r[1, ]
+                    #             df[, 2:ncol(df)] = NA
+                    #             df$sigma = NA
+                    #         } else {
+                    #             df = df[which.min(df$perf.perf), ]
+                    #         }
+                    #         df$maxfeat = p
+                    #         if ("abfeat" %in% names(df))
+                    #             names(df)[which(names(df) == "abfeat")] = "absfeat"
+                    #         if (!("ranks" %in% names(df))) 
+                    #             df$ranks = 1
+                    #         if ("y_1" %in% names(df) & !("perf.perf" %in% names(df)))
+                    #             df$perf.perf = df$y_1
+                    #         if ("gen" %in% names(df)) {
+                    #             df$evals = df$gen * 15L + 80L
+                    #         }
+                            
+                    #         df[, c("evals", "absfeat", "meanfeat.propfeat", "perf.perf", "perf.hout.perf", "maxfeat", "ranks")]
+                    #     })
+                    #     do.call(rbind, bla)
+                    # })
+                    # z = do.call(rbind, z)
+                    # z = cbind(job.id = i, z)
+                    # z = ijoin(resdf[job.id == i, - c("result")], z, by = "job.id")
+                    # z
+                }))
+                }
+              }                  
+                     
+        
 
 
 collectParetofront = function(path, experiments, tab, problems, learners = "xgboost") {    
@@ -611,6 +683,33 @@ extractFromSummary = function(res, toextract) {
   df = ijoin(res[, names(res) != "result", with = FALSE], hypervol, by = "job.id")
   return(df)
 }
+
+
+getObjSummaries = function(datasets, experiments) {
+    df = lapply(datasets, function(d) {
+        resdflist = parallel::mclapply(experiments, function(v) {
+            f = file.path(respath, "raw", d, v, "result.rds")
+            if (file.exists(f)) {
+                resdf = readRDS(f)
+                do.call(rbind, lapply(resdf$job.id, function(i) {
+                    rr = cbind(job.id = i, resdf[job.id == i, ]$result[[1]]$obj.summary)
+                    rr = ijoin(resdf[job.id == i, - c("result")], rr, by = "job.id")
+                    if ("start.recon.iter" %in% colnames(rr))
+                        rr$start.recon.iter = NULL
+                    if ("multi.objective" %in% colnames(rr))
+                        rr$multi.objective = NULL
+                    if ("multiobjective" %in% colnames(rr))
+                        rr$multiobjective = NULL
+
+                    rr
+                }))                   
+            }            
+        }, mc.cores = 6)
+        do.call(rbind, resdflist)
+    })
+    do.call(rbind, df)
+}
+
 
 
 
@@ -1189,7 +1288,7 @@ reconstructParetoFront = function(tuneobj, start.iter, step.size, mbo.result, tr
 
   n.steps = floor((maxeval - start.iter) / step.size)
   seq.path = c(start.iter, start.iter + 1:n.steps * step.size)
-  seq.path = sort(c(4 * sum(getParamLengths(ps)), seq.path)) # add first evaluation
+  seq.path = unique(sort(c(4 * sum(getParamLengths(ps)), seq.path))) # add first evaluation
 
   # If filter was already tuned, take tuned filter
   filters = filters[- which(filters == "DUMMY")]
@@ -1245,7 +1344,7 @@ reconstructParetoFront = function(tuneobj, start.iter, step.size, mbo.result, tr
 
   pareto.time = proc.time() - time
 
-  return(list(result.pf.list, result.pf.test.list, pareto.time))
+  return(list(result.pf.list = result.pf.list, result.pf.test.list = result.pf.test.list, pareto.time = pareto.time))
 }
 
 

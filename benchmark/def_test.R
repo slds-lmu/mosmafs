@@ -11,7 +11,7 @@ datafolder = "data"
 OVERWRITE = TRUE
 
 # Maximum number of evaluations allowed
-MAXEVAL = 110L
+MAXEVAL = 40L
 
 # Maximum runtime
 MAXTIME = 3600L * 40L
@@ -98,9 +98,10 @@ ades.no_feature_sel = CJ(learner = c("SVM", "kknn", "xgboost"),
 			filter = c("custom"), 
 			surrogate = c("randomForest"),
 			infill = c("cb"),
-      start.recon.iter = 34L, 
+      start.recon.iter = 36L, 
       step.size = 2L, 
   		filter.during.run = c(FALSE, TRUE), 
+      ensemble = c(FALSE, TRUE),
   		propose.points = 2L, 
   		sorted = FALSE)
 

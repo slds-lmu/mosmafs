@@ -19,7 +19,7 @@ lapply(packages, library, character.only = TRUE)
 # 1. Setup envorinoment (TEST / NO TEST) + load registry
 # --- 
 
-TEST = FALSE
+TEST = TRUE
 
 if (TEST) {
   deffile = "def_test.R"
@@ -34,7 +34,7 @@ source(deffile)
 if (TEST) {
     unlink(registry_name, recursive = TRUE)
     reg = makeExperimentRegistry(file.dir = registry_name, seed = 123L,
-      packages = packages, source = deffile)
+      packages = packages, source = deffile, conf.file = NA)
 } else {
   if (file.exists(registry_name)) {
     if (OVERWRITE) {

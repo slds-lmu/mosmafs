@@ -4,13 +4,13 @@ library(batchtools)
 
 reg = loadRegistry("registry_temp", writeable = TRUE)
 
-testdata = "arcene"
+testdata = "sonar"
 
 tab = summarizeExperiments(by = c("job.id", "algorithm", 
 	"problem", "learner", "maxeval", "filter", "initialization", 
 	"lambda", "mu", "parent.sel", "chw.bitflip", "adaptive.filter.weights",
 	"filter.during.run", "surrogate", "infill", "propose.points", "maxtime", 
-  "multi.objective", "tune.hyperparams", "tune.iters"))
+  "multi.objective", "tune.hyperparams", "tune.iters", "ensemble"))
 
 tab = tab[problem %in% testdata, ]
 
@@ -77,4 +77,10 @@ res = testJob(tosubmit[1, ])
 
 # --- TEST MOSMAFS WITH PRETUNED HYPERPARAMS
 tosubmit = tab[algorithm %in% "mosmafs" & chw.bitflip == TRUE & initialization == "geom" & tune.iters == 500L & tune.hyperparams == FALSE, ]
+res = testJob(tosubmit[1, ])
+
+
+
+# --- TEST MBO WITH FILTER ENSEMBLE
+tosubmit = tab[algorithm == "no_feature_sel" & filter.during.run == TRUE & ensemble == TRUE, ]
 res = testJob(tosubmit[1, ])
