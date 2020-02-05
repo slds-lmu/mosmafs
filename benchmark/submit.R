@@ -13,7 +13,7 @@ reg$work.dir = getwd()
 tab = summarizeExperiments(
 	by = c("job.id", "algorithm", "problem", "learner", "maxeval", "cv.iters", "filter", "initialization", 
 	"lambda", "mu", "parent.sel", "chw.bitflip", "adaptive.filter.weights", "filter.during.run", "surrogate", 
-	"infill", "propose.points", "tune.hyperparams", "tune.iters", "multi.objective", "start.recon.iter")
+	"infill", "propose.points", "tune.hyperparams", "tune.iters", "multi.objective", "start.recon.iter", "ensemble")
 	)
 tab = tab[maxeval == 2000L, ]
 
@@ -55,7 +55,7 @@ experiments = list(
 	RSGF = data.table(algorithm = "randomsearch", initialization = "geom", filter = "custom"),
 	BS1RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = FALSE, ensemble = NA, surrogate = "randomForest", infill = "cb", propose.points = 15L),# start.recon.iter = 80L),
 	BS2RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = TRUE, ensemble = NA, surrogate = "randomForest", infill = "cb", propose.points = 15L, start.recon.iter = 80L),
-	BS2RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = TRUE, ensemble = TRUE, surrogate = "randomForest", infill = "cb", propose.points = 15L, start.recon.iter = 80L),
+	BS2RF_ENS = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = TRUE, ensemble = TRUE, surrogate = "randomForest", infill = "cb", propose.points = 15L, start.recon.iter = 80L),
 	BS5SO = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, multi.objective = FALSE, parent.sel = "selTournament", tune.hyperparams = TRUE, tune.iters = 0),
 	BS5SO_geom = data.table(algorithm = "mosmafs", filter = "custom", initialization = "geom", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, multi.objective = FALSE, parent.sel = "selTournament", tune.hyperparams = TRUE, tune.iters = 0),
 	BSMO = data.table(algorithm = "mbo_multicrit", filter = "custom", surrogate = "randomForest", infill = "cb", propose.points = 15L, adaptive.filter.weights = FALSE),
@@ -87,7 +87,7 @@ printState(toprint, experiments, ids = findErrors())
 # NOT FULLY SUBMITTED 
 for (exp in c("RSG", "RSGF")) {
 	tosubmit = ijoin(tab, experiments[[exp]], by = names(experiments[[exp]]))
-	tosubmit = ijoin(tosubmit, findErrors())
+	tosubmit = ijoin(tosubmit, findNotStarted())
 	tosubmit = tosubmit[problem %in% problems.serial, ]
 	if (exp %in% c("BSMO", "BSMOF")) {
 		tosubmit = tosubmit[job.id > 100000, ]
