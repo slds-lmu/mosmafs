@@ -87,13 +87,13 @@ printState(toprint, experiments, ids = findErrors())
 # NOT FULLY SUBMITTED 
 for (exp in c("RSG", "RSGF")) {
 	tosubmit = ijoin(tab, experiments[[exp]], by = names(experiments[[exp]]))
-	tosubmit = ijoin(tosubmit, findNotStarted())
+	tosubmit = ijoin(tosubmit, findNotDone())
 	tosubmit = tosubmit[problem %in% problems.serial, ]
 	if (exp %in% c("BSMO", "BSMOF")) {
 		tosubmit = tosubmit[job.id > 100000, ]
 	}
 
 	# if (nrow(tosubmit) == 300) {
-		submitJobs(tosubmit, resources = resources.serial.doublemem)
+		submitJobs(tosubmit, resources = resources.serial)
 	# }
 }

@@ -225,6 +225,7 @@ mosmafs = function(data, job, instance, learner, maxeval, cv.iters, filter, init
       x[names(x) %in% names(params)] = params
       x
     })
+    maxeval = maxeval - tune.iters
   }
 
   
