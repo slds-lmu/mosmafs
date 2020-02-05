@@ -225,7 +225,6 @@ mosmafs = function(data, job, instance, learner, maxeval, cv.iters, filter, init
       x[names(x) %in% names(params)] = params
       x
     })
-    maxeval = maxeval - tune.iters
   }
 
   
@@ -243,7 +242,7 @@ mosmafs = function(data, job, instance, learner, maxeval, cv.iters, filter, init
     survival.selector = sur.sel, 
     mutator = mutator,
     recombinator = crossover,
-    generations = ceiling((maxeval - mu) / lambda)
+    generations = ceiling((maxeval - tune.iters - mu) / lambda)
   )
 
   runtime = proc.time() - time
