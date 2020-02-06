@@ -46,6 +46,13 @@ mbo_multicrit = function(data, job, instance, learner, maxeval, maxtime, cv.iter
     if (!adaptive.filter.weights) {
         ps = c(ps, pSS(filter: discrete[filters], perc: numeric[0, 1]))
     }
+  
+
+    if (learner == "xgboost" && train.task$task.desc$id %in% datasets.earlystop) {
+      lrn = setHyperPars(lrn, par.vals = list(early_stopping_rounds = 10L, nrounds = 2000L))
+      ps$pars$nrounds = NULL
+    }
+
      
     # ---
     # 1. Initial design 

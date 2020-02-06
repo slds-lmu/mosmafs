@@ -40,7 +40,7 @@ experiments_old = list(
 	RSIF = data.table(algorithm = "randomsearch", initialization = "unif", filter = "custom"),
 	BS1RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = FALSE, surrogate = "randomForest", infill = "cb", propose.points = 15L),
 	BS2RF = data.table(algorithm = "no_feature_sel", filter = "custom", "filter.during.run" = TRUE, surrogate = "randomForest", infill = "cb", propose.points = 15L),
-	BS5SO = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, multi.objective = FALSE, parent.sel = "selTournament", tune.hyperparams = TRUE, tune.iters = 0),
+	BS5SO = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, multi.objective = FALSE, parent.sel = "selTournament"),
 	BSMO = data.table(algorithm = "mbo_multicrit", filter = "custom", surrogate = "randomForest", infill = "cb", propose.points = 15L, adaptive.filter.weights = NA),
 	# OIHFiFmS_no_hyperpars = data.table(algorithm = "mosmafs", filter = "custom", initialization = "unif", chw.bitflip = TRUE, adaptive.filter.weights = TRUE, filter.during.run = TRUE, multi.objective = TRUE, parent.sel = "selTournamentMO", tune.hyperparams = FALSE, tune.iters = 0L),
 	BSMOF = data.table(algorithm = "mbo_multicrit", filter = "custom", surrogate = "randomForest", infill = "cb", propose.points = 15L, adaptive.filter.weights = TRUE, multiobjective = TRUE)
@@ -109,23 +109,23 @@ if (grepl("repos", getwd())) {
 
 # Get all populations in appropriate format 
 
-tmp = makeRegistry(file.dir = file.path(getwd(), "populations"), make.default = TRUE, 
+tmp = makeRegistry(file.dir = file.path(getwd(), "populations_temp"), make.default = TRUE, 
 	conf.file = NA, packages = c("data.table"))
-tmp = loadRegistry("populations", conf.file = NA, writeable = TRUE)
+tmp = loadRegistry("populations_temp", conf.file = NA, writeable = TRUE)
 tmp$cluster.functions = makeClusterFunctionsMulticore(ncpus = 4L)
 
-variants = c("O", "OGHFiFmS", "BS1RF", "BS2RF", "BSMO")
-args = data.table::CJ(v = variants, d = datasets)
-ids = batchMap(getPopulations, args = args, reg = tmp)
-args$job.id = 1:nrow(args)
+args = readRDS("populations/args.rds")
+nargs = nrow(args)
+nd = length(datasets)
+newid = (nargs + 1):(nargs + nd)
+args = rbind(args, args = cbind(data.table::CJ(v = c("OGHFiFm"), d = datasets), job.id = newid))
 saveRDS(args, "populations/args.rds")
-submitJobs(findErrors())
 
+args$job.id = NULL
 
-for (i in 1:nrow(args)) {
-	res = getPopulations(v = args$v[i], d = args$d[i])
-	saveRDS(res, file.path("populations", "results", paste(i, ".rds", sep = "")))
-}
+ids = batchMap(getPopulations, args = args, reg = tmp)
+
+submitJobs(newids)
 
 
 

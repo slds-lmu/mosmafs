@@ -542,7 +542,7 @@ collectBenchmarkResults = function(path, experiments, tab) {
 }
 
 getPopulations = function(v, d) {
-            f = file.path("results_reduced", d, v, "result.rds")
+            f = file.path("raw", d, v, "result.rds")
             if (file.exists(f)) {
                 resdf = readRDS(f)
 
@@ -700,6 +700,8 @@ getObjSummaries = function(datasets, experiments) {
                         rr$multi.objective = NULL
                     if ("multiobjective" %in% colnames(rr))
                         rr$multiobjective = NULL
+                    if ("ensemble" %in% colnames(rr))
+                        rr$ensemble = NULL
 
                     rr
                 }))                   

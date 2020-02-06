@@ -46,6 +46,11 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
         }
     } 
 
+    if (learner == "xgboost" && train.task$task.desc$id %in% datasets.earlystop) {
+      lrn = setHyperPars(lrn, par.vals = list(early_stopping_rounds = 10L, nrounds = 2000L))
+      ps$pars$nrounds = NULL
+    }
+
 
     
     filtermat = makeFilterMat(task = train.task, filters = filters)
