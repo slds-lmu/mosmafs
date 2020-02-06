@@ -50,8 +50,6 @@ no_feature_sel = function(data, job, instance, learner, maxeval, maxtime, cv.ite
       lrn = setHyperPars(lrn, par.vals = list(early_stopping_rounds = 10L, nrounds = 2000L))
       ps$pars$nrounds = NULL
     }
-
-
     
     filtermat = makeFilterMat(task = train.task, filters = filters)
     colnames(filtermat) = sapply(colnames(filtermat), function(x) {
