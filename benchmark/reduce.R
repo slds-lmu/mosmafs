@@ -109,6 +109,9 @@ if (grepl("repos", getwd())) {
 
 # Get all populations in appropriate format 
 
+# HELPER 
+
+
 tmp = makeRegistry(file.dir = file.path(getwd(), "populations_temp"), make.default = TRUE, 
 	conf.file = NA, packages = c("data.table"))
 tmp = loadRegistry("populations_temp", conf.file = NA, writeable = TRUE)
@@ -118,16 +121,14 @@ args = readRDS("populations/args.rds")
 nargs = nrow(args)
 nd = length(datasets)
 newid = (nargs + 1):(nargs + nd)
-args = rbind(args, args = cbind(data.table::CJ(v = c("OGHFiFm"), d = datasets), job.id = newid))
+args = rbind(args, args = cbind(data.table::CJ(v = c("BS2RF_ENS"), d = datasets), job.id = newid))
 saveRDS(args, "populations/args.rds")
 
 args$job.id = NULL
 
 ids = batchMap(getPopulations, args = args, reg = tmp)
 
-submitJobs(newids)
-
-
+submitJobs(newid)
 
 
 
@@ -159,39 +160,3 @@ for (prob in unique(res$problem)) {
 	}
 }
 
-
-
-
-# reduceResultsDataTable(toreduce[1:2, ], function(x) getHyperparamsPerProblem(x, 500))
-# res = ijoin(tab, res)
-
-
-
-
-
-
-
-
-
-
-
-
-# collectParetofront(path, experiments = experiments[c("O", "OIHFiFmS", "RS", "RSI", "RSIF")], tab, problems, learners = c("xgboost"))
-
-# # Collect MBO Baselines BSMO, BS1RF, BS2RF
-# collectBenchmarkResults(path, experiments, tab, mbo = TRUE)
-
-
-
-
-# # Reduce single results for MBO and for O
-# toreduce = tab[problem == "lsvt" & learner == "kknn", ]
-# toreduce = toreduce[algorithm %in% c("mbo_multicrit", "mosmafs"), ]
-# toreduce = toreduce[algorithm %in% "mbo_multicrit" 
-# | (is.na(tune.hyperparams) & filter == "custom" & adaptive.filter.weights & filter.during.run & chw.bitflip & initialization == "unif" & parent.sel == "selTournamentMO") 
-# | (!tune.hyperparams & is.na(tune.iters)), ]
-# toreduce = ijoin(toreduce, findDone())
-# toreduce = toreduce[c(1:3, 11:13, 21:23), ]
-
-# res = reduceResultsDataTable(toreduce)
-# saveRDS(res, file.path(path, "single_experiments_lsvt_kknn.rds"))
