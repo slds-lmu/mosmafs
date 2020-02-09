@@ -122,7 +122,7 @@ test_that("mutators and recombinators", {
     "'ind' failed: Must be of type 'character'")
   expect_error(mutRandomChoice(c("a", "m"), 
     list("1" = c("a", "b", "c", "d"), 
-      "2" = c("m", "n")), p = 3), "'p' failed: Element 1 is not <= 1")
+      "2" = c("m", "n")), p = 3), "'p' failed: Element . is not <= 1")
   
   #mutDoubleGeom
   expect_integerish(mutDoubleGeom(c(1L, 2L), lower = c(1L, 3L), upper = c(3, 2)))
@@ -144,7 +144,7 @@ test_that("mutators and recombinators", {
   expect_error(mutDoubleGeom(c(1L, 2L), lower = c(1L, 3L), upper = c(3, 2), p = NA), 
     "'p' failed: Contains missing values")
   expect_error(mutDoubleGeom(c(1L, 2L), lower = c(1L, 3L), upper = c(3, 2), geomp = -0.1), 
-    "'geomp' failed: Element 0 ")
+    "'geomp' failed: Element . ")
   
   expect_integerish(mutDoubleGeomScaled(c(1L, 2L), lower = c(1L, 3L), upper = c(3, 2)))
   expect_error(mutDoubleGeomScaled(c(1L, 2L)), 
@@ -165,7 +165,7 @@ test_that("mutators and recombinators", {
   expect_error(mutDoubleGeomScaled(c(1L, 2L), lower = c(1L, 3L), upper = c(3, 2), p = NA), 
     "'p' failed: Contains missing values")
   expect_error(mutDoubleGeomScaled(c(1L, 2L), lower = c(1L, 3L), upper = c(3, 2), sdev = -0.1), 
-    "'sdev' failed: Element 0 ")
+    "'sdev' failed: Element . ")
   
   # mutUniformParametric
   expect_numeric(mutUniformParametric(ind = c(1, 2, 3), p = 0.1, 
@@ -227,7 +227,7 @@ test_that("mutators and recombinators", {
   
   # mutBitflipCHW
   expect_integerish(mutBitflipCHW(ind = c(1, 1, 0, 0), p = 0.4), lower = 0, upper = 1)
-  expect_error(mutBitflipCHW(ind = c(1, 1, 0, 0), p = 0.8), "'p' failed: Element 1 is not <= 0.5")
+  expect_error(mutBitflipCHW(ind = c(1, 1, 0, 0), p = 0.8), "'p' failed: Element . is not <= 0.5")
   
   
   # mutUnformResetSHW 
