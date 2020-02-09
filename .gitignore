@@ -22,3 +22,4 @@ data/
 archive/
 *xgboost.model
 results*
+result_data*
