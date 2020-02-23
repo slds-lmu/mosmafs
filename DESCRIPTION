@@ -16,7 +16,7 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 ByteCompile: yes
-Version: 0.1.1
+Version: 0.1.2
 VignetteBuilder: knitr
 Depends: 
   ecr (>= 2.1.0)
