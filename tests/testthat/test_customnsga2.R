@@ -233,7 +233,7 @@ test_that("multiFidelity with 2 columns", {
     lambda = 5,population = initials, mutator = mutator.simple,
     recombinator = crossover.simple, generations = gen, fidelity = 
       data.frame(c(1, 2), c("a", 3))), 
-    "Must be of type 'numeric', not 'factor'")
+    "Must be of type 'numeric', not ")
   
   expect_error(slickEcr(fitness.fun = fitness.fun, lambda = 5,population = initials, mutator = mutator.simple,
     recombinator = crossover.simple, generations = gen, fidelity = 
