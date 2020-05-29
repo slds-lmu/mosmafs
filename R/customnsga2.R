@@ -377,7 +377,7 @@ slickEvaluateFitness <- function(ctrl, population, fidelity = NULL, previous.poi
   assertList(population)
   assertNumeric(fidelity, min.len = 1, max.len = 2, null.ok = TRUE)
   assertMatrix(previous.points, min.rows = 1, null.ok = length(fidelity) < 2)
-  fitness.fun = ctrl$task$fitness
+  fitness.fun = ctrl$task$fitness.fun
   do.vectorize <- identical(attr(fitness.fun, "mosmafs.vectorize"), TRUE)
   ps <- getParamSet(fitness.fun)
   n.obj <- smoof::getNumberOfObjectives(fitness.fun)
