@@ -4,16 +4,8 @@ deepclone <- function(obj) {
 }
 
 clonelog <- function(log) {
-  otask <- log$env$task
-  ostats <- log$log.stats
-  log$log.stats <- NULL
-  log$env$task <- NULL
-  log2 <- deepclone(log)
-  log2$env$task <- otask
-  log2$log.stats <- ostats
-  log$env$task <- otask
-  log$log.stats <- ostats
-  log2
+  log$env <- as.environment(as.list(log$env))
+  log
 }
 
 #' @title Aggregate Population Results
