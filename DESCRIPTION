@@ -43,7 +43,7 @@ Suggests:
   rgenoud,
   randomForest,
   digest
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 Collate: 
     'customnsga2.R'
     'datagen.R'

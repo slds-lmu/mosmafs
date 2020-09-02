@@ -80,7 +80,7 @@ of evaluation.}
 
 \item{survival.strategy}{\verb{[character(1)|function]} one of \code{"plus"} or \code{"comma"}
 or a function. If function, arguments must be the same as for
-\code{\link[ecr:replaceMuPlusLambda]{ecr::replaceMuPlusLambda}}.}
+\code{\link[ecr:replace]{ecr::replaceMuPlusLambda}}.}
 
 \item{n.elite}{\verb{[integer(1)]} Number of elites to keep, only used if
 \code{survival.strategy} is \code{"comma"}}
