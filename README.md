@@ -1,8 +1,8 @@
 
 # MOSMaFS: Multi-Objective Simultaneous Model and Feature Selection
 
-[![Travis build status](https://travis-ci.com/compstat-lmu/mosmafs.svg?branch=mosmafs-package)](https://travis-ci.com/compstat-lmu/mosmafs)
-[![Coverage](https://codecov.io/github/compstat-lmu/mosmafs/branch/mosmafs-package/graphs/badge.svg)](https://codecov.io/github/compstat-lmu/mosmafs)
+[![Travis build status](https://travis-ci.com/slds-lmu/mosmafs.svg?branch=mosmafs-package)](https://travis-ci.com/slds-lmu/mosmafs)
+[![Coverage](https://codecov.io/github/slds-lmu/mosmafs/branch/mosmafs-package/graphs/badge.svg)](https://codecov.io/github/slds-lmu/mosmafs)
 [![CRAN Status Badge](https://www.r-pkg.org/badges/version/mosmafs)](https://CRAN.R-project.org/package=mosmafs)
 [![CRAN Downloads](https://cranlogs.r-pkg.org/badges/mosmafs)](https://CRAN.R-project.org/package=mosmafs)
 
@@ -15,13 +15,13 @@ We are on CRAN! You can also read [our paper on arxiv](https://arxiv.org/abs/191
 It is best to install the official version from CRAN. If you want to live on the edge, you can also install the github version, using `remotes`:
 
 ```r
-remotes::install_github("compstat-lmu/mosmafs", ref = "mosmafs-package")
+remotes::install_github("slds-lmu/mosmafs", ref = "mosmafs-package")
 ```
 
 ## Documentation
 
-* [Introduction](https://compstat-lmu.github.io/mosmafs/articles/demo.html)
-* [Multi-Fidelity](https://compstat-lmu.github.io/mosmafs/articles/multifidelity.html)
+* [Introduction](https://slds-lmu.github.io/mosmafs/articles/demo.html)
+* [Multi-Fidelity](https://slds-lmu.github.io/mosmafs/articles/multifidelity.html)
 
 ## Citation
 
