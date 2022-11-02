@@ -169,7 +169,7 @@ task.hout <- subsetTask(task.whole, rows.whole[501:2000])
 
 ## Mixed Operators
 
-The heart of this package is the `combine.operators()` function that can be used to apply different operators to different parts of the search space; in particular, to different types of search space dimensions. It works by accepting a `ParamSet` (from the [`ParamHelpers`](https://github.com/berndbischl/ParamHelpers) package) that defines the search-space, and operators that define the operators to use on individual parameters.
+The heart of this package is the `combine.operators()` function that can be used to apply different operators to different parts of the search space; in particular, to different types of search space dimensions. It works by accepting a `ParamSet` (from the [`ParamHelpers`](https://github.com/mlr-org/ParamHelpers) package) that defines the search-space, and operators that define the operators to use on individual parameters.
 
 ### Operators for each Parameter
 

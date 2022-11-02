@@ -397,7 +397,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </div>
 <div id="mixed-operators" class="section level2">
 <h2>Mixed Operators</h2>
-<p>The heart of this package is the <code>combine.operators()</code> function that can be used to apply different operators to different parts of the search space; in particular, to different types of search space dimensions. It works by accepting a <code>ParamSet</code> (from the <a href="https://github.com/berndbischl/ParamHelpers"><code>ParamHelpers</code></a> package) that defines the search-space, and operators that define the operators to use on individual parameters.</p>
+<p>The heart of this package is the <code>combine.operators()</code> function that can be used to apply different operators to different parts of the search space; in particular, to different types of search space dimensions. It works by accepting a <code>ParamSet</code> (from the <a href="https://github.com/mlr-org/ParamHelpers"><code>ParamHelpers</code></a> package) that defines the search-space, and operators that define the operators to use on individual parameters.</p>
 <div id="operators-for-each-parameter" class="section level3">
 <h3>Operators for each Parameter</h3>
 <p>We may have a <code>ParamSet</code> with a logical parameter <code>bin1</code>, a discrete (but binary) parameter <code>bin2</code>, a discrete vector parameter <code>disc1</code>, and a numeric parameter <code>num1</code>. We define this <code>ParamSet</code> using the <code>pSS()</code> function from the excellent <a href="https://github.com/mlr-org/mlrCPO"><code>mlrCPO</code></a> package.</p>
