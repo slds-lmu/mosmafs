@@ -548,3 +548,6 @@ These operators are supplied by the `mosmafs` package:
 * **`popAggregate()`, `availableAttributes()`**: Information aggregated as matrix or dataframe for each generation in a population.
 * **`collectResult()`**: Information aggregated throughout the run, on runtime and computation cost measures.
 * **`initSelector()`** Resetting of individual's `selector.selection` slot.
+```{r, include = FALSE}
+parallelStop()
+```

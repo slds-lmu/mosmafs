@@ -369,3 +369,6 @@ getStatistics(run.all.mufi.20$log.newinds)
 ```{r, fig.width = 6, fig.height = 5}
 plot_fronts(run.all.mufi.20)
 ```
+```{r, include = FALSE}
+parallelStop()
+```
